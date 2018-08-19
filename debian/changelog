@@ -4,8 +4,10 @@ php7.3 (7.3.0~beta2-1) unstable; urgency=medium
   * Rebase patches for PHP 7.3.0~beta2
   * Fix phpdbg.1 installation path from srcdir to builddir
   * Bump d/phpapi to 20180731
+  * Use 'g' constraint instead of 'r' in inline assembly to fix
+    compilation on Ubuntu 14.04
 
- -- Ondřej Surý <ondrej@debian.org>  Sun, 19 Aug 2018 07:49:10 +0000
+ -- Ondřej Surý <ondrej@debian.org>  Sun, 19 Aug 2018 10:27:46 +0000
 
 php7.3 (7.3.0~beta1-1) unstable; urgency=medium
 
