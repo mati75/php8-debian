@@ -1,0 +1,101 @@
+From: =?utf-8?b?T25kxZllaiBTdXLDvQ==?= <ondrej@sury.org>
+Date: Sun, 19 Aug 2018 10:27:25 +0000
+Subject: Use 'g' constraint instead of 'r' in inline assembly to fix
+ compilation on Ubuntu 14.04
+
+---
+ Zend/zend_operators.h | 32 ++++++++++++++++----------------
+ 1 file changed, 16 insertions(+), 16 deletions(-)
+
+diff --git a/Zend/zend_operators.h b/Zend/zend_operators.h
+index 5309345..cdb9f55 100644
+--- a/Zend/zend_operators.h
++++ b/Zend/zend_operators.h
+@@ -476,7 +476,7 @@ static zend_always_inline void fast_long_increment_function(zval *op1)
+ 		"addl $1,(%0)\n\t"
+ 		"jo  %l1\n"
+ 		:
+-		: "r"(&op1->value)
++		: "g"(&op1->value)
+ 		: "cc", "memory"
+ 		: overflow);
+ 	return;
+@@ -487,7 +487,7 @@ overflow: ZEND_ATTRIBUTE_COLD_LABEL
+ 		"addq $1,(%0)\n\t"
+ 		"jo  %l1\n"
+ 		:
+-		: "r"(&op1->value)
++		: "g"(&op1->value)
+ 		: "cc", "memory"
+ 		: overflow);
+ 	return;
+@@ -526,7 +526,7 @@ static zend_always_inline void fast_long_decrement_function(zval *op1)
+ 		"subl $1,(%0)\n\t"
+ 		"jo  %l1\n"
+ 		:
+-		: "r"(&op1->value)
++		: "g"(&op1->value)
+ 		: "cc", "memory"
+ 		: overflow);
+ 	return;
+@@ -537,7 +537,7 @@ overflow: ZEND_ATTRIBUTE_COLD_LABEL
+ 		"subq $1,(%0)\n\t"
+ 		"jo  %l1\n"
+ 		:
+-		: "r"(&op1->value)
++		: "g"(&op1->value)
+ 		: "cc", "memory"
+ 		: overflow);
+ 	return;
+@@ -579,9 +579,9 @@ static zend_always_inline void fast_long_add_function(zval *result, zval *op1, z
+ 		"movl   %%eax, (%0)\n\t"
+ 		"movl   %3, %c4(%0)\n"
+ 		:
+-		: "r"(&result->value),
+-		  "r"(&op1->value),
+-		  "r"(&op2->value),
++		: "g"(&result->value),
++		  "g"(&op1->value),
++		  "g"(&op2->value),
+ 		  "n"(IS_LONG),
+ 		  "n"(ZVAL_OFFSETOF_TYPE)
+ 		: "eax","cc", "memory"
+@@ -597,9 +597,9 @@ overflow: ZEND_ATTRIBUTE_COLD_LABEL
+ 		"movq   %%rax, (%0)\n\t"
+ 		"movl   %3, %c4(%0)\n"
+ 		:
+-		: "r"(&result->value),
+-		  "r"(&op1->value),
+-		  "r"(&op2->value),
++		: "g"(&result->value),
++		  "g"(&op1->value),
++		  "g"(&op2->value),
+ 		  "n"(IS_LONG),
+ 		  "n"(ZVAL_OFFSETOF_TYPE)
+ 		: "rax","cc", "memory"
+@@ -669,9 +669,9 @@ static zend_always_inline void fast_long_sub_function(zval *result, zval *op1, z
+ 		"movl   %%eax, (%0)\n\t"
+ 		"movl   %3, %c4(%0)\n"
+ 		:
+-		: "r"(&result->value),
+-		  "r"(&op1->value),
+-		  "r"(&op2->value),
++		: "g"(&result->value),
++		  "g"(&op1->value),
++		  "g"(&op2->value),
+ 		  "n"(IS_LONG),
+ 		  "n"(ZVAL_OFFSETOF_TYPE)
+ 		: "eax","cc", "memory"
+@@ -687,9 +687,9 @@ overflow: ZEND_ATTRIBUTE_COLD_LABEL
+ 		"movq   %%rax, (%0)\n\t"
+ 		"movl   %3, %c4(%0)\n"
+ 		:
+-		: "r"(&result->value),
+-		  "r"(&op1->value),
+-		  "r"(&op2->value),
++		: "g"(&result->value),
++		  "g"(&op1->value),
++		  "g"(&op2->value),
+ 		  "n"(IS_LONG),
+ 		  "n"(ZVAL_OFFSETOF_TYPE)
+ 		: "rax","cc", "memory"
