@@ -5,93 +5,30 @@ Subject: ext/intl: Use pkg-config to detect icu
 The developers of icu recommend using pkg-config to detect icu,
 because icu-config is deprecated.
 ---
- acinclude.m4                                       | 50 ++--------------------
  ext/intl/breakiterator/breakiterator_class.cpp     |  1 +
- ext/intl/breakiterator/breakiterator_class.h       |  2 +
- ext/intl/breakiterator/breakiterator_methods.cpp   |  2 +
- .../breakiterator/codepointiterator_internal.cpp   |  4 +-
- .../breakiterator/codepointiterator_internal.h     |  5 ++-
- .../rulebasedbreakiterator_methods.cpp             |  3 ++
- ext/intl/calendar/calendar_class.cpp               |  3 ++
- ext/intl/calendar/calendar_class.h                 |  2 +
- ext/intl/calendar/calendar_methods.cpp             |  5 +++
- ext/intl/calendar/gregoriancalendar_methods.cpp    |  7 +++
- ext/intl/common/common_date.cpp                    |  9 ++--
- ext/intl/common/common_date.h                      |  2 +
+ ext/intl/breakiterator/breakiterator_class.h       |  2 ++
+ ext/intl/breakiterator/breakiterator_methods.cpp   |  2 ++
+ .../breakiterator/codepointiterator_internal.cpp   |  4 +++-
+ .../breakiterator/codepointiterator_internal.h     |  5 ++++-
+ .../rulebasedbreakiterator_methods.cpp             |  3 +++
+ ext/intl/calendar/calendar_class.cpp               |  3 +++
+ ext/intl/calendar/calendar_class.h                 |  2 ++
+ ext/intl/calendar/calendar_methods.cpp             |  5 +++++
+ ext/intl/calendar/gregoriancalendar_methods.cpp    |  7 ++++++
+ ext/intl/common/common_date.cpp                    |  9 +++-----
+ ext/intl/common/common_date.h                      |  2 ++
  ext/intl/common/common_enum.h                      |  1 +
- ext/intl/config.m4                                 | 16 +++----
- ext/intl/dateformat/dateformat_format_object.cpp   |  6 +++
- ext/intl/dateformat/dateformat_helpers.cpp         |  2 +
- ext/intl/dateformat/dateformat_helpers.h           |  5 +++
- ext/intl/intl_convertcpp.h                         |  2 +
- ext/intl/msgformat/msgformat_helpers.cpp           | 26 ++++++++---
- ext/intl/timezone/timezone_class.cpp               |  2 +
- ext/intl/timezone/timezone_class.h                 |  2 +
- ext/intl/timezone/timezone_methods.cpp             |  4 ++
- 23 files changed, 90 insertions(+), 71 deletions(-)
+ ext/intl/config.m4                                 | 16 +++++--------
+ ext/intl/dateformat/dateformat_format_object.cpp   |  6 +++++
+ ext/intl/dateformat/dateformat_helpers.cpp         |  2 ++
+ ext/intl/dateformat/dateformat_helpers.h           |  5 +++++
+ ext/intl/intl_convertcpp.h                         |  2 ++
+ ext/intl/msgformat/msgformat_helpers.cpp           | 26 ++++++++++++++++------
+ ext/intl/timezone/timezone_class.cpp               |  2 ++
+ ext/intl/timezone/timezone_class.h                 |  2 ++
+ ext/intl/timezone/timezone_methods.cpp             |  4 ++++
+ 22 files changed, 86 insertions(+), 25 deletions(-)
 
-diff --git a/acinclude.m4 b/acinclude.m4
-index c37f4b6..47e389f 100644
---- a/acinclude.m4
-+++ b/acinclude.m4
-@@ -2207,53 +2207,11 @@ dnl
- dnl Common setup macro for ICU
- dnl
- AC_DEFUN([PHP_SETUP_ICU],[
--  PHP_ARG_WITH(icu-dir,,
--  [  --with-icu-dir=DIR      Specify where ICU libraries and headers can be found], DEFAULT, no)
-+  PKG_CHECK_MODULES([ICU], [icu-io >= 50.1])
-+  PHP_EVAL_INCLINE($ICU_CFLAGS)
-+  PHP_EVAL_LIBLINE($ICU_LIBS, $1)
- 
--  if test "$PHP_ICU_DIR" = "no"; then
--    PHP_ICU_DIR=DEFAULT
--  fi
--
--  if test "$PHP_ICU_DIR" = "DEFAULT"; then
--    dnl Try to find icu-config
--    AC_PATH_PROG(ICU_CONFIG, icu-config, no, [$PATH:/usr/local/bin])
--  else
--    ICU_CONFIG="$PHP_ICU_DIR/bin/icu-config"
--  fi
--
--  AC_MSG_CHECKING([for location of ICU headers and libraries])
--
--  dnl Trust icu-config to know better what the install prefix is..
--  icu_install_prefix=`$ICU_CONFIG --prefix 2> /dev/null`
--  if test "$?" != "0" || test -z "$icu_install_prefix"; then
--    AC_MSG_RESULT([not found])
--    AC_MSG_ERROR([Unable to detect ICU prefix or $ICU_CONFIG failed. Please verify ICU install prefix and make sure icu-config works.])
--  else
--    AC_MSG_RESULT([$icu_install_prefix])
--
--    dnl Check ICU version
--    AC_MSG_CHECKING([for ICU 4.0 or greater])
--    icu_version_full=`$ICU_CONFIG --version`
--    ac_IFS=$IFS
--    IFS="."
--    set $icu_version_full
--    IFS=$ac_IFS
--    icu_version=`expr [$]1 \* 1000 + [$]2`
--    AC_MSG_RESULT([found $icu_version_full])
--
--    if test "$icu_version" -lt "4000"; then
--      AC_MSG_ERROR([ICU version 4.0 or later is required])
--    fi
--
--    ICU_VERSION=$icu_version
--    ICU_INCS=`$ICU_CONFIG --cppflags-searchpath`
--    ICU_LIBS=`$ICU_CONFIG --ldflags --ldflags-icuio`
--    PHP_EVAL_INCLINE($ICU_INCS)
--    PHP_EVAL_LIBLINE($ICU_LIBS, $1)
--
--    ICU_CXXFLAGS=`$ICU_CONFIG --cxxflags`
--    ICU_CXXFLAGS="$ICU_CXXFLAGS -DU_USING_ICU_NAMESPACE=1"
--  fi
-+  ICU_CFLAGS="$ICU_CFLAGS"
- ])
- 
- dnl
 diff --git a/ext/intl/breakiterator/breakiterator_class.cpp b/ext/intl/breakiterator/breakiterator_class.cpp
 index cc38654..5c3d1e7 100644
 --- a/ext/intl/breakiterator/breakiterator_class.cpp

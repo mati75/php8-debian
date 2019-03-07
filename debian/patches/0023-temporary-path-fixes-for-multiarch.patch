@@ -12,10 +12,10 @@ Subject: temporary-path-fixes-for-multiarch
  6 files changed, 17 insertions(+), 17 deletions(-)
 
 diff --git a/acinclude.m4 b/acinclude.m4
-index 6f22770..374e29a 100644
+index 52c8616..b4c624a 100644
 --- a/acinclude.m4
 +++ b/acinclude.m4
-@@ -2289,7 +2289,7 @@ AC_DEFUN([PHP_SETUP_KERBEROS],[
+@@ -2323,7 +2323,7 @@ AC_DEFUN([PHP_SETUP_KERBEROS],[
      fi
  
      for i in $PHP_KERBEROS; do
@@ -24,7 +24,7 @@ index 6f22770..374e29a 100644
          PHP_KERBEROS_DIR=$i
          break
        fi
-@@ -2368,7 +2368,7 @@ AC_DEFUN([PHP_SETUP_OPENSSL],[
+@@ -2402,7 +2402,7 @@ AC_DEFUN([PHP_SETUP_OPENSSL],[
        if test -r $i/include/openssl/evp.h; then
          OPENSSL_INCDIR=$i/include
        fi
