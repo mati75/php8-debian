@@ -48,3 +48,4 @@
 0048-ext-intl-Use-pkg-config-to-detect-icu.patch
 0049-Fix-rl_completion_matches-compilation-with-newer-lib.patch
 0050-Sync-with-behavior-change-in-OpenSSL-1.1.1b.patch
+0051-PATCH-Fixed-bug-62596-add-getallheaders-apache_reque.patch
