@@ -1,3 +1,11 @@
+php7.1 (7.1.27-1) unstable; urgency=medium
+
+  * New upstream version 7.1.27
+  * Add patch for OpenSSL 1.1.1b (Courtesy of RemiRepo)
+  * Add getallheaders() function to FPM SAPI (Courtesy of RemiRepo)
+
+ -- Ondřej Surý <ondrej@debian.org>  Thu, 07 Mar 2019 19:33:22 +0000
+
 php7.1 (7.1.26-2) unstable; urgency=medium
 
   * Add patch to use pkg-config instead of icu-config to detect icu
