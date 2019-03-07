@@ -1,3 +1,12 @@
+php7.2 (7.2.16-1) unstable; urgency=medium
+
+  * New upstream version 7.2.16
+  * Update systzdata patch to v17 (Courtesy of RemiRepo)
+  * Add patch for OpenSSL 1.1.1b (Courtesy of RemiRepo)
+  * Backport getallheaders() function to FPM SAPI (Courtesy of RemiRepo)
+
+ -- Ondřej Surý <ondrej@debian.org>  Thu, 07 Mar 2019 19:40:34 +0000
+
 php7.2 (7.2.15-1) unstable; urgency=medium
 
   * New upstream version 7.2.15
