@@ -7,8 +7,10 @@ Subject: libtool_fixes
  configure.ac      | 2 --
  2 files changed, 5 deletions(-)
 
---- php7.3.orig/TSRM/configure.ac
-+++ php7.3/TSRM/configure.ac
+diff --git a/TSRM/configure.ac b/TSRM/configure.ac
+index c3ed326..109e85e 100644
+--- a/TSRM/configure.ac
++++ b/TSRM/configure.ac
 @@ -16,9 +16,6 @@ TSRM_BASIC_CHECKS
  TSRM_THREADS_CHECKS
  
@@ -19,9 +21,11 @@ Subject: libtool_fixes
  
  dnl TSRM_PTHREAD
  
---- php7.3.orig/configure.ac
-+++ php7.3/configure.ac
-@@ -1474,8 +1474,6 @@ AC_PROVIDE_IFELSE([PHP_REQUIRE_CXX], [],
+diff --git a/configure.ac b/configure.ac
+index c431335..8ac9eb4 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -1474,8 +1474,6 @@ AC_PROVIDE_IFELSE([PHP_REQUIRE_CXX], [], [
  ])
  AC_PROG_LIBTOOL
  

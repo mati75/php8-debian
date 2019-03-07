@@ -12,8 +12,10 @@ Subject: debian_quirks
  scripts/phpize.in     |  4 ++--
  7 files changed, 20 insertions(+), 16 deletions(-)
 
---- php7.3.orig/configure.ac
-+++ php7.3/configure.ac
+diff --git a/configure.ac b/configure.ac
+index 8ac9eb4..b55419c 100644
+--- a/configure.ac
++++ b/configure.ac
 @@ -1160,7 +1160,7 @@ if test "$PHP_CLI" = "no"; then
  fi
  
@@ -40,8 +42,10 @@ Subject: debian_quirks
  if test -z "$EXTENSION_DIR"; then
    extbasedir=$ZEND_MODULE_API_NO
    if test "$oldstyleextdir" = "yes"; then
---- php7.3.orig/php.ini-development
-+++ php7.3/php.ini-development
+diff --git a/php.ini-development b/php.ini-development
+index 1cf2a41..52f6629 100644
+--- a/php.ini-development
++++ b/php.ini-development
 @@ -724,7 +724,7 @@ default_charset = "UTF-8"
  ;;;;;;;;;;;;;;;;;;;;;;;;;
  
@@ -51,8 +55,10 @@ Subject: debian_quirks
  ;
  ; Windows: "\path1;\path2"
  ;include_path = ".;c:\php\includes"
---- php7.3.orig/php.ini-production
-+++ php7.3/php.ini-production
+diff --git a/php.ini-production b/php.ini-production
+index fa09ade..43f6a69 100644
+--- a/php.ini-production
++++ b/php.ini-production
 @@ -731,7 +731,7 @@ default_charset = "UTF-8"
  ;;;;;;;;;;;;;;;;;;;;;;;;;
  
@@ -62,8 +68,10 @@ Subject: debian_quirks
  ;
  ; Windows: "\path1;\path2"
  ;include_path = ".;c:\php\includes"
---- php7.3.orig/sapi/cli/php.1.in
-+++ php7.3/sapi/cli/php.1.in
+diff --git a/sapi/cli/php.1.in b/sapi/cli/php.1.in
+index 88a43d3..2fd01a4 100644
+--- a/sapi/cli/php.1.in
++++ b/sapi/cli/php.1.in
 @@ -365,13 +365,14 @@ Shows configuration for extension
  Show configuration file names
  .SH FILES
@@ -84,8 +92,10 @@ Subject: debian_quirks
  .SH EXAMPLES
  .TP 5
  \fI@program_prefix@php \-r 'echo "Hello World\\n";'\fP
---- php7.3.orig/scripts/Makefile.frag
-+++ php7.3/scripts/Makefile.frag
+diff --git a/scripts/Makefile.frag b/scripts/Makefile.frag
+index 05659d8..2a81518 100644
+--- a/scripts/Makefile.frag
++++ b/scripts/Makefile.frag
 @@ -2,8 +2,8 @@
  # Build environment install
  #
@@ -97,8 +107,10 @@ Subject: debian_quirks
  
  BUILD_FILES = \
  	scripts/phpize.m4 \
---- php7.3.orig/scripts/php-config.in
-+++ php7.3/scripts/php-config.in
+diff --git a/scripts/php-config.in b/scripts/php-config.in
+index d6c62cc..fa25dc7 100644
+--- a/scripts/php-config.in
++++ b/scripts/php-config.in
 @@ -6,11 +6,11 @@ datarootdir="@datarootdir@"
  exec_prefix="@exec_prefix@"
  version="@PHP_VERSION@"
@@ -115,8 +127,10 @@ Subject: debian_quirks
  man_dir=`eval echo @mandir@`
  program_prefix="@program_prefix@"
  program_suffix="@program_suffix@"
---- php7.3.orig/scripts/phpize.in
-+++ php7.3/scripts/phpize.in
+diff --git a/scripts/phpize.in b/scripts/phpize.in
+index 74e8bc3..7d86b2e 100644
+--- a/scripts/phpize.in
++++ b/scripts/phpize.in
 @@ -4,8 +4,8 @@
  prefix='@prefix@'
  datarootdir='@datarootdir@'
