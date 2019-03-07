@@ -7,11 +7,9 @@ Subject: extension_api
  scripts/php-config.in | 4 ++++
  2 files changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/configure.ac b/configure.ac
-index 0bf4825..c4782b7 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -1247,8 +1247,10 @@ ZEND_MODULE_API_NO=`$EGREP '#define ZEND_MODULE_API_NO ' $srcdir/Zend/zend_modul
+--- php7.3.orig/configure.ac
++++ php7.3/configure.ac
+@@ -1265,8 +1265,10 @@ ZEND_MODULE_API_NO=`$EGREP '#define ZEND
  
  AC_SUBST(ZEND_MODULE_API_NO)
  
@@ -23,7 +21,7 @@ index 0bf4825..c4782b7 100644
    if test "$oldstyleextdir" = "yes"; then
      if test "$PHP_DEBUG" = "1"; then
        part1=debug
-@@ -1386,6 +1388,7 @@ PHP_SUBST(CXX)
+@@ -1404,6 +1406,7 @@ PHP_SUBST(CXX)
  PHP_SUBST(CXXFLAGS)
  PHP_SUBST(CXXFLAGS_CLEAN)
  PHP_SUBST_OLD(DEBUG_CFLAGS)
@@ -31,10 +29,8 @@ index 0bf4825..c4782b7 100644
  PHP_SUBST_OLD(EXTENSION_DIR)
  PHP_SUBST_OLD(EXTRA_LDFLAGS)
  PHP_SUBST_OLD(EXTRA_LDFLAGS_PROGRAM)
-diff --git a/scripts/php-config.in b/scripts/php-config.in
-index fa25dc7..746a58e 100644
---- a/scripts/php-config.in
-+++ b/scripts/php-config.in
+--- php7.3.orig/scripts/php-config.in
++++ php7.3/scripts/php-config.in
 @@ -19,6 +19,7 @@ php_cli_binary=NONE
  php_cgi_binary=NONE
  configure_options="@CONFIGURE_OPTIONS@"
