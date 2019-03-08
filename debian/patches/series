@@ -67,3 +67,5 @@
 0067-Fix-bug-77630-safer-rename-procedure.patch
 0068-Fix-test-portability.patch
 0069-Update-NEWS.patch
+0070-Use-pkg-config-for-ICU-as-the-old-icu-config-has-bee.patch
+0071-ext-intl-Use-C-namespaces-for-ICU-63.1.patch
