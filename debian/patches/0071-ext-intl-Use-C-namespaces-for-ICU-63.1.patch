@@ -15,7 +15,7 @@ because icu-config is deprecated.
  ext/intl/calendar/calendar_class.h                 |  2 ++
  ext/intl/calendar/calendar_methods.cpp             |  5 +++++
  ext/intl/calendar/gregoriancalendar_methods.cpp    |  7 ++++++
- ext/intl/common/common_date.cpp                    |  9 +++-----
+ ext/intl/common/common_date.cpp                    |  3 +++
  ext/intl/common/common_date.h                      |  2 ++
  ext/intl/common/common_enum.h                      |  1 +
  ext/intl/config.m4                                 |  2 +-
@@ -27,7 +27,7 @@ because icu-config is deprecated.
  ext/intl/timezone/timezone_class.cpp               |  2 ++
  ext/intl/timezone/timezone_class.h                 |  2 ++
  ext/intl/timezone/timezone_methods.cpp             |  4 ++++
- 22 files changed, 81 insertions(+), 16 deletions(-)
+ 22 files changed, 81 insertions(+), 10 deletions(-)
 
 diff --git a/ext/intl/breakiterator/breakiterator_class.cpp b/ext/intl/breakiterator/breakiterator_class.cpp
 index 7ca7e94..73f34d7 100644
@@ -189,26 +189,19 @@ index 08b8949..6b814e3 100644
  	return (GregorianCalendar*)co->ucal;
  }
 diff --git a/ext/intl/common/common_date.cpp b/ext/intl/common/common_date.cpp
-index ee99881..bc1e9f6 100644
+index ee99881..33527cd 100644
 --- a/ext/intl/common/common_date.cpp
 +++ b/ext/intl/common/common_date.cpp
-@@ -25,13 +25,10 @@ extern "C" {
- #include <ext/date/php_date.h>
- }
+@@ -33,6 +33,9 @@ extern "C" {
+ #define NAN (INFINITY-INFINITY)
+ #endif
  
--#ifndef INFINITY
--#define INFINITY (DBL_MAX+DBL_MAX)
--#endif
 +using icu::TimeZone;
 +using icu::UnicodeString;
- 
--#ifndef NAN
--#define NAN (INFINITY-INFINITY)
--#endif
-+#include "zend_portability.h"
- 
++
  /* {{{ timezone_convert_datetimezone
   *      The timezone in DateTime and DateTimeZone is not unified. */
+ U_CFUNC TimeZone *timezone_convert_datetimezone(int type,
 diff --git a/ext/intl/common/common_date.h b/ext/intl/common/common_date.h
 index d2396cb..f4d383f 100644
 --- a/ext/intl/common/common_date.h
