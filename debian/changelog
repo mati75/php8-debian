@@ -1,3 +1,11 @@
+php7.0 (7.0.33-5) unstable; urgency=medium
+
+  * Add patch to use C++ namespaces in ext/intl to fix ICU >= 63.1
+    compilation
+  * Add patch to fix rl_completion_matches compilation with newer libedit
+
+ -- Ondřej Surý <ondrej@debian.org>  Fri, 08 Mar 2019 09:47:44 +0000
+
 php7.0 (7.0.33-4) unstable; urgency=medium
 
   * Use upstream patches for icu >= 0.61 compatibility
