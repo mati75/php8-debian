@@ -1,3 +1,9 @@
+php5.6 (5.6.40-4) experimental; urgency=medium
+
+  * Add patch to fix rl_completion_matches compilation with newer libedit
+
+ -- Ondřej Surý <ondrej@debian.org>  Fri, 08 Mar 2019 09:10:09 +0000
+
 php5.6 (5.6.40-3) experimental; urgency=medium
 
   * Add support for ICU >= 63.1
