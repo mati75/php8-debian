@@ -1,1 +1,2 @@
-debian/patches/use_updated_install-pear-nozlib.phar.patch
+debian/patches/0062-Fix-bug-77540-Invalid-Read-on-exif_process_SOFn.patch
+debian/patches/0063-Fix-bug-77563-Uninitialized-read-in-exif_process_IFD.patch
