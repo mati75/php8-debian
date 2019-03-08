@@ -1,3 +1,9 @@
+php5.6 (5.6.40-3) experimental; urgency=medium
+
+  * Add support for ICU >= 63.1
+
+ -- Ondřej Surý <ondrej@debian.org>  Fri, 08 Mar 2019 09:05:53 +0000
+
 php5.6 (5.6.40-2) experimental; urgency=medium
 
   * Pull security fixes from https://github.com/Microsoft/php-src, a
