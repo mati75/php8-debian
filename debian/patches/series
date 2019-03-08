@@ -56,3 +56,13 @@
 0056-CVE-2019-9023-3.patch
 0057-CVE-2019-9023-4.patch
 0058-CVE-2019-9024.patch
+0059-Fix-bug-77396-Null-Pointer-Dereference-in-phar_creat.patch
+0060-Fix-77431-SplFileInfo-__construct-accepts-NUL-bytes.patch
+0061-Fix-integer-overflows-on-32-bits.patch
+0062-Fix-bug-77540-Invalid-Read-on-exif_process_SOFn.patch
+0063-Fix-bug-77563-Uninitialized-read-in-exif_process_IFD.patch
+0064-Fix-test-error-message.patch
+0065-Fix-bug-77586-phar_tar_writeheaders_int-buffer-overf.patch
+0066-Fix-bug-77630-safer-rename-procedure.patch
+0067-Fix-test-portability.patch
+0068-Update-NEWS.patch
