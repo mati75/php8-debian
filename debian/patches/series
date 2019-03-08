@@ -68,3 +68,4 @@
 0068-Update-NEWS.patch
 0069-Use-pkg-config-for-ICU-as-the-old-icu-config-has-bee.patch
 0070-Fix-C-11-and-up-compatibility-for-zend_finite-and-mo.patch
+0071-ext-intl-Use-C-namespaces-for-ICU-63.1.patch
