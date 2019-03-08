@@ -55,3 +55,15 @@
 0055-Use-OpenSSL-1.1-compatibility-patch-when-built-with-.patch
 0056-Fix-PHP-bug-64827-Segfault-in-zval_mark_grey-zend_gc.patch
 0057-Use-pkg-config-for-FreeType2-detection.patch
+0058-Fix-bug-77396-Null-Pointer-Dereference-in-phar_creat.patch
+0059-Fix-77431-SplFileInfo-__construct-accepts-NUL-bytes.patch
+0060-Fix-test.patch
+0061-Fix-integer-overflows-on-32-bits.patch
+0062-Fix-bug-77540-Invalid-Read-on-exif_process_SOFn.patch
+0063-Fix-bug-77563-Uninitialized-read-in-exif_process_IFD.patch
+0064-Fix-test-error-message.patch
+0065-Fix-bug-77586-phar_tar_writeheaders_int-buffer-overf.patch
+0066-Fix-test.patch
+0067-Fix-bug-77630-safer-rename-procedure.patch
+0068-Fix-test-portability.patch
+0069-Update-NEWS.patch
