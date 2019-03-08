@@ -1,3 +1,24 @@
+php7.0 (7.0.33-0+deb9u3) stretch-security; urgency=medium
+
+  * Pull security fixes from https://github.com/Microsoft/php-src, a
+    shared effort by Remi Collet and Anatol Belski to keep up with
+    security issues in PHP 5.6.40 after EOL.
+  * Security Issues Fixed:
+   + Core:
+    - Fixed bug #77630 (rename() across the device may allow unwanted access during processing).
+   + EXIF:
+    - Fixed bug #77509 (Uninitialized read in exif_process_IFD_in_TIFF).
+    - Fixed bug #77540 (Invalid Read on exif_process_SOFn).
+    - Fixed bug #77563 (Uninitialized read in exif_process_IFD_in_MAKERNOTE).
+    - Fixed bug #77659 (Uninitialized read in exif_process_IFD_in_MAKERNOTE).
+   + PHAR:
+    - Fixed bug #77396 (Null Pointer Dereference in phar_create_or_parse_filename).
+    - Fixed bug #77586 (phar_tar_writeheaders_int() buffer overflow).
+   + SPL:
+    - Fixed bug #77431 (openFile() silently truncates after a null byte).
+
+ -- Ondřej Surý <ondrej@debian.org>  Fri, 08 Mar 2019 10:01:24 +0000
+
 php7.0 (7.0.33-0+deb9u2) stretch-security; urgency=medium
 
   * CVE-2019-9020
