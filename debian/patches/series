@@ -69,3 +69,4 @@
 0069-Update-NEWS.patch
 0070-Use-pkg-config-for-ICU-as-the-old-icu-config-has-bee.patch
 0071-ext-intl-Use-C-namespaces-for-ICU-63.1.patch
+0072-Fix-rl_completion_matches-compilation-with-newer-lib.patch
