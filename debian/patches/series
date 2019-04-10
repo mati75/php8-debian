@@ -70,3 +70,7 @@
 0070-Use-pkg-config-for-ICU-as-the-old-icu-config-has-bee.patch
 0071-ext-intl-Use-C-namespaces-for-ICU-63.1.patch
 0072-Fix-rl_completion_matches-compilation-with-newer-lib.patch
+0073-SQLite3-add-DEFENSIVE-config-for-SQLite-3.26.0-as-a-.patch
+0074-Fix-bug-77753-Heap-buffer-overflow-in-php_ifd_get32s.patch
+0075-Fixed-bug-77831-Heap-buffer-overflow-in-exif_iif_add.patch
+0076-Pointer-arithmetic-on-void-pointers-is-illegal.patch
