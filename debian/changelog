@@ -1,3 +1,16 @@
+php5.6 (5.6.40-6) experimental; urgency=medium
+
+  * Backported security fixes from PHP 7.1.28:
+   + EXIF:
+    - Fixed bug #77753 (Heap-buffer-overflow in php_ifd_get32s).
+    - Fixed bug #77831 (Heap-buffer-overflow in exif_iif_add_value).
+   + SQLite3:
+    - Added sqlite3.defensive INI directive.
+  * Update d/watch for new php.net pages
+  * Enforce C++11 for intl compilation on older distributions
+
+ -- Ondřej Surý <ondrej@debian.org>  Wed, 10 Apr 2019 07:36:28 +0000
+
 php5.6 (5.6.40-5) experimental; urgency=medium
 
   * Fix support for ICU >= 63.1
