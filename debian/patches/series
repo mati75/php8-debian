@@ -66,3 +66,7 @@
 0066-Fix-bug-77630-safer-rename-procedure.patch
 0067-Fix-test-portability.patch
 0068-Update-NEWS.patch
+0069-SQLite3-add-DEFENSIVE-config-for-SQLite-3.26.0-as-a-.patch
+0070-Fix-bug-77753-Heap-buffer-overflow-in-php_ifd_get32s.patch
+0071-Fixed-bug-77831-Heap-buffer-overflow-in-exif_iif_add.patch
+0072-Pointer-arithmetic-on-void-pointers-is-illegal.patch
