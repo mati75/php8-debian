@@ -1,3 +1,11 @@
+php7.1 (7.1.28-1) unstable; urgency=medium
+
+  * Update d/watch for new php.net pages
+  * New upstream version 7.1.28
+  * Enforce C++11 for intl compilation on older distributions
+
+ -- Ondřej Surý <ondrej@debian.org>  Wed, 10 Apr 2019 07:06:21 +0000
+
 php7.1 (7.1.27-1) unstable; urgency=medium
 
   * New upstream version 7.1.27
