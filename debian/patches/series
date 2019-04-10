@@ -74,3 +74,4 @@
 0074-Fix-bug-77753-Heap-buffer-overflow-in-php_ifd_get32s.patch
 0075-Fixed-bug-77831-Heap-buffer-overflow-in-exif_iif_add.patch
 0076-Pointer-arithmetic-on-void-pointers-is-illegal.patch
+0077-Amend-C-11-for-intl-compilation-on-older-distributio.patch
