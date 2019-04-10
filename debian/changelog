@@ -1,3 +1,16 @@
+php7.0 (7.0.33-6) unstable; urgency=medium
+
+  * Backported security fixes from PHP 7.1.28:
+   + EXIF:
+    - Fixed bug #77753 (Heap-buffer-overflow in php_ifd_get32s).
+    - Fixed bug #77831 (Heap-buffer-overflow in exif_iif_add_value).
+   + SQLite3:
+    - Added sqlite3.defensive INI directive.
+  * Update d/watch for new php.net pages
+  * Enforce C++11 for intl compilation on older distributions
+
+ -- Ondřej Surý <ondrej@debian.org>  Wed, 10 Apr 2019 07:47:03 +0000
+
 php7.0 (7.0.33-5) unstable; urgency=medium
 
   * Add patch to use C++ namespaces in ext/intl to fix ICU >= 63.1
