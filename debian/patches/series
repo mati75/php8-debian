@@ -48,3 +48,4 @@
 0048-ext-intl-Use-pkg-config-to-detect-icu.patch
 0049-Fix-rl_completion_matches-compilation-with-newer-lib.patch
 0050-PATCH-Fixed-bug-62596-add-getallheaders-apache_reque.patch
+0051-Amend-C-11-for-intl-compilation-on-older-distributio.patch
