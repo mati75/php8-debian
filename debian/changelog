@@ -1,3 +1,15 @@
+php7.3 (7.3.4-2) unstable; urgency=medium
+
+  [Andreas Beckmann]
+  * php7.3-common: Add Breaks against php7.0-curl for smoother upgrades from
+    stretch.  (Closes: #925106)
+  * php7.3-common: Add Breaks against gforge-common from jessie which uses a
+    deprecated constructor syntax.
+  * Deterministically generate debian/control by sorting the extension
+    packages.
+
+ -- Ondřej Surý <ondrej@debian.org>  Sat, 13 Apr 2019 19:05:48 +0000
+
 php7.3 (7.3.4-1) unstable; urgency=medium
 
   * Update d/watch for new php.net pages
