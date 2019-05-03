@@ -3,27 +3,15 @@ Date: Sat, 2 May 2015 10:26:57 +0200
 Subject: php-5.6.0-oldpcre
 
 ---
- ext/pcre/tests/bug37911.phpt     |  2 +-
  ext/pcre/tests/grep2.phpt        | 10 ++--------
  ext/pcre/tests/match_flags3.phpt |  2 +-
- 3 files changed, 4 insertions(+), 10 deletions(-)
+ 2 files changed, 3 insertions(+), 9 deletions(-)
 
-diff --git a/ext/pcre/tests/bug37911.phpt b/ext/pcre/tests/bug37911.phpt
-index 2b7481a..0d2859d 100644
---- a/ext/pcre/tests/bug37911.phpt
-+++ b/ext/pcre/tests/bug37911.phpt
-@@ -37,5 +37,5 @@ array(3) {
-   string(4) "blub"
- }
- 
--Warning: preg_replace_callback(): Compilation failed: group name must start with a non-digit at offset %d in %sbug37911.php on line %d
-+Warning: preg_replace_callback(): Numeric named subpatterns are not allowed in %sbug37911.php on line %d
- NULL
 diff --git a/ext/pcre/tests/grep2.phpt b/ext/pcre/tests/grep2.phpt
-index a739cb6..048eab0 100644
+index 4c6f9b1..a6247cc 100644
 --- a/ext/pcre/tests/grep2.phpt
 +++ b/ext/pcre/tests/grep2.phpt
-@@ -42,12 +42,6 @@ array(1) {
+@@ -44,12 +44,6 @@ array(1) {
    string(1) "1"
  }
  bool(true)
@@ -39,13 +27,13 @@ index a739cb6..048eab0 100644
 -bool(false)
 +bool(true)
 diff --git a/ext/pcre/tests/match_flags3.phpt b/ext/pcre/tests/match_flags3.phpt
-index 695f0c1..05c62a0 100644
+index 6511c71..05c62a0 100644
 --- a/ext/pcre/tests/match_flags3.phpt
 +++ b/ext/pcre/tests/match_flags3.phpt
 @@ -41,5 +41,5 @@ array(1) {
    }
  }
  
--Warning: preg_match(): Compilation failed: group name must start with a non-digit at offset %d in %smatch_flags3.php on line %d
+-Warning: preg_match(): Compilation failed: %s name must start with a non-digit at offset %d in %smatch_flags3.php on line %d
 +Warning: preg_match(): Numeric named subpatterns are not allowed in %smatch_flags3.php on line %d
  bool(false)

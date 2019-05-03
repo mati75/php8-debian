@@ -11,7 +11,7 @@ Subject: temporary-path-fixes-for-multiarch
  5 files changed, 16 insertions(+), 16 deletions(-)
 
 diff --git a/acinclude.m4 b/acinclude.m4
-index 22a211d..852b517 100644
+index 1e982fe..39fbf66 100644
 --- a/acinclude.m4
 +++ b/acinclude.m4
 @@ -2286,7 +2286,7 @@ AC_DEFUN([PHP_SETUP_KERBEROS],[

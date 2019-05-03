@@ -13,7 +13,7 @@ Subject: debian_quirks
  7 files changed, 20 insertions(+), 16 deletions(-)
 
 diff --git a/configure.ac b/configure.ac
-index 35fb932..d33e7d7 100644
+index 2a2c1f9..383ccd8 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -1160,7 +1160,7 @@ if test "$PHP_CLI" = "no"; then
@@ -43,7 +43,7 @@ index 35fb932..d33e7d7 100644
    extbasedir=$ZEND_MODULE_API_NO
    if test "$oldstyleextdir" = "yes"; then
 diff --git a/php.ini-development b/php.ini-development
-index ff996cd..1d3e69f 100644
+index 320cf17..55beed2 100644
 --- a/php.ini-development
 +++ b/php.ini-development
 @@ -725,7 +725,7 @@ default_charset = "UTF-8"
@@ -56,7 +56,7 @@ index ff996cd..1d3e69f 100644
  ; Windows: "\path1;\path2"
  ;include_path = ".;c:\php\includes"
 diff --git a/php.ini-production b/php.ini-production
-index 57ff374..e7022a0 100644
+index 656ae67..e534530 100644
 --- a/php.ini-production
 +++ b/php.ini-production
 @@ -732,7 +732,7 @@ default_charset = "UTF-8"
