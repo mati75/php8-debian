@@ -70,3 +70,6 @@
 0070-Fix-bug-77753-Heap-buffer-overflow-in-php_ifd_get32s.patch
 0071-Fixed-bug-77831-Heap-buffer-overflow-in-exif_iif_add.patch
 0072-Pointer-arithmetic-on-void-pointers-is-illegal.patch
+0073-Fix-tests-wrt.-internationalization.patch
+0074-Fix-bug-77950-Heap-buffer-overflow-in-_estrndup-via-.patch
+0075-Fix-77821-Potential-heap-corruption-in-TSendMail.patch
