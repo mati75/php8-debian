@@ -75,3 +75,6 @@
 0075-Fixed-bug-77831-Heap-buffer-overflow-in-exif_iif_add.patch
 0076-Pointer-arithmetic-on-void-pointers-is-illegal.patch
 0077-Amend-C-11-for-intl-compilation-on-older-distributio.patch
+0078-Skip-test-on-PostgreSQL-10.patch
+0079-Fix-tests-wrt.-internationalization.patch
+0080-Fix-bug-77950-Heap-buffer-overflow-in-_estrndup-via-.patch
