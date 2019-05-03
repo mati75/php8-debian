@@ -1,3 +1,4 @@
 debian/patches/0062-Fix-bug-77540-Invalid-Read-on-exif_process_SOFn.patch
 debian/patches/0063-Fix-bug-77563-Uninitialized-read-in-exif_process_IFD.patch
 debian/patches/0074-Fix-bug-77753-Heap-buffer-overflow-in-php_ifd_get32s.patch
+debian/patches/0080-Fix-bug-77950-Heap-buffer-overflow-in-_estrndup-via-.patch
