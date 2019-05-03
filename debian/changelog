@@ -1,3 +1,14 @@
+php7.0 (7.0.33-7) unstable; urgency=medium
+
+  * Backported security fixes from PHP 7.1.29:
+   + EXIF:   
+    - Fixed bug #77950 (Heap-buffer-overflow in _estrndup via
+      exif_process_IFD_TAG).
+   + Mail:
+    - Fixed bug #77821 (Potential heap corruption in TSendMail()).
+
+ -- Ondřej Surý <ondrej@sury.org>  Fri, 03 May 2019 11:48:23 +0200
+
 php7.0 (7.0.33-6) unstable; urgency=medium
 
   * Backported security fixes from PHP 7.1.28:
