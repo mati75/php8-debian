@@ -8,6 +8,7 @@ php@PHP_VERSION@-common.preinst.extra
 php@PHP_VERSION@-common.README.Debian
 php@PHP_VERSION@-common.substvars.extra
 php@PHP_VERSION@.conf
+php@PHP_VERSION@-curl.substvars.extra
 php@PHP_VERSION@dbg.1
 php@PHP_VERSION@-dev.dirs
 php@PHP_VERSION@-dev.files
