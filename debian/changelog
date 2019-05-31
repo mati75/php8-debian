@@ -1,3 +1,21 @@
+php7.0 (7.0.33-8) unstable; urgency=medium
+
+  * Add d/p/0080-[...].patch to binary patches list
+  * Backported from 7.1.30
+   - EXIF:
+    . Fixed bug #77988 (heap-buffer-overflow on php_jpg_get16).
+      (CVE-2019-11040)
+   - GD:
+    . Fixed bug #77973 (Uninitialized read in gdImageCreateFromXbm).
+      (CVE-2019-11038)
+   - Iconv:
+    . Fixed bug #78069 (Out-of-bounds read in iconv.c:_php_iconv_mime_decode()
+      due to integer overflow). (CVE-2019-11039).
+   - SQLite:
+    . Fixed bug #77967 (Bypassing open_basedir restrictions via file uris).
+
+ -- Ondřej Surý <ondrej@sury.org>  Fri, 31 May 2019 13:31:43 +0200
+
 php7.0 (7.0.33-7) unstable; urgency=medium
 
   * Backported security fixes from PHP 7.1.29:
