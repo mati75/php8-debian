@@ -1,8 +1,12 @@
 php7.3 (7.3.6-1) unstable; urgency=medium
 
+  [ Ondřej Surý ]
   * New upstream version 7.3.6
 
- -- Ondřej Surý <ondrej@sury.org>  Fri, 31 May 2019 13:03:38 +0200
+  [ Andreas Beckmann ]
+  * php7.3-curl: Add Breaks against php7.0-curl for smoother upgrades from stretch.  (Closes: #929689)
+
+ -- Ondřej Surý <ondrej@sury.org>  Fri, 31 May 2019 13:36:51 +0200
 
 php7.3 (7.3.5-1) unstable; urgency=medium
 
