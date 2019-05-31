@@ -73,3 +73,8 @@
 0073-Fix-tests-wrt.-internationalization.patch
 0074-Fix-bug-77950-Heap-buffer-overflow-in-_estrndup-via-.patch
 0075-Fix-77821-Potential-heap-corruption-in-TSendMail.patch
+0076-Fix-77973-Uninitialized-read-in-gdImageCreateFromXbm.patch
+0077-Fix-bug-78069-Out-of-bounds-read-in-iconv.c-_php_ico.patch
+0078-fix-test-output.patch
+0079-Fix-bug-77988-heap-buffer-overflow-on-php_jpg_get16.patch
+0080-Fix-bug-77967-Bypassing-open_basedir-restrictions-vi.patch
