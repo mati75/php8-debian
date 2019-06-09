@@ -1,3 +1,36 @@
+php7.0 (7.0.33-0+deb9u4) stretch-security; urgency=medium
+
+  * Update d/watch for new php.net pages
+  * Backported from 7.1.28
+    - EXIF:
+      . (CVE-2019-11034) Fixed bug #77753 (Heap-buffer-overflow in
+        php_ifd_get32s).
+      . (CVE-2019-11035) Fixed bug #77831 (Heap-buffer-overflow in
+        exif_iif_add_value).
+    - SQLite3:
+      . Added sqlite3.defensive INI directive.
+  * Backported from PHP 7.1.29
+    - EXIF:
+      . (CVE-2019-11036) Fixed bug #77950 (Heap-buffer-overflow in
+        _estrndup via exif_process_IFD_TAG).
+    - Mail:
+      . Fixed bug #77821 (Potential heap corruption in TSendMail()).  
+  * Backported from 7.1.30
+    - EXIF:
+      . (CVE-2019-11040) Fixed bug #77988 (heap-buffer-overflow on
+        php_jpg_get16).
+    - GD:
+      . (CVE-2019-11038) Fixed bug #77973 (Uninitialized read in
+        gdImageCreateFromXbm).
+    - Iconv:
+      . (CVE-2019-11039) Fixed bug #78069 (Out-of-bounds read in
+        iconv.c:_php_iconv_mime_decode() due to integer overflow).
+    - SQLite:
+      . Fixed bug #77967 (Bypassing open_basedir restrictions via file
+        uris).
+
+ -- Ondřej Surý <ondrej@sury.org>  Sun, 09 Jun 2019 11:25:27 +0200
+
 php7.0 (7.0.33-0+deb9u3) stretch-security; urgency=medium
 
   * Pull security fixes from https://github.com/Microsoft/php-src, a
