@@ -1,3 +1,9 @@
+php7.2 (7.2.20-1) unstable; urgency=medium
+
+  * New upstream version 7.2.20
+
+ -- Ondřej Surý <ondrej@sury.org>  Wed, 10 Jul 2019 08:57:35 +0200
+
 php7.2 (7.2.19-1) unstable; urgency=medium
 
   * New upstream version 7.2.19
