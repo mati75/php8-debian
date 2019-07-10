@@ -3,29 +3,14 @@ Date: Sat, 2 May 2015 10:26:50 +0200
 Subject: libtool_fixes
 
 ---
- TSRM/configure.ac | 3 ---
- configure.ac      | 2 --
- 2 files changed, 5 deletions(-)
+ configure.ac | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/TSRM/configure.ac b/TSRM/configure.ac
-index c3ed326..109e85e 100644
---- a/TSRM/configure.ac
-+++ b/TSRM/configure.ac
-@@ -16,9 +16,6 @@ TSRM_BASIC_CHECKS
- TSRM_THREADS_CHECKS
- 
- AM_PROG_LIBTOOL
--if test "$enable_debug" != "yes"; then
--  AM_SET_LIBTOOL_VARIABLE([--silent])
--fi
- 
- dnl TSRM_PTHREAD
- 
 diff --git a/configure.ac b/configure.ac
-index 86ca2b9..e83303d 100644
+index 7034659..31caa04 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -1474,8 +1474,6 @@ AC_PROVIDE_IFELSE([PHP_REQUIRE_CXX], [], [
+@@ -1491,8 +1491,6 @@ AC_PROVIDE_IFELSE([PHP_REQUIRE_CXX], [], [
  ])
  AC_PROG_LIBTOOL
  
