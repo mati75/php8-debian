@@ -2,7 +2,7 @@
    +----------------------------------------------------------------------+
    | PHP Version 7                                                        |
    +----------------------------------------------------------------------+
-   | Copyright (c) 1997-2018 The PHP Group                                |
+   | Copyright (c) The PHP Group                                          |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
    | that is bundled with this package in the file LICENSE, and is        |
@@ -24,7 +24,7 @@
 #include <dmalloc.h>
 #endif
 
-#define PHP_API_VERSION 20180731
+#define PHP_API_VERSION 20190529
 #define PHP_HAVE_STREAMS
 #define YYDEBUG 0
 #define PHP_DEFAULT_CHARSET "UTF-8"
@@ -36,8 +36,7 @@
 
 #include "zend_API.h"
 
-#undef sprintf
-#define sprintf php_sprintf
+#define php_sprintf sprintf
 
 /* Operating system family definition */
 #ifdef PHP_WIN32
@@ -81,7 +80,6 @@
 /* Windows specific defines */
 #ifdef PHP_WIN32
 # define PHP_PROG_SENDMAIL		"Built in mailer"
-# define HAVE_DECLARED_TIMEZONE
 # define WIN32_LEAN_AND_MEAN
 # define NOOPENFILE
 
@@ -97,8 +95,6 @@
 typedef int uid_t;
 typedef int gid_t;
 typedef char * caddr_t;
-typedef unsigned int uint;
-typedef unsigned long ulong;
 typedef int pid_t;
 
 # ifndef PHP_DEBUG
@@ -123,7 +119,6 @@ typedef int pid_t;
 # endif
 #endif
 
-#if HAVE_ASSERT_H
 #if PHP_DEBUG
 #undef NDEBUG
 #else
@@ -132,9 +127,6 @@ typedef int pid_t;
 #endif
 #endif
 #include <assert.h>
-#else /* HAVE_ASSERT_H */
-#define assert(expr) ((void) (0))
-#endif /* HAVE_ASSERT_H */
 
 #define APACHE 0
 
@@ -228,34 +220,15 @@ typedef unsigned int socklen_t;
 #if HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-#if HAVE_STDARG_H
+
 #include <stdarg.h>
-#else
-# if HAVE_SYS_VARARGS_H
-# include <sys/varargs.h>
-# endif
-#endif
 
 #include "php_stdint.h"
 
 #include "zend_hash.h"
 #include "zend_alloc.h"
 #include "zend_stack.h"
-
-#if STDC_HEADERS
-# include <string.h>
-#else
-# ifndef HAVE_MEMCPY
-#  define memcpy(d, s, n)	bcopy((s), (d), (n))
-# endif
-# ifndef HAVE_MEMMOVE
-#  define memmove(d, s, n)	bcopy ((s), (d), (n))
-# endif
-#endif
-
-#ifndef HAVE_STRERROR
-char *strerror(int);
-#endif
+#include <string.h>
 
 #if HAVE_PWD_H
 # ifdef PHP_WIN32
@@ -266,9 +239,7 @@ char *strerror(int);
 # endif
 #endif
 
-#if HAVE_LIMITS_H
 #include <limits.h>
-#endif
 
 #ifndef LONG_MAX
 #define LONG_MAX 2147483647L
@@ -400,6 +371,11 @@ PHPAPI int php_mergesort(void *base, size_t nmemb, size_t size, int (*cmp)(const
 PHPAPI void php_register_pre_request_shutdown(void (*func)(void *), void *userdata);
 PHPAPI void php_com_initialize(void);
 PHPAPI char *php_get_current_user(void);
+
+PHPAPI const char *php_get_internal_encoding(void);
+PHPAPI const char *php_get_input_encoding(void);
+PHPAPI const char *php_get_output_encoding(void);
+PHPAPI extern void (*php_internal_encoding_changed)(void);
 END_EXTERN_C()
 
 /* PHP-named Zend macro wrappers */
@@ -510,12 +486,3 @@ END_EXTERN_C()
 #endif /* !XtOffsetOf */
 
 #endif
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: sw=4 ts=4 fdm=marker
- * vim<600: sw=4 ts=4
- */

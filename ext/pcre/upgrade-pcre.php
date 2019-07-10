@@ -1,3 +1,4 @@
+#!/usr/bin/env php
 <?php
 
 // script to upgrade PCRE. just drop the pcre-x.x.tar.xx here and run the script
@@ -107,11 +108,6 @@ $prepend_config_h = '
 #ifndef PHP_WIN32
 # include <php_config.h>
 #endif
-
-#undef PACKAGE_NAME
-#undef PACKAGE_VERSION
-#undef PACKAGE_TARNAME
-#undef PACKAGE_STRING
 
 #define SUPPORT_UCP
 #define SUPPORT_UTF8

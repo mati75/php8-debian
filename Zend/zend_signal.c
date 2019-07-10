@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | Zend Signal Handling                                                 |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2008-2018 The PHP Group                                     |
+  | Copyright (c) The PHP Group                                          |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -30,10 +30,7 @@
 
 #include "zend.h"
 #include "zend_globals.h"
-
-#ifdef HAVE_SIGNAL_H
 #include <signal.h>
-#endif
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
@@ -45,6 +42,7 @@
 
 #ifdef ZTS
 ZEND_API int zend_signal_globals_id;
+ZEND_API size_t zend_signal_globals_offset;
 #else
 ZEND_API zend_signal_globals_t zend_signal_globals;
 #endif /* not ZTS */
@@ -87,7 +85,6 @@ void zend_signal_handler_defer(int signo, siginfo_t *siginfo, void *context)
 	zend_bool is_handling_safe = 1;
 
 #ifdef ZTS
-	ZEND_TSRMLS_CACHE_UPDATE();
 	/* A signal could hit after TSRM shutdown, in this case globals are already freed. */
 	if (NULL == TSRMLS_CACHE || NULL == TSRMG_BULK_STATIC(zend_signal_globals_id, zend_signal_globals_t *)) {
 		is_handling_safe = 0;
@@ -322,8 +319,10 @@ void zend_signal_activate(void)
 
 	memcpy(&SIGG(handlers), &global_orig_handlers, sizeof(global_orig_handlers));
 
-	for (x = 0; x < sizeof(zend_sigs) / sizeof(*zend_sigs); x++) {
-		zend_signal_register(zend_sigs[x], zend_signal_handler_defer);
+	if (SIGG(reset)) {
+		for (x = 0; x < sizeof(zend_sigs) / sizeof(*zend_sigs); x++) {
+			zend_signal_register(zend_sigs[x], zend_signal_handler_defer);
+		}
 	}
 
 	SIGG(active) = 1;
@@ -365,6 +364,7 @@ static void zend_signal_globals_ctor(zend_signal_globals_t *zend_signal_globals)
 	size_t x;
 
 	memset(zend_signal_globals, 0, sizeof(*zend_signal_globals));
+	zend_signal_globals->reset = 1;
 
 	for (x = 0; x < sizeof(zend_signal_globals->pstorage) / sizeof(*zend_signal_globals->pstorage); ++x) {
 		zend_signal_queue_t *queue = &zend_signal_globals->pstorage[x];
@@ -401,7 +401,7 @@ ZEND_API void zend_signal_startup(void)
 {
 
 #ifdef ZTS
-	ts_allocate_id(&zend_signal_globals_id, sizeof(zend_signal_globals_t), (ts_allocate_ctor) zend_signal_globals_ctor, NULL);
+	ts_allocate_fast_id(&zend_signal_globals_id, &zend_signal_globals_offset, sizeof(zend_signal_globals_t), (ts_allocate_ctor) zend_signal_globals_ctor, NULL);
 #else
 	zend_signal_globals_ctor(&zend_signal_globals);
 #endif
@@ -434,13 +434,3 @@ ZEND_API void zend_signal_startup(void)
 
 
 #endif /* ZEND_SIGNALS */
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * indent-tabs-mode: t
- * End:
- * vim600: sw=4 ts=4 fdm=marker
- * vim<600: sw=4 ts=4
- */

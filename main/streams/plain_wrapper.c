@@ -2,7 +2,7 @@
    +----------------------------------------------------------------------+
    | PHP Version 7                                                        |
    +----------------------------------------------------------------------+
-   | Copyright (c) 1997-2018 The PHP Group                                |
+   | Copyright (c) The PHP Group                                          |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
    | that is bundled with this package in the file LICENSE, and is        |
@@ -926,16 +926,15 @@ PHPAPI php_stream_ops	php_stream_stdio_ops = {
 static size_t php_plain_files_dirstream_read(php_stream *stream, char *buf, size_t count)
 {
 	DIR *dir = (DIR*)stream->abstract;
-	/* avoid libc5 readdir problems */
-	char entry[sizeof(struct dirent)+MAXPATHLEN];
-	struct dirent *result = (struct dirent *)&entry;
+	struct dirent *result;
 	php_stream_dirent *ent = (php_stream_dirent*)buf;
 
 	/* avoid problems if someone mis-uses the stream */
 	if (count != sizeof(php_stream_dirent))
 		return 0;
 
-	if (php_readdir_r(dir, (struct dirent *)entry, &result) == 0 && result) {
+	result = readdir(dir);
+	if (result) {
 		PHP_STRLCPY(ent->d_name, result->d_name, sizeof(ent->d_name), strlen(result->d_name));
 		return sizeof(php_stream_dirent);
 	}
@@ -1617,12 +1616,3 @@ stream_skip:
 
 }
 /* }}} */
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */

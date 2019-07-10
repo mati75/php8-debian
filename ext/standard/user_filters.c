@@ -2,7 +2,7 @@
    +----------------------------------------------------------------------+
    | PHP Version 7                                                        |
    +----------------------------------------------------------------------+
-   | Copyright (c) 1997-2018 The PHP Group                                |
+   | Copyright (c) The PHP Group                                          |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
    | that is bundled with this package in the file LICENSE, and is        |
@@ -368,7 +368,7 @@ static php_stream_filter *user_filter_factory_create(const char *filtername,
 
 	/* set the filter property, this will be used during cleanup */
 	ZVAL_RES(&zfilter, zend_register_resource(filter, le_userfilters));
-	ZVAL_COPY_VALUE(&filter->abstract, &obj);
+	ZVAL_OBJ(&filter->abstract, Z_OBJ(obj));
 	add_property_zval(&obj, "filter", &zfilter);
 	/* add_property_zval increments the refcount which is unwanted here */
 	zval_ptr_dtor(&zfilter);
@@ -591,13 +591,3 @@ PHP_FUNCTION(stream_filter_register)
 	}
 }
 /* }}} */
-
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: sw=4 ts=4 fdm=marker
- * vim<600: sw=4 ts=4
- */

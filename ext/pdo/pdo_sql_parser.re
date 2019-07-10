@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 1997-2018 The PHP Group                                |
+  | Copyright (c) The PHP Group                                          |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -269,7 +269,8 @@ safe:
 
 						default:
 							buf = zval_get_string(parameter);
-							if (!stmt->dbh->methods->quoter(stmt->dbh, ZSTR_VAL(buf),
+							if (EG(exception) ||
+								!stmt->dbh->methods->quoter(stmt->dbh, ZSTR_VAL(buf),
 									ZSTR_LEN(buf), &plc->quoted, &plc->qlen,
 									param_type)) {
 								/* bork */
@@ -414,12 +415,3 @@ clean_up:
 
 	return ret;
 }
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker ft=c
- * vim<600: noet sw=4 ts=4
- */

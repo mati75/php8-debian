@@ -2,7 +2,7 @@
    +----------------------------------------------------------------------+
    | PHP Version 7                                                        |
    +----------------------------------------------------------------------+
-   | Copyright (c) 1997-2018 The PHP Group                                |
+   | Copyright (c) The PHP Group                                          |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
    | that is bundled with this package in the file LICENSE, and is        |
@@ -247,26 +247,33 @@ static void *resolve_base64_decode() {
 }
 # else /* (ZEND_INTRIN_AVX2_FUNC_PROTO || ZEND_INTRIN_SSSE3_FUNC_PROTO) */
 
-PHPAPI zend_string *(*php_base64_encode)(const unsigned char *str, size_t length) = NULL;
-PHPAPI zend_string *(*php_base64_decode_ex)(const unsigned char *str, size_t length, zend_bool strict) = NULL;
+PHPAPI zend_string *(*php_base64_encode_ptr)(const unsigned char *str, size_t length) = NULL;
+PHPAPI zend_string *(*php_base64_decode_ex_ptr)(const unsigned char *str, size_t length, zend_bool strict) = NULL;
+
+PHPAPI zend_string *php_base64_encode(const unsigned char *str, size_t length) {
+	return php_base64_encode_ptr(str, length);
+}
+PHPAPI zend_string *php_base64_decode_ex(const unsigned char *str, size_t length, zend_bool strict) {
+	return php_base64_decode_ex_ptr(str, length, strict);
+}
 
 PHP_MINIT_FUNCTION(base64_intrin)
 {
 # if ZEND_INTRIN_AVX2_FUNC_PTR
 	if (zend_cpu_supports_avx2()) {
-		php_base64_encode = php_base64_encode_avx2;
-		php_base64_decode_ex = php_base64_decode_ex_avx2;
+		php_base64_encode_ptr = php_base64_encode_avx2;
+		php_base64_decode_ex_ptr = php_base64_decode_ex_avx2;
 	} else
 # endif
 #if ZEND_INTRIN_SSSE3_FUNC_PTR
 	if (zend_cpu_supports_ssse3()) {
-		php_base64_encode = php_base64_encode_ssse3;
-		php_base64_decode_ex = php_base64_decode_ex_ssse3;
+		php_base64_encode_ptr = php_base64_encode_ssse3;
+		php_base64_decode_ex_ptr = php_base64_decode_ex_ssse3;
 	} else
 #endif
 	{
-		php_base64_encode = php_base64_encode_default;
-		php_base64_decode_ex = php_base64_decode_ex_default;
+		php_base64_encode_ptr = php_base64_encode_default;
+		php_base64_decode_ex_ptr = php_base64_decode_ex_default;
 	}
 	return SUCCESS;
 }
@@ -792,11 +799,7 @@ PHP_FUNCTION(base64_encode)
 	ZEND_PARSE_PARAMETERS_END();
 
 	result = php_base64_encode((unsigned char*)str, str_len);
-	if (result != NULL) {
-		RETURN_STR(result);
-	} else {
-		RETURN_FALSE;
-	}
+	RETURN_STR(result);
 }
 /* }}} */
 
@@ -823,12 +826,3 @@ PHP_FUNCTION(base64_decode)
 	}
 }
 /* }}} */
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: sw=4 ts=4 fdm=marker
- * vim<600: sw=4 ts=4
- */

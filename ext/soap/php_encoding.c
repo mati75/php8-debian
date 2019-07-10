@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 1997-2018 The PHP Group                                |
+  | Copyright (c) The PHP Group                                          |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -604,7 +604,7 @@ xmlNodePtr to_xml_user(encodeTypePtr type, zval *data, int style, xmlNodePtr par
 	if (type && type->map && Z_TYPE(type->map->to_xml) != IS_UNDEF) {
 		ZVAL_NULL(&return_value);
 
-		if (call_user_function(EG(function_table), NULL, &type->map->to_xml, &return_value, 1, data) == FAILURE) {
+		if (call_user_function(NULL, NULL, &type->map->to_xml, &return_value, 1, data) == FAILURE) {
 			soap_error0(E_ERROR, "Encoding: Error calling to_xml callback");
 		}
 		if (Z_TYPE(return_value) == IS_STRING) {
@@ -641,7 +641,7 @@ zval *to_zval_user(zval *ret, encodeTypePtr type, xmlNodePtr node)
 		xmlBufferFree(buf);
 		xmlFreeNode(copy);
 
-		if (call_user_function(EG(function_table), NULL, &type->map->to_zval, ret, 1, &data) == FAILURE) {
+		if (call_user_function(NULL, NULL, &type->map->to_zval, ret, 1, &data) == FAILURE) {
 			soap_error0(E_ERROR, "Encoding: Error calling from_xml callback");
 		} else if (EG(exception)) {
 			ZVAL_NULL(ret);
@@ -1172,31 +1172,10 @@ static void set_zval_property(zval* object, char* name, zval* val)
 static zval* get_zval_property(zval* object, char* name, zval *rv)
 {
 	if (Z_TYPE_P(object) == IS_OBJECT) {
-		zval member;
-		zval *data;
-		zend_class_entry *old_scope;
-
-		ZVAL_STRING(&member, name);
-		old_scope = EG(fake_scope);
-		EG(fake_scope) = Z_OBJCE_P(object);
-		data = Z_OBJ_HT_P(object)->read_property(object, &member, BP_VAR_IS, NULL, rv);
+		zval *data = zend_read_property(Z_OBJCE_P(object), object, name, strlen(name), 1, rv);
 		if (data == &EG(uninitialized_zval)) {
-			/* Hack for bug #32455 */
-			zend_property_info *property_info;
-
-			property_info = zend_get_property_info(Z_OBJCE_P(object), Z_STR(member), 1);
-			EG(fake_scope) = old_scope;
-			if (property_info != ZEND_WRONG_PROPERTY_INFO && property_info &&
-			    zend_hash_exists(Z_OBJPROP_P(object), property_info->name)) {
-				zval_ptr_dtor(&member);
-				ZVAL_DEREF(data);
-				return data;
-			}
-			zval_ptr_dtor(&member);
 			return NULL;
 		}
-		zval_ptr_dtor(&member);
-		EG(fake_scope) = old_scope;
 		ZVAL_DEREF(data);
 		return data;
 	} else if (Z_TYPE_P(object) == IS_ARRAY) {
@@ -1208,15 +1187,7 @@ static zval* get_zval_property(zval* object, char* name, zval *rv)
 static void unset_zval_property(zval* object, char* name)
 {
 	if (Z_TYPE_P(object) == IS_OBJECT) {
-		zval member;
-		zend_class_entry *old_scope;
-
-		ZVAL_STRING(&member, name);
-		old_scope = EG(fake_scope);
-		EG(fake_scope) = Z_OBJCE_P(object);
-		Z_OBJ_HT_P(object)->unset_property(object, &member, NULL);
-		EG(fake_scope) = old_scope;
-		zval_ptr_dtor(&member);
+		zend_unset_property(Z_OBJCE_P(object), object, name, strlen(name));
 	} else if (Z_TYPE_P(object) == IS_ARRAY) {
 		zend_hash_str_del(Z_ARRVAL_P(object), name, strlen(name));
 	}
@@ -2185,16 +2156,6 @@ static void add_xml_array_elements(xmlNodePtr xmlParam,
  	}
 }
 
-static inline int array_num_elements(HashTable* ht)
-{
-	if (ht->nNumUsed &&
-	    Z_TYPE(ht->arData[ht->nNumUsed-1].val) != IS_UNDEF &&
-	    ht->arData[ht->nNumUsed-1].key == NULL) {
-	    return ht->arData[ht->nNumUsed-1].h - 1;
-	}
-	return 0;
-}
-
 static xmlNodePtr to_xml_array(encodeTypePtr type, zval *data, int style, xmlNodePtr parent)
 {
 	sdlTypePtr sdl_type = type->sdl_type;
@@ -2896,8 +2857,10 @@ static xmlNodePtr to_xml_datetime_ex(encodeTypePtr type, zval *data, char *forma
 		}
 
 		/* Time zone support */
-#ifdef HAVE_TM_GMTOFF
-		snprintf(tzbuf, sizeof(tzbuf), "%c%02d:%02d", (ta->tm_gmtoff < 0) ? '-' : '+', abs(ta->tm_gmtoff / 3600), abs( (ta->tm_gmtoff % 3600) / 60 ));
+#ifdef HAVE_STRUCT_TM_TM_GMTOFF
+		snprintf(tzbuf, sizeof(tzbuf), "%c%02ld:%02ld",
+			(ta->tm_gmtoff < 0) ? '-' : '+',
+			labs(ta->tm_gmtoff / 3600), labs( (ta->tm_gmtoff % 3600) / 60 ));
 #else
 # if defined(__CYGWIN__) || (defined(PHP_WIN32) && defined(_MSC_VER) && _MSC_VER >= 1900)
 		snprintf(tzbuf, sizeof(tzbuf), "%c%02d:%02d", ((ta->tm_isdst ? _timezone - 3600:_timezone)>0)?'-':'+', abs((ta->tm_isdst ? _timezone - 3600 : _timezone) / 3600), abs(((ta->tm_isdst ? _timezone - 3600 : _timezone) % 3600) / 60));

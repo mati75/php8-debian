@@ -2,7 +2,7 @@
    +----------------------------------------------------------------------+
    | PHP Version 7                                                        |
    +----------------------------------------------------------------------+
-   | Copyright (c) 1997-2018 The PHP Group                                |
+   | Copyright (c) The PHP Group                                          |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
    | that is bundled with this package in the file LICENSE, and is        |
@@ -37,22 +37,16 @@
 #include <unixlib/local.h>
 #endif
 
-
-#if HAVE_TIME_H
-#include <time.h>
-#endif
 #if HAVE_SYS_TIME_H
 #include <sys/time.h>
 #endif
 #if HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-#if HAVE_SIGNAL_H
+
 #include <signal.h>
-#endif
-#if HAVE_SETLOCALE
 #include <locale.h>
-#endif
+
 #if HAVE_DLFCN_H
 #include <dlfcn.h>
 #endif
@@ -1126,7 +1120,7 @@ static void php_cli_server_log_response(php_cli_server_client *client, int statu
 #endif
 
 	/* basic */
-	spprintf(&basic_buf, 0, "%s [%d]: %s", client->addr_str, status, client->request.request_uri);
+	spprintf(&basic_buf, 0, "%s [%d]: %s %s", client->addr_str, status, SG(request_info).request_method, client->request.request_uri);
 	if (!basic_buf) {
 		return;
 	}
@@ -1299,9 +1293,6 @@ out:
 
 static int php_cli_server_request_ctor(php_cli_server_request *req) /* {{{ */
 {
-#ifdef ZTS
-ZEND_TSRMLS_CACHE_UPDATE();
-#endif
 	req->protocol_version = 0;
 	req->request_uri = NULL;
 	req->request_uri_len = 0;
@@ -1457,6 +1448,7 @@ static void normalize_vpath(char **retval, size_t *retval_len, const char *vpath
 	char *p;
 
 	*retval = NULL;
+	*retval_len = 0;
 
 	decoded_vpath = pestrndup(vpath, vpath_len, persistent);
 	if (!decoded_vpath) {
@@ -2608,7 +2600,7 @@ int do_cli_server(int argc, char **argv) /* {{{ */
 				PHP_VERSION, buf, server_bind_address, document_root);
 	}
 
-#if defined(HAVE_SIGNAL_H) && defined(SIGINT)
+#if defined(SIGINT)
 	signal(SIGINT, php_cli_server_sigint_handler);
 	zend_signal_init();
 #endif
@@ -2616,12 +2608,3 @@ int do_cli_server(int argc, char **argv) /* {{{ */
 	php_cli_server_dtor(&server);
 	return 0;
 } /* }}} */
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */

@@ -2,7 +2,7 @@
    +----------------------------------------------------------------------+
    | PHP Version 7                                                        |
    +----------------------------------------------------------------------+
-   | Copyright (c) 1997-2018 The PHP Group                                |
+   | Copyright (c) The PHP Group                                          |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
    | that is bundled with this package in the file LICENSE, and is        |
@@ -34,9 +34,8 @@ extern zend_module_entry pgsql_module_entry;
 #undef SOCKET_SIZE_TYPE
 #include <libpq-fe.h>
 
+#include <libpq/libpq-fs.h>
 #ifdef PHP_WIN32
-#define INV_WRITE            0x00020000
-#define INV_READ             0x00040000
 #undef PHP_PGSQL_API
 #ifdef PGSQL_EXPORTS
 #define PHP_PGSQL_API __declspec(dllexport)
@@ -44,7 +43,6 @@ extern zend_module_entry pgsql_module_entry;
 #define PHP_PGSQL_API __declspec(dllimport)
 #endif
 #else
-#include <libpq/libpq-fs.h>
 # if defined(__GNUC__) && __GNUC__ >= 4
 #  define PHP_PGSQL_API __attribute__ ((visibility("default")))
 # else
@@ -198,7 +196,7 @@ PHP_FUNCTION(pg_select);
 #define PGSQL_CONNECT_FORCE_NEW     (1<<1)
 #define PGSQL_CONNECT_ASYNC         (1<<2)
 /* php_pgsql_convert options */
-#define PGSQL_CONV_IGNORE_DEFAULT   (1<<1)     /* Do not use DEAFULT value by removing field from returned array */
+#define PGSQL_CONV_IGNORE_DEFAULT   (1<<1)     /* Do not use DEFAULT value by removing field from returned array */
 #define PGSQL_CONV_FORCE_NULL       (1<<2)     /* Convert to NULL if string is null string */
 #define PGSQL_CONV_IGNORE_NOT_NULL  (1<<3)     /* Ignore NOT NULL constraints */
 #define PGSQL_CONV_OPTS             (PGSQL_CONV_IGNORE_DEFAULT|PGSQL_CONV_FORCE_NULL|PGSQL_CONV_IGNORE_NOT_NULL)

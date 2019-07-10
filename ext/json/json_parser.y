@@ -3,7 +3,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 1997-2018 The PHP Group                                |
+  | Copyright (c) The PHP Group                                          |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -46,8 +46,8 @@ int json_yydebug = 1;
 
 }
 
-%pure-parser
-%name-prefix "php_json_yy"
+%define api.pure full
+%define api.prefix {php_json_yy}
 %lex-param  { php_json_parser *parser  }
 %parse-param { php_json_parser *parser }
 

@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | ZIP archive support for Phar                                         |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2007-2018 The PHP Group                                |
+  | Copyright (c) The PHP Group                                          |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -147,8 +147,15 @@ static void phar_zip_u2d_time(time_t time, char *dtime, char *ddate) /* {{{ */
 	struct tm *tm, tmbuf;
 
 	tm = php_localtime_r(&time, &tmbuf);
-	cdate = ((tm->tm_year+1900-1980)<<9) + ((tm->tm_mon+1)<<5) + tm->tm_mday;
-	ctime = ((tm->tm_hour)<<11) + ((tm->tm_min)<<5) + ((tm->tm_sec)>>1);
+	if (tm->tm_year >= 1980) {
+		cdate = ((tm->tm_year+1900-1980)<<9) + ((tm->tm_mon+1)<<5) + tm->tm_mday;
+		ctime = ((tm->tm_hour)<<11) + ((tm->tm_min)<<5) + ((tm->tm_sec)>>1);
+	} else {
+		/* This is the earliest date/time supported by zip. */
+		cdate = (1<<5) + 1; /* 1980-01-01 */
+		ctime = 0; /* 00:00:00 */
+	}
+
 	PHAR_SET_16(dtime, ctime);
 	PHAR_SET_16(ddate, cdate);
 }
@@ -293,11 +300,11 @@ foundit:
 	entry.is_persistent = mydata->is_persistent;
 #define PHAR_ZIP_FAIL_FREE(errmsg, save) \
 			zend_hash_destroy(&mydata->manifest); \
-			HT_FLAGS(&mydata->manifest) = 0; \
+			HT_INVALIDATE(&mydata->manifest); \
 			zend_hash_destroy(&mydata->mounted_dirs); \
-			HT_FLAGS(&mydata->mounted_dirs) = 0; \
+			HT_INVALIDATE(&mydata->mounted_dirs); \
 			zend_hash_destroy(&mydata->virtual_dirs); \
-			HT_FLAGS(&mydata->virtual_dirs) = 0; \
+			HT_INVALIDATE(&mydata->virtual_dirs); \
 			php_stream_close(fp); \
 			zval_ptr_dtor(&mydata->metadata); \
 			if (mydata->signature) { \
@@ -315,11 +322,11 @@ foundit:
 			return FAILURE;
 #define PHAR_ZIP_FAIL(errmsg) \
 			zend_hash_destroy(&mydata->manifest); \
-			HT_FLAGS(&mydata->manifest) = 0; \
+			HT_INVALIDATE(&mydata->manifest); \
 			zend_hash_destroy(&mydata->mounted_dirs); \
-			HT_FLAGS(&mydata->mounted_dirs) = 0; \
+			HT_INVALIDATE(&mydata->mounted_dirs); \
 			zend_hash_destroy(&mydata->virtual_dirs); \
-			HT_FLAGS(&mydata->virtual_dirs) = 0; \
+			HT_INVALIDATE(&mydata->virtual_dirs); \
 			php_stream_close(fp); \
 			zval_ptr_dtor(&mydata->metadata); \
 			if (mydata->signature) { \
@@ -1533,12 +1540,3 @@ nocentralerror:
 	return EOF;
 }
 /* }}} */
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */

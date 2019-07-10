@@ -2,7 +2,7 @@
    +----------------------------------------------------------------------+
    | PHP Version 7                                                        |
    +----------------------------------------------------------------------+
-   | Copyright (c) 1997-2018 The PHP Group                                |
+   | Copyright (c) The PHP Group                                          |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
    | that is bundled with this package in the file LICENSE, and is        |
@@ -480,9 +480,9 @@ static PHP_FUNCTION(phpdbg_start_oplog)
 static zend_always_inline zend_bool phpdbg_is_ignored_opcode(zend_uchar opcode) {
 	return
 	    opcode == ZEND_NOP || opcode == ZEND_OP_DATA || opcode == ZEND_FE_FREE || opcode == ZEND_FREE || opcode == ZEND_ASSERT_CHECK || opcode == ZEND_VERIFY_RETURN_TYPE
-	 || opcode == ZEND_DECLARE_CONST || opcode == ZEND_DECLARE_CLASS || opcode == ZEND_DECLARE_INHERITED_CLASS || opcode == ZEND_DECLARE_FUNCTION
-	 || opcode == ZEND_DECLARE_INHERITED_CLASS_DELAYED || opcode == ZEND_VERIFY_ABSTRACT_CLASS || opcode == ZEND_ADD_TRAIT || opcode == ZEND_BIND_TRAITS
-	 || opcode == ZEND_DECLARE_ANON_CLASS || opcode == ZEND_DECLARE_ANON_INHERITED_CLASS || opcode == ZEND_FAST_RET || opcode == ZEND_TICKS
+	 || opcode == ZEND_DECLARE_CONST || opcode == ZEND_DECLARE_CLASS || opcode == ZEND_DECLARE_FUNCTION
+	 || opcode == ZEND_DECLARE_CLASS_DELAYED
+	 || opcode == ZEND_DECLARE_ANON_CLASS || opcode == ZEND_FAST_RET || opcode == ZEND_TICKS
 	 || opcode == ZEND_EXT_STMT || opcode == ZEND_EXT_FCALL_BEGIN || opcode == ZEND_EXT_FCALL_END || opcode == ZEND_EXT_NOP || opcode == ZEND_BIND_GLOBAL
 	;
 }
@@ -671,11 +671,11 @@ static PHP_FUNCTION(phpdbg_end_oplog)
 
 	{
 		zend_string *last_file = NULL;
-		HashTable *file_ht;
+		HashTable *file_ht = NULL;
 		zend_string *last_function = (void *)~(uintptr_t)0;
 		zend_class_entry *last_scope = NULL;
 
-		HashTable *insert_ht;
+		HashTable *insert_ht = NULL;
 		zend_long insert_idx;
 
 		do {
@@ -717,6 +717,7 @@ static PHP_FUNCTION(phpdbg_end_oplog)
 				insert_idx = cur->op->lineno;
 			}
 
+			ZEND_ASSERT(insert_ht && file_ht);
 			{
 				zval *num = zend_hash_index_find(insert_ht, insert_idx);
 				if (!num) {
@@ -1416,9 +1417,10 @@ int main(int argc, char **argv) /* {{{ */
 
 phpdbg_main:
 #ifdef ZTS
-	tsrm_startup(1, 1, 0, NULL);
-	(void)ts_resource(0);
+	php_tsrm_startup();
+# ifdef PHP_WIN32
 	ZEND_TSRMLS_CACHE_UPDATE();
+# endif
 #endif
 
 	zend_signal_startup();
@@ -1659,16 +1661,17 @@ phpdbg_main:
 	phpdbg_set_color_ex(PHPDBG_COLOR_ERROR,   PHPDBG_STRL("red-bold"));
 	phpdbg_set_color_ex(PHPDBG_COLOR_NOTICE,  PHPDBG_STRL("green"));
 
-	/* set default prompt */
-	phpdbg_set_prompt(PHPDBG_DEFAULT_PROMPT);
-
 	if (settings > (zend_phpdbg_globals *) 0x2) {
 #ifdef ZTS
-		*((zend_phpdbg_globals *) (*((void ***) TSRMLS_CACHE))[TSRM_UNSHUFFLE_RSRC_ID(phpdbg_globals_id)]) = *settings;
+		zend_phpdbg_globals *ptr = TSRMG_BULK_STATIC(phpdbg_globals_id, zend_phpdbg_globals *);
+		*ptr = *settings;
 #else
 		phpdbg_globals = *settings;
 #endif
 		free(settings);
+	} else {
+		/* set default prompt */
+		phpdbg_set_prompt(PHPDBG_DEFAULT_PROMPT);
 	}
 
 	/* set flags from command line */
@@ -1690,7 +1693,7 @@ phpdbg_main:
 				phpdbg_do_help_cmd(exec);
 			} else if (show_version) {
 				phpdbg_out(
-					"phpdbg %s (built: %s %s)\nPHP %s, Copyright (c) 1997-2018 The PHP Group\n%s",
+					"phpdbg %s (built: %s %s)\nPHP %s, Copyright (c) The PHP Group\n%s",
 					PHPDBG_VERSION,
 					__DATE__,
 					__TIME__,
@@ -2157,9 +2160,7 @@ phpdbg_out:
 
 		zend_hash_destroy(&PHPDBG_G(file_sources));
 
-		zend_try {
-			php_module_shutdown();
-		} zend_end_try();
+		php_module_shutdown();
 
 #ifndef _WIN32
 		/* force override (no zend_signals) to prevent crashes due to signal recursion in SIGSEGV/SIGBUS handlers */

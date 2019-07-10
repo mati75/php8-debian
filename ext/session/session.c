@@ -2,7 +2,7 @@
    +----------------------------------------------------------------------+
    | PHP Version 7                                                        |
    +----------------------------------------------------------------------+
-   | Copyright (c) 1997-2018 The PHP Group                                |
+   | Copyright (c) The PHP Group                                          |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
    | that is bundled with this package in the file LICENSE, and is        |
@@ -1752,35 +1752,36 @@ static PHP_FUNCTION(session_set_cookie_params)
 		lifetime = zval_get_string(lifetime_or_options);
 	}
 
+	/* Exception during string conversion */
+	if (EG(exception)) {
+		goto cleanup;
+	}
+
 	if (lifetime) {
 		ini_name = zend_string_init("session.cookie_lifetime", sizeof("session.cookie_lifetime") - 1, 0);
 		result = zend_alter_ini_entry(ini_name, lifetime, PHP_INI_USER, PHP_INI_STAGE_RUNTIME);
-		zend_string_release(lifetime);
 		zend_string_release_ex(ini_name, 0);
 		if (result == FAILURE) {
-			RETURN_FALSE;
+			RETVAL_FALSE;
+			goto cleanup;
 		}
 	}
 	if (path) {
 		ini_name = zend_string_init("session.cookie_path", sizeof("session.cookie_path") - 1, 0);
 		result = zend_alter_ini_entry(ini_name, path, PHP_INI_USER, PHP_INI_STAGE_RUNTIME);
-		if (found > 0) {
-			zend_string_release(path);
-		}
 		zend_string_release_ex(ini_name, 0);
 		if (result == FAILURE) {
-			RETURN_FALSE;
+			RETVAL_FALSE;
+			goto cleanup;
 		}
 	}
 	if (domain) {
 		ini_name = zend_string_init("session.cookie_domain", sizeof("session.cookie_domain") - 1, 0);
 		result = zend_alter_ini_entry(ini_name, domain, PHP_INI_USER, PHP_INI_STAGE_RUNTIME);
-		if (found > 0) {
-			zend_string_release(domain);
-		}
 		zend_string_release_ex(ini_name, 0);
 		if (result == FAILURE) {
-			RETURN_FALSE;
+			RETVAL_FALSE;
+			goto cleanup;
 		}
 	}
 	if (!secure_null) {
@@ -1788,7 +1789,8 @@ static PHP_FUNCTION(session_set_cookie_params)
 		result = zend_alter_ini_entry_chars(ini_name, secure ? "1" : "0", 1, PHP_INI_USER, PHP_INI_STAGE_RUNTIME);
 		zend_string_release_ex(ini_name, 0);
 		if (result == FAILURE) {
-			RETURN_FALSE;
+			RETVAL_FALSE;
+			goto cleanup;
 		}
 	}
 	if (!httponly_null) {
@@ -1796,22 +1798,29 @@ static PHP_FUNCTION(session_set_cookie_params)
 		result = zend_alter_ini_entry_chars(ini_name, httponly ? "1" : "0", 1, PHP_INI_USER, PHP_INI_STAGE_RUNTIME);
 		zend_string_release_ex(ini_name, 0);
 		if (result == FAILURE) {
-			RETURN_FALSE;
+			RETVAL_FALSE;
+			goto cleanup;
 		}
 	}
 	if (samesite) {
 		ini_name = zend_string_init("session.cookie_samesite", sizeof("session.cookie_samesite") - 1, 0);
 		result = zend_alter_ini_entry(ini_name, samesite, PHP_INI_USER, PHP_INI_STAGE_RUNTIME);
-		if (found > 0) {
-			zend_string_release(samesite);
-		}
 		zend_string_release_ex(ini_name, 0);
 		if (result == FAILURE) {
-			RETURN_FALSE;
+			RETVAL_FALSE;
+			goto cleanup;
 		}
 	}
 
-	RETURN_TRUE;
+	RETVAL_TRUE;
+
+cleanup:
+	if (lifetime) zend_string_release(lifetime);
+	if (found > 0) {
+		if (path) zend_string_release(path);
+		if (domain) zend_string_release(domain);
+		if (samesite) zend_string_release(samesite);
+	}
 }
 /* }}} */
 
@@ -1940,7 +1949,7 @@ static PHP_FUNCTION(session_set_save_handler)
 			RETURN_FALSE;
 		}
 
-		/* For compatibility reason, implemeted interface is not checked */
+		/* For compatibility reason, implemented interface is not checked */
 		/* Find implemented methods - SessionHandlerInterface */
 		i = 0;
 		ZEND_HASH_FOREACH_STR_KEY(&php_session_iface_entry->function_table, func_name) {
@@ -2364,7 +2373,10 @@ static PHP_FUNCTION(session_cache_expire)
 	RETVAL_LONG(PS(cache_expire));
 
 	if (expires) {
-		convert_to_string_ex(expires);
+		if (!try_convert_to_string(expires)) {
+			return;
+		}
+
 		ini_name = zend_string_init("session.cache_expire", sizeof("session.cache_expire") - 1, 0);
 		zend_alter_ini_entry(ini_name, Z_STR_P(expires), ZEND_INI_USER, ZEND_INI_STAGE_RUNTIME);
 		zend_string_release_ex(ini_name, 0);
@@ -3357,12 +3369,3 @@ ZEND_TSRMLS_CACHE_DEFINE()
 #endif
 ZEND_GET_MODULE(session)
 #endif
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: sw=4 ts=4
- */

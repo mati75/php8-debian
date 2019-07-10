@@ -2,7 +2,7 @@
    +----------------------------------------------------------------------+
    | Zend Engine                                                          |
    +----------------------------------------------------------------------+
-   | Copyright (c) 1998-2018 Zend Technologies Ltd. (http://www.zend.com) |
+   | Copyright (c) Zend Technologies Ltd. (http://www.zend.com)           |
    +----------------------------------------------------------------------+
    | This source file is subject to version 2.00 of the Zend license,     |
    | that is bundled with this package in the file LICENSE, and is        |
@@ -54,7 +54,7 @@
  *    gc_scan_black will be called on that node to scan it's subgraph.
  * otherwise (refcount == 0), it marks the node white.
  *
- * A node MAY be added to possbile roots when ZEND_UNSET_VAR happens or
+ * A node MAY be added to possible roots when ZEND_UNSET_VAR happens or
  * zend_assign_to_variable is called only when possible garbage node is
  * produced.
  * gc_possible_root() will be called to add the nodes to possible roots.
@@ -78,13 +78,13 @@
 #endif
 
 /* GC_INFO layout */
-#define GC_ADDRESS  0x0fffff
-#define GC_COLOR    0x300000
+#define GC_ADDRESS  0x0fffffu
+#define GC_COLOR    0x300000u
 
-#define GC_BLACK    0x000000 /* must be zero */
-#define GC_WHITE    0x100000
-#define GC_GREY     0x200000
-#define GC_PURPLE   0x300000
+#define GC_BLACK    0x000000u /* must be zero */
+#define GC_WHITE    0x100000u
+#define GC_GREY     0x200000u
+#define GC_PURPLE   0x300000u
 
 /* GC_INFO access */
 #define GC_REF_ADDRESS(ref) \
@@ -183,12 +183,13 @@ typedef struct _gc_root_buffer {
 } gc_root_buffer;
 
 typedef struct _zend_gc_globals {
+	gc_root_buffer   *buf;				/* preallocated arrays of buffers   */
+
 	zend_bool         gc_enabled;
 	zend_bool         gc_active;        /* GC currently running, forbid nested GC */
 	zend_bool         gc_protected;     /* GC protected, forbid root additions */
 	zend_bool         gc_full;
 
-	gc_root_buffer   *buf;				/* preallocated arrays of buffers   */
 	uint32_t          unused;			/* linked list of unused buffers    */
 	uint32_t          first_unused;		/* first unused buffer              */
 	uint32_t          gc_threshold;     /* GC collection threshold          */
@@ -210,7 +211,8 @@ typedef struct _zend_gc_globals {
 
 #ifdef ZTS
 static int gc_globals_id;
-#define GC_G(v) ZEND_TSRMG(gc_globals_id, zend_gc_globals *, v)
+static size_t gc_globals_offset;
+#define GC_G(v) ZEND_TSRMG_FAST(gc_globals_offset, zend_gc_globals *, v)
 #else
 #define GC_G(v) (gc_globals.v)
 static zend_gc_globals gc_globals;
@@ -441,7 +443,7 @@ static void gc_globals_ctor_ex(zend_gc_globals *gc_globals)
 void gc_globals_ctor(void)
 {
 #ifdef ZTS
-	ts_allocate_id(&gc_globals_id, sizeof(zend_gc_globals), (ts_allocate_ctor) gc_globals_ctor_ex, (ts_allocate_dtor) root_buffer_dtor);
+	ts_allocate_fast_id(&gc_globals_id, &gc_globals_offset, sizeof(zend_gc_globals), (ts_allocate_ctor) gc_globals_ctor_ex, (ts_allocate_dtor) root_buffer_dtor);
 #else
 	gc_globals_ctor_ex(&gc_globals);
 #endif
@@ -682,17 +684,15 @@ static void gc_scan_black(zend_refcounted *ref, gc_stack *stack)
 
 tail_call:
 	if (GC_TYPE(ref) == IS_OBJECT) {
-		zend_object_get_gc_t get_gc;
 		zend_object *obj = (zend_object*)ref;
 
-		if (EXPECTED(!(OBJ_FLAGS(ref) & IS_OBJ_FREE_CALLED) &&
-		             (get_gc = obj->handlers->get_gc) != NULL)) {
+		if (EXPECTED(!(OBJ_FLAGS(ref) & IS_OBJ_FREE_CALLED))) {
 			int n;
 			zval *zv, *end;
 			zval tmp;
 
 			ZVAL_OBJ(&tmp, obj);
-			ht = get_gc(&tmp, &zv, &n);
+			ht = obj->handlers->get_gc(&tmp, &zv, &n);
 			end = zv + n;
 			if (EXPECTED(!ht)) {
 				if (!n) goto next;
@@ -801,17 +801,15 @@ static void gc_mark_grey(zend_refcounted *ref, gc_stack *stack)
 		GC_BENCH_INC(zval_marked_grey);
 
 		if (GC_TYPE(ref) == IS_OBJECT) {
-			zend_object_get_gc_t get_gc;
 			zend_object *obj = (zend_object*)ref;
 
-			if (EXPECTED(!(OBJ_FLAGS(ref) & IS_OBJ_FREE_CALLED) &&
-						 (get_gc = obj->handlers->get_gc) != NULL)) {
+			if (EXPECTED(!(OBJ_FLAGS(ref) & IS_OBJ_FREE_CALLED))) {
 				int n;
 				zval *zv, *end;
 				zval tmp;
 
 				ZVAL_OBJ(&tmp, obj);
-				ht = get_gc(&tmp, &zv, &n);
+				ht = obj->handlers->get_gc(&tmp, &zv, &n);
 				end = zv + n;
 				if (EXPECTED(!ht)) {
 					if (!n) goto next;
@@ -986,17 +984,15 @@ tail_call:
 			}
 		} else {
 			if (GC_TYPE(ref) == IS_OBJECT) {
-				zend_object_get_gc_t get_gc;
 				zend_object *obj = (zend_object*)ref;
 
-				if (EXPECTED(!(OBJ_FLAGS(ref) & IS_OBJ_FREE_CALLED) &&
-							 (get_gc = obj->handlers->get_gc) != NULL)) {
+				if (EXPECTED(!(OBJ_FLAGS(ref) & IS_OBJ_FREE_CALLED))) {
 					int n;
 					zval *zv, *end;
 					zval tmp;
 
 					ZVAL_OBJ(&tmp, obj);
-					ht = get_gc(&tmp, &zv, &n);
+					ht = obj->handlers->get_gc(&tmp, &zv, &n);
 					end = zv + n;
 					if (EXPECTED(!ht)) {
 						if (!n) goto next;
@@ -1148,11 +1144,9 @@ static int gc_collect_white(zend_refcounted *ref, uint32_t *flags, gc_stack *sta
 		}
 
 		if (GC_TYPE(ref) == IS_OBJECT) {
-			zend_object_get_gc_t get_gc;
 			zend_object *obj = (zend_object*)ref;
 
-			if (EXPECTED(!(OBJ_FLAGS(ref) & IS_OBJ_FREE_CALLED) &&
-						 (get_gc = obj->handlers->get_gc) != NULL)) {
+			if (EXPECTED(!(OBJ_FLAGS(ref) & IS_OBJ_FREE_CALLED))) {
 				int n;
 				zval *zv, *end;
 				zval tmp;
@@ -1161,13 +1155,12 @@ static int gc_collect_white(zend_refcounted *ref, uint32_t *flags, gc_stack *sta
 				if (!GC_INFO(ref)) {
 					gc_add_garbage(ref);
 				}
-				if (obj->handlers->dtor_obj &&
-					((obj->handlers->dtor_obj != zend_objects_destroy_object) ||
-					 (obj->ce->destructor != NULL))) {
+				if (obj->handlers->dtor_obj != zend_objects_destroy_object ||
+						obj->ce->destructor != NULL) {
 					*flags |= GC_HAS_DESTRUCTORS;
 				}
 				ZVAL_OBJ(&tmp, obj);
-				ht = get_gc(&tmp, &zv, &n);
+				ht = obj->handlers->get_gc(&tmp, &zv, &n);
 				end = zv + n;
 				if (EXPECTED(!ht)) {
 					if (!n) goto next;
@@ -1339,17 +1332,15 @@ tail_call:
 		}
 
 		if (GC_TYPE(ref) == IS_OBJECT) {
-			zend_object_get_gc_t get_gc;
 			zend_object *obj = (zend_object*)ref;
 
-			if (EXPECTED(!(OBJ_FLAGS(ref) & IS_OBJ_FREE_CALLED) &&
-		                 (get_gc = obj->handlers->get_gc) != NULL)) {
+			if (EXPECTED(!(OBJ_FLAGS(ref) & IS_OBJ_FREE_CALLED))) {
 				int n;
 				zval *zv, *end;
 				zval tmp;
 
 				ZVAL_OBJ(&tmp, obj);
-				ht = get_gc(&tmp, &zv, &n);
+				ht = obj->handlers->get_gc(&tmp, &zv, &n);
 				end = zv + n;
 				if (EXPECTED(!ht)) {
 					if (!n) return;
@@ -1493,9 +1484,8 @@ ZEND_API int zend_gc_collect_cycles(void)
 
 						GC_TRACE_REF(obj, "calling destructor");
 						GC_ADD_FLAGS(obj, IS_OBJ_DESTRUCTOR_CALLED);
-						if (obj->handlers->dtor_obj
-						 && (obj->handlers->dtor_obj != zend_objects_destroy_object
-						  || obj->ce->destructor)) {
+						if (obj->handlers->dtor_obj != zend_objects_destroy_object
+								|| obj->ce->destructor) {
 							GC_ADDREF(obj);
 							obj->handlers->dtor_obj(obj);
 							GC_DELREF(obj);
@@ -1544,11 +1534,9 @@ ZEND_API int zend_gc_collect_cycles(void)
 						(GC_TYPE_INFO(obj) & ~GC_TYPE_MASK);
 					if (!(OBJ_FLAGS(obj) & IS_OBJ_FREE_CALLED)) {
 						GC_ADD_FLAGS(obj, IS_OBJ_FREE_CALLED);
-						if (obj->handlers->free_obj) {
-							GC_ADDREF(obj);
-							obj->handlers->free_obj(obj);
-							GC_DELREF(obj);
-						}
+						GC_ADDREF(obj);
+						obj->handlers->free_obj(obj);
+						GC_DELREF(obj);
 					}
 
 					ZEND_OBJECTS_STORE_ADD_TO_FREE_LIST(obj->handle);
@@ -1599,14 +1587,9 @@ ZEND_API void zend_gc_get_status(zend_gc_status *status)
 	status->num_roots = GC_G(num_roots);
 }
 
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * indent-tabs-mode: t
- * End:
- * vim600: sw=4 ts=4 fdm=marker
- * vim<600: sw=4 ts=4
- *
- * vim:noexpandtab:
- */
+#ifdef ZTS
+size_t zend_gc_globals_size(void)
+{
+	return sizeof(zend_gc_globals);
+}
+#endif

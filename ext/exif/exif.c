@@ -2,7 +2,7 @@
    +----------------------------------------------------------------------+
    | PHP Version 7                                                        |
    +----------------------------------------------------------------------+
-   | Copyright (c) 1997-2018 The PHP Group                                |
+   | Copyright (c) The PHP Group                                          |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
    | that is bundled with this package in the file LICENSE, and is        |
@@ -40,8 +40,6 @@
 #define EXIFERR_DC
 #define EXIFERR_CC
 #endif
-
-#undef EXIF_JPEG2000
 
 #include "php_exif.h"
 #include <math.h>
@@ -1459,28 +1457,29 @@ static signed short php_ifd_get16s(void *value, int motorola_intel)
 /* }}} */
 
 /* {{{ php_ifd_get32s
- * Convert a 32 bit signed value from file's native byte order */
-static int php_ifd_get32s(void *value, int motorola_intel)
+ * Convert a 32 bit unsigned value from file's native byte order */
+static unsigned php_ifd_get32u(void *void_value, int motorola_intel)
 {
+	uchar *value = (uchar *) void_value;
 	if (motorola_intel) {
-		return  (((char  *)value)[0] << 24)
-			  | (((uchar *)value)[1] << 16)
-			  | (((uchar *)value)[2] << 8 )
-			  | (((uchar *)value)[3]      );
+		return  ((unsigned)value[0] << 24)
+			  | ((unsigned)value[1] << 16)
+			  | ((unsigned)value[2] << 8 )
+			  | ((unsigned)value[3]      );
 	} else {
-		return  (((char  *)value)[3] << 24)
-			  | (((uchar *)value)[2] << 16)
-			  | (((uchar *)value)[1] << 8 )
-			  | (((uchar *)value)[0]      );
+		return  ((unsigned)value[3] << 24)
+			  | ((unsigned)value[2] << 16)
+			  | ((unsigned)value[1] << 8 )
+			  | ((unsigned)value[0]      );
 	}
 }
 /* }}} */
 
 /* {{{ php_ifd_get32u
- * Write 32 bit unsigned value to data */
-static unsigned php_ifd_get32u(void *value, int motorola_intel)
+ * Convert a 32 bit signed value from file's native byte order */
+static unsigned php_ifd_get32s(void *value, int motorola_intel)
 {
-	return (unsigned)php_ifd_get32s(value, motorola_intel) & 0xffffffff;
+	return (int) php_ifd_get32u(value, motorola_intel);
 }
 /* }}} */
 
@@ -2567,35 +2566,6 @@ static void add_assoc_image_info(zval *value, int sub_array, image_info_type *im
 #define M_COM   0xFE    /* COMment                                  */
 
 #define M_PSEUDO 0x123 	/* Extra value.                             */
-
-/* }}} */
-
-/* {{{ jpeg2000 markers
- */
-/* Markers x30 - x3F do not have a segment */
-/* Markers x00, x01, xFE, xC0 - xDF ISO/IEC 10918-1 -> M_<xx> */
-/* Markers xF0 - xF7 ISO/IEC 10918-3 */
-/* Markers xF7 - xF8 ISO/IEC 14495-1 */
-/* XY=Main/Tile-header:(R:required, N:not_allowed, O:optional, L:last_marker) */
-#define JC_SOC   0x4F   /* NN, Start of codestream                          */
-#define JC_SIZ   0x51   /* RN, Image and tile size                          */
-#define JC_COD   0x52   /* RO, Codeing style defaulte                       */
-#define JC_COC   0x53   /* OO, Coding style component                       */
-#define JC_TLM   0x55   /* ON, Tile part length main header                 */
-#define JC_PLM   0x57   /* ON, Packet length main header                    */
-#define JC_PLT   0x58   /* NO, Packet length tile part header               */
-#define JC_QCD   0x5C   /* RO, Quantization default                         */
-#define JC_QCC   0x5D   /* OO, Quantization component                       */
-#define JC_RGN   0x5E   /* OO, Region of interest                           */
-#define JC_POD   0x5F   /* OO, Progression order default                    */
-#define JC_PPM   0x60   /* ON, Packed packet headers main header            */
-#define JC_PPT   0x61   /* NO, Packet packet headers tile part header       */
-#define JC_CME   0x64   /* OO, Comment: "LL E <text>" E=0:binary, E=1:ascii */
-#define JC_SOT   0x90   /* NR, Start of tile                                */
-#define JC_SOP   0x91   /* NO, Start of packeter default                    */
-#define JC_EPH   0x92   /* NO, End of packet header                         */
-#define JC_SOD   0x93   /* NL, Start of data                                */
-#define JC_EOC   0xD9   /* NN, End of codestream                            */
 /* }}} */
 
 /* {{{ exif_process_COM
@@ -2607,34 +2577,6 @@ static void exif_process_COM (image_info_type *image_info, char *value, size_t l
 {
 	exif_iif_add_tag(image_info, SECTION_COMMENT, "Comment", TAG_COMPUTED_VALUE, TAG_FMT_STRING, length-2, value+2, length-2);
 }
-/* }}} */
-
-/* {{{ exif_process_CME
-   Process a CME marker.
-   We want to print out the marker contents as legible text;
-   we must guard against random junk and varying newline representations.
-*/
-#ifdef EXIF_JPEG2000
-static void exif_process_CME (image_info_type *image_info, char *value, size_t length)
-{
-	if (length>3) {
-		switch(value[2]) {
-			case 0:
-				exif_iif_add_tag(image_info, SECTION_COMMENT, "Comment", TAG_COMPUTED_VALUE, TAG_FMT_UNDEFINED, length, value, length);
-				break;
-			case 1:
-				exif_iif_add_tag(image_info, SECTION_COMMENT, "Comment", TAG_COMPUTED_VALUE, TAG_FMT_STRING, length, value, length);
-				break;
-			default:
-				php_error_docref(NULL, E_NOTICE, "Undefined JPEG2000 comment encoding");
-				break;
-		}
-	} else {
-		exif_iif_add_tag(image_info, SECTION_COMMENT, "Comment", TAG_COMPUTED_VALUE, TAG_FMT_UNDEFINED, 0, NULL, 0);
-		php_error_docref(NULL, E_NOTICE, "JPEG2000 comment section too small");
-	}
-}
-#endif
 /* }}} */
 
 /* {{{ exif_process_SOFn
@@ -2982,7 +2924,7 @@ static int exif_process_string_raw(char **result, char *value, size_t byte_count
  * In contrast to exif_process_string this function does always return a string buffer */
 static int exif_process_string(char **result, char *value, size_t byte_count) {
 	/* we cannot use strlcpy - here the problem is that we cannot use strlen to
-	 * determin length of string and we cannot use strlcpy with len=byte_count+1
+	 * determine length of string and we cannot use strlcpy with len=byte_count+1
 	 * because then we might get into an EXCEPTION if we exceed an allocated
 	 * memory page...so we use php_strnlen in conjunction with memcpy and add the NUL
 	 * char.
@@ -3386,7 +3328,7 @@ static int exif_process_IFD_TAG(image_info_type *ImageInfo, char *dir_entry, cha
 						ImageInfo->CopyrightPhotographer  = estrdup(value_ptr);
 						ImageInfo->CopyrightEditor        = estrndup(value_ptr+length+1, byte_count-length-1);
 						spprintf(&ImageInfo->Copyright, 0, "%s, %s", ImageInfo->CopyrightPhotographer, ImageInfo->CopyrightEditor);
-						/* format = TAG_FMT_UNDEFINED; this musn't be ASCII         */
+						/* format = TAG_FMT_UNDEFINED; this mustn't be ASCII         */
 						/* but we are not supposed to change this                   */
 						/* keep in mind that image_info does not store editor value */
 					} else {
@@ -3669,7 +3611,7 @@ static void exif_process_TIFF_in_JPEG(image_info_type *ImageInfo, char *CharBuf,
 	exif_error_docref(NULL EXIFERR_CC, ImageInfo, E_NOTICE, "Process TIFF in JPEG done");
 #endif
 
-	/* Compute the CCD width, in milimeters. */
+	/* Compute the CCD width, in millimeters. */
 	if (ImageInfo->FocalplaneXRes != 0) {
 		ImageInfo->CCDWidth = (float)(ImageInfo->ExifImageWidth * ImageInfo->FocalplaneUnits / ImageInfo->FocalplaneXRes);
 	}
@@ -3734,7 +3676,7 @@ static int exif_scan_JPEG_header(image_info_type *ImageInfo)
 
 		/* get marker byte, swallowing possible padding                           */
 		/* some software does not count the length bytes of COM section           */
-		/* one company doing so is very much envolved in JPEG... so we accept too */
+		/* one company doing so is very much involved in JPEG... so we accept too */
 		if (last_marker==M_COM && comment_correction) {
 			comment_correction = 2;
 		}
@@ -4478,7 +4420,9 @@ PHP_FUNCTION(exif_read_data)
 
 		ret = exif_read_from_stream(&ImageInfo, p_stream, read_thumbnail, read_all);
 	} else {
-		convert_to_string(stream);
+		if (!try_convert_to_string(stream)) {
+			return;
+		}
 
 		if (!Z_STRLEN_P(stream)) {
 			exif_error_docref(NULL EXIFERR_CC, &ImageInfo, E_WARNING, "Filename cannot be empty");
@@ -4634,9 +4578,9 @@ PHP_FUNCTION(exif_thumbnail)
 	ZEND_PARSE_PARAMETERS_START(1, 4)
 		Z_PARAM_ZVAL(stream)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_ZVAL_DEREF(z_width)
-		Z_PARAM_ZVAL_DEREF(z_height)
-		Z_PARAM_ZVAL_DEREF(z_imagetype)
+		Z_PARAM_ZVAL(z_width)
+		Z_PARAM_ZVAL(z_height)
+		Z_PARAM_ZVAL(z_imagetype)
 	ZEND_PARSE_PARAMETERS_END();
 
 	memset(&ImageInfo, 0, sizeof(ImageInfo));
@@ -4648,7 +4592,9 @@ PHP_FUNCTION(exif_thumbnail)
 
 		ret = exif_read_from_stream(&ImageInfo, p_stream, 1, 0);
 	} else {
-		convert_to_string(stream);
+		if (!try_convert_to_string(stream)) {
+			return;
+		}
 
 		if (!Z_STRLEN_P(stream)) {
 			exif_error_docref(NULL EXIFERR_CC, &ImageInfo, E_WARNING, "Filename cannot be empty");
@@ -4683,14 +4629,11 @@ PHP_FUNCTION(exif_thumbnail)
 				ImageInfo.Thumbnail.width = ImageInfo.Thumbnail.height = 0;
 			}
 		}
-		zval_ptr_dtor(z_width);
-		zval_ptr_dtor(z_height);
-		ZVAL_LONG(z_width,  ImageInfo.Thumbnail.width);
-		ZVAL_LONG(z_height, ImageInfo.Thumbnail.height);
+		ZEND_TRY_ASSIGN_REF_LONG(z_width,  ImageInfo.Thumbnail.width);
+		ZEND_TRY_ASSIGN_REF_LONG(z_height, ImageInfo.Thumbnail.height);
 	}
 	if (arg_c >= 4)	{
-		zval_ptr_dtor(z_imagetype);
-		ZVAL_LONG(z_imagetype, ImageInfo.Thumbnail.filetype);
+		ZEND_TRY_ASSIGN_REF_LONG(z_imagetype, ImageInfo.Thumbnail.filetype);
 	}
 
 #ifdef EXIF_DEBUG
@@ -4737,12 +4680,3 @@ PHP_FUNCTION(exif_imagetype)
 /* }}} */
 
 #endif
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: sw=4 ts=4 tw=78 fdm=marker
- * vim<600: sw=4 ts=4 tw=78
- */

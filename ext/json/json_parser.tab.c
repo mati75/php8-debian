@@ -1,8 +1,8 @@
-/* A Bison parser, made by GNU Bison 3.0.4.  */
+/* A Bison parser, made by GNU Bison 3.0.2.  */
 
 /* Bison implementation for Yacc-like parsers in C
 
-   Copyright (C) 1984, 1989-1990, 2000-2015 Free Software Foundation, Inc.
+   Copyright (C) 1984, 1989-1990, 2000-2013 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -44,13 +44,13 @@
 #define YYBISON 1
 
 /* Bison version.  */
-#define YYBISON_VERSION "3.0.4"
+#define YYBISON_VERSION "3.0.2"
 
 /* Skeleton name.  */
 #define YYSKELETON_NAME "yacc.c"
 
 /* Pure parsers.  */
-#define YYPURE 1
+#define YYPURE 2
 
 /* Push parsers.  */
 #define YYPUSH 0
@@ -65,7 +65,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 1997-2018 The PHP Group                                |
+  | Copyright (c) The PHP Group                                          |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -108,7 +108,8 @@ int json_yydebug = 1;
 
 
 
-
+/* Substitute the type names.  */
+#define YYSTYPE         PHP_JSON_YYSTYPE
 /* Substitute the variable and function names.  */
 #define yyparse         php_json_yyparse
 #define yylex           php_json_yylex
@@ -139,20 +140,28 @@ int json_yydebug = 1;
 
 /* In a future release of Bison, this section will be replaced
    by #include "json_parser.tab.h".  */
-#ifndef YY_PHP_JSON_YY_HOME_DMITRY_PHP_PHP_MASTER_EXT_JSON_JSON_PARSER_TAB_H_INCLUDED
-# define YY_PHP_JSON_YY_HOME_DMITRY_PHP_PHP_MASTER_EXT_JSON_JSON_PARSER_TAB_H_INCLUDED
+#ifndef YY_PHP_JSON_YY_EXT_JSON_JSON_PARSER_TAB_H_INCLUDED
+# define YY_PHP_JSON_YY_EXT_JSON_JSON_PARSER_TAB_H_INCLUDED
 /* Debug traces.  */
-#ifndef YYDEBUG
-# define YYDEBUG 0
-#endif
+#ifndef PHP_JSON_YYDEBUG
+# if defined YYDEBUG
 #if YYDEBUG
+#   define PHP_JSON_YYDEBUG 1
+#  else
+#   define PHP_JSON_YYDEBUG 0
+#  endif
+# else /* ! defined YYDEBUG */
+#  define PHP_JSON_YYDEBUG 0
+# endif /* ! defined YYDEBUG */
+#endif  /* ! defined PHP_JSON_YYDEBUG */
+#if PHP_JSON_YYDEBUG
 extern int php_json_yydebug;
 #endif
 
 /* Token type.  */
-#ifndef YYTOKENTYPE
-# define YYTOKENTYPE
-  enum yytokentype
+#ifndef PHP_JSON_YYTOKENTYPE
+# define PHP_JSON_YYTOKENTYPE
+  enum php_json_yytokentype
   {
     PHP_JSON_T_NUL = 258,
     PHP_JSON_T_TRUE = 259,
@@ -165,21 +174,11 @@ extern int php_json_yydebug;
     PHP_JSON_T_ERROR = 266
   };
 #endif
-/* Tokens.  */
-#define PHP_JSON_T_NUL 258
-#define PHP_JSON_T_TRUE 259
-#define PHP_JSON_T_FALSE 260
-#define PHP_JSON_T_INT 261
-#define PHP_JSON_T_DOUBLE 262
-#define PHP_JSON_T_STRING 263
-#define PHP_JSON_T_ESTRING 264
-#define PHP_JSON_T_EOI 265
-#define PHP_JSON_T_ERROR 266
 
 /* Value type.  */
-#if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-
-union YYSTYPE
+#if ! defined PHP_JSON_YYSTYPE && ! defined PHP_JSON_YYSTYPE_IS_DECLARED
+typedef union PHP_JSON_YYSTYPE PHP_JSON_YYSTYPE;
+union PHP_JSON_YYSTYPE
 {
 
 
@@ -191,17 +190,15 @@ union YYSTYPE
 
 
 };
-
-typedef union YYSTYPE YYSTYPE;
-# define YYSTYPE_IS_TRIVIAL 1
-# define YYSTYPE_IS_DECLARED 1
+# define PHP_JSON_YYSTYPE_IS_TRIVIAL 1
+# define PHP_JSON_YYSTYPE_IS_DECLARED 1
 #endif
 
 
 
 int php_json_yyparse (php_json_parser *parser);
 
-#endif /* !YY_PHP_JSON_YY_HOME_DMITRY_PHP_PHP_MASTER_EXT_JSON_JSON_PARSER_TAB_H_INCLUDED  */
+#endif /* !YY_PHP_JSON_YY_EXT_JSON_JSON_PARSER_TAB_H_INCLUDED  */
 
 /* Copy the second part of user declarations.  */
 
@@ -394,7 +391,7 @@ void free (void *); /* INFRINGES ON USER NAME SPACE */
 
 #if (! defined yyoverflow \
      && (! defined __cplusplus \
-         || (defined YYSTYPE_IS_TRIVIAL && YYSTYPE_IS_TRIVIAL)))
+         || (defined PHP_JSON_YYSTYPE_IS_TRIVIAL && PHP_JSON_YYSTYPE_IS_TRIVIAL)))
 
 /* A type that is properly aligned for any stack member.  */
 union yyalloc
@@ -507,7 +504,7 @@ static const yytype_uint8 yytranslate[] =
        5,     6,     7,     8,     9,    10,    11
 };
 
-#if YYDEBUG
+#if PHP_JSON_YYDEBUG
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
@@ -518,7 +515,7 @@ static const yytype_uint8 yyrline[] =
 };
 #endif
 
-#if YYDEBUG || YYERROR_VERBOSE || 0
+#if PHP_JSON_YYDEBUG || YYERROR_VERBOSE || 0
 /* YYTNAME[SYMBOL-NUM] -- String name of the symbol SYMBOL-NUM.
    First, the terminals, then, starting at YYNTOKENS, nonterminals.  */
 static const char *const yytname[] =
@@ -675,7 +672,7 @@ while (0)
 
 
 /* Enable debugging if requested.  */
-#if YYDEBUG
+#if PHP_JSON_YYDEBUG
 
 # ifndef YYFPRINTF
 #  include <stdio.h> /* INFRINGES ON USER NAME SPACE */
@@ -797,12 +794,12 @@ do {                                    \
 /* Nonzero means print parse trace.  It is left uninitialized so that
    multiple parsers can coexist.  */
 int yydebug;
-#else /* !YYDEBUG */
+#else /* !PHP_JSON_YYDEBUG */
 # define YYDPRINTF(Args)
 # define YY_SYMBOL_PRINT(Title, Type, Value, Location)
 # define YY_STACK_PRINT(Bottom, Top)
 # define YY_REDUCE_PRINT(Rule)
-#endif /* !YYDEBUG */
+#endif /* !PHP_JSON_YYDEBUG */
 
 
 /* YYINITDEPTH -- initial size of the parser's stacks.  */

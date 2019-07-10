@@ -3,7 +3,7 @@
   | phar php single-file executable PHP extension                        |
   | utility functions                                                    |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2005-2018 The PHP Group                                |
+  | Copyright (c) The PHP Group                                          |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -920,7 +920,7 @@ phar_entry_info * phar_open_jit(phar_archive_data *phar, phar_entry_info *entry,
 
 PHP_PHAR_API int phar_resolve_alias(char *alias, size_t alias_len, char **filename, size_t *filename_len) /* {{{ */ {
 	phar_archive_data *fd_ptr;
-	if (HT_FLAGS(&PHAR_G(phar_alias_map))
+	if (HT_IS_INITIALIZED(&PHAR_G(phar_alias_map))
 			&& NULL != (fd_ptr = zend_hash_str_find_ptr(&(PHAR_G(phar_alias_map)), alias, alias_len))) {
 		*filename = fd_ptr->fname;
 		*filename_len = fd_ptr->fname_len;
@@ -1244,7 +1244,7 @@ phar_entry_info *phar_get_entry_info_dir(phar_archive_data *phar, char *path, si
 		return NULL;
 	}
 
-	if (!HT_FLAGS(&phar->manifest)) {
+	if (!HT_IS_INITIALIZED(&phar->manifest)) {
 		return NULL;
 	}
 
@@ -1289,7 +1289,7 @@ phar_entry_info *phar_get_entry_info_dir(phar_archive_data *phar, char *path, si
 		}
 	}
 
-	if (HT_FLAGS(&phar->mounted_dirs) && zend_hash_num_elements(&phar->mounted_dirs)) {
+	if (HT_IS_INITIALIZED(&phar->mounted_dirs) && zend_hash_num_elements(&phar->mounted_dirs)) {
 		zend_string *str_key;
 
 		ZEND_HASH_FOREACH_STR_KEY(&phar->mounted_dirs, str_key) {
@@ -1547,7 +1547,7 @@ int phar_verify_signature(php_stream *fp, size_t end_of_phar, uint32_t sig_type,
 				return FAILURE;
 			}
 
-			key = PEM_read_bio_PUBKEY(in, NULL,NULL, NULL);
+			key = PEM_read_bio_PUBKEY(in, NULL, NULL, NULL);
 			BIO_free(in);
 			zend_string_release_ex(pubkey, 0);
 
@@ -1581,6 +1581,7 @@ int phar_verify_signature(php_stream *fp, size_t end_of_phar, uint32_t sig_type,
 
 			if (EVP_VerifyFinal(md_ctx, (unsigned char *)sig, sig_len, key) != 1) {
 				/* 1: signature verified, 0: signature does not match, -1: failed signature operation */
+				EVP_PKEY_free(key);
 				EVP_MD_CTX_destroy(md_ctx);
 
 				if (error) {
@@ -1590,6 +1591,7 @@ int phar_verify_signature(php_stream *fp, size_t end_of_phar, uint32_t sig_type,
 				return FAILURE;
 			}
 
+			EVP_PKEY_free(key);
 			EVP_MD_CTX_destroy(md_ctx);
 #endif
 
@@ -1861,6 +1863,7 @@ int phar_create_signature(phar_archive_data *phar, php_stream *fp, char **signat
 			sigbuf = emalloc(siglen + 1);
 
 			if (!EVP_SignInit(md_ctx, EVP_sha1())) {
+				EVP_PKEY_free(key);
 				efree(sigbuf);
 				if (error) {
 					spprintf(error, 0, "unable to initialize openssl signature for phar \"%s\"", phar->fname);
@@ -1870,6 +1873,7 @@ int phar_create_signature(phar_archive_data *phar, php_stream *fp, char **signat
 
 			while ((sig_len = php_stream_read(fp, (char*)buf, sizeof(buf))) > 0) {
 				if (!EVP_SignUpdate(md_ctx, buf, sig_len)) {
+					EVP_PKEY_free(key);
 					efree(sigbuf);
 					if (error) {
 						spprintf(error, 0, "unable to update the openssl signature for phar \"%s\"", phar->fname);
@@ -1879,6 +1883,7 @@ int phar_create_signature(phar_archive_data *phar, php_stream *fp, char **signat
 			}
 
 			if (!EVP_SignFinal (md_ctx, sigbuf, &siglen, key)) {
+				EVP_PKEY_free(key);
 				efree(sigbuf);
 				if (error) {
 					spprintf(error, 0, "unable to write phar \"%s\" with requested openssl signature", phar->fname);
@@ -1887,6 +1892,7 @@ int phar_create_signature(phar_archive_data *phar, php_stream *fp, char **signat
 			}
 
 			sigbuf[siglen] = '\0';
+			EVP_PKEY_free(key);
 			EVP_MD_CTX_destroy(md_ctx);
 #else
 			size_t siglen;
@@ -2089,12 +2095,3 @@ int phar_copy_on_write(phar_archive_data **pphar) /* {{{ */
 	return SUCCESS;
 }
 /* }}} */
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */

@@ -16,6 +16,7 @@ if (!extension_loaded("zlib")) {
 
 echo "*** Testing gzopen() : usage variation ***\n";
 
+$testName = 'gzopen_variation4';
 require_once('reading_include_path.inc');
 
 //define the files to go into these directories, create one in dir2
