@@ -432,7 +432,7 @@ static zend_always_inline zend_string *accel_find_interned_string(zend_string *s
 
 	if (!ZCG(counted)) {
 		if (!ZCG(accelerator_enabled) || accel_activate_add() == FAILURE) {
-			return str;
+			return NULL;
 		}
 		ZCG(counted) = 1;
 	}
@@ -754,10 +754,9 @@ static void accel_use_shm_interned_strings(void)
 	if (ZCSG(interned_strings).saved_top == NULL) {
 		accel_copy_permanent_strings(accel_new_interned_string);
 	} else {
+		ZCG(counted) = 1;
 		accel_copy_permanent_strings(accel_replace_string_by_shm_permanent);
-		if (ZCG(counted)) {
-			accel_deactivate_sub();
-		}
+		ZCG(counted) = 0;
 	}
 	accel_interned_strings_save_state();
 
@@ -1187,7 +1186,11 @@ char *accel_make_persistent_key(const char *path, size_t path_length, int *key_l
 						cwd_len = ZCG(cwd_key_len) = buf + sizeof(buf) - 1 - res;
 						cwd = ZCG(cwd_key);
 						memcpy(ZCG(cwd_key), res, cwd_len + 1);
+					} else {
+						return NULL;
 					}
+				} else {
+					return NULL;
 				}
 			}
 		}
@@ -1226,7 +1229,11 @@ char *accel_make_persistent_key(const char *path, size_t path_length, int *key_l
 						include_path_len = ZCG(include_path_key_len) = buf + sizeof(buf) - 1 - res;
 						include_path = ZCG(include_path_key);
 						memcpy(ZCG(include_path_key), res, include_path_len + 1);
+					} else {
+						return NULL;
 					}
+				} else {
+					return NULL;
 				}
 			}
 		}
@@ -1383,6 +1390,10 @@ static zend_persistent_script *store_script_in_file_cache(zend_persistent_script
 	/* Align to 64-byte boundary */
 	ZCG(mem) = zend_arena_alloc(&CG(arena), memory_used + 64);
 	ZCG(mem) = (void*)(((zend_uintptr_t)ZCG(mem) + 63L) & ~63L);
+#elif ZEND_MM_ALIGNMENT < 8
+	/* Align to 8-byte boundary */
+	ZCG(mem) = zend_arena_alloc(&CG(arena), memory_used + 8);
+	ZCG(mem) = (void*)(((zend_uintptr_t)ZCG(mem) + 7L) & ~7L);
 #else
 	ZCG(mem) = zend_arena_alloc(&CG(arena), memory_used);
 #endif
@@ -1903,11 +1914,22 @@ zend_op_array *persistent_compile_file(zend_file_handle *file_handle, int type)
 	int key_length;
 	int from_shared_memory; /* if the script we've got is stored in SHM */
 
-	if (!file_handle->filename || !ZCG(enabled) || !accel_startup_ok) {
+	if (!file_handle->filename || !ZCG(accelerator_enabled)) {
 		/* The Accelerator is disabled, act as if without the Accelerator */
+		ZCG(cache_opline) = NULL;
+		ZCG(cache_persistent_script) = NULL;
+#ifdef HAVE_OPCACHE_FILE_CACHE
+		if (file_handle->filename
+		 && ZCG(accel_directives).file_cache
+		 && ZCG(enabled) && accel_startup_ok) {
+			return file_cache_compile_file(file_handle, type);
+		}
+#endif
 		return accelerator_orig_compile_file(file_handle, type);
 #ifdef HAVE_OPCACHE_FILE_CACHE
 	} else if (file_cache_only) {
+		ZCG(cache_opline) = NULL;
+		ZCG(cache_persistent_script) = NULL;
 		return file_cache_compile_file(file_handle, type);
 #endif
 	} else if (!ZCG(accelerator_enabled) ||
@@ -1917,6 +1939,8 @@ zend_op_array *persistent_compile_file(zend_file_handle *file_handle, int type)
 			return file_cache_compile_file(file_handle, type);
 		}
 #endif
+		ZCG(cache_opline) = NULL;
+		ZCG(cache_persistent_script) = NULL;
 		return accelerator_orig_compile_file(file_handle, type);
 	}
 
@@ -1943,10 +1967,14 @@ zend_op_array *persistent_compile_file(zend_file_handle *file_handle, int type)
 			/* try to find cached script by key */
 			key = accel_make_persistent_key(file_handle->filename, strlen(file_handle->filename), &key_length);
 			if (!key) {
+				ZCG(cache_opline) = NULL;
+				ZCG(cache_persistent_script) = NULL;
 				return accelerator_orig_compile_file(file_handle, type);
 			}
 			persistent_script = zend_accel_hash_str_find(&ZCSG(hash), key, key_length);
 		} else if (UNEXPECTED(is_stream_path(file_handle->filename) && !is_cacheable_stream_path(file_handle->filename))) {
+			ZCG(cache_opline) = NULL;
+			ZCG(cache_persistent_script) = NULL;
 			return accelerator_orig_compile_file(file_handle, type);
 		}
 
@@ -2310,9 +2338,8 @@ static void accel_reset_pcre_cache(void)
 
 static void accel_activate(void)
 {
-	zend_bool reset_pcre = 0;
-
 	if (!ZCG(enabled) || !accel_startup_ok) {
+		ZCG(accelerator_enabled) = 0;
 		return;
 	}
 
@@ -2340,6 +2367,7 @@ static void accel_activate(void)
 
 #ifdef HAVE_OPCACHE_FILE_CACHE
 	if (file_cache_only) {
+		ZCG(accelerator_enabled) = 0;
 		return;
 	}
 #endif
@@ -2358,7 +2386,6 @@ static void accel_activate(void)
 					zend_alter_ini_entry_chars(key, "0", 1, ZEND_INI_SYSTEM, ZEND_INI_STAGE_RUNTIME);
 					zend_string_release_ex(key, 0);
 					zend_accel_error(ACCEL_LOG_WARNING, "Can't cache files in chroot() directory with too big inode");
-					ZCG(accelerator_enabled) = 0;
 					return;
 				}
 			}
@@ -2417,9 +2444,6 @@ static void accel_activate(void)
 				accel_restart_leave();
 			}
 		}
-		if (!ZCG(pcre_reseted)) {
-			reset_pcre = 1;
-		}
 		zend_shared_alloc_unlock();
 	}
 
@@ -2428,7 +2452,7 @@ static void accel_activate(void)
 	SHM_PROTECT();
 	HANDLE_UNBLOCK_INTERRUPTIONS();
 
-	if (ZCSG(last_restart_time) != ZCG(last_restart_time)) {
+	if (ZCG(accelerator_enabled) && ZCSG(last_restart_time) != ZCG(last_restart_time)) {
 		/* SHM was reinitialized. */
 		ZCG(last_restart_time) = ZCSG(last_restart_time);
 
@@ -2437,7 +2461,7 @@ static void accel_activate(void)
 
 		accel_reset_pcre_cache();
 		ZCG(pcre_reseted) = 0;
-	} else if (reset_pcre) {
+	} else if (!ZCG(accelerator_enabled) && !ZCG(pcre_reseted)) {
 		accel_reset_pcre_cache();
 		ZCG(pcre_reseted) = 1;
 	}
@@ -2508,6 +2532,7 @@ static inline int accel_find_sapi(void)
 		"cli-server",
 		"cgi-fcgi",
 		"fpm-fcgi",
+		"fpmi-fcgi",
 		"apache2handler",
 		"litespeed",
 		"uwsgi",
