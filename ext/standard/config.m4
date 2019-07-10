@@ -1,5 +1,3 @@
-dnl -*- autoconf -*-
-
 dnl
 dnl Check if flush should be called explicitly after buffered io
 dnl
@@ -286,14 +284,14 @@ fi
 dnl
 dnl Check for available functions
 dnl
-dnl log2 could be used to improve the log function, however it requires C99. The check for log2 should be turned on,
-dnl as soon as we support C99.
+dnl log2 could be used to improve the log function, however it requires C99. The
+dnl check for log2 should be turned on, as soon as we support C99.
 AC_CHECK_FUNCS(getcwd getwd asinh acosh atanh log1p hypot glob strfmon nice fpclass mempcpy strpncpy)
 AC_FUNC_FNMATCH
 
 dnl
-dnl Check if there is a support means of creating a new process
-dnl and defining which handles it receives
+dnl Check if there is a support means of creating a new process and defining
+dnl which handles it receives
 dnl
 AC_CHECK_FUNCS(fork CreateProcess, [
   php_can_support_proc_open=yes
@@ -337,7 +335,8 @@ fi
 
 dnl
 dnl Detect library functions needed by php dns_xxx functions
-dnl ext/standard/php_dns.h will collect these in a single define: HAVE_FULL_DNS_FUNCS
+dnl ext/standard/php_dns.h will collect these in a single define
+dnl HAVE_FULL_DNS_FUNCS
 dnl
 PHP_CHECK_FUNC(res_nsearch, resolv, bind, socket)
 PHP_CHECK_FUNC(res_ndestroy, resolv, bind, socket)
@@ -407,9 +406,11 @@ AC_CHECK_DECLS([arc4random_buf])
 dnl
 dnl Check for argon2
 dnl
-PHP_ARG_WITH(password-argon2, for Argon2 support,
-[  --with-password-argon2[=DIR]
-                          Include Argon2 support in password_*. DIR is the Argon2 shared library path])
+PHP_ARG_WITH([password-argon2],
+  [for Argon2 support],
+  [AS_HELP_STRING([[--with-password-argon2[=DIR]]],
+    [Include Argon2 support in password_*. DIR is the Argon2 shared library
+    path])])
 
 if test "$PHP_PASSWORD_ARGON2" != "no"; then
   AC_MSG_CHECKING([for Argon2 library])
@@ -433,7 +434,7 @@ if test "$PHP_PASSWORD_ARGON2" != "no"; then
     LIBS="$LIBS -largon2"
     AC_DEFINE(HAVE_ARGON2LIB, 1, [ Define to 1 if you have the <argon2.h> header file ])
   ], [
-    AC_MSG_ERROR([Problem with libargon2.(a|so). Please verify that Argon2 header and libaries >= 20161029 are installed])
+    AC_MSG_ERROR([Problem with libargon2.(a|so). Please verify that Argon2 header and libraries >= 20161029 are installed])
   ])
 fi
 

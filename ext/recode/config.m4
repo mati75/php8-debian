@@ -1,7 +1,7 @@
-dnl config.m4 for extension recode
-
-PHP_ARG_WITH(recode,for recode support,
-[  --with-recode[=DIR]       Include recode support])
+PHP_ARG_WITH([recode],
+  [for recode support],
+  [AS_HELP_STRING([[--with-recode[=DIR]]],
+    [Include recode support])])
 
 if test "$PHP_RECODE" != "no"; then
   RECODE_LIST="$PHP_RECODE /usr/local /usr /opt"
@@ -57,5 +57,5 @@ recode_format_table();
   PHP_ADD_INCLUDE($RECODE_DIR/$RECODE_INC)
   PHP_SUBST(RECODE_SHARED_LIBADD)
   AC_CHECK_HEADERS(stdbool.h)
-  PHP_NEW_EXTENSION(recode, recode.c, $ext_shared)
+  PHP_NEW_EXTENSION(recode, recode.c, $ext_shared,, -DZEND_ENABLE_STATIC_TSRMLS_CACHE=1)
 fi

@@ -2,7 +2,7 @@
    +----------------------------------------------------------------------+
    | PHP Version 7                                                        |
    +----------------------------------------------------------------------+
-   | Copyright (c) 1997-2018 The PHP Group                                |
+   | Copyright (c) The PHP Group                                          |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
    | that is bundled with this package in the file LICENSE, and is        |
@@ -181,7 +181,7 @@ php_stream * php_stream_url_wrap_php(php_stream_wrapper *wrapper, const char *pa
 	int fd = -1;
 	int mode_rw = 0;
 	php_stream * stream = NULL;
-	char *p, *token, *pathdup;
+	char *p, *token = NULL, *pathdup;
 	zend_long max_memory;
 	FILE *file = NULL;
 #ifdef PHP_WIN32
@@ -441,13 +441,3 @@ PHPAPI const php_stream_wrapper php_stream_php_wrapper =	{
 	NULL,
 	0, /* is_url */
 };
-
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: sw=4 ts=4 fdm=marker
- * vim<600: sw=4 ts=4
- */

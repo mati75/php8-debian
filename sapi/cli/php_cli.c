@@ -2,7 +2,7 @@
    +----------------------------------------------------------------------+
    | PHP Version 7                                                        |
    +----------------------------------------------------------------------+
-   | Copyright (c) 1997-2018 The PHP Group                                |
+   | Copyright (c) The PHP Group                                          |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
    | that is bundled with this package in the file LICENSE, and is        |
@@ -46,12 +46,9 @@
 #if HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-#if HAVE_SIGNAL_H
+
 #include <signal.h>
-#endif
-#if HAVE_SETLOCALE
 #include <locale.h>
-#endif
 #include "zend.h"
 #include "zend_extensions.h"
 #include "php_ini.h"
@@ -64,10 +61,6 @@
 #include <io.h>
 #include <fcntl.h>
 #include "win32/php_registry.h"
-#endif
-
-#if HAVE_SIGNAL_H
-#include <signal.h>
 #endif
 
 #ifdef __riscos__
@@ -182,14 +175,6 @@ const opt_struct OPTIONS[] = {
 	{'-', 0, NULL} /* end of args */
 };
 
-static int print_module_info(zval *element) /* {{{ */
-{
-	zend_module_entry *module = (zend_module_entry*)Z_PTR_P(element);
-	php_printf("%s\n", module->name);
-	return ZEND_HASH_APPLY_KEEP;
-}
-/* }}} */
-
 static int module_name_cmp(const void *a, const void *b) /* {{{ */
 {
 	Bucket *f = (Bucket *) a;
@@ -203,11 +188,14 @@ static int module_name_cmp(const void *a, const void *b) /* {{{ */
 static void print_modules(void) /* {{{ */
 {
 	HashTable sorted_registry;
+	zend_module_entry *module;
 
 	zend_hash_init(&sorted_registry, 50, NULL, NULL, 0);
 	zend_hash_copy(&sorted_registry, &module_registry, NULL);
 	zend_hash_sort(&sorted_registry, module_name_cmp, 0);
-	zend_hash_apply(&sorted_registry, print_module_info);
+	ZEND_HASH_FOREACH_PTR(&sorted_registry, module) {
+		php_printf("%s\n", module->name);
+	} ZEND_HASH_FOREACH_END();
 	zend_hash_destroy(&sorted_registry);
 }
 /* }}} */
@@ -683,7 +671,7 @@ static int do_cli(int argc, char **argv) /* {{{ */
 				goto out;
 
 			case 'v': /* show php version & quit */
-				php_printf("PHP %s (%s) (built: %s %s) ( %s)\nCopyright (c) 1997-2018 The PHP Group\n%s",
+				php_printf("PHP %s (%s) (built: %s %s) ( %s)\nCopyright (c) The PHP Group\n%s",
 					PHP_VERSION, cli_sapi_module.name, __DATE__, __TIME__,
 #if ZTS
 					"ZTS "
@@ -973,6 +961,12 @@ static int do_cli(int argc, char **argv) /* {{{ */
 		}
 		request_started = 1;
 		CG(start_lineno) = lineno;
+
+		zend_register_bool_constant(
+			ZEND_STRL("PHP_CLI_PROCESS_TITLE"),
+			is_ps_title_available() == PS_TITLE_SUCCESS,
+			CONST_CS, 0);
+
 		*arg_excp = arg_free; /* reconstuct argv */
 
 		if (hide_argv) {
@@ -1238,7 +1232,6 @@ int main(int argc, char *argv[])
 	}
 #endif
 
-#ifdef HAVE_SIGNAL_H
 #if defined(SIGPIPE) && defined(SIG_IGN)
 	signal(SIGPIPE, SIG_IGN); /* ignore SIGPIPE in standalone mode so
 								that sockets created via fsockopen()
@@ -1247,13 +1240,12 @@ int main(int argc, char *argv[])
 								does that for us!  thies@thieso.net
 								20000419 */
 #endif
-#endif
-
 
 #ifdef ZTS
-	tsrm_startup(1, 1, 0, NULL);
-	(void)ts_resource(0);
+	php_tsrm_startup();
+# ifdef PHP_WIN32
 	ZEND_TSRMLS_CACHE_UPDATE();
+# endif
 #endif
 
 	zend_signal_startup();
@@ -1427,12 +1419,3 @@ out:
 	exit(exit_status);
 }
 /* }}} */
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: sw=4 ts=4 fdm=marker
- * vim<600: sw=4 ts=4
- */

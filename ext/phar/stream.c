@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | phar:// stream wrapper support                                       |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2005-2018 The PHP Group                                |
+  | Copyright (c) The PHP Group                                          |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -106,7 +106,7 @@ php_url* phar_parse_url(php_stream_wrapper *wrapper, const char *filename, const
 	if (mode[0] == 'w' || (mode[0] == 'r' && mode[1] == '+')) {
 		phar_archive_data *pphar = NULL, *phar;
 
-		if (PHAR_G(request_init) && HT_FLAGS(&PHAR_G(phar_fname_map)) && NULL == (pphar = zend_hash_find_ptr(&(PHAR_G(phar_fname_map)), resource->host))) {
+		if (PHAR_G(request_init) && HT_IS_INITIALIZED(&PHAR_G(phar_fname_map)) && NULL == (pphar = zend_hash_find_ptr(&(PHAR_G(phar_fname_map)), resource->host))) {
 			pphar = NULL;
 		}
 		if (PHAR_G(readonly) && (!pphar || !pphar->is_data)) {
@@ -596,7 +596,7 @@ static int phar_wrapper_stat(php_stream_wrapper *wrapper, const char *url, int f
 		php_url_free(resource);
 		return SUCCESS;
 	}
-	if (!HT_FLAGS(&phar->manifest)) {
+	if (!HT_IS_INITIALIZED(&phar->manifest)) {
 		php_url_free(resource);
 		return FAILURE;
 	}
@@ -613,7 +613,7 @@ static int phar_wrapper_stat(php_stream_wrapper *wrapper, const char *url, int f
 		return SUCCESS;
 	}
 	/* check for mounted directories */
-	if (HT_FLAGS(&phar->mounted_dirs) && zend_hash_num_elements(&phar->mounted_dirs)) {
+	if (HT_IS_INITIALIZED(&phar->mounted_dirs) && zend_hash_num_elements(&phar->mounted_dirs)) {
 		zend_string *str_key;
 
 		ZEND_HASH_FOREACH_STR_KEY(&phar->mounted_dirs, str_key) {
@@ -967,12 +967,3 @@ static int phar_wrapper_rename(php_stream_wrapper *wrapper, const char *url_from
 	return 1;
 }
 /* }}} */
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */

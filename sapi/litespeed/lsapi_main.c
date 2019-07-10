@@ -2,7 +2,7 @@
    +----------------------------------------------------------------------+
    | PHP Version 7                                                        |
    +----------------------------------------------------------------------+
-   | Copyright (c) 1997-2018 The PHP Group                                |
+   | Copyright (c) The PHP Group                                          |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
    | that is bundled with this package in the file LICENSE, and is        |
@@ -28,10 +28,7 @@
 #include "lsapilib.h"
 
 #include <stdio.h>
-
-#if HAVE_STDLIB_H
 #include <stdlib.h>
-#endif
 
 #if HAVE_UNISTD_H
 #include <unistd.h>
@@ -46,12 +43,7 @@
 
 #endif
 
-#if HAVE_SIGNAL_H
-
 #include <signal.h>
-
-#endif
-
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
@@ -65,7 +57,7 @@
 /* Key for each cache entry is dirname(PATH_TRANSLATED).
  *
  * NOTE: Each cache entry config_hash contains the combination from all user ini files found in
- *       the path starting from doc_root throught to dirname(PATH_TRANSLATED).  There is no point
+ *       the path starting from doc_root through to dirname(PATH_TRANSLATED).  There is no point
  *       storing per-file entries as it would not be possible to detect added / deleted entries
  *       between separate files.
  */
@@ -89,7 +81,6 @@ zend_compiler_globals    *compiler_globals;
 zend_executor_globals    *executor_globals;
 php_core_globals         *core_globals;
 sapi_globals_struct      *sapi_globals;
-void ***tsrm_ls;
 #endif
 
 zend_module_entry litespeed_module_entry;
@@ -248,6 +239,7 @@ static void litespeed_php_import_environment_variables(zval *array_ptr)
         return;
     }
 
+    tsrm_env_lock();
     for (env = environ; env != NULL && *env != NULL; env++) {
         p = strchr(*env, '=');
         if (!p) {               /* malformed entry? */
@@ -262,6 +254,7 @@ static void litespeed_php_import_environment_variables(zval *array_ptr)
         t[nlen] = '\0';
         add_variable(t, nlen, p + 1, strlen( p + 1 ), array_ptr);
     }
+    tsrm_env_unlock();
     if (t != buf && t != NULL) {
         efree(t);
     }
@@ -455,7 +448,7 @@ static int sapi_lsapi_activate()
 static sapi_module_struct lsapi_sapi_module =
 {
     "litespeed",
-    "LiteSpeed V7.3.2",
+    "LiteSpeed",
 
     php_lsapi_startup,              /* startup */
     php_module_shutdown_wrapper,    /* shutdown */
@@ -1042,9 +1035,9 @@ static int cli_main( int argc, char * argv[] )
             case 'v':
                 if (php_request_startup() != FAILURE) {
 #if ZEND_DEBUG
-                    php_printf("PHP %s (%s) (built: %s %s) (DEBUG)\nCopyright (c) 1997-2018 The PHP Group\n%s", PHP_VERSION, sapi_module.name, __DATE__, __TIME__, get_zend_version());
+                    php_printf("PHP %s (%s) (built: %s %s) (DEBUG)\nCopyright (c) The PHP Group\n%s", PHP_VERSION, sapi_module.name, __DATE__, __TIME__, get_zend_version());
 #else
-                    php_printf("PHP %s (%s) (built: %s %s)\nCopyright (c) 1997-2018 The PHP Group\n%s", PHP_VERSION, sapi_module.name, __DATE__, __TIME__, get_zend_version());
+                    php_printf("PHP %s (%s) (built: %s %s)\nCopyright (c) The PHP Group\n%s", PHP_VERSION, sapi_module.name, __DATE__, __TIME__, get_zend_version());
 #endif
 #ifdef PHP_OUTPUT_NEWAPI
                     php_output_end_all();
@@ -1230,14 +1223,12 @@ int main( int argc, char * argv[] )
     int slow_script_msec = 0;
     char time_buf[40];
 
-#ifdef HAVE_SIGNAL_H
 #if defined(SIGPIPE) && defined(SIG_IGN)
     signal(SIGPIPE, SIG_IGN);
 #endif
-#endif
 
 #ifdef ZTS
-    tsrm_startup(1, 1, 0, NULL);
+    php_tsrm_startup();
 #endif
 
 #if PHP_MAJOR_VERSION >= 7
@@ -1265,7 +1256,6 @@ int main( int argc, char * argv[] )
     executor_globals = ts_resource(executor_globals_id);
     core_globals = ts_resource(core_globals_id);
     sapi_globals = ts_resource(sapi_globals_id);
-    tsrm_ls = ts_resource(0);
 
     SG(request_info).path_translated = NULL;
 #endif
@@ -1423,7 +1413,7 @@ zend_module_entry litespeed_module_entry = {
     NULL,
     NULL,
     NULL,
-    NO_VERSION_YET,
+    PHP_VERSION,
     STANDARD_MODULE_PROPERTIES
 };
 
@@ -1535,12 +1525,3 @@ PHP_FUNCTION(litespeed_finish_request)
     RETURN_FALSE;
 }
 /* }}} */
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: sw=4 ts=4 fdm=marker
- * vim<600: sw=4 ts=4
- */

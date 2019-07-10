@@ -2,7 +2,7 @@
    +----------------------------------------------------------------------+
    | PHP Version 7                                                        |
    +----------------------------------------------------------------------+
-   | Copyright (c) 1997-2018 The PHP Group                                |
+   | Copyright (c) The PHP Group                                          |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
    | that is bundled with this package in the file LICENSE, and is        |
@@ -129,7 +129,7 @@ PHPAPI double _php_math_round(double value, int places, int mode) {
 	double tmp_value;
 	int precision_places;
 
-	if (!zend_finite(value)) {
+	if (!zend_finite(value) || value == 0.0) {
 		return value;
 	}
 
@@ -141,7 +141,7 @@ PHPAPI double _php_math_round(double value, int places, int mode) {
 	/* If the decimal precision guaranteed by FP arithmetic is higher than
 	   the requested places BUT is small enough to make sure a non-zero value
 	   is returned, pre-round the result to the precision */
-	if (precision_places > places && precision_places - places < 15) {
+	if (precision_places > places && precision_places - 15 < places) {
 		int64_t use_precision = precision_places < INT_MIN+1 ? INT_MIN+1 : precision_places;
 
 		f2 = php_intpow10(abs((int)use_precision));
@@ -1090,7 +1090,10 @@ PHP_FUNCTION(base_convert)
 		Z_PARAM_LONG(frombase)
 		Z_PARAM_LONG(tobase)
 	ZEND_PARSE_PARAMETERS_END();
-	convert_to_string_ex(number);
+
+	if (!try_convert_to_string(number)) {
+		return;
+	}
 
 	if (frombase < 2 || frombase > 36) {
 		php_error_docref(NULL, E_WARNING, "Invalid `from base' (" ZEND_LONG_FMT ")", frombase);
@@ -1318,12 +1321,3 @@ PHP_FUNCTION(intdiv)
 	RETURN_LONG(dividend / divisor);
 }
 /* }}} */
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: fdm=marker
- * vim: noet sw=4 ts=4
- */

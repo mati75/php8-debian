@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 1997-2018 The PHP Group                                |
+  | Copyright (c) The PHP Group                                          |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -31,12 +31,6 @@
 #include "pdo/php_pdo_driver.h"
 #include "pdo/php_pdo_error.h"
 #include "ext/standard/file.h"
-
-#undef PACKAGE_BUGREPORT
-#undef PACKAGE_NAME
-#undef PACKAGE_STRING
-#undef PACKAGE_TARNAME
-#undef PACKAGE_VERSION
 #include "pg_config.h" /* needed for PG_VERSION */
 #include "php_pdo_pgsql.h"
 #include "php_pdo_pgsql_int.h"
@@ -562,7 +556,7 @@ static PHP_METHOD(PDO, pgsqlCopyFromArray)
 		RETURN_FALSE;
 	}
 
-	dbh = Z_PDO_DBH_P(getThis());
+	dbh = Z_PDO_DBH_P(ZEND_THIS);
 	PDO_CONSTRUCT_CHECK;
 	PDO_DBH_CLEAR_ERR();
 
@@ -598,7 +592,10 @@ static PHP_METHOD(PDO, pgsqlCopyFromArray)
 		PQclear(pgsql_result);
 		ZEND_HASH_FOREACH_VAL(Z_ARRVAL_P(pg_rows), tmp) {
 			size_t query_len;
-			convert_to_string_ex(tmp);
+			if (!try_convert_to_string(tmp)) {
+				efree(query);
+				return;
+			}
 
 			if (buffer_len < Z_STRLEN_P(tmp)) {
 				buffer_len = Z_STRLEN_P(tmp);
@@ -667,7 +664,7 @@ static PHP_METHOD(PDO, pgsqlCopyFromFile)
 	}
 
 	/* Obtain db Handler */
-	dbh = Z_PDO_DBH_P(getThis());
+	dbh = Z_PDO_DBH_P(ZEND_THIS);
 	PDO_CONSTRUCT_CHECK;
 	PDO_DBH_CLEAR_ERR();
 
@@ -767,7 +764,7 @@ static PHP_METHOD(PDO, pgsqlCopyToFile)
 		return;
 	}
 
-	dbh = Z_PDO_DBH_P(getThis());
+	dbh = Z_PDO_DBH_P(ZEND_THIS);
 	PDO_CONSTRUCT_CHECK;
 	PDO_DBH_CLEAR_ERR();
 
@@ -860,7 +857,7 @@ static PHP_METHOD(PDO, pgsqlCopyToArray)
 		return;
 	}
 
-	dbh = Z_PDO_DBH_P(getThis());
+	dbh = Z_PDO_DBH_P(ZEND_THIS);
 	PDO_CONSTRUCT_CHECK;
 	PDO_DBH_CLEAR_ERR();
 
@@ -925,7 +922,7 @@ static PHP_METHOD(PDO, pgsqlLOBCreate)
 	pdo_pgsql_db_handle *H;
 	Oid lfd;
 
-	dbh = Z_PDO_DBH_P(getThis());
+	dbh = Z_PDO_DBH_P(ZEND_THIS);
 	PDO_CONSTRUCT_CHECK;
 	PDO_DBH_CLEAR_ERR();
 
@@ -973,7 +970,7 @@ static PHP_METHOD(PDO, pgsqlLOBOpen)
 		mode = INV_READ|INV_WRITE;
 	}
 
-	dbh = Z_PDO_DBH_P(getThis());
+	dbh = Z_PDO_DBH_P(ZEND_THIS);
 	PDO_CONSTRUCT_CHECK;
 	PDO_DBH_CLEAR_ERR();
 
@@ -982,7 +979,7 @@ static PHP_METHOD(PDO, pgsqlLOBOpen)
 	lfd = lo_open(H->server, oid, mode);
 
 	if (lfd >= 0) {
-		php_stream *stream = pdo_pgsql_create_lob_stream(getThis(), lfd, oid);
+		php_stream *stream = pdo_pgsql_create_lob_stream(ZEND_THIS, lfd, oid);
 		if (stream) {
 			php_stream_to_zval(stream, return_value);
 			return;
@@ -1016,7 +1013,7 @@ static PHP_METHOD(PDO, pgsqlLOBUnlink)
 		RETURN_FALSE;
 	}
 
-	dbh = Z_PDO_DBH_P(getThis());
+	dbh = Z_PDO_DBH_P(ZEND_THIS);
 	PDO_CONSTRUCT_CHECK;
 	PDO_DBH_CLEAR_ERR();
 
@@ -1047,7 +1044,7 @@ static PHP_METHOD(PDO, pgsqlGetNotify)
 		RETURN_FALSE;
 	}
 
-	dbh = Z_PDO_DBH_P(getThis());
+	dbh = Z_PDO_DBH_P(ZEND_THIS);
 	PDO_CONSTRUCT_CHECK;
 
 	if (result_type == PDO_FETCH_USE_DEFAULT) {
@@ -1112,7 +1109,7 @@ static PHP_METHOD(PDO, pgsqlGetPid)
 	pdo_dbh_t *dbh;
 	pdo_pgsql_db_handle *H;
 
-	dbh = Z_PDO_DBH_P(getThis());
+	dbh = Z_PDO_DBH_P(ZEND_THIS);
 	PDO_CONSTRUCT_CHECK;
 
 	H = (pdo_pgsql_db_handle *)dbh->driver_data;
@@ -1263,12 +1260,3 @@ const pdo_driver_t pdo_pgsql_driver = {
 	PDO_DRIVER_HEADER(pgsql),
 	pdo_pgsql_handle_factory
 };
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */

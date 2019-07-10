@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | phar php single-file executable PHP extension                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2018 The PHP Group                                |
+  | Copyright (c) The PHP Group                                          |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -512,7 +512,9 @@ static inline void phar_set_inode(phar_entry_info *entry) /* {{{ */
 	tmp_len = MIN(MAXPATHLEN, entry->filename_len + entry->phar->fname_len);
 
 	len1 = MIN(entry->phar->fname_len, tmp_len);
-	memcpy(tmp, entry->phar->fname, len1);
+	if (entry->phar->fname) {
+		memcpy(tmp, entry->phar->fname, len1);
+	}
 
 	len2 = MIN(tmp_len - len1, entry->filename_len);
 	memcpy(tmp + len1, entry->filename, len2);
@@ -606,12 +608,3 @@ typedef enum {
 phar_path_check_result phar_path_check(char **p, size_t *len, const char **error);
 
 END_EXTERN_C()
-
-/*
- * Local variables:
- * tab-width: 4
- * c-basic-offset: 4
- * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
- */

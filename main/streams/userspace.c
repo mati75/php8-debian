@@ -2,7 +2,7 @@
    +----------------------------------------------------------------------+
    | PHP Version 7                                                        |
    +----------------------------------------------------------------------+
-   | Copyright (c) 1997-2018 The PHP Group                                |
+   | Copyright (c) The PHP Group                                          |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
    | that is bundled with this package in the file LICENSE, and is        |
@@ -669,7 +669,10 @@ static size_t php_userstreamop_read(php_stream *stream, char *buf, size_t count)
 	}
 
 	if (call_result == SUCCESS && Z_TYPE(retval) != IS_UNDEF) {
-		convert_to_string(&retval);
+		if (!try_convert_to_string(&retval)) {
+			return -1;
+		}
+
 		didread = Z_STRLEN(retval);
 		if (didread > count) {
 			php_error_docref(NULL, E_WARNING, "%s::" USERSTREAM_READ " - read " ZEND_LONG_FMT " bytes more data than requested (" ZEND_LONG_FMT " read, " ZEND_LONG_FMT " max) - excess data will be lost",
@@ -868,7 +871,7 @@ static int statbuf_from_array(zval *array, php_stream_statbuf *ssb)
 #ifdef HAVE_STRUCT_STAT_ST_BLKSIZE
 	STAT_PROP_ENTRY(blksize);
 #endif
-#ifdef HAVE_ST_BLOCKS
+#ifdef HAVE_STRUCT_STAT_ST_BLOCKS
 	STAT_PROP_ENTRY(blocks);
 #endif
 

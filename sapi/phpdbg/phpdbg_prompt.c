@@ -2,7 +2,7 @@
    +----------------------------------------------------------------------+
    | PHP Version 7                                                        |
    +----------------------------------------------------------------------+
-   | Copyright (c) 1997-2018 The PHP Group                                |
+   | Copyright (c) The PHP Group                                          |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
    | that is bundled with this package in the file LICENSE, and is        |
@@ -81,7 +81,7 @@ const phpdbg_command_t phpdbg_prompt_commands[] = {
 	PHPDBG_COMMAND_D(back,      "show trace",                               't', NULL, "|n", PHPDBG_ASYNC_SAFE),
 	PHPDBG_COMMAND_D(frame,     "switch to a frame",                        'f', NULL, "|n", PHPDBG_ASYNC_SAFE),
 	PHPDBG_COMMAND_D(list,      "lists some code",                          'l', phpdbg_list_commands,  "*", PHPDBG_ASYNC_SAFE),
-	PHPDBG_COMMAND_D(info,      "displays some informations",               'i', phpdbg_info_commands, "|s", PHPDBG_ASYNC_SAFE),
+	PHPDBG_COMMAND_D(info,      "displays some information",               'i', phpdbg_info_commands, "|s", PHPDBG_ASYNC_SAFE),
 	PHPDBG_COMMAND_D(clean,     "clean the execution environment",          'X', NULL, 0, 0),
 	PHPDBG_COMMAND_D(clear,     "clear breakpoints",                        'C', NULL, 0, 0),
 	PHPDBG_COMMAND_D(help,      "show help menu",                           'h', phpdbg_help_commands, "|s", PHPDBG_ASYNC_SAFE),
@@ -1315,7 +1315,7 @@ PHPDBG_API const char *phpdbg_load_module_or_extension(char **path, char **name)
 		char *err = GET_DL_ERROR();
 		if (err && err[0]) {
 			phpdbg_error("dl", "type=\"unknown\"", "%s", err);
-			LocalFree(err);
+			php_win32_error_msg_free(err);
 		} else {
 			phpdbg_error("dl", "type=\"unknown\"", "Unknown reason");
 		}
@@ -1632,7 +1632,14 @@ int phpdbg_interactive(zend_bool allow_async_unsafe, char *input) /* {{{ */
 				sigio_watcher_start();
 			}
 #endif
-			switch (ret = phpdbg_stack_execute(&stack, allow_async_unsafe)) {
+			zend_try {
+				ret = phpdbg_stack_execute(&stack, allow_async_unsafe);
+			} zend_catch {
+				phpdbg_stack_free(&stack);
+				zend_bailout();
+			} zend_end_try();
+
+			switch (ret) {
 				case FAILURE:
 					if (!(PHPDBG_G(flags) & PHPDBG_IS_STOPPING)) {
 						if (!allow_async_unsafe || phpdbg_call_register(&stack) == FAILURE) {
@@ -1687,33 +1694,33 @@ int phpdbg_interactive(zend_bool allow_async_unsafe, char *input) /* {{{ */
 	return ret;
 } /* }}} */
 
+static inline void list_code() {
+	if (!(PHPDBG_G(flags) & PHPDBG_IN_EVAL)) {
+		const char *file_char = zend_get_executed_filename();
+		zend_string *file = zend_string_init(file_char, strlen(file_char), 0);
+		phpdbg_list_file(file, 3, zend_get_executed_lineno()-1, zend_get_executed_lineno());
+		efree(file);
+	}
+}
+
 /* code may behave weirdly if EG(exception) is set; thus backup it */
 #define DO_INTERACTIVE(allow_async_unsafe) do { \
-	const zend_op *backup_opline; \
-	const zend_op *before_ex; \
 	if (exception) { \
+		const zend_op *before_ex = EG(opline_before_exception); \
+		const zend_op *backup_opline = NULL; \
 		if (EG(current_execute_data) && EG(current_execute_data)->func && ZEND_USER_CODE(EG(current_execute_data)->func->common.type)) { \
 			backup_opline = EG(current_execute_data)->opline; \
 		} \
-		before_ex = EG(opline_before_exception); \
 		GC_ADDREF(exception); \
 		zend_clear_exception(); \
-	} \
-	if (!(PHPDBG_G(flags) & PHPDBG_IN_EVAL)) { \
-		const char *file_char = zend_get_executed_filename(); \
-		zend_string *file = zend_string_init(file_char, strlen(file_char), 0); \
-		phpdbg_list_file(file, 3, zend_get_executed_lineno()-1, zend_get_executed_lineno()); \
-		efree(file); \
-	} \
-	\
-	switch (phpdbg_interactive(allow_async_unsafe, NULL)) { \
-		zval zv; \
-		case PHPDBG_LEAVE: \
-		case PHPDBG_FINISH: \
-		case PHPDBG_UNTIL: \
-		case PHPDBG_NEXT: \
-			if (exception) { \
-				if (EG(current_execute_data) && EG(current_execute_data)->func && ZEND_USER_CODE(EG(current_execute_data)->func->common.type) \
+		list_code(); \
+		switch (phpdbg_interactive(allow_async_unsafe, NULL)) { \
+			zval zv; \
+			case PHPDBG_LEAVE: \
+			case PHPDBG_FINISH: \
+			case PHPDBG_UNTIL: \
+			case PHPDBG_NEXT: \
+				if (backup_opline \
 				 && (backup_opline->opcode == ZEND_HANDLE_EXCEPTION || backup_opline->opcode == ZEND_CATCH)) { \
 					EG(current_execute_data)->opline = backup_opline; \
 					EG(exception) = exception; \
@@ -1722,11 +1729,12 @@ int phpdbg_interactive(zend_bool allow_async_unsafe, char *input) /* {{{ */
 					zend_throw_exception_internal(&zv); \
 				} \
 				EG(opline_before_exception) = before_ex; \
-			} \
-			/* fallthrough */ \
-		default: \
-			goto next; \
+		} \
+	} else { \
+		list_code(); \
+		phpdbg_interactive(allow_async_unsafe, NULL); \
 	} \
+	goto next; \
 } while (0)
 
 void phpdbg_execute_ex(zend_execute_data *execute_data) /* {{{ */

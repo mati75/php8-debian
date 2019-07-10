@@ -1,5 +1,7 @@
 --TEST--
 Bug #78106: Path resolution fails if opcache disabled during request
+--CONFLICTS--
+server
 --FILE--
 <?php
 
