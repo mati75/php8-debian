@@ -1,3 +1,9 @@
+php5.6 (5.6.40-9) experimental; urgency=medium
+
+  * Sync with PHP 5.6 security repository
+
+ -- Ondřej Surý <ondrej@sury.org>  Wed, 10 Jul 2019 14:45:34 +0200
+
 php5.6 (5.6.40-8) experimental; urgency=medium
 
   * Add d/p/0080-[...].patch to binary patches list
