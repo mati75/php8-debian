@@ -84,3 +84,5 @@
 0084-fix-test-output.patch
 0085-Fix-bug-77988-heap-buffer-overflow-on-php_jpg_get16.patch
 0086-Fix-bug-77967-Bypassing-open_basedir-restrictions-vi.patch
+0087-fix-tests.patch
+0088-Upgrade-to-SQLite-3.28.0.patch
