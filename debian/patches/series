@@ -48,3 +48,4 @@
 0048-ext-intl-Use-pkg-config-to-detect-icu.patch
 0049-Fixed-bug-62596-add-getallheaders-apache_request_hea.patch
 0050-Amend-C-11-for-intl-compilation-on-older-distributio.patch
+0051-Revert-Fixed-bug-76980.patch
