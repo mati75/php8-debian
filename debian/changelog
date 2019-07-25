@@ -1,3 +1,9 @@
+php7.2 (7.2.20-2) unstable; urgency=medium
+
+  * Add patch that reverts the break in symfony framework
+
+ -- Ondřej Surý <ondrej@sury.org>  Thu, 25 Jul 2019 13:40:54 +0200
+
 php7.2 (7.2.20-1) unstable; urgency=medium
 
   * New upstream version 7.2.20
