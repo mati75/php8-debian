@@ -46,4 +46,3 @@
 0046-Fix-ext-date-lib-parse_tz-PATH_MAX-HURD-FTBFS.patch
 0047-Use-pkg-config-for-FreeType2-detection.patch
 0048-Amend-C-11-for-intl-compilation-on-older-distributio.patch
-0049-Revert-Fixed-bug-76980.patch
