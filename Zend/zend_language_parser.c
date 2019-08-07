@@ -1,8 +1,9 @@
-/* A Bison parser, made by GNU Bison 3.0.4.  */
+/* A Bison parser, made by GNU Bison 3.4.  */
 
 /* Bison implementation for Yacc-like parsers in C
 
-   Copyright (C) 1984, 1989-1990, 2000-2015 Free Software Foundation, Inc.
+   Copyright (C) 1984, 1989-1990, 2000-2015, 2018-2019 Free Software Foundation,
+   Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -40,11 +41,14 @@
    define necessary library symbols; they are noted "INFRINGES ON
    USER NAME SPACE" below.  */
 
+/* Undocumented macros, especially those whose name start with YY_,
+   are private implementation details.  Do not rely on them.  */
+
 /* Identify Bison output.  */
 #define YYBISON 1
 
 /* Bison version.  */
-#define YYBISON_VERSION "3.0.4"
+#define YYBISON_VERSION "3.4"
 
 /* Skeleton name.  */
 #define YYSKELETON_NAME "yacc.c"
@@ -67,8 +71,7 @@
 #define yynerrs         zendnerrs
 
 
-/* Copy the first part of user declarations.  */
-
+/* First part of user prologue.  */
 
 /*
    +----------------------------------------------------------------------+
@@ -114,12 +117,15 @@ static YYSIZE_T zend_yytnamerr(char*, const char*);
 
 
 
-
 # ifndef YY_NULLPTR
-#  if defined __cplusplus && 201103L <= __cplusplus
-#   define YY_NULLPTR nullptr
+#  if defined __cplusplus
+#   if 201103L <= __cplusplus
+#    define YY_NULLPTR nullptr
+#   else
+#    define YY_NULLPTR 0
+#   endif
 #  else
-#   define YY_NULLPTR 0
+#   define YY_NULLPTR ((void*)0)
 #  endif
 # endif
 
@@ -131,8 +137,8 @@ static YYSIZE_T zend_yytnamerr(char*, const char*);
 # define YYERROR_VERBOSE 0
 #endif
 
-/* In a future release of Bison, this section will be replaced
-   by #include "zend_language_parser.h".  */
+/* Use api.header.include to #include this header
+   instead of duplicating it here.  */
 #ifndef YY_ZEND_ZEND_ZEND_LANGUAGE_PARSER_H_INCLUDED
 # define YY_ZEND_ZEND_ZEND_LANGUAGE_PARSER_H_INCLUDED
 /* Debug traces.  */
@@ -143,8 +149,6 @@ static YYSIZE_T zend_yytnamerr(char*, const char*);
 extern int zenddebug;
 #endif
 /* "%code requires" blocks.  */
-
-
 
 
 
@@ -437,8 +441,6 @@ ZEND_API int zendparse (void);
 
 #endif /* !YY_ZEND_ZEND_ZEND_LANGUAGE_PARSER_H_INCLUDED  */
 
-/* Copy the second part of user declarations.  */
-
 
 
 #ifdef short
@@ -460,13 +462,13 @@ typedef signed char yytype_int8;
 #ifdef YYTYPE_UINT16
 typedef YYTYPE_UINT16 yytype_uint16;
 #else
-typedef unsigned short int yytype_uint16;
+typedef unsigned short yytype_uint16;
 #endif
 
 #ifdef YYTYPE_INT16
 typedef YYTYPE_INT16 yytype_int16;
 #else
-typedef short int yytype_int16;
+typedef short yytype_int16;
 #endif
 
 #ifndef YYSIZE_T
@@ -478,7 +480,7 @@ typedef short int yytype_int16;
 #  include <stddef.h> /* INFRINGES ON USER NAME SPACE */
 #  define YYSIZE_T size_t
 # else
-#  define YYSIZE_T unsigned int
+#  define YYSIZE_T unsigned
 # endif
 #endif
 
@@ -514,15 +516,6 @@ typedef short int yytype_int16;
 # define YY_ATTRIBUTE_UNUSED YY_ATTRIBUTE ((__unused__))
 #endif
 
-#if !defined _Noreturn \
-     && (!defined __STDC_VERSION__ || __STDC_VERSION__ < 201112)
-# if defined _MSC_VER && 1200 <= _MSC_VER
-#  define _Noreturn __declspec (noreturn)
-# else
-#  define _Noreturn YY_ATTRIBUTE ((__noreturn__))
-# endif
-#endif
-
 /* Suppress unused-variable warnings by "using" E.  */
 #if ! defined lint || defined __GNUC__
 # define YYUSE(E) ((void) (E))
@@ -530,7 +523,7 @@ typedef short int yytype_int16;
 # define YYUSE(E) /* empty */
 #endif
 
-#if defined __GNUC__ && 407 <= __GNUC__ * 100 + __GNUC_MINOR__
+#if defined __GNUC__ && ! defined __ICC && 407 <= __GNUC__ * 100 + __GNUC_MINOR__
 /* Suppress an incorrect diagnostic about yylval being uninitialized.  */
 # define YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN \
     _Pragma ("GCC diagnostic push") \
@@ -549,6 +542,8 @@ typedef short int yytype_int16;
 # define YY_INITIAL_VALUE(Value) /* Nothing. */
 #endif
 
+
+#define YY_ASSERT(E) ((void) (0 && (E)))
 
 #if ! defined yyoverflow || YYERROR_VERBOSE
 
@@ -692,16 +687,16 @@ union yyalloc
 /* YYNSTATES -- Number of states.  */
 #define YYNSTATES  941
 
-/* YYTRANSLATE[YYX] -- Symbol number corresponding to YYX as returned
-   by yylex, with out-of-bounds checking.  */
 #define YYUNDEFTOK  2
 #define YYMAXUTOK   392
 
+/* YYTRANSLATE(TOKEN-NUM) -- Symbol number corresponding to TOKEN-NUM
+   as returned by yylex, with out-of-bounds checking.  */
 #define YYTRANSLATE(YYX)                                                \
-  ((unsigned int) (YYX) <= YYMAXUTOK ? yytranslate[YYX] : YYUNDEFTOK)
+  ((unsigned) (YYX) <= YYMAXUTOK ? yytranslate[YYX] : YYUNDEFTOK)
 
 /* YYTRANSLATE[TOKEN-NUM] -- Symbol number corresponding to TOKEN-NUM
-   as returned by yylex, without out-of-bounds checking.  */
+   as returned by yylex.  */
 static const yytype_uint8 yytranslate[] =
 {
        0,     2,     2,     2,     2,     2,     2,     2,     2,     2,
@@ -2897,22 +2892,22 @@ static const yytype_uint8 yyr2[] =
 
 #define YYRECOVERING()  (!!yyerrstatus)
 
-#define YYBACKUP(Token, Value)                                  \
-do                                                              \
-  if (yychar == YYEMPTY)                                        \
-    {                                                           \
-      yychar = (Token);                                         \
-      yylval = (Value);                                         \
-      YYPOPSTACK (yylen);                                       \
-      yystate = *yyssp;                                         \
-      goto yybackup;                                            \
-    }                                                           \
-  else                                                          \
-    {                                                           \
-      yyerror (YY_("syntax error: cannot back up")); \
-      YYERROR;                                                  \
-    }                                                           \
-while (0)
+#define YYBACKUP(Token, Value)                                    \
+  do                                                              \
+    if (yychar == YYEMPTY)                                        \
+      {                                                           \
+        yychar = (Token);                                         \
+        yylval = (Value);                                         \
+        YYPOPSTACK (yylen);                                       \
+        yystate = *yyssp;                                         \
+        goto yybackup;                                            \
+      }                                                           \
+    else                                                          \
+      {                                                           \
+        yyerror (YY_("syntax error: cannot back up")); \
+        YYERROR;                                                  \
+      }                                                           \
+  while (0)
 
 /* Error token number */
 #define YYTERROR        1
@@ -2952,37 +2947,37 @@ do {                                                                      \
 } while (0)
 
 
-/*----------------------------------------.
-| Print this symbol's value on YYOUTPUT.  |
-`----------------------------------------*/
+/*-----------------------------------.
+| Print this symbol's value on YYO.  |
+`-----------------------------------*/
 
 static void
-yy_symbol_value_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep)
+yy_symbol_value_print (FILE *yyo, int yytype, YYSTYPE const * const yyvaluep)
 {
-  FILE *yyo = yyoutput;
-  YYUSE (yyo);
+  FILE *yyoutput = yyo;
+  YYUSE (yyoutput);
   if (!yyvaluep)
     return;
 # ifdef YYPRINT
   if (yytype < YYNTOKENS)
-    YYPRINT (yyoutput, yytoknum[yytype], *yyvaluep);
+    YYPRINT (yyo, yytoknum[yytype], *yyvaluep);
 # endif
   YYUSE (yytype);
 }
 
 
-/*--------------------------------.
-| Print this symbol on YYOUTPUT.  |
-`--------------------------------*/
+/*---------------------------.
+| Print this symbol on YYO.  |
+`---------------------------*/
 
 static void
-yy_symbol_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep)
+yy_symbol_print (FILE *yyo, int yytype, YYSTYPE const * const yyvaluep)
 {
-  YYFPRINTF (yyoutput, "%s %s (",
+  YYFPRINTF (yyo, "%s %s (",
              yytype < YYNTOKENS ? "token" : "nterm", yytname[yytype]);
 
-  yy_symbol_value_print (yyoutput, yytype, yyvaluep);
-  YYFPRINTF (yyoutput, ")");
+  yy_symbol_value_print (yyo, yytype, yyvaluep);
+  YYFPRINTF (yyo, ")");
 }
 
 /*------------------------------------------------------------------.
@@ -3016,7 +3011,7 @@ do {                                                            \
 static void
 yy_reduce_print (yytype_int16 *yyssp, YYSTYPE *yyvsp, int yyrule)
 {
-  unsigned long int yylno = yyrline[yyrule];
+  unsigned long yylno = yyrline[yyrule];
   int yynrhs = yyr2[yyrule];
   int yyi;
   YYFPRINTF (stderr, "Reducing stack by rule %d (line %lu):\n",
@@ -3027,7 +3022,7 @@ yy_reduce_print (yytype_int16 *yyssp, YYSTYPE *yyvsp, int yyrule)
       YYFPRINTF (stderr, "   $%d = ", yyi + 1);
       yy_symbol_print (stderr,
                        yystos[yyssp[yyi + 1 - yynrhs]],
-                       &(yyvsp[(yyi + 1) - (yynrhs)])
+                       &yyvsp[(yyi + 1) - (yynrhs)]
                                               );
       YYFPRINTF (stderr, "\n");
     }
@@ -3131,7 +3126,10 @@ yytnamerr (char *yyres, const char *yystr)
           case '\\':
             if (*++yyp != '\\')
               goto do_not_strip_quotes;
-            /* Fall through.  */
+            else
+              goto append;
+
+          append:
           default:
             if (yyres)
               yyres[yyn] = *yyp;
@@ -3149,7 +3147,7 @@ yytnamerr (char *yyres, const char *yystr)
   if (! yyres)
     return yystrlen (yystr);
 
-  return yystpcpy (yyres, yystr) - yyres;
+  return (YYSIZE_T) (yystpcpy (yyres, yystr) - yyres);
 }
 # endif
 
@@ -3227,10 +3225,10 @@ yysyntax_error (YYSIZE_T *yymsg_alloc, char **yymsg,
                 yyarg[yycount++] = yytname[yyx];
                 {
                   YYSIZE_T yysize1 = yysize + yytnamerr (YY_NULLPTR, yytname[yyx]);
-                  if (! (yysize <= yysize1
-                         && yysize1 <= YYSTACK_ALLOC_MAXIMUM))
+                  if (yysize <= yysize1 && yysize1 <= YYSTACK_ALLOC_MAXIMUM)
+                    yysize = yysize1;
+                  else
                     return 2;
-                  yysize = yysize1;
                 }
               }
         }
@@ -3242,6 +3240,7 @@ yysyntax_error (YYSIZE_T *yymsg_alloc, char **yymsg,
       case N:                               \
         yyformat = S;                       \
       break
+    default: /* Avoid compiler warnings. */
       YYCASE_(0, YY_("syntax error"));
       YYCASE_(1, YY_("syntax error, unexpected %s"));
       YYCASE_(2, YY_("syntax error, unexpected %s, expecting %s"));
@@ -3253,9 +3252,10 @@ yysyntax_error (YYSIZE_T *yymsg_alloc, char **yymsg,
 
   {
     YYSIZE_T yysize1 = yysize + yystrlen (yyformat);
-    if (! (yysize <= yysize1 && yysize1 <= YYSTACK_ALLOC_MAXIMUM))
+    if (yysize <= yysize1 && yysize1 <= YYSTACK_ALLOC_MAXIMUM)
+      yysize = yysize1;
+    else
       return 2;
-    yysize = yysize1;
   }
 
   if (*yymsg_alloc < yysize)
@@ -3304,732 +3304,489 @@ yydestruct (const char *yymsg, int yytype, YYSTYPE *yyvaluep)
   YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN
   switch (yytype)
     {
-          case 81: /* "integer number (T_LNUMBER)"  */
-
+    case 81: /* "integer number (T_LNUMBER)"  */
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 82: /* "floating-point number (T_DNUMBER)"  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 83: /* "identifier (T_STRING)"  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 84: /* "variable (T_VARIABLE)"  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 85: /* T_INLINE_HTML  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 86: /* "quoted-string and whitespace (T_ENCAPSED_AND_WHITESPACE)"  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 87: /* "quoted-string (T_CONSTANT_ENCAPSED_STRING)"  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 88: /* "variable name (T_STRING_VARNAME)"  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 89: /* "number (T_NUM_STRING)"  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 170: /* identifier  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 171: /* top_statement_list  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 172: /* namespace_name  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 173: /* name  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 174: /* top_statement  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 178: /* group_use_declaration  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 179: /* mixed_group_use_declaration  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 180: /* inline_use_declarations  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 181: /* unprefixed_use_declarations  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 182: /* use_declarations  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 183: /* inline_use_declaration  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 184: /* unprefixed_use_declaration  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 185: /* use_declaration  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 186: /* const_list  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 187: /* inner_statement_list  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 188: /* inner_statement  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 189: /* statement  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 191: /* catch_list  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 192: /* catch_name_list  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 193: /* finally_statement  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 194: /* unset_variables  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 195: /* unset_variable  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 196: /* function_declaration_statement  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 199: /* class_declaration_statement  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 204: /* trait_declaration_statement  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 206: /* interface_declaration_statement  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 208: /* extends_from  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 209: /* interface_extends_list  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 210: /* implements_list  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 211: /* foreach_variable  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 212: /* for_statement  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 213: /* foreach_statement  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 214: /* declare_statement  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 215: /* switch_case_list  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 216: /* case_list  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 218: /* while_statement  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 219: /* if_stmt_without_else  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 220: /* if_stmt  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 221: /* alt_if_stmt_without_else  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 222: /* alt_if_stmt  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 223: /* parameter_list  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 224: /* non_empty_parameter_list  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 225: /* parameter  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 226: /* optional_type  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 227: /* type_expr  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 228: /* type  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 229: /* return_type  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 230: /* argument_list  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 231: /* non_empty_argument_list  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 232: /* argument  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 233: /* global_var_list  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 234: /* global_var  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 235: /* static_var_list  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 236: /* static_var  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 237: /* class_statement_list  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 238: /* class_statement  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 239: /* name_list  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 240: /* trait_adaptations  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 241: /* trait_adaptation_list  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 242: /* trait_adaptation  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 243: /* trait_precedence  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 244: /* trait_alias  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 245: /* trait_method_reference  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 246: /* absolute_trait_method_reference  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 247: /* method_body  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 252: /* property_list  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 253: /* property  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 254: /* class_const_list  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 255: /* class_const_decl  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 256: /* const_decl  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 257: /* echo_expr_list  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 258: /* echo_expr  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 259: /* for_exprs  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 260: /* non_empty_for_exprs  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 261: /* anonymous_class  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 263: /* new_expr  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 264: /* expr_without_variable  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 266: /* backup_doc_comment  */
-
       { if (((*yyvaluep).str)) zend_string_release(((*yyvaluep).str)); }
-
         break;
 
     case 269: /* lexical_vars  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 270: /* lexical_var_list  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 271: /* lexical_var  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 272: /* function_call  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 273: /* class_name  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 274: /* class_name_reference  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 275: /* exit_expr  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 276: /* backticks_expr  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 277: /* ctor_arguments  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 278: /* dereferencable_scalar  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 279: /* scalar  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 280: /* constant  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 281: /* expr  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 282: /* optional_expr  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 283: /* variable_class_name  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 284: /* dereferencable  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 285: /* callable_expr  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 286: /* callable_variable  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 287: /* variable  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 288: /* simple_variable  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 289: /* static_member  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 290: /* new_variable  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 291: /* member_name  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 292: /* property_name  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 293: /* array_pair_list  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 294: /* possible_array_pair  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 295: /* non_empty_array_pair_list  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 296: /* array_pair  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 297: /* encaps_list  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 298: /* encaps_var  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 299: /* encaps_var_offset  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 300: /* internal_functions_in_yacc  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 301: /* isset_variables  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
 
     case 302: /* isset_variable  */
-
       { zend_ast_destroy(((*yyvaluep).ast)); }
-
         break;
-
 
       default:
         break;
@@ -4116,23 +3873,33 @@ YYSTYPE yylval YY_INITIAL_VALUE (= yyval_default);
   yychar = YYEMPTY; /* Cause a token to be read.  */
   goto yysetstate;
 
+
 /*------------------------------------------------------------.
-| yynewstate -- Push a new state, which is found in yystate.  |
+| yynewstate -- push a new state, which is found in yystate.  |
 `------------------------------------------------------------*/
- yynewstate:
+yynewstate:
   /* In all cases, when you get here, the value and location stacks
      have just been pushed.  So pushing a state here evens the stacks.  */
   yyssp++;
 
- yysetstate:
-  *yyssp = yystate;
+
+/*--------------------------------------------------------------------.
+| yynewstate -- set current state (the top of the stack) to yystate.  |
+`--------------------------------------------------------------------*/
+yysetstate:
+  YYDPRINTF ((stderr, "Entering state %d\n", yystate));
+  YY_ASSERT (0 <= yystate && yystate < YYNSTATES);
+  *yyssp = (yytype_int16) yystate;
 
   if (yyss + yystacksize - 1 <= yyssp)
+#if !defined yyoverflow && !defined YYSTACK_RELOCATE
+    goto yyexhaustedlab;
+#else
     {
       /* Get the current used size of the three stacks, in elements.  */
-      YYSIZE_T yysize = yyssp - yyss + 1;
+      YYSIZE_T yysize = (YYSIZE_T) (yyssp - yyss + 1);
 
-#ifdef yyoverflow
+# if defined yyoverflow
       {
         /* Give user a chance to reallocate the stack.  Use copies of
            these so that the &'s don't force the real ones into
@@ -4148,14 +3915,10 @@ YYSTYPE yylval YY_INITIAL_VALUE (= yyval_default);
                     &yyss1, yysize * sizeof (*yyssp),
                     &yyvs1, yysize * sizeof (*yyvsp),
                     &yystacksize);
-
         yyss = yyss1;
         yyvs = yyvs1;
       }
-#else /* no yyoverflow */
-# ifndef YYSTACK_RELOCATE
-      goto yyexhaustedlab;
-# else
+# else /* defined YYSTACK_RELOCATE */
       /* Extend the stack our own way.  */
       if (YYMAXDEPTH <= yystacksize)
         goto yyexhaustedlab;
@@ -4171,35 +3934,33 @@ YYSTYPE yylval YY_INITIAL_VALUE (= yyval_default);
           goto yyexhaustedlab;
         YYSTACK_RELOCATE (yyss_alloc, yyss);
         YYSTACK_RELOCATE (yyvs_alloc, yyvs);
-#  undef YYSTACK_RELOCATE
+# undef YYSTACK_RELOCATE
         if (yyss1 != yyssa)
           YYSTACK_FREE (yyss1);
       }
 # endif
-#endif /* no yyoverflow */
 
       yyssp = yyss + yysize - 1;
       yyvsp = yyvs + yysize - 1;
 
       YYDPRINTF ((stderr, "Stack size increased to %lu\n",
-                  (unsigned long int) yystacksize));
+                  (unsigned long) yystacksize));
 
       if (yyss + yystacksize - 1 <= yyssp)
         YYABORT;
     }
-
-  YYDPRINTF ((stderr, "Entering state %d\n", yystate));
+#endif /* !defined yyoverflow && !defined YYSTACK_RELOCATE */
 
   if (yystate == YYFINAL)
     YYACCEPT;
 
   goto yybackup;
 
+
 /*-----------.
 | yybackup.  |
 `-----------*/
 yybackup:
-
   /* Do appropriate processing given the current state.  Read a
      lookahead token if we need one and don't already have one.  */
 
@@ -4257,7 +4018,6 @@ yybackup:
   YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN
   *++yyvsp = yylval;
   YY_IGNORE_MAYBE_UNINITIALIZED_END
-
   goto yynewstate;
 
 
@@ -4272,7 +4032,7 @@ yydefault:
 
 
 /*-----------------------------.
-| yyreduce -- Do a reduction.  |
+| yyreduce -- do a reduction.  |
 `-----------------------------*/
 yyreduce:
   /* yyn is the number of a rule to reduce with.  */
@@ -4292,2548 +4052,1710 @@ yyreduce:
   YY_REDUCE_PRINT (yyn);
   switch (yyn)
     {
-        case 2:
-
+  case 2:
     { CG(ast) = (yyvsp[0].ast); }
-
     break;
 
   case 77:
-
     { (yyval.ast) = (yyvsp[0].ast); }
-
     break;
 
   case 78:
-
     {
 			zval zv;
 			zend_lex_tstring(&zv);
 			(yyval.ast) = zend_ast_create_zval(&zv);
 		}
-
     break;
 
   case 79:
-
     { (yyval.ast) = zend_ast_list_add((yyvsp[-1].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 80:
-
     { (yyval.ast) = zend_ast_create_list(0, ZEND_AST_STMT_LIST); }
-
     break;
 
   case 81:
-
     { (yyval.ast) = (yyvsp[0].ast); }
-
     break;
 
   case 82:
-
     { (yyval.ast) = zend_ast_append_str((yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 83:
-
     { (yyval.ast) = (yyvsp[0].ast); (yyval.ast)->attr = ZEND_NAME_NOT_FQ; }
-
     break;
 
   case 84:
-
     { (yyval.ast) = (yyvsp[0].ast); (yyval.ast)->attr = ZEND_NAME_RELATIVE; }
-
     break;
 
   case 85:
-
     { (yyval.ast) = (yyvsp[0].ast); (yyval.ast)->attr = ZEND_NAME_FQ; }
-
     break;
 
   case 86:
-
     { (yyval.ast) = (yyvsp[0].ast); }
-
     break;
 
   case 87:
-
     { (yyval.ast) = (yyvsp[0].ast); }
-
     break;
 
   case 88:
-
     { (yyval.ast) = (yyvsp[0].ast); }
-
     break;
 
   case 89:
-
     { (yyval.ast) = (yyvsp[0].ast); }
-
     break;
 
   case 90:
-
     { (yyval.ast) = (yyvsp[0].ast); }
-
     break;
 
   case 91:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_HALT_COMPILER,
 			      zend_ast_create_zval_from_long(zend_get_scanned_file_offset()));
 			  zend_stop_lexing(); }
-
     break;
 
   case 92:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_NAMESPACE, (yyvsp[-1].ast), NULL);
 			  RESET_DOC_COMMENT(); }
-
     break;
 
   case 93:
-
     { RESET_DOC_COMMENT(); }
-
     break;
 
   case 94:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_NAMESPACE, (yyvsp[-4].ast), (yyvsp[-1].ast)); }
-
     break;
 
   case 95:
-
     { RESET_DOC_COMMENT(); }
-
     break;
 
   case 96:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_NAMESPACE, NULL, (yyvsp[-1].ast)); }
-
     break;
 
   case 97:
-
     { (yyval.ast) = (yyvsp[-1].ast); }
-
     break;
 
   case 98:
-
     { (yyval.ast) = (yyvsp[-1].ast); (yyval.ast)->attr = (yyvsp[-2].num); }
-
     break;
 
   case 99:
-
     { (yyval.ast) = (yyvsp[-1].ast); (yyval.ast)->attr = T_CLASS; }
-
     break;
 
   case 100:
-
     { (yyval.ast) = (yyvsp[-1].ast); (yyval.ast)->attr = (yyvsp[-2].num); }
-
     break;
 
   case 101:
-
     { (yyval.ast) = (yyvsp[-1].ast); }
-
     break;
 
   case 102:
-
     { (yyval.num) = T_FUNCTION; }
-
     break;
 
   case 103:
-
     { (yyval.num) = T_CONST; }
-
     break;
 
   case 104:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_GROUP_USE, (yyvsp[-4].ast), (yyvsp[-1].ast)); }
-
     break;
 
   case 105:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_GROUP_USE, (yyvsp[-4].ast), (yyvsp[-1].ast)); }
-
     break;
 
   case 106:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_GROUP_USE, (yyvsp[-4].ast), (yyvsp[-1].ast));}
-
     break;
 
   case 107:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_GROUP_USE, (yyvsp[-4].ast), (yyvsp[-1].ast)); }
-
     break;
 
   case 108:
-
     { (yyval.ast) = zend_ast_list_add((yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 109:
-
     { (yyval.ast) = zend_ast_create_list(1, ZEND_AST_USE, (yyvsp[0].ast)); }
-
     break;
 
   case 110:
-
     { (yyval.ast) = zend_ast_list_add((yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 111:
-
     { (yyval.ast) = zend_ast_create_list(1, ZEND_AST_USE, (yyvsp[0].ast)); }
-
     break;
 
   case 112:
-
     { (yyval.ast) = zend_ast_list_add((yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 113:
-
     { (yyval.ast) = zend_ast_create_list(1, ZEND_AST_USE, (yyvsp[0].ast)); }
-
     break;
 
   case 114:
-
     { (yyval.ast) = (yyvsp[0].ast); (yyval.ast)->attr = T_CLASS; }
-
     break;
 
   case 115:
-
     { (yyval.ast) = (yyvsp[0].ast); (yyval.ast)->attr = (yyvsp[-1].num); }
-
     break;
 
   case 116:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_USE_ELEM, (yyvsp[0].ast), NULL); }
-
     break;
 
   case 117:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_USE_ELEM, (yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 118:
-
     { (yyval.ast) = (yyvsp[0].ast); }
-
     break;
 
   case 119:
-
     { (yyval.ast) = (yyvsp[0].ast); }
-
     break;
 
   case 120:
-
     { (yyval.ast) = zend_ast_list_add((yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 121:
-
     { (yyval.ast) = zend_ast_create_list(1, ZEND_AST_CONST_DECL, (yyvsp[0].ast)); }
-
     break;
 
   case 122:
-
     { (yyval.ast) = zend_ast_list_add((yyvsp[-1].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 123:
-
     { (yyval.ast) = zend_ast_create_list(0, ZEND_AST_STMT_LIST); }
-
     break;
 
   case 124:
-
     { (yyval.ast) = (yyvsp[0].ast); }
-
     break;
 
   case 125:
-
     { (yyval.ast) = (yyvsp[0].ast); }
-
     break;
 
   case 126:
-
     { (yyval.ast) = (yyvsp[0].ast); }
-
     break;
 
   case 127:
-
     { (yyval.ast) = (yyvsp[0].ast); }
-
     break;
 
   case 128:
-
     { (yyval.ast) = (yyvsp[0].ast); }
-
     break;
 
   case 129:
-
     { (yyval.ast) = NULL; zend_error_noreturn(E_COMPILE_ERROR,
 			      "__HALT_COMPILER() can only be used from the outermost scope"); }
-
     break;
 
   case 130:
-
     { (yyval.ast) = (yyvsp[-1].ast); }
-
     break;
 
   case 131:
-
     { (yyval.ast) = (yyvsp[0].ast); }
-
     break;
 
   case 132:
-
     { (yyval.ast) = (yyvsp[0].ast); }
-
     break;
 
   case 133:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_WHILE, (yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 134:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_DO_WHILE, (yyvsp[-5].ast), (yyvsp[-2].ast)); }
-
     break;
 
   case 135:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_FOR, (yyvsp[-6].ast), (yyvsp[-4].ast), (yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 136:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_SWITCH, (yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 137:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_BREAK, (yyvsp[-1].ast)); }
-
     break;
 
   case 138:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_CONTINUE, (yyvsp[-1].ast)); }
-
     break;
 
   case 139:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_RETURN, (yyvsp[-1].ast)); }
-
     break;
 
   case 140:
-
     { (yyval.ast) = (yyvsp[-1].ast); }
-
     break;
 
   case 141:
-
     { (yyval.ast) = (yyvsp[-1].ast); }
-
     break;
 
   case 142:
-
     { (yyval.ast) = (yyvsp[-1].ast); }
-
     break;
 
   case 143:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_ECHO, (yyvsp[0].ast)); }
-
     break;
 
   case 144:
-
     { (yyval.ast) = (yyvsp[-1].ast); }
-
     break;
 
   case 145:
-
     { (yyval.ast) = (yyvsp[-2].ast); }
-
     break;
 
   case 146:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_FOREACH, (yyvsp[-4].ast), (yyvsp[-2].ast), NULL, (yyvsp[0].ast)); }
-
     break;
 
   case 147:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_FOREACH, (yyvsp[-6].ast), (yyvsp[-2].ast), (yyvsp[-4].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 148:
-
     { zend_handle_encoding_declaration((yyvsp[-1].ast)); }
-
     break;
 
   case 149:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_DECLARE, (yyvsp[-3].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 150:
-
     { (yyval.ast) = NULL; }
-
     break;
 
   case 151:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_TRY, (yyvsp[-3].ast), (yyvsp[-1].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 152:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_THROW, (yyvsp[-1].ast)); }
-
     break;
 
   case 153:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_GOTO, (yyvsp[-1].ast)); }
-
     break;
 
   case 154:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_LABEL, (yyvsp[-1].ast)); }
-
     break;
 
   case 155:
-
     { (yyval.ast) = zend_ast_create_list(0, ZEND_AST_CATCH_LIST); }
-
     break;
 
   case 156:
-
     { (yyval.ast) = zend_ast_list_add((yyvsp[-8].ast), zend_ast_create(ZEND_AST_CATCH, (yyvsp[-5].ast), (yyvsp[-4].ast), (yyvsp[-1].ast))); }
-
     break;
 
   case 157:
-
     { (yyval.ast) = zend_ast_create_list(1, ZEND_AST_NAME_LIST, (yyvsp[0].ast)); }
-
     break;
 
   case 158:
-
     { (yyval.ast) = zend_ast_list_add((yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 159:
-
     { (yyval.ast) = NULL; }
-
     break;
 
   case 160:
-
     { (yyval.ast) = (yyvsp[-1].ast); }
-
     break;
 
   case 161:
-
     { (yyval.ast) = zend_ast_create_list(1, ZEND_AST_STMT_LIST, (yyvsp[0].ast)); }
-
     break;
 
   case 162:
-
     { (yyval.ast) = zend_ast_list_add((yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 163:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_UNSET, (yyvsp[0].ast)); }
-
     break;
 
   case 164:
-
     { (yyval.ast) = zend_ast_create_decl(ZEND_AST_FUNC_DECL, (yyvsp[-11].num) | (yyvsp[0].num), (yyvsp[-12].num), (yyvsp[-9].str),
 		      zend_ast_get_str((yyvsp[-10].ast)), (yyvsp[-7].ast), NULL, (yyvsp[-2].ast), (yyvsp[-5].ast)); CG(extra_fn_flags) = (yyvsp[-4].num); }
-
     break;
 
   case 165:
-
     { (yyval.num) = 0; }
-
     break;
 
   case 166:
-
     { (yyval.num) = ZEND_PARAM_REF; }
-
     break;
 
   case 167:
-
     { (yyval.num) = 0; }
-
     break;
 
   case 168:
-
     { (yyval.num) = ZEND_PARAM_VARIADIC; }
-
     break;
 
   case 169:
-
     { (yyval.num) = CG(zend_lineno); }
-
     break;
 
   case 170:
-
     { (yyval.ast) = zend_ast_create_decl(ZEND_AST_CLASS, (yyvsp[-9].num), (yyvsp[-7].num), (yyvsp[-3].str), zend_ast_get_str((yyvsp[-6].ast)), (yyvsp[-5].ast), (yyvsp[-4].ast), (yyvsp[-1].ast), NULL); }
-
     break;
 
   case 171:
-
     { (yyval.num) = CG(zend_lineno); }
-
     break;
 
   case 172:
-
     { (yyval.ast) = zend_ast_create_decl(ZEND_AST_CLASS, 0, (yyvsp[-7].num), (yyvsp[-3].str), zend_ast_get_str((yyvsp[-6].ast)), (yyvsp[-5].ast), (yyvsp[-4].ast), (yyvsp[-1].ast), NULL); }
-
     break;
 
   case 173:
-
     { (yyval.num) = (yyvsp[0].num); }
-
     break;
 
   case 174:
-
     { (yyval.num) = zend_add_class_modifier((yyvsp[-1].num), (yyvsp[0].num)); }
-
     break;
 
   case 175:
-
     { (yyval.num) = ZEND_ACC_EXPLICIT_ABSTRACT_CLASS; }
-
     break;
 
   case 176:
-
     { (yyval.num) = ZEND_ACC_FINAL; }
-
     break;
 
   case 177:
-
     { (yyval.num) = CG(zend_lineno); }
-
     break;
 
   case 178:
-
     { (yyval.ast) = zend_ast_create_decl(ZEND_AST_CLASS, ZEND_ACC_TRAIT, (yyvsp[-5].num), (yyvsp[-3].str), zend_ast_get_str((yyvsp[-4].ast)), NULL, NULL, (yyvsp[-1].ast), NULL); }
-
     break;
 
   case 179:
-
     { (yyval.num) = CG(zend_lineno); }
-
     break;
 
   case 180:
-
     { (yyval.ast) = zend_ast_create_decl(ZEND_AST_CLASS, ZEND_ACC_INTERFACE, (yyvsp[-6].num), (yyvsp[-3].str), zend_ast_get_str((yyvsp[-5].ast)), NULL, (yyvsp[-4].ast), (yyvsp[-1].ast), NULL); }
-
     break;
 
   case 181:
-
     { (yyval.ast) = NULL; }
-
     break;
 
   case 182:
-
     { (yyval.ast) = (yyvsp[0].ast); }
-
     break;
 
   case 183:
-
     { (yyval.ast) = NULL; }
-
     break;
 
   case 184:
-
     { (yyval.ast) = (yyvsp[0].ast); }
-
     break;
 
   case 185:
-
     { (yyval.ast) = NULL; }
-
     break;
 
   case 186:
-
     { (yyval.ast) = (yyvsp[0].ast); }
-
     break;
 
   case 187:
-
     { (yyval.ast) = (yyvsp[0].ast); }
-
     break;
 
   case 188:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_REF, (yyvsp[0].ast)); }
-
     break;
 
   case 189:
-
     { (yyval.ast) = (yyvsp[-1].ast); (yyval.ast)->attr = ZEND_ARRAY_SYNTAX_LIST; }
-
     break;
 
   case 190:
-
     { (yyval.ast) = (yyvsp[-1].ast); (yyval.ast)->attr = ZEND_ARRAY_SYNTAX_SHORT; }
-
     break;
 
   case 191:
-
     { (yyval.ast) = (yyvsp[0].ast); }
-
     break;
 
   case 192:
-
     { (yyval.ast) = (yyvsp[-2].ast); }
-
     break;
 
   case 193:
-
     { (yyval.ast) = (yyvsp[0].ast); }
-
     break;
 
   case 194:
-
     { (yyval.ast) = (yyvsp[-2].ast); }
-
     break;
 
   case 195:
-
     { (yyval.ast) = (yyvsp[0].ast); }
-
     break;
 
   case 196:
-
     { (yyval.ast) = (yyvsp[-2].ast); }
-
     break;
 
   case 197:
-
     { (yyval.ast) = (yyvsp[-1].ast); }
-
     break;
 
   case 198:
-
     { (yyval.ast) = (yyvsp[-1].ast); }
-
     break;
 
   case 199:
-
     { (yyval.ast) = (yyvsp[-2].ast); }
-
     break;
 
   case 200:
-
     { (yyval.ast) = (yyvsp[-2].ast); }
-
     break;
 
   case 201:
-
     { (yyval.ast) = zend_ast_create_list(0, ZEND_AST_SWITCH_LIST); }
-
     break;
 
   case 202:
-
     { (yyval.ast) = zend_ast_list_add((yyvsp[-4].ast), zend_ast_create(ZEND_AST_SWITCH_CASE, (yyvsp[-2].ast), (yyvsp[0].ast))); }
-
     break;
 
   case 203:
-
     { (yyval.ast) = zend_ast_list_add((yyvsp[-3].ast), zend_ast_create(ZEND_AST_SWITCH_CASE, NULL, (yyvsp[0].ast))); }
-
     break;
 
   case 206:
-
     { (yyval.ast) = (yyvsp[0].ast); }
-
     break;
 
   case 207:
-
     { (yyval.ast) = (yyvsp[-2].ast); }
-
     break;
 
   case 208:
-
     { (yyval.ast) = zend_ast_create_list(1, ZEND_AST_IF,
 			      zend_ast_create(ZEND_AST_IF_ELEM, (yyvsp[-2].ast), (yyvsp[0].ast))); }
-
     break;
 
   case 209:
-
     { (yyval.ast) = zend_ast_list_add((yyvsp[-5].ast),
 			      zend_ast_create(ZEND_AST_IF_ELEM, (yyvsp[-2].ast), (yyvsp[0].ast))); }
-
     break;
 
   case 210:
-
     { (yyval.ast) = (yyvsp[0].ast); }
-
     break;
 
   case 211:
-
     { (yyval.ast) = zend_ast_list_add((yyvsp[-2].ast), zend_ast_create(ZEND_AST_IF_ELEM, NULL, (yyvsp[0].ast))); }
-
     break;
 
   case 212:
-
     { (yyval.ast) = zend_ast_create_list(1, ZEND_AST_IF,
 			      zend_ast_create(ZEND_AST_IF_ELEM, (yyvsp[-3].ast), (yyvsp[0].ast))); }
-
     break;
 
   case 213:
-
     { (yyval.ast) = zend_ast_list_add((yyvsp[-6].ast),
 			      zend_ast_create(ZEND_AST_IF_ELEM, (yyvsp[-3].ast), (yyvsp[0].ast))); }
-
     break;
 
   case 214:
-
     { (yyval.ast) = (yyvsp[-2].ast); }
-
     break;
 
   case 215:
-
     { (yyval.ast) = zend_ast_list_add((yyvsp[-5].ast),
 			      zend_ast_create(ZEND_AST_IF_ELEM, NULL, (yyvsp[-2].ast))); }
-
     break;
 
   case 216:
-
     { (yyval.ast) = (yyvsp[0].ast); }
-
     break;
 
   case 217:
-
     { (yyval.ast) = zend_ast_create_list(0, ZEND_AST_PARAM_LIST); }
-
     break;
 
   case 218:
-
     { (yyval.ast) = zend_ast_create_list(1, ZEND_AST_PARAM_LIST, (yyvsp[0].ast)); }
-
     break;
 
   case 219:
-
     { (yyval.ast) = zend_ast_list_add((yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 220:
-
     { (yyval.ast) = zend_ast_create_ex(ZEND_AST_PARAM, (yyvsp[-2].num) | (yyvsp[-1].num), (yyvsp[-3].ast), (yyvsp[0].ast), NULL); }
-
     break;
 
   case 221:
-
     { (yyval.ast) = zend_ast_create_ex(ZEND_AST_PARAM, (yyvsp[-4].num) | (yyvsp[-3].num), (yyvsp[-5].ast), (yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 222:
-
     { (yyval.ast) = NULL; }
-
     break;
 
   case 223:
-
     { (yyval.ast) = (yyvsp[0].ast); }
-
     break;
 
   case 224:
-
     { (yyval.ast) = (yyvsp[0].ast); }
-
     break;
 
   case 225:
-
     { (yyval.ast) = (yyvsp[0].ast); (yyval.ast)->attr |= ZEND_TYPE_NULLABLE; }
-
     break;
 
   case 226:
-
     { (yyval.ast) = zend_ast_create_ex(ZEND_AST_TYPE, IS_ARRAY); }
-
     break;
 
   case 227:
-
     { (yyval.ast) = zend_ast_create_ex(ZEND_AST_TYPE, IS_CALLABLE); }
-
     break;
 
   case 228:
-
     { (yyval.ast) = (yyvsp[0].ast); }
-
     break;
 
   case 229:
-
     { (yyval.ast) = NULL; }
-
     break;
 
   case 230:
-
     { (yyval.ast) = (yyvsp[0].ast); }
-
     break;
 
   case 231:
-
     { (yyval.ast) = zend_ast_create_list(0, ZEND_AST_ARG_LIST); }
-
     break;
 
   case 232:
-
     { (yyval.ast) = (yyvsp[-1].ast); }
-
     break;
 
   case 233:
-
     { (yyval.ast) = zend_ast_create_list(1, ZEND_AST_ARG_LIST, (yyvsp[0].ast)); }
-
     break;
 
   case 234:
-
     { (yyval.ast) = zend_ast_list_add((yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 235:
-
     { (yyval.ast) = (yyvsp[0].ast); }
-
     break;
 
   case 236:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_UNPACK, (yyvsp[0].ast)); }
-
     break;
 
   case 237:
-
     { (yyval.ast) = zend_ast_list_add((yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 238:
-
     { (yyval.ast) = zend_ast_create_list(1, ZEND_AST_STMT_LIST, (yyvsp[0].ast)); }
-
     break;
 
   case 239:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_GLOBAL, zend_ast_create(ZEND_AST_VAR, (yyvsp[0].ast))); }
-
     break;
 
   case 240:
-
     { (yyval.ast) = zend_ast_list_add((yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 241:
-
     { (yyval.ast) = zend_ast_create_list(1, ZEND_AST_STMT_LIST, (yyvsp[0].ast)); }
-
     break;
 
   case 242:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_STATIC, (yyvsp[0].ast), NULL); }
-
     break;
 
   case 243:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_STATIC, (yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 244:
-
     { (yyval.ast) = zend_ast_list_add((yyvsp[-1].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 245:
-
     { (yyval.ast) = zend_ast_create_list(0, ZEND_AST_STMT_LIST); }
-
     break;
 
   case 246:
-
     { (yyval.ast) = (yyvsp[-1].ast); (yyval.ast)->attr = (yyvsp[-2].num); }
-
     break;
 
   case 247:
-
     { (yyval.ast) = (yyvsp[-1].ast); (yyval.ast)->attr = (yyvsp[-3].num); }
-
     break;
 
   case 248:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_USE_TRAIT, (yyvsp[-1].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 249:
-
     { (yyval.ast) = zend_ast_create_decl(ZEND_AST_METHOD, (yyvsp[-9].num) | (yyvsp[-11].num) | (yyvsp[0].num), (yyvsp[-10].num), (yyvsp[-7].str),
 				  zend_ast_get_str((yyvsp[-8].ast)), (yyvsp[-5].ast), NULL, (yyvsp[-1].ast), (yyvsp[-3].ast)); CG(extra_fn_flags) = (yyvsp[-2].num); }
-
     break;
 
   case 250:
-
     { (yyval.ast) = zend_ast_create_list(1, ZEND_AST_NAME_LIST, (yyvsp[0].ast)); }
-
     break;
 
   case 251:
-
     { (yyval.ast) = zend_ast_list_add((yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 252:
-
     { (yyval.ast) = NULL; }
-
     break;
 
   case 253:
-
     { (yyval.ast) = NULL; }
-
     break;
 
   case 254:
-
     { (yyval.ast) = (yyvsp[-1].ast); }
-
     break;
 
   case 255:
-
     { (yyval.ast) = zend_ast_create_list(1, ZEND_AST_TRAIT_ADAPTATIONS, (yyvsp[0].ast)); }
-
     break;
 
   case 256:
-
     { (yyval.ast) = zend_ast_list_add((yyvsp[-1].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 257:
-
     { (yyval.ast) = (yyvsp[-1].ast); }
-
     break;
 
   case 258:
-
     { (yyval.ast) = (yyvsp[-1].ast); }
-
     break;
 
   case 259:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_TRAIT_PRECEDENCE, (yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 260:
-
     { (yyval.ast) = zend_ast_create_ex(ZEND_AST_TRAIT_ALIAS, 0, (yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 261:
-
     { zval zv; zend_lex_tstring(&zv); (yyval.ast) = zend_ast_create_ex(ZEND_AST_TRAIT_ALIAS, 0, (yyvsp[-2].ast), zend_ast_create_zval(&zv)); }
-
     break;
 
   case 262:
-
     { (yyval.ast) = zend_ast_create_ex(ZEND_AST_TRAIT_ALIAS, (yyvsp[-1].num), (yyvsp[-3].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 263:
-
     { (yyval.ast) = zend_ast_create_ex(ZEND_AST_TRAIT_ALIAS, (yyvsp[0].num), (yyvsp[-2].ast), NULL); }
-
     break;
 
   case 264:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_METHOD_REFERENCE, NULL, (yyvsp[0].ast)); }
-
     break;
 
   case 265:
-
     { (yyval.ast) = (yyvsp[0].ast); }
-
     break;
 
   case 266:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_METHOD_REFERENCE, (yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 267:
-
     { (yyval.ast) = NULL; }
-
     break;
 
   case 268:
-
     { (yyval.ast) = (yyvsp[-1].ast); }
-
     break;
 
   case 269:
-
     { (yyval.num) = (yyvsp[0].num); }
-
     break;
 
   case 270:
-
     { (yyval.num) = ZEND_ACC_PUBLIC; }
-
     break;
 
   case 271:
-
     { (yyval.num) = ZEND_ACC_PUBLIC; }
-
     break;
 
   case 272:
-
     { (yyval.num) = (yyvsp[0].num); if (!((yyval.num) & ZEND_ACC_PPP_MASK)) { (yyval.num) |= ZEND_ACC_PUBLIC; } }
-
     break;
 
   case 273:
-
     { (yyval.num) = (yyvsp[0].num); }
-
     break;
 
   case 274:
-
     { (yyval.num) = zend_add_member_modifier((yyvsp[-1].num), (yyvsp[0].num)); }
-
     break;
 
   case 275:
-
     { (yyval.num) = ZEND_ACC_PUBLIC; }
-
     break;
 
   case 276:
-
     { (yyval.num) = ZEND_ACC_PROTECTED; }
-
     break;
 
   case 277:
-
     { (yyval.num) = ZEND_ACC_PRIVATE; }
-
     break;
 
   case 278:
-
     { (yyval.num) = ZEND_ACC_STATIC; }
-
     break;
 
   case 279:
-
     { (yyval.num) = ZEND_ACC_ABSTRACT; }
-
     break;
 
   case 280:
-
     { (yyval.num) = ZEND_ACC_FINAL; }
-
     break;
 
   case 281:
-
     { (yyval.ast) = zend_ast_list_add((yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 282:
-
     { (yyval.ast) = zend_ast_create_list(1, ZEND_AST_PROP_DECL, (yyvsp[0].ast)); }
-
     break;
 
   case 283:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_PROP_ELEM, (yyvsp[-1].ast), NULL, ((yyvsp[0].str) ? zend_ast_create_zval_from_str((yyvsp[0].str)) : NULL)); }
-
     break;
 
   case 284:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_PROP_ELEM, (yyvsp[-3].ast), (yyvsp[-1].ast), ((yyvsp[0].str) ? zend_ast_create_zval_from_str((yyvsp[0].str)) : NULL)); }
-
     break;
 
   case 285:
-
     { (yyval.ast) = zend_ast_list_add((yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 286:
-
     { (yyval.ast) = zend_ast_create_list(1, ZEND_AST_CLASS_CONST_DECL, (yyvsp[0].ast)); }
-
     break;
 
   case 287:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_CONST_ELEM, (yyvsp[-3].ast), (yyvsp[-1].ast), ((yyvsp[0].str) ? zend_ast_create_zval_from_str((yyvsp[0].str)) : NULL)); }
-
     break;
 
   case 288:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_CONST_ELEM, (yyvsp[-3].ast), (yyvsp[-1].ast), ((yyvsp[0].str) ? zend_ast_create_zval_from_str((yyvsp[0].str)) : NULL)); }
-
     break;
 
   case 289:
-
     { (yyval.ast) = zend_ast_list_add((yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 290:
-
     { (yyval.ast) = zend_ast_create_list(1, ZEND_AST_STMT_LIST, (yyvsp[0].ast)); }
-
     break;
 
   case 291:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_ECHO, (yyvsp[0].ast)); }
-
     break;
 
   case 292:
-
     { (yyval.ast) = NULL; }
-
     break;
 
   case 293:
-
     { (yyval.ast) = (yyvsp[0].ast); }
-
     break;
 
   case 294:
-
     { (yyval.ast) = zend_ast_list_add((yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 295:
-
     { (yyval.ast) = zend_ast_create_list(1, ZEND_AST_EXPR_LIST, (yyvsp[0].ast)); }
-
     break;
 
   case 296:
-
     { (yyval.num) = CG(zend_lineno); }
-
     break;
 
   case 297:
-
     {
 			zend_ast *decl = zend_ast_create_decl(
 				ZEND_AST_CLASS, ZEND_ACC_ANON_CLASS, (yyvsp[-7].num), (yyvsp[-3].str), NULL,
 				(yyvsp[-5].ast), (yyvsp[-4].ast), (yyvsp[-1].ast), NULL);
 			(yyval.ast) = zend_ast_create(ZEND_AST_NEW, decl, (yyvsp[-6].ast));
 		}
-
     break;
 
   case 298:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_NEW, (yyvsp[-1].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 299:
-
     { (yyval.ast) = (yyvsp[0].ast); }
-
     break;
 
   case 300:
-
     { (yyvsp[-3].ast)->attr = ZEND_ARRAY_SYNTAX_LIST; (yyval.ast) = zend_ast_create(ZEND_AST_ASSIGN, (yyvsp[-3].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 301:
-
     { (yyvsp[-3].ast)->attr = ZEND_ARRAY_SYNTAX_SHORT; (yyval.ast) = zend_ast_create(ZEND_AST_ASSIGN, (yyvsp[-3].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 302:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_ASSIGN, (yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 303:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_ASSIGN_REF, (yyvsp[-3].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 304:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_CLONE, (yyvsp[0].ast)); }
-
     break;
 
   case 305:
-
     { (yyval.ast) = zend_ast_create_assign_op(ZEND_ASSIGN_ADD, (yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 306:
-
     { (yyval.ast) = zend_ast_create_assign_op(ZEND_ASSIGN_SUB, (yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 307:
-
     { (yyval.ast) = zend_ast_create_assign_op(ZEND_ASSIGN_MUL, (yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 308:
-
     { (yyval.ast) = zend_ast_create_assign_op(ZEND_ASSIGN_POW, (yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 309:
-
     { (yyval.ast) = zend_ast_create_assign_op(ZEND_ASSIGN_DIV, (yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 310:
-
     { (yyval.ast) = zend_ast_create_assign_op(ZEND_ASSIGN_CONCAT, (yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 311:
-
     { (yyval.ast) = zend_ast_create_assign_op(ZEND_ASSIGN_MOD, (yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 312:
-
     { (yyval.ast) = zend_ast_create_assign_op(ZEND_ASSIGN_BW_AND, (yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 313:
-
     { (yyval.ast) = zend_ast_create_assign_op(ZEND_ASSIGN_BW_OR, (yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 314:
-
     { (yyval.ast) = zend_ast_create_assign_op(ZEND_ASSIGN_BW_XOR, (yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 315:
-
     { (yyval.ast) = zend_ast_create_assign_op(ZEND_ASSIGN_SL, (yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 316:
-
     { (yyval.ast) = zend_ast_create_assign_op(ZEND_ASSIGN_SR, (yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 317:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_POST_INC, (yyvsp[-1].ast)); }
-
     break;
 
   case 318:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_PRE_INC, (yyvsp[0].ast)); }
-
     break;
 
   case 319:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_POST_DEC, (yyvsp[-1].ast)); }
-
     break;
 
   case 320:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_PRE_DEC, (yyvsp[0].ast)); }
-
     break;
 
   case 321:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_OR, (yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 322:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_AND, (yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 323:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_OR, (yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 324:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_AND, (yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 325:
-
     { (yyval.ast) = zend_ast_create_binary_op(ZEND_BOOL_XOR, (yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 326:
-
     { (yyval.ast) = zend_ast_create_binary_op(ZEND_BW_OR, (yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 327:
-
     { (yyval.ast) = zend_ast_create_binary_op(ZEND_BW_AND, (yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 328:
-
     { (yyval.ast) = zend_ast_create_binary_op(ZEND_BW_XOR, (yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 329:
-
     { (yyval.ast) = zend_ast_create_binary_op(ZEND_CONCAT, (yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 330:
-
     { (yyval.ast) = zend_ast_create_binary_op(ZEND_ADD, (yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 331:
-
     { (yyval.ast) = zend_ast_create_binary_op(ZEND_SUB, (yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 332:
-
     { (yyval.ast) = zend_ast_create_binary_op(ZEND_MUL, (yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 333:
-
     { (yyval.ast) = zend_ast_create_binary_op(ZEND_POW, (yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 334:
-
     { (yyval.ast) = zend_ast_create_binary_op(ZEND_DIV, (yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 335:
-
     { (yyval.ast) = zend_ast_create_binary_op(ZEND_MOD, (yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 336:
-
     { (yyval.ast) = zend_ast_create_binary_op(ZEND_SL, (yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 337:
-
     { (yyval.ast) = zend_ast_create_binary_op(ZEND_SR, (yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 338:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_UNARY_PLUS, (yyvsp[0].ast)); }
-
     break;
 
   case 339:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_UNARY_MINUS, (yyvsp[0].ast)); }
-
     break;
 
   case 340:
-
     { (yyval.ast) = zend_ast_create_ex(ZEND_AST_UNARY_OP, ZEND_BOOL_NOT, (yyvsp[0].ast)); }
-
     break;
 
   case 341:
-
     { (yyval.ast) = zend_ast_create_ex(ZEND_AST_UNARY_OP, ZEND_BW_NOT, (yyvsp[0].ast)); }
-
     break;
 
   case 342:
-
     { (yyval.ast) = zend_ast_create_binary_op(ZEND_IS_IDENTICAL, (yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 343:
-
     { (yyval.ast) = zend_ast_create_binary_op(ZEND_IS_NOT_IDENTICAL, (yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 344:
-
     { (yyval.ast) = zend_ast_create_binary_op(ZEND_IS_EQUAL, (yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 345:
-
     { (yyval.ast) = zend_ast_create_binary_op(ZEND_IS_NOT_EQUAL, (yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 346:
-
     { (yyval.ast) = zend_ast_create_binary_op(ZEND_IS_SMALLER, (yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 347:
-
     { (yyval.ast) = zend_ast_create_binary_op(ZEND_IS_SMALLER_OR_EQUAL, (yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 348:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_GREATER, (yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 349:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_GREATER_EQUAL, (yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 350:
-
     { (yyval.ast) = zend_ast_create_binary_op(ZEND_SPACESHIP, (yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 351:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_INSTANCEOF, (yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 352:
-
     { (yyval.ast) = (yyvsp[-1].ast); }
-
     break;
 
   case 353:
-
     { (yyval.ast) = (yyvsp[0].ast); }
-
     break;
 
   case 354:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_CONDITIONAL, (yyvsp[-4].ast), (yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 355:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_CONDITIONAL, (yyvsp[-3].ast), NULL, (yyvsp[0].ast)); }
-
     break;
 
   case 356:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_COALESCE, (yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 357:
-
     { (yyval.ast) = (yyvsp[0].ast); }
-
     break;
 
   case 358:
-
     { (yyval.ast) = zend_ast_create_cast(IS_LONG, (yyvsp[0].ast)); }
-
     break;
 
   case 359:
-
     { (yyval.ast) = zend_ast_create_cast(IS_DOUBLE, (yyvsp[0].ast)); }
-
     break;
 
   case 360:
-
     { (yyval.ast) = zend_ast_create_cast(IS_STRING, (yyvsp[0].ast)); }
-
     break;
 
   case 361:
-
     { (yyval.ast) = zend_ast_create_cast(IS_ARRAY, (yyvsp[0].ast)); }
-
     break;
 
   case 362:
-
     { (yyval.ast) = zend_ast_create_cast(IS_OBJECT, (yyvsp[0].ast)); }
-
     break;
 
   case 363:
-
     { (yyval.ast) = zend_ast_create_cast(_IS_BOOL, (yyvsp[0].ast)); }
-
     break;
 
   case 364:
-
     { (yyval.ast) = zend_ast_create_cast(IS_NULL, (yyvsp[0].ast)); }
-
     break;
 
   case 365:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_EXIT, (yyvsp[0].ast)); }
-
     break;
 
   case 366:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_SILENCE, (yyvsp[0].ast)); }
-
     break;
 
   case 367:
-
     { (yyval.ast) = (yyvsp[0].ast); }
-
     break;
 
   case 368:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_SHELL_EXEC, (yyvsp[-1].ast)); }
-
     break;
 
   case 369:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_PRINT, (yyvsp[0].ast)); }
-
     break;
 
   case 370:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_YIELD, NULL, NULL); CG(extra_fn_flags) |= ZEND_ACC_GENERATOR; }
-
     break;
 
   case 371:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_YIELD, (yyvsp[0].ast), NULL); CG(extra_fn_flags) |= ZEND_ACC_GENERATOR; }
-
     break;
 
   case 372:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_YIELD, (yyvsp[0].ast), (yyvsp[-2].ast)); CG(extra_fn_flags) |= ZEND_ACC_GENERATOR; }
-
     break;
 
   case 373:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_YIELD_FROM, (yyvsp[0].ast)); CG(extra_fn_flags) |= ZEND_ACC_GENERATOR; }
-
     break;
 
   case 374:
-
     { (yyval.ast) = zend_ast_create_decl(ZEND_AST_CLOSURE, (yyvsp[-11].num) | (yyvsp[0].num), (yyvsp[-12].num), (yyvsp[-10].str),
 				  zend_string_init("{closure}", sizeof("{closure}") - 1, 0),
 			      (yyvsp[-8].ast), (yyvsp[-6].ast), (yyvsp[-2].ast), (yyvsp[-5].ast)); CG(extra_fn_flags) = (yyvsp[-4].num); }
-
     break;
 
   case 375:
-
     { (yyval.ast) = zend_ast_create_decl(ZEND_AST_CLOSURE, (yyvsp[-11].num) | (yyvsp[0].num) | ZEND_ACC_STATIC, (yyvsp[-12].num), (yyvsp[-10].str),
 			      zend_string_init("{closure}", sizeof("{closure}") - 1, 0),
 			      (yyvsp[-8].ast), (yyvsp[-6].ast), (yyvsp[-2].ast), (yyvsp[-5].ast)); CG(extra_fn_flags) = (yyvsp[-4].num); }
-
     break;
 
   case 376:
-
     { (yyval.num) = CG(zend_lineno); }
-
     break;
 
   case 377:
-
     { (yyval.str) = CG(doc_comment); CG(doc_comment) = NULL; }
-
     break;
 
   case 378:
-
     { (yyval.num) = CG(extra_fn_flags); CG(extra_fn_flags) = 0; }
-
     break;
 
   case 379:
-
     { (yyval.num) = 0; }
-
     break;
 
   case 380:
-
     { (yyval.num) = ZEND_ACC_RETURN_REFERENCE; }
-
     break;
 
   case 381:
-
     { (yyval.ast) = NULL; }
-
     break;
 
   case 382:
-
     { (yyval.ast) = (yyvsp[-1].ast); }
-
     break;
 
   case 383:
-
     { (yyval.ast) = zend_ast_list_add((yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 384:
-
     { (yyval.ast) = zend_ast_create_list(1, ZEND_AST_CLOSURE_USES, (yyvsp[0].ast)); }
-
     break;
 
   case 385:
-
     { (yyval.ast) = (yyvsp[0].ast); }
-
     break;
 
   case 386:
-
     { (yyval.ast) = (yyvsp[0].ast); (yyval.ast)->attr = 1; }
-
     break;
 
   case 387:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_CALL, (yyvsp[-1].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 388:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_STATIC_CALL, (yyvsp[-3].ast), (yyvsp[-1].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 389:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_STATIC_CALL, (yyvsp[-3].ast), (yyvsp[-1].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 390:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_CALL, (yyvsp[-1].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 391:
-
     { zval zv; ZVAL_INTERNED_STR(&zv, CG(known_strings)[ZEND_STR_STATIC]);
 			  (yyval.ast) = zend_ast_create_zval_ex(&zv, ZEND_NAME_NOT_FQ); }
-
     break;
 
   case 392:
-
     { (yyval.ast) = (yyvsp[0].ast); }
-
     break;
 
   case 393:
-
     { (yyval.ast) = (yyvsp[0].ast); }
-
     break;
 
   case 394:
-
     { (yyval.ast) = (yyvsp[0].ast); }
-
     break;
 
   case 395:
-
     { (yyval.ast) = NULL; }
-
     break;
 
   case 396:
-
     { (yyval.ast) = (yyvsp[-1].ast); }
-
     break;
 
   case 397:
-
     { (yyval.ast) = zend_ast_create_zval_from_str(ZSTR_EMPTY_ALLOC()); }
-
     break;
 
   case 398:
-
     { (yyval.ast) = (yyvsp[0].ast); }
-
     break;
 
   case 399:
-
     { (yyval.ast) = (yyvsp[0].ast); }
-
     break;
 
   case 400:
-
     { (yyval.ast) = zend_ast_create_list(0, ZEND_AST_ARG_LIST); }
-
     break;
 
   case 401:
-
     { (yyval.ast) = (yyvsp[0].ast); }
-
     break;
 
   case 402:
-
     { (yyval.ast) = (yyvsp[-1].ast); (yyval.ast)->attr = ZEND_ARRAY_SYNTAX_LONG; }
-
     break;
 
   case 403:
-
     { (yyval.ast) = (yyvsp[-1].ast); (yyval.ast)->attr = ZEND_ARRAY_SYNTAX_SHORT; }
-
     break;
 
   case 404:
-
     { (yyval.ast) = (yyvsp[0].ast); }
-
     break;
 
   case 405:
-
     { (yyval.ast) = (yyvsp[0].ast); }
-
     break;
 
   case 406:
-
     { (yyval.ast) = (yyvsp[0].ast); }
-
     break;
 
   case 407:
-
     { (yyval.ast) = zend_ast_create_ex(ZEND_AST_MAGIC_CONST, T_LINE); }
-
     break;
 
   case 408:
-
     { (yyval.ast) = zend_ast_create_ex(ZEND_AST_MAGIC_CONST, T_FILE); }
-
     break;
 
   case 409:
-
     { (yyval.ast) = zend_ast_create_ex(ZEND_AST_MAGIC_CONST, T_DIR); }
-
     break;
 
   case 410:
-
     { (yyval.ast) = zend_ast_create_ex(ZEND_AST_MAGIC_CONST, T_TRAIT_C); }
-
     break;
 
   case 411:
-
     { (yyval.ast) = zend_ast_create_ex(ZEND_AST_MAGIC_CONST, T_METHOD_C); }
-
     break;
 
   case 412:
-
     { (yyval.ast) = zend_ast_create_ex(ZEND_AST_MAGIC_CONST, T_FUNC_C); }
-
     break;
 
   case 413:
-
     { (yyval.ast) = zend_ast_create_ex(ZEND_AST_MAGIC_CONST, T_NS_C); }
-
     break;
 
   case 414:
-
     { (yyval.ast) = zend_ast_create_ex(ZEND_AST_MAGIC_CONST, T_CLASS_C); }
-
     break;
 
   case 415:
-
     { (yyval.ast) = (yyvsp[-1].ast); }
-
     break;
 
   case 416:
-
     { (yyval.ast) = zend_ast_create_zval_from_str(ZSTR_EMPTY_ALLOC()); }
-
     break;
 
   case 417:
-
     { (yyval.ast) = (yyvsp[-1].ast); }
-
     break;
 
   case 418:
-
     { (yyval.ast) = (yyvsp[-1].ast); }
-
     break;
 
   case 419:
-
     { (yyval.ast) = (yyvsp[0].ast); }
-
     break;
 
   case 420:
-
     { (yyval.ast) = (yyvsp[0].ast); }
-
     break;
 
   case 421:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_CONST, (yyvsp[0].ast)); }
-
     break;
 
   case 422:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_CLASS_CONST, (yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 423:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_CLASS_CONST, (yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 424:
-
     { (yyval.ast) = (yyvsp[0].ast); }
-
     break;
 
   case 425:
-
     { (yyval.ast) = (yyvsp[0].ast); }
-
     break;
 
   case 426:
-
     { (yyval.ast) = NULL; }
-
     break;
 
   case 427:
-
     { (yyval.ast) = (yyvsp[0].ast); }
-
     break;
 
   case 428:
-
     { (yyval.ast) = (yyvsp[0].ast); }
-
     break;
 
   case 429:
-
     { (yyval.ast) = (yyvsp[0].ast); }
-
     break;
 
   case 430:
-
     { (yyval.ast) = (yyvsp[-1].ast); }
-
     break;
 
   case 431:
-
     { (yyval.ast) = (yyvsp[0].ast); }
-
     break;
 
   case 432:
-
     { (yyval.ast) = (yyvsp[0].ast); }
-
     break;
 
   case 433:
-
     { (yyval.ast) = (yyvsp[-1].ast); }
-
     break;
 
   case 434:
-
     { (yyval.ast) = (yyvsp[0].ast); }
-
     break;
 
   case 435:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_VAR, (yyvsp[0].ast)); }
-
     break;
 
   case 436:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_DIM, (yyvsp[-3].ast), (yyvsp[-1].ast)); }
-
     break;
 
   case 437:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_DIM, (yyvsp[-3].ast), (yyvsp[-1].ast)); }
-
     break;
 
   case 438:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_DIM, (yyvsp[-3].ast), (yyvsp[-1].ast)); }
-
     break;
 
   case 439:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_METHOD_CALL, (yyvsp[-3].ast), (yyvsp[-1].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 440:
-
     { (yyval.ast) = (yyvsp[0].ast); }
-
     break;
 
   case 441:
-
     { (yyval.ast) = (yyvsp[0].ast); }
-
     break;
 
   case 442:
-
     { (yyval.ast) = (yyvsp[0].ast); }
-
     break;
 
   case 443:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_PROP, (yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 444:
-
     { (yyval.ast) = (yyvsp[0].ast); }
-
     break;
 
   case 445:
-
     { (yyval.ast) = (yyvsp[-1].ast); }
-
     break;
 
   case 446:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_VAR, (yyvsp[0].ast)); }
-
     break;
 
   case 447:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_STATIC_PROP, (yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 448:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_STATIC_PROP, (yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 449:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_VAR, (yyvsp[0].ast)); }
-
     break;
 
   case 450:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_DIM, (yyvsp[-3].ast), (yyvsp[-1].ast)); }
-
     break;
 
   case 451:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_DIM, (yyvsp[-3].ast), (yyvsp[-1].ast)); }
-
     break;
 
   case 452:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_PROP, (yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 453:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_STATIC_PROP, (yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 454:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_STATIC_PROP, (yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 455:
-
     { (yyval.ast) = (yyvsp[0].ast); }
-
     break;
 
   case 456:
-
     { (yyval.ast) = (yyvsp[-1].ast); }
-
     break;
 
   case 457:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_VAR, (yyvsp[0].ast)); }
-
     break;
 
   case 458:
-
     { (yyval.ast) = (yyvsp[0].ast); }
-
     break;
 
   case 459:
-
     { (yyval.ast) = (yyvsp[-1].ast); }
-
     break;
 
   case 460:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_VAR, (yyvsp[0].ast)); }
-
     break;
 
   case 461:
-
     { /* allow single trailing comma */ (yyval.ast) = zend_ast_list_rtrim((yyvsp[0].ast)); }
-
     break;
 
   case 462:
-
     { (yyval.ast) = NULL; }
-
     break;
 
   case 463:
-
     { (yyval.ast) = (yyvsp[0].ast); }
-
     break;
 
   case 464:
-
     { (yyval.ast) = zend_ast_list_add((yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 465:
-
     { (yyval.ast) = zend_ast_create_list(1, ZEND_AST_ARRAY, (yyvsp[0].ast)); }
-
     break;
 
   case 466:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_ARRAY_ELEM, (yyvsp[0].ast), (yyvsp[-2].ast)); }
-
     break;
 
   case 467:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_ARRAY_ELEM, (yyvsp[0].ast), NULL); }
-
     break;
 
   case 468:
-
     { (yyval.ast) = zend_ast_create_ex(ZEND_AST_ARRAY_ELEM, 1, (yyvsp[0].ast), (yyvsp[-3].ast)); }
-
     break;
 
   case 469:
-
     { (yyval.ast) = zend_ast_create_ex(ZEND_AST_ARRAY_ELEM, 1, (yyvsp[0].ast), NULL); }
-
     break;
 
   case 470:
-
     { (yyvsp[-1].ast)->attr = ZEND_ARRAY_SYNTAX_LIST;
 			  (yyval.ast) = zend_ast_create(ZEND_AST_ARRAY_ELEM, (yyvsp[-1].ast), (yyvsp[-5].ast)); }
-
     break;
 
   case 471:
-
     { (yyvsp[-1].ast)->attr = ZEND_ARRAY_SYNTAX_LIST;
 			  (yyval.ast) = zend_ast_create(ZEND_AST_ARRAY_ELEM, (yyvsp[-1].ast), NULL); }
-
     break;
 
   case 472:
-
     { (yyval.ast) = zend_ast_list_add((yyvsp[-1].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 473:
-
     { (yyval.ast) = zend_ast_list_add((yyvsp[-1].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 474:
-
     { (yyval.ast) = zend_ast_create_list(1, ZEND_AST_ENCAPS_LIST, (yyvsp[0].ast)); }
-
     break;
 
   case 475:
-
     { (yyval.ast) = zend_ast_create_list(2, ZEND_AST_ENCAPS_LIST, (yyvsp[-1].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 476:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_VAR, (yyvsp[0].ast)); }
-
     break;
 
   case 477:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_DIM,
 			      zend_ast_create(ZEND_AST_VAR, (yyvsp[-3].ast)), (yyvsp[-1].ast)); }
-
     break;
 
   case 478:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_PROP,
 			      zend_ast_create(ZEND_AST_VAR, (yyvsp[-2].ast)), (yyvsp[0].ast)); }
-
     break;
 
   case 479:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_VAR, (yyvsp[-1].ast)); }
-
     break;
 
   case 480:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_VAR, (yyvsp[-1].ast)); }
-
     break;
 
   case 481:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_DIM,
 			      zend_ast_create(ZEND_AST_VAR, (yyvsp[-4].ast)), (yyvsp[-2].ast)); }
-
     break;
 
   case 482:
-
     { (yyval.ast) = (yyvsp[-1].ast); }
-
     break;
 
   case 483:
-
     { (yyval.ast) = (yyvsp[0].ast); }
-
     break;
 
   case 484:
-
     { (yyval.ast) = (yyvsp[0].ast); }
-
     break;
 
   case 485:
-
     { (yyval.ast) = zend_negate_num_string((yyvsp[0].ast)); }
-
     break;
 
   case 486:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_VAR, (yyvsp[0].ast)); }
-
     break;
 
   case 487:
-
     { (yyval.ast) = (yyvsp[-1].ast); }
-
     break;
 
   case 488:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_EMPTY, (yyvsp[-1].ast)); }
-
     break;
 
   case 489:
-
     { (yyval.ast) = zend_ast_create_ex(ZEND_AST_INCLUDE_OR_EVAL, ZEND_INCLUDE, (yyvsp[0].ast)); }
-
     break;
 
   case 490:
-
     { (yyval.ast) = zend_ast_create_ex(ZEND_AST_INCLUDE_OR_EVAL, ZEND_INCLUDE_ONCE, (yyvsp[0].ast)); }
-
     break;
 
   case 491:
-
     { (yyval.ast) = zend_ast_create_ex(ZEND_AST_INCLUDE_OR_EVAL, ZEND_EVAL, (yyvsp[-1].ast)); }
-
     break;
 
   case 492:
-
     { (yyval.ast) = zend_ast_create_ex(ZEND_AST_INCLUDE_OR_EVAL, ZEND_REQUIRE, (yyvsp[0].ast)); }
-
     break;
 
   case 493:
-
     { (yyval.ast) = zend_ast_create_ex(ZEND_AST_INCLUDE_OR_EVAL, ZEND_REQUIRE_ONCE, (yyvsp[0].ast)); }
-
     break;
 
   case 494:
-
     { (yyval.ast) = (yyvsp[0].ast); }
-
     break;
 
   case 495:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_AND, (yyvsp[-2].ast), (yyvsp[0].ast)); }
-
     break;
 
   case 496:
-
     { (yyval.ast) = zend_ast_create(ZEND_AST_ISSET, (yyvsp[0].ast)); }
-
     break;
 
 
@@ -6862,14 +5784,13 @@ yyreduce:
   /* Now 'shift' the result of the reduction.  Determine what state
      that goes to, based on the state we popped back to and the rule
      number reduced by.  */
-
-  yyn = yyr1[yyn];
-
-  yystate = yypgoto[yyn - YYNTOKENS] + *yyssp;
-  if (0 <= yystate && yystate <= YYLAST && yycheck[yystate] == *yyssp)
-    yystate = yytable[yystate];
-  else
-    yystate = yydefgoto[yyn - YYNTOKENS];
+  {
+    const int yylhs = yyr1[yyn] - YYNTOKENS;
+    const int yyi = yypgoto[yylhs] + *yyssp;
+    yystate = (0 <= yyi && yyi <= YYLAST && yycheck[yyi] == *yyssp
+               ? yytable[yyi]
+               : yydefgoto[yylhs]);
+  }
 
   goto yynewstate;
 
@@ -6952,12 +5873,10 @@ yyerrlab:
 | yyerrorlab -- error raised explicitly by YYERROR.  |
 `---------------------------------------------------*/
 yyerrorlab:
-
-  /* Pacify compilers like GCC when the user code never invokes
-     YYERROR and the label yyerrorlab therefore never appears in user
-     code.  */
-  if (/*CONSTCOND*/ 0)
-     goto yyerrorlab;
+  /* Pacify compilers when the user code never invokes YYERROR and the
+     label yyerrorlab therefore never appears in user code.  */
+  if (0)
+    YYERROR;
 
   /* Do not reclaim the symbols of the rule whose action triggered
      this YYERROR.  */
@@ -7019,12 +5938,14 @@ yyacceptlab:
   yyresult = 0;
   goto yyreturn;
 
+
 /*-----------------------------------.
 | yyabortlab -- YYABORT comes here.  |
 `-----------------------------------*/
 yyabortlab:
   yyresult = 1;
   goto yyreturn;
+
 
 #if !defined yyoverflow || YYERROR_VERBOSE
 /*-------------------------------------------------.
@@ -7036,6 +5957,10 @@ yyexhaustedlab:
   /* Fall through.  */
 #endif
 
+
+/*-----------------------------------------------------.
+| yyreturn -- parsing is finished, return the result.  |
+`-----------------------------------------------------*/
 yyreturn:
   if (yychar != YYEMPTY)
     {
@@ -7065,7 +5990,6 @@ yyreturn:
 #endif
   return yyresult;
 }
-
 
 
 /* Copy to YYRES the contents of YYSTR after stripping away unnecessary
