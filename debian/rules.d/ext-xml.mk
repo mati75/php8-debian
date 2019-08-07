@@ -1,14 +1,11 @@
 ext_PACKAGES    += xml
-xml_DESCRIPTION := DOM, SimpleXML, WDDX, XML, and XSL
-xml_EXTENSIONS  := dom simplexml wddx xml xmlreader xmlwriter xsl
+xml_DESCRIPTION := DOM, SimpleXML, XML, and XSL
+xml_EXTENSIONS  := dom simplexml xml xmlreader xmlwriter xsl
 dom_config = \
 	--enable-dom=shared \
 	--with-libxml=/usr
 simplexml_config = \
 	--enable-simplexml=shared \
-	--with-libxml=/usr
-wddx_config = \
-	--enable-wddx=shared \
 	--with-libxml=/usr
 xml_config = \
 	--enable-xml=shared \
