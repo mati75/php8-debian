@@ -63,7 +63,7 @@ function main()
 	if (getenv("TEST_PHP_WORKER")) {
 		$workerID = intval(getenv("TEST_PHP_WORKER"));
 		run_worker();
-		die;
+		return;
 	}
 
 	define('INIT_DIR', getcwd());
@@ -73,27 +73,6 @@ function main()
 		@chdir(getenv('TEST_PHP_SRCDIR'));
 	}
 	define('TEST_PHP_SRCDIR', getcwd());
-
-
-	/* Sanity check to ensure that pcre extension needed by this script is available.
-	 * In the event it is not, print a nice error message indicating that this script will
-	 * not run without it.
-	 */
-
-	if (!extension_loaded('pcre')) {
-		echo <<<NO_PCRE_ERROR
-
-+-----------------------------------------------------------+
-|                       ! ERROR !                           |
-| The test-suite requires that you have pcre extension      |
-| enabled. To enable this extension either compile your PHP |
-| with --with-pcre-regex or if you've compiled pcre as a    |
-| shared module load it via php.ini.                        |
-+-----------------------------------------------------------+
-
-NO_PCRE_ERROR;
-		exit(1);
-	}
 
 	if (!function_exists('proc_open')) {
 		echo <<<NO_PROC_OPEN_ERROR
@@ -259,7 +238,7 @@ NO_PROC_OPEN_ERROR;
 		'open_basedir=',
 		'disable_functions=',
 		'output_buffering=Off',
-		'error_reporting=' . (E_ALL | E_STRICT),
+		'error_reporting=' . E_ALL,
 		'display_errors=1',
 		'display_startup_errors=1',
 		'log_errors=0',
@@ -279,6 +258,7 @@ NO_PROC_OPEN_ERROR;
 		'log_errors_max_len=0',
 		'opcache.fast_shutdown=0',
 		'opcache.file_update_protection=0',
+		'opcache.revalidate_freq=0',
 		'zend.assertions=1',
 	);
 
@@ -517,6 +497,18 @@ NO_PROC_OPEN_ERROR;
 					case '--shuffle':
 						$shuffle = true;
 						break;
+					case '--asan':
+						$environment['USE_ZEND_ALLOC'] = 0;
+						$environment['USE_TRACKED_ALLOC'] = 1;
+						$environment['SKIP_ASAN'] = 1;
+						$environment['SKIP_PERF_SENSITIVE'] = 1;
+
+						$lsanSuppressions = __DIR__ . '/azure/lsan-suppressions.txt';
+						if (file_exists($lsanSuppressions)) {
+							$environment['LSAN_OPTIONS'] = 'suppressions=' . $lsanSuppressions
+								. ':print_suppressions=0';
+						}
+						break;
 					//case 'w'
 					case '-':
 						// repeat check with full switch
@@ -733,7 +725,7 @@ HELP;
 				exit(1);
 			}
 
-			exit(0);
+			return;
 		}
 	}
 
@@ -857,7 +849,7 @@ More .INIs  : " , (function_exists(\'php_ini_scanned_files\') ? str_replace("\n"
 	save_text($info_file, $php_info);
 	$info_params = array();
 	settings2array($ini_overwrites, $info_params);
-	settings2params($info_params);
+	$info_params = settings2params($info_params);
 	$php_info = `$php $pass_options $info_params $no_file_cache "$info_file"`;
 	define('TESTED_PHP_VERSION', `$php -n -r "echo PHP_VERSION;"`);
 
@@ -1360,9 +1352,9 @@ function run_all_tests_parallel($test_files, $env, $redir_tested) {
 	$workerProcs = [];
 	$workerSocks = [];
 
-	echo "====⚡️===========================================================⚡️====\n";
-	echo "====⚡️==== WELCOME TO THE FUTURE: run-tests PARALLEL EDITION ====⚡️====\n";
-	echo "====⚡️===========================================================⚡️====\n";
+	echo "=====================================================================\n";
+	echo "========= WELCOME TO THE FUTURE: run-tests PARALLEL EDITION =========\n";
+	echo "=====================================================================\n";
 
 	// Each test may specify a list of conflict keys. While a test that conflicts with
 	// key K is running, no other test that conflicts with K may run. Conflict keys are
@@ -1489,7 +1481,7 @@ function run_all_tests_parallel($test_files, $env, $redir_tested) {
 		echo "$i ";
 	}
 	echo "… done!\n";
-	echo "====⚡️===========================================================⚡️====\n";
+	echo "=====================================================================\n";
 	echo "\n";
 
 	$rawMessageBuffers = [];
@@ -1632,7 +1624,7 @@ escape:
 								'E_USER_ERROR',
 								'E_USER_WARNING',
 								'E_USER_NOTICE',
-								'E_STRICT',
+								'E_STRICT', // TODO Cleanup when removed from Zend Engine.
 								'E_RECOVERABLE_ERROR',
 								'E_USER_DEPRECATED'
 							];
@@ -1731,11 +1723,9 @@ function run_worker() {
 					"type" => "error",
 					"msg" => "Unrecognised message type: $command[type]"
 				]);
-				die;
+				break 2;
 		}
 	}
-
-	die;
 }
 
 //
@@ -2087,13 +2077,13 @@ TEST $file
 	}
 
 	// Default ini settings
-	$ini_settings = array();
+	$ini_settings = $workerID ? array('opcache.cache_id' => "worker$workerID") : array();
 
 	// Additional required extensions
 	if (array_key_exists('EXTENSIONS', $section_text)) {
 		$ext_params = array();
 		settings2array($ini_overwrites, $ext_params);
-		settings2params($ext_params);
+		$ext_params = settings2params($ext_params);
 		$ext_dir = `$php $pass_options $extra_options $ext_params -d display_errors=0 -r "echo ini_get('extension_dir');"`;
 		$extensions = preg_split("/[\n\r]+/", trim($section_text['EXTENSIONS']));
 		$loaded = explode(",", `$php $pass_options $extra_options $ext_params -d display_errors=0 -r "echo implode(',', get_loaded_extensions());"`);
@@ -2113,6 +2103,8 @@ TEST $file
 	//$ini_overwrites[] = 'setting=value';
 	settings2array($ini_overwrites, $ini_settings);
 
+	$orig_ini_settings = settings2params($ini_settings);
+
 	// Any special ini settings
 	// these may overwrite the test defaults...
 	if (array_key_exists('INI', $section_text)) {
@@ -2121,7 +2113,7 @@ TEST $file
 		settings2array(preg_split("/[\n\r]+/", $section_text['INI']), $ini_settings);
 	}
 
-	settings2params($ini_settings);
+	$ini_settings = settings2params($ini_settings);
 
 	$env['TEST_PHP_EXTRA_ARGS'] = $pass_options . ' ' . $ini_settings;
 
@@ -2144,7 +2136,7 @@ TEST $file
 
 			junit_start_timer($shortname);
 
-			$output = system_with_timeout("$extra $php $pass_options $extra_options -q $ini_settings $no_file_cache -d display_errors=0 \"$test_skipif\"", $env);
+			$output = system_with_timeout("$extra $php $pass_options $extra_options -q $orig_ini_settings $no_file_cache -d display_errors=0 \"$test_skipif\"", $env);
 
 			junit_finish_timer($shortname);
 
@@ -2483,7 +2475,7 @@ COMMAND $cmd
 			if (!$no_clean) {
 				$clean_params = array();
 				settings2array($ini_overwrites, $clean_params);
-				settings2params($clean_params);
+				$clean_params = settings2params($clean_params);
 				$extra = substr(PHP_OS, 0, 3) !== "WIN" ?
 					"unset REQUEST_METHOD; unset QUERY_STRING; unset PATH_TRANSLATED; unset SCRIPT_FILENAME; unset REQUEST_METHOD;" : "";
 				system_with_timeout("$extra $php $pass_options $extra_options -q $clean_params $no_file_cache \"$test_clean\"", $env);
@@ -2668,7 +2660,7 @@ COMMAND $cmd
 					$info = " (warn: XFAIL section but test passes)";
 				} if (isset($section_text['XLEAK'])) {
 					$warn = true;
-					$info = " (warn: XLEAK section but test passes)";      
+					$info = " (warn: XLEAK section but test passes)";
                 } else {
 					show_result("PASS", $tested, $tested_file, '', $temp_filenames);
 					junit_mark_test_as('PASS', $shortname, $tested);
@@ -2692,7 +2684,7 @@ COMMAND $cmd
 	}
 
 	if ($leaked) {
-        $restype[] = isset($section_text['XLEAK']) ? 
+        $restype[] = isset($section_text['XLEAK']) ?
                         'XLEAK' : 'LEAK';
 	}
 
@@ -2941,7 +2933,7 @@ function settings2array($settings, &$ini_settings)
 	}
 }
 
-function settings2params(&$ini_settings)
+function settings2params($ini_settings)
 {
 	$settings = '';
 
@@ -2953,12 +2945,12 @@ function settings2params(&$ini_settings)
 				$settings .= " -d \"$name=$val\"";
 			}
 		} else {
-			if (substr(PHP_OS, 0, 3) == "WIN" && !empty($value) && $value{0} == '"') {
+			if (substr(PHP_OS, 0, 3) == "WIN" && !empty($value) && $value[0] == '"') {
 				$len = strlen($value);
 
-				if ($value{$len - 1} == '"') {
-					$value{0} = "'";
-					$value{$len - 1} = "'";
+				if ($value[$len - 1] == '"') {
+					$value[0] = "'";
+					$value[$len - 1] = "'";
 				}
 			} else {
 				$value = addslashes($value);
@@ -2968,7 +2960,7 @@ function settings2params(&$ini_settings)
 		}
 	}
 
-	$ini_settings = $settings;
+	return $settings;
 }
 
 function compute_summary()
@@ -3432,8 +3424,8 @@ function junit_mark_test_as($type, $file_name, $test_name, $time = null, $messag
 	}, $escaped_details);
 	$escaped_message = htmlspecialchars($message, ENT_QUOTES, 'UTF-8');
 
-	$escaped_test_name = htmlspecialchars($test_name, ENT_QUOTES);
-	$JUNIT['files'][$file_name]['xml'] = "<testcase classname='$file_name' name='$escaped_test_name' time='$time'>\n";
+	$escaped_test_name = htmlspecialchars($file_name . ' (' . $test_name . ')', ENT_QUOTES);
+	$JUNIT['files'][$file_name]['xml'] = "<testcase name='$escaped_test_name' time='$time'>\n";
 
 	if (is_array($type)) {
 		$output_type = $type[0] . 'ED';

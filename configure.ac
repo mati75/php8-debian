@@ -10,12 +10,14 @@ m4_include([build/libtool.m4])
 m4_include([build/php_cxx_compile_stdcxx.m4])
 m4_include([build/php.m4])
 m4_include([build/pkg.m4])
+m4_include([TSRM/threads.m4])
+m4_include([TSRM/tsrm.m4])
 
 dnl Basic autoconf initialization, generation of config.nice.
 dnl ----------------------------------------------------------------------------
 
 AC_PREREQ([2.68])
-AC_INIT([PHP],[7.4.0alpha2],[https://bugs.php.net],[php],[https://www.php.net])
+AC_INIT([PHP],[7.4.0beta1],[https://bugs.php.net],[php],[https://www.php.net])
 AC_CONFIG_SRCDIR([main/php_version.h])
 AC_CONFIG_AUX_DIR([build])
 AC_PRESERVE_HELP_ORDER
@@ -25,6 +27,7 @@ PHP_CONFIG_NICE(config.nice)
 PHP_CANONICAL_HOST_TARGET
 
 AC_CONFIG_HEADERS([main/php_config.h])
+
 AH_TOP([
 #ifndef PHP_CONFIG_H
 #define PHP_CONFIG_H
@@ -102,8 +105,6 @@ extern "C++" {
 #endif
 #endif /* ifndef ZEND_ACCONFIG_H_NO_C_PROTOS */
 
-#undef PTHREADS
-
 #endif /* PHP_CONFIG_H */
 ])
 
@@ -162,9 +163,6 @@ test -z "$CFLAGS" && auto_cflags=1
 
 abs_srcdir=`(cd $srcdir; pwd)`
 abs_builddir=`pwd`
-
-php_abs_top_srcdir=$abs_srcdir
-php_abs_top_builddir=$abs_builddir
 
 dnl Because `make install` is often performed by the superuser, we create the
 dnl libs subdirectory as the user who configures PHP. Otherwise, the current
@@ -280,11 +278,6 @@ case $host_alias in
         CPPFLAGS="$CPPFLAGS -no-cpp-precomp"
       fi
     fi
-    php_multiple_shlib_versions_ok=yes
-    ;;
-  *beos*)
-    beos_threads=1
-    LIBS="$LIBS -lbe -lroot"
     ;;
   *mips*)
     CPPFLAGS="$CPPFLAGS -D_XPG_IV"
@@ -313,12 +306,10 @@ case $host_alias in
     ;;
 esac
 
-dnl Include Zend and TSRM configurations.
+dnl Include Zend configurations.
 dnl ----------------------------------------------------------------------------
 
 sinclude(Zend/Zend.m4)
-sinclude(TSRM/threads.m4)
-sinclude(TSRM/tsrm.m4)
 
 dnl ----------------------------------------------------------------------------
 
@@ -359,7 +350,14 @@ fi
 
 dnl Force ZTS.
 if test "$enable_maintainer_zts" = "yes"; then
-  PTHREADS_ASSIGN_VARS
+  dnl Add pthreads linker and compiler flags.
+  if test -n "$ac_cv_pthreads_lib"; then
+    LIBS="$LIBS -l$ac_cv_pthreads_lib"
+  fi
+  if test -n "$ac_cv_pthreads_cflags"; then
+    CFLAGS="$CFLAGS $ac_cv_pthreads_cflags"
+  fi
+
   PTHREADS_FLAGS
 fi
 
@@ -400,8 +398,6 @@ PHP_CHECK_FUNC(socketpair, socket)
 PHP_CHECK_FUNC(htonl, socket)
 PHP_CHECK_FUNC(gethostname, nsl)
 PHP_CHECK_FUNC(gethostbyaddr, nsl)
-PHP_CHECK_FUNC(yp_get_default_domain, nsl)
-
 PHP_CHECK_FUNC(dlopen, dl)
 PHP_CHECK_FUNC(dlsym, dl)
 if test "$ac_cv_func_dlopen" = "yes"; then
@@ -416,11 +412,11 @@ dnl Then headers.
 dnl ----------------------------------------------------------------------------
 
 dnl QNX requires unix.h to allow functions in libunix to work properly.
+dnl locale.h is checked for supporting old code in extensions such as imagick.
 AC_CHECK_HEADERS([ \
 inttypes.h \
 stdint.h \
 dirent.h \
-ApplicationServices/ApplicationServices.h \
 sys/param.h \
 sys/types.h \
 sys/time.h \
@@ -434,14 +430,14 @@ fcntl.h \
 grp.h \
 ieeefp.h \
 langinfo.h \
-limits.h \
 locale.h \
+malloc.h \
 monetary.h \
 netdb.h \
 poll.h \
 pwd.h \
 resolv.h \
-signal.h \
+strings.h \
 syslog.h \
 sysexits.h \
 sys/ioctl.h \
@@ -457,6 +453,7 @@ sys/statfs.h \
 sys/statvfs.h \
 sys/vfs.h \
 sys/sysexits.h \
+sys/uio.h \
 sys/wait.h \
 sys/loadavg.h \
 termios.h \
@@ -501,7 +498,15 @@ AC_STRUCT_TIMEZONE
 PHP_MISSING_TIME_R_DECL
 PHP_MISSING_FCLOSE_DECL
 PHP_STRUCT_FLOCK
-PHP_SOCKLEN_T
+
+AC_CHECK_TYPES(socklen_t, [], [], [
+  #ifdef HAVE_SYS_TYPES_H
+  # include <sys/types.h>
+  #endif
+  #ifdef HAVE_SYS_SOCKET_H
+  # include <sys/socket.h>
+  #endif
+])
 
 dnl These are defined elsewhere than stdio.h.
 PHP_CHECK_SIZEOF(intmax_t, 0)
@@ -545,13 +550,9 @@ PHP_CHECK_CPU_SUPPORTS([avx2])
 dnl Check for structure members.
 AC_CHECK_MEMBERS([struct tm.tm_gmtoff],,,[#include <time.h>])
 AC_CHECK_MEMBERS([struct stat.st_blksize, struct stat.st_rdev])
-dnl AC_STRUCT_ST_BLOCKS will screw QNX because fileblocks.o does not exist. The
-dnl WARNING_LEVEL required because cc in QNX hates -w option without an argument
+dnl AC_STRUCT_ST_BLOCKS will screw QNX because fileblocks.o does not exist.
 if test "`uname -s 2>/dev/null`" != "QNX"; then
   AC_STRUCT_ST_BLOCKS
-else
-  AC_MSG_WARN([warnings level for cc set to 0])
-  WARNING_LEVEL=0
 fi
 
 dnl Checks for types.
@@ -586,69 +587,59 @@ alphasort \
 asctime_r \
 chroot \
 ctime_r \
-cuserid \
 crypt \
 explicit_memset \
 flock \
+fpclass \
 ftok \
 funopen \
 gai_strerror \
-gcvt \
+getcwd \
 getloadavg \
 getlogin \
 getprotobyname \
 getprotobynumber \
 getservbyname \
 getservbyport \
-gethostname \
 getrusage \
 gettimeofday \
 gmtime_r \
 getpwnam_r \
 getgrnam_r \
 getpwuid_r \
+getwd \
+glob \
 grantpt \
 inet_ntoa \
 inet_ntop \
 inet_pton \
-isascii \
-link \
 localtime_r \
-lockf \
 lchown \
-lrand48 \
+mbrlen \
 memmove \
 mkstemp \
 mmap \
+nice \
 nl_langinfo \
 poll \
 ptsname \
 putenv \
 realpath \
-random \
 rand_r \
 scandir \
 setitimer \
 setenv \
-setpgid \
-setsockopt \
-setvbuf \
 shutdown \
-sin \
-srand48 \
-srandom \
+sigprocmask \
 statfs \
 statvfs \
 std_syslog \
 strcasecmp \
-strcoll \
-strdup \
-strerror \
+strfmon \
 strnlen \
 strptime \
 strtok_r \
 symlink \
-tempnam \
 tzset \
 unlockpt \
 unsetenv \
@@ -1221,14 +1212,13 @@ unset LIBS LDFLAGS
 
 PHP_HELP_SEPARATOR([TSRM:])
 PHP_CONFIGURE_PART(Configuring TSRM)
-TSRM_BASIC_CHECKS
 if test "$PHP_THREAD_SAFETY" = "yes"; then
   TSRM_THREADS_CHECKS
 fi
 
 dnl Align segments on huge page boundary
 case $host_alias in
-  *linux*)
+  i[[3456]]86-*-linux-* | x86_64-*-linux-*)
     EXTRA_LDFLAGS_PROGRAM="$EXTRA_LDFLAGS_PROGRAM -Wl,-zcommon-page-size=2097152 -Wl,-zmax-page-size=2097152"
     ;;
 esac
@@ -1379,8 +1369,6 @@ PHP_SUBST(EXT_LIBS)
 
 PHP_SUBST_OLD(abs_builddir)
 PHP_SUBST_OLD(abs_srcdir)
-PHP_SUBST_OLD(php_abs_top_builddir)
-PHP_SUBST_OLD(php_abs_top_srcdir)
 
 PHP_SUBST(bindir)
 PHP_SUBST(sbindir)
@@ -1432,7 +1420,6 @@ PHP_SUBST_OLD(PHP_VERSION)
 PHP_SUBST_OLD(PHP_VERSION_ID)
 PHP_SUBST(SHELL)
 PHP_SUBST(SHARED_LIBTOOL)
-PHP_SUBST(WARNING_LEVEL)
 PHP_SUBST(PHP_FRAMEWORKS)
 PHP_SUBST(PHP_FRAMEWORKPATH)
 PHP_SUBST(INSTALL_HEADERS)
@@ -1445,19 +1432,10 @@ if test "$PHP_THREAD_SAFETY" = "yes" && test -n "$ac_cv_pthreads_cflags"; then
   CPPFLAGS="$CPPFLAGS $ac_cv_pthreads_cflags"
 fi
 
-dnl This will go away, if we have a facility to run per-extension code after the
-dnl thread_safety decision was done.
-if test "$PHP_THREAD_SAFETY" = "yes" && test "$PHP_MYSQL" = "yes"; then
-  CPPFLAGS="$CPPFLAGS -DTHREAD=1"
-fi
-
 if test "$PHP_WERROR" = "yes"; then
   CFLAGS="$CFLAGS -Werror"
   CPPFLAGS="$CPPFLAGS -Werror"
 fi
-
-ZEND_EXT_TYPE="zend_extension"
-PHP_SUBST(ZEND_EXT_TYPE)
 
 dnl
 dnl Libtool creation.
@@ -1465,8 +1443,6 @@ dnl
 
 PHP_HELP_SEPARATOR([Libtool:])
 PHP_CONFIGURE_PART(Configuring libtool)
-
-LDFLAGS="$LDFLAGS $PHP_AIX_LDFLAGS"
 
 dnl Autoconf 2.13's libtool checks go slightly nuts on Mac OS X 10.5 and 10.6.
 dnl This hack works around it. Ugly.
@@ -1527,7 +1503,7 @@ PHP_SUBST(install_binary_targets)
 
 PHP_INSTALL_HEADERS([Zend/ TSRM/ include/ main/ main/streams/])
 
-PHP_ADD_SOURCES(TSRM, TSRM.c tsrm_strtok_r.c, -DZEND_ENABLE_STATIC_TSRMLS_CACHE=1)
+PHP_ADD_SOURCES(TSRM, TSRM.c, -DZEND_ENABLE_STATIC_TSRMLS_CACHE=1)
 
 PHP_ADD_SOURCES(main, main.c snprintf.c spprintf.c \
        fopen_wrappers.c alloca.c  php_scandir.c \
@@ -1590,12 +1566,27 @@ scripts/phpize scripts/man1/phpize.1 \
 scripts/php-config scripts/man1/php-config.1 \
 $PHP_OUTPUT_FILES"
 
-dnl Check for unknown configure options.
-PHP_CHECK_CONFIGURE_OPTIONS
-
 dnl Generate build files.
 AC_CONFIG_FILES([$ALL_OUTPUT_FILES])
-AC_CONFIG_COMMANDS([default],[],[
+
+AC_CONFIG_COMMANDS_PRE([PHP_PATCH_CONFIG_HEADERS([main/php_config.h.in])])
+
+AC_CONFIG_COMMANDS([default],[
+cat <<X
+
++--------------------------------------------------------------------+
+| License:                                                           |
+| This software is subject to the PHP License, available in this     |
+| distribution in the file LICENSE. By continuing this installation  |
+| process, you are bound by the terms of this license agreement.     |
+| If you do not agree with the terms of this license, you must abort |
+| the installation process at this point.                            |
++--------------------------------------------------------------------+
+
+Thank you for using PHP.
+
+X
+],[
 
 if test "\$CONFIG_FILES" = "$ALL_OUTPUT_FILES" || test "\$CONFIG_FILES" = " $ALL_OUTPUT_FILES" || test -z "\$CONFIG_FILES"; then
   REDO_ALL=yes
@@ -1607,45 +1598,15 @@ test -d Zend || $php_shtool mkdir Zend
 
 cat >Zend/zend_config.h <<FEO
 #include <../main/php_config.h>
-#if defined(APACHE) && defined(PHP_API_VERSION)
-#undef HAVE_DLFCN_H
-#endif
 FEO
 
 dnl Run this only when generating all the files.
 if test -n "\$REDO_ALL"; then
   echo "creating main/internal_functions.c"
-  extensions="$EXT_STATIC"
-  sh $srcdir/build/genif.sh $srcdir/main/internal_functions.c.in $srcdir "$EXTRA_MODULE_PTRS" $AWK \$extensions > main/internal_functions.c
+  AWK="$AWK" sh $srcdir/build/genif.sh $srcdir/main/internal_functions.c.in "$EXT_STATIC" > main/internal_functions.c
 
   echo "creating main/internal_functions_cli.c"
-  cli_extensions="$EXT_CLI_STATIC"
-  sh $srcdir/build/genif.sh $srcdir/main/internal_functions.c.in $srcdir "$EXTRA_MODULE_PTRS" $AWK \$cli_extensions > main/internal_functions_cli.c
-
-  if test -n "$PHP_APXS_BROKEN"; then
-    echo "+--------------------------------------------------------------------+"
-    echo "| WARNING: Your $APXS script is most likely broken."
-    echo "|                                                                    |"
-    echo "| Please go read http://www.php.net/faq.build#faq.build.apxs         |"
-    echo "| and make the changes described there and try again.                |"
-  fi
-
-  if test -n "$DEBUG_LOG"; then
-    rm -f config.cache
-cat <<X
-+--------------------------------------------------------------------+
-|                       *** ATTENTION ***                            |
-|                                                                    |
-| Something is likely to be messed up here, because the configure    |
-| script was not able to detect a simple feature on your platform.   |
-| This is often caused by incorrect configuration parameters. Please |
-| see the file debug.log for error messages.                         |
-|                                                                    |
-| If you are unable to fix this, send the file debug.log to the      |
-| php-install@lists.php.net mailing list and include appropriate     |
-| information about your setup.                                      |
-X
-  fi
+  AWK="$AWK" sh $srcdir/build/genif.sh $srcdir/main/internal_functions.c.in "$EXT_CLI_STATIC" > main/internal_functions_cli.c
 
     if test "$PHP_SAPI" = "apache2handler"; then
       if test "$APACHE_VERSION" -ge 2004001; then
@@ -1678,29 +1639,6 @@ cat <<X
 X
       fi
     fi
-  fi
-
-cat <<X
-+--------------------------------------------------------------------+
-| License:                                                           |
-| This software is subject to the PHP License, available in this     |
-| distribution in the file LICENSE.  By continuing this installation |
-| process, you are bound by the terms of this license agreement.     |
-| If you do not agree with the terms of this license, you must abort |
-| the installation process at this point.                            |
-+--------------------------------------------------------------------+
-
-Thank you for using PHP.
-
-X
-
-  dnl Output unknown configure options.
-  if test "$PHP_UNKNOWN_CONFIGURE_OPTIONS"; then
-    echo "Notice: Following unknown configure options were used:
-$PHP_UNKNOWN_CONFIGURE_OPTIONS
-
-Check '[$]0 --help' for available options
-"
   fi
 
 fi

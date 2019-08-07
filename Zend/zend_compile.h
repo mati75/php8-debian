@@ -753,7 +753,7 @@ void zend_do_free(znode *op1);
 ZEND_API int do_bind_function(zval *lcname);
 ZEND_API int do_bind_class(zval *lcname, zend_string *lc_parent_name);
 ZEND_API uint32_t zend_build_delayed_early_binding_list(const zend_op_array *op_array);
-ZEND_API void zend_do_delayed_early_binding(const zend_op_array *op_array, uint32_t first_early_binding_opline);
+ZEND_API void zend_do_delayed_early_binding(zend_op_array *op_array, uint32_t first_early_binding_opline);
 
 void zend_do_extended_info(void);
 void zend_do_extended_fcall_begin(void);
@@ -790,6 +790,7 @@ ZEND_API ZEND_COLD void zend_user_exception_handler(void);
 		} \
 	} while (0)
 
+void zend_free_internal_arg_info(zend_internal_function *function);
 ZEND_API void destroy_zend_function(zend_function *function);
 ZEND_API void zend_function_dtor(zval *zv);
 ZEND_API void destroy_zend_class(zval *zv);
@@ -923,7 +924,8 @@ void zend_assert_valid_class_name(const zend_string *const_name);
 #define ZEND_SEND_BY_REF     1u
 #define ZEND_SEND_PREFER_REF 2u
 
-#define ZEND_DIM_IS 1
+#define ZEND_DIM_IS					(1 << 0) /* isset fetch needed for null coalesce */
+#define ZEND_DIM_ALTERNATIVE_SYNTAX	(1 << 1) /* deprecated curly brace usage */
 
 #define IS_CONSTANT_UNQUALIFIED     0x010
 #define IS_CONSTANT_CLASS           0x080  /* __CLASS__ in trait */
@@ -997,6 +999,12 @@ static zend_always_inline int zend_check_arg_send_type(const zend_function *zf, 
 #define ZEND_SYMBOL_CLASS    (1<<0)
 #define ZEND_SYMBOL_FUNCTION (1<<1)
 #define ZEND_SYMBOL_CONST    (1<<2)
+
+/* All increment opcodes are even (decrement are odd) */
+#define ZEND_IS_INCREMENT(opcode) (((opcode) & 1) == 0)
+
+#define ZEND_IS_BINARY_ASSIGN_OP_OPCODE(opcode) \
+	(((opcode) >= ZEND_ADD) && ((opcode) <= ZEND_POW))
 
 /* Pseudo-opcodes that are used only temporarily during compilation */
 #define ZEND_PARENTHESIZED_CONCAT 252 /* removed with PHP 8 */

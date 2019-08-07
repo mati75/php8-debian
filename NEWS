@@ -1,5 +1,99 @@
 PHP                                                                        NEWS
 |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+25 Jul 2019, PHP 7.4.0beta1
+
+
+25 Jul 2019, PHP 7.4.0beta1
+
+- Core:
+  . Fixed bug #78212 (Segfault in built-in webserver). (cmb)
+  . Fixed bug #60677 (CGI doesn't properly validate shebang line contains #!).
+    (Nikita)
+  . Fixed bug #78066 (PHP eats the first byte of a program that comes from
+    process substitution). (Nikita)
+  . Fixed bug #52752 (Crash when lexing). (Nikita)
+  . Implemented RFC: Deprecate curly brace syntax for accessing array elements
+    and string offsets.
+    https://wiki.php.net/rfc/deprecate_curly_braces_array_access (Andrey Gromov)
+  . Implemented RFC: Deprecations for PHP 7.4.
+    https://wiki.php.net/rfc/deprecations_php_7_4 (Kalle, Nikita)
+
+- GD:
+  . Fixed bug #78314 (missing freetype support/functions with external gd).
+    (Remi)
+
+- Libxml:
+  . Fixed bug #78279 (libxml_disable_entity_loader settings is shared between
+    requests (cgi-fcgi)). (Nikita)
+
+- LiteSpeed:
+  . Updated to LiteSpeed SAPI V7.5 (Fixed clean shutdown). (George Wang)
+
+- Opcache:
+  . Fixed bug #78271 (Invalid result of if-else). (Nikita)
+  . Added new INI directive opcache.cache_id (Windows only). (cmb)
+
+- Recode:
+  . Unbundled the recode extension. (cmb)
+
+- Standard:
+  . Fixed bug #78282 (atime and mtime mismatch). (cmb)
+  . Fixed bug #73535 (php_sockop_write() returns 0 on error, can be used to
+    trigger Denial of Service). (Nikita)
+
+11 Jul 2019, PHP 7.4.0alpha3
+
+- Core:
+  . Fixed bug #78239 (Deprecation notice during string conversion converted to
+    exception hangs). (Nikita)
+  . Implemented FR #77230 (Support custom CFLAGS and LDFLAGS from environment).
+    (cmb)
+
+- Date:
+  . Updated timelib to 2018.02. (Derick)
+
+- Fileinfo:
+  . Fixed bug #78183 (finfo_file shows wrong mime-type for .tga file).
+   (Anatol)
+
+- LiteSpeed:
+  . Updated to LiteSpeed SAPI V7.4.3 (increased response header count limit from
+    100 to 1000, added crash handler to cleanly shutdown PHP request, added
+    CloudLinux mod_lsapi mode). (George Wang)
+  . Fixed bug #76058 (After "POST data can't be buffered", using php://input
+    makes huge tmp files). (George Wang)
+
+- Openssl:
+  . Fixed bug #78231 (Segmentation fault upon stream_socket_accept of exported
+    socket-to-stream). (Nikita)
+
+- Opcache:
+  . Fixed #78202 (Opcache stats for cache hits are capped at 32bit NUM). (cmb)
+
+- mysqlnd:
+  . Fixed #60594 (mysqlnd exposes 160 lines of stats in phpinfo). (PeeHaa)
+
+- PDO:
+  . Implemented FR #78033 (PDO - support username & password specified in
+    DSN). (sjon)
+
+- PDO_Sqlite:
+  . Fixed #78192 (SegFault when reuse statement after schema has changed).
+    (Vincent Quatrevieux)
+
+- Reflection:
+  . Fixed bug #78263 (\ReflectionReference::fromArrayElement() returns null
+    while item is a reference). (Nikita)
+
+- Standard:
+  . Implemented FR #78177 (Make proc_open accept command array). (Nikita)
+  . Fixed #78208 (password_needs_rehash() with an unknown algo should always
+    return true). (Sara)
+  . Fixed #78241 (touch() does not handle dates after 2038 in PHP 64-bit). (cmb)
+  . Implemented RFC where password_hash() has argon2i(d) implementations from
+    ext/sodium when PHP is built without libargon:
+    https://wiki.php.net/rfc/sodium.argon.hash (Sara)
+
 27 Jun 2019, PHP 7.4.0alpha2
 
 - Core:

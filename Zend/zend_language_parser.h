@@ -189,7 +189,8 @@ extern int zenddebug;
     T_NS_C = 392,
     T_NS_SEPARATOR = 393,
     T_ELLIPSIS = 394,
-    T_ERROR = 395
+    T_BAD_CHARACTER = 395,
+    T_ERROR = 396
   };
 #endif
 

@@ -4,6 +4,12 @@ trigger:
     include:
       - PHP-7.4
       - master
+  paths:
+    exclude:
+      - docs/*
+      - NEWS
+      - UPGRADING
+      - UPGRADING.INTERNALS
 
 jobs:
   - template: azure/job.yml
@@ -55,3 +61,17 @@ jobs:
       parameters:
         configurationName: MACOS_RELEASE_ZTS
         configurationParameters: '--disable-debug --enable-maintainer-zts'
+    - template: azure/job.yml
+      parameters:
+        configurationName: DEBUG_ZTS_ASAN_UBSAN
+        configurationParameters: >-
+            --enable-debug --enable-maintainer-zts
+            CFLAGS='-fsanitize=undefined,address -DZEND_TRACK_ARENA_ALLOC'
+            LDFLAGS='-fsanitize=undefined,address'
+        runTestsParameters: --asan
+        timeoutInMinutes: 120
+    - template: azure/msan_job.yml
+      parameters:
+        configurationName: DEBUG_ZTS_MSAN
+        configurationParameters: '--enable-debug --enable-maintainer-zts'
+        runTestsParameters: --asan

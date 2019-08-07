@@ -20,12 +20,6 @@
 #ifndef PHP_GD_H
 #define PHP_GD_H
 
-#if HAVE_LIBFREETYPE
-# ifndef ENABLE_GD_TTF
-#  define ENABLE_GD_TTF
-# endif
-#endif
-
 #if defined(HAVE_LIBGD) || defined(HAVE_GD_BUNDLED)
 
 /* open_basedir and safe_mode checks */
@@ -84,9 +78,7 @@ extern zend_module_entry gd_module_entry;
 PHP_MINFO_FUNCTION(gd);
 PHP_MINIT_FUNCTION(gd);
 PHP_MSHUTDOWN_FUNCTION(gd);
-#if HAVE_GD_FREETYPE && HAVE_LIBFREETYPE
 PHP_RSHUTDOWN_FUNCTION(gd);
-#endif
 
 PHP_FUNCTION(gd_info);
 PHP_FUNCTION(imagearc);

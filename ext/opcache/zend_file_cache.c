@@ -49,6 +49,10 @@
 # include <sys/file.h>
 #endif
 
+#if __has_feature(memory_sanitizer)
+# include <sanitizer/msan_interface.h>
+#endif
+
 #ifndef ZEND_WIN32
 #define zend_file_cache_unlink unlink
 #define zend_file_cache_open open
@@ -466,7 +470,6 @@ static void zend_file_cache_serialize_op_array(zend_op_array            *op_arra
 						SERIALIZE_PTR(opline->op2.jmp_addr);
 					}
 					break;
-				case ZEND_DECLARE_ANON_CLASS:
 				case ZEND_FE_FETCH_R:
 				case ZEND_FE_FETCH_RW:
 				case ZEND_SWITCH_LONG:
@@ -831,31 +834,13 @@ static char *zend_file_cache_get_bin_file_path(zend_string *script_path)
 	memcpy(filename + len + 33, ZSTR_VAL(script_path), ZSTR_LEN(script_path));
 	memcpy(filename + len + 33 + ZSTR_LEN(script_path), SUFFIX, sizeof(SUFFIX));
 #else
-	PHP_MD5_CTX ctx;
-	char md5uname[32];
-	unsigned char digest[16], c;
-	size_t i;
-	char *uname = php_win32_get_username();
-
-	PHP_MD5Init(&ctx);
-	PHP_MD5Update(&ctx, uname, strlen(uname));
-	PHP_MD5Final(digest, &ctx);
-	for (i = 0; i < 16; i++) {
-		c = digest[i] >> 4;
-		c = (c <= 9) ? c + '0' : c - 10 + 'a';
-		md5uname[i * 2] = c;
-		c = digest[i] &  0x0f;
-		c = (c <= 9) ? c + '0' : c - 10 + 'a';
-		md5uname[(i * 2) + 1] = c;
-	}
-
 	len = strlen(ZCG(accel_directives).file_cache);
 
 	filename = emalloc(len + 33 + 33 + ZSTR_LEN(script_path) + sizeof(SUFFIX));
 
 	memcpy(filename, ZCG(accel_directives).file_cache, len);
 	filename[len] = '\\';
-	memcpy(filename + 1 + len, md5uname, 32);
+	memcpy(filename + 1 + len, accel_uname_id, 32);
 	len += 1 + 32;
 	filename[len] = '\\';
 
@@ -885,7 +870,6 @@ static char *zend_file_cache_get_bin_file_path(zend_string *script_path)
 		memcpy(filename + len + 33, ZSTR_VAL(script_path), ZSTR_LEN(script_path));
 		memcpy(filename + len + 33 + ZSTR_LEN(script_path), SUFFIX, sizeof(SUFFIX));
 	}
-	free(uname);
 #endif
 
 	return filename;
@@ -946,6 +930,14 @@ int zend_file_cache_script_store(zend_persistent_script *script, int in_shm)
 
 	info.checksum = zend_adler32(ADLER32_INIT, buf, script->size);
 	info.checksum = zend_adler32(info.checksum, (signed char*)ZSTR_VAL((zend_string*)ZCG(mem)), info.str_size);
+
+#if __has_feature(memory_sanitizer)
+	/* The buffer may contain uninitialized regions. However, the uninitialized parts will not be
+	 * used when reading the cache. We should probably still try to get things fully initialized
+	 * for reproducibility, but for now ignore this issue. */
+	__msan_unpoison(&info, sizeof(info));
+	__msan_unpoison(buf, script->size);
+#endif
 
 #ifdef HAVE_SYS_UIO_H
 	vec[0].iov_base = &info;
@@ -1176,7 +1168,6 @@ static void zend_file_cache_unserialize_op_array(zend_op_array           *op_arr
 						UNSERIALIZE_PTR(opline->op2.jmp_addr);
 					}
 					break;
-				case ZEND_DECLARE_ANON_CLASS:
 				case ZEND_FE_FETCH_R:
 				case ZEND_FE_FETCH_RW:
 				case ZEND_SWITCH_LONG:

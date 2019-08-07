@@ -46,7 +46,6 @@
 #include "zend_strtod.h"
 #include "zend_exceptions.h"
 #include "zend_virtual_cwd.h"
-#include "tsrm_config_common.h"
 
 #define YYCTYPE   unsigned char
 #define YYFILL(n) { if ((YYCURSOR + n) >= (YYLIMIT + ZEND_MMAP_AHEAD)) { return 0; } }
@@ -514,15 +513,8 @@ ZEND_API int zend_multibyte_set_filter(const zend_encoding *onetime_encoding)
 ZEND_API int open_file_for_scanning(zend_file_handle *file_handle)
 {
 	char *buf;
-	size_t size, offset = 0;
+	size_t size;
 	zend_string *compiled_filename;
-
-	/* The shebang line was read, get the current position to obtain the buffer start */
-	if (CG(start_lineno) == 2 && file_handle->type == ZEND_HANDLE_FP && file_handle->handle.fp) {
-		if ((offset = ftell(file_handle->handle.fp)) == (size_t)-1) {
-			offset = 0;
-		}
-	}
 
 	if (zend_stream_fixup(file_handle, &buf, &size) == FAILURE) {
 		return FAILURE;
@@ -557,13 +549,18 @@ ZEND_API int open_file_for_scanning(zend_file_handle *file_handle)
 				size = SCNG(script_filtered_size);
 			}
 		}
-		SCNG(yy_start) = (unsigned char *)buf - offset;
+		SCNG(yy_start) = (unsigned char *)buf;
 		yy_scan_buffer(buf, (unsigned int)size);
 	} else {
 		zend_error_noreturn(E_COMPILE_ERROR, "zend_stream_mmap() failed");
 	}
 
-	BEGIN(INITIAL);
+	if (CG(skip_shebang)) {
+		CG(skip_shebang) = 0;
+		BEGIN(SHEBANG);
+	} else {
+		BEGIN(INITIAL);
+	}
 
 	if (file_handle->opened_path) {
 		compiled_filename = zend_string_copy(file_handle->opened_path);
@@ -574,14 +571,8 @@ ZEND_API int open_file_for_scanning(zend_file_handle *file_handle)
 	zend_set_compiled_filename(compiled_filename);
 	zend_string_release_ex(compiled_filename, 0);
 
-	if (CG(start_lineno)) {
-		CG(zend_lineno) = CG(start_lineno);
-		CG(start_lineno) = 0;
-	} else {
-		CG(zend_lineno) = 1;
-	}
-
 	RESET_DOC_COMMENT();
+	CG(zend_lineno) = 1;
 	CG(increment_lineno) = 0;
 	return SUCCESS;
 }
@@ -668,11 +659,7 @@ zend_op_array *compile_filename(int type, zval *filename)
 		ZVAL_STR(&tmp, zval_get_string(filename));
 		filename = &tmp;
 	}
-	file_handle.filename = Z_STRVAL_P(filename);
-	file_handle.free_filename = 0;
-	file_handle.type = ZEND_HANDLE_FILENAME;
-	file_handle.opened_path = NULL;
-	file_handle.handle.fp = NULL;
+	zend_stream_init_filename(&file_handle, Z_STRVAL_P(filename));
 
 	retval = zend_compile_file(&file_handle, type);
 	if (retval && file_handle.handle.stream.handle) {
@@ -798,10 +785,7 @@ int highlight_file(char *filename, zend_syntax_highlighter_ini *syntax_highlight
 	zend_lex_state original_lex_state;
 	zend_file_handle file_handle;
 
-	file_handle.type = ZEND_HANDLE_FILENAME;
-	file_handle.filename = filename;
-	file_handle.free_filename = 0;
-	file_handle.opened_path = NULL;
+	zend_stream_init_filename(&file_handle, filename);
 	zend_save_lexical_state(&original_lex_state);
 	if (open_file_for_scanning(&file_handle)==FAILURE) {
 		zend_message_dispatcher(ZMSG_FAILED_HIGHLIGHT_FOPEN, filename);
@@ -1243,9 +1227,12 @@ static void copy_heredoc_label_stack(void *void_heredoc_label)
 		goto emit_token_with_str; \
 	} while (0)
 
-#define SKIP_TOKEN(_token) do { \
+#define RETURN_OR_SKIP_TOKEN(_token) do { \
 		token = _token; \
-		goto skip_token; \
+		if (PARSER_MODE()) { \
+			goto skip_token; \
+		} \
+		goto emit_token; \
 	} while (0)
 
 int ZEND_FASTCALL lex_scan(zval *zendlval, zend_parser_stack_elem *elem)
@@ -1497,7 +1484,14 @@ NEWLINE ("\r"|"\n"|"\r\n")
 	RETURN_TOKEN(T_INT_CAST);
 }
 
-<ST_IN_SCRIPTING>"("{TABS_AND_SPACES}("real"|"double"|"float"){TABS_AND_SPACES}")" {
+<ST_IN_SCRIPTING>"("{TABS_AND_SPACES}("double"|"float"){TABS_AND_SPACES}")" {
+	RETURN_TOKEN(T_DOUBLE_CAST);
+}
+
+<ST_IN_SCRIPTING>"("{TABS_AND_SPACES}"real"{TABS_AND_SPACES}")" {
+	if (PARSER_MODE()) {
+		zend_error(E_DEPRECATED, "The (real) cast is deprecated, use (float) instead");
+	}
 	RETURN_TOKEN(T_DOUBLE_CAST);
 }
 
@@ -2010,6 +2004,17 @@ string:
 	RETURN_TOKEN(T_NS_C);
 }
 
+<SHEBANG>"#!" .* {NEWLINE} {
+	CG(zend_lineno)++;
+	BEGIN(INITIAL);
+	goto restart;
+}
+
+<SHEBANG>{ANY_CHAR} {
+	yyless(0);
+	BEGIN(INITIAL);
+	goto restart;
+}
 
 <INITIAL>"<?=" {
 	BEGIN(ST_IN_SCRIPTING);
@@ -2023,20 +2028,28 @@ string:
 <INITIAL>"<?php"([ \t]|{NEWLINE}) {
 	HANDLE_NEWLINE(yytext[yyleng-1]);
 	BEGIN(ST_IN_SCRIPTING);
-	if (PARSER_MODE()) {
-		SKIP_TOKEN(T_OPEN_TAG);
-	}
-	RETURN_TOKEN(T_OPEN_TAG);
+	RETURN_OR_SKIP_TOKEN(T_OPEN_TAG);
 }
 
+<INITIAL>"<?php" {
+	/* Allow <?php followed by end of file. */
+	if (YYCURSOR == YYLIMIT) {
+		BEGIN(ST_IN_SCRIPTING);
+		RETURN_OR_SKIP_TOKEN(T_OPEN_TAG);
+	}
+	/* Degenerate case: <?phpX is interpreted as <? phpX with short tags. */
+	if (CG(short_tags)) {
+		yyless(2);
+		BEGIN(ST_IN_SCRIPTING);
+		RETURN_OR_SKIP_TOKEN(T_OPEN_TAG);
+	}
+	goto inline_char_handler;
+}
 
 <INITIAL>"<?" {
 	if (CG(short_tags)) {
 		BEGIN(ST_IN_SCRIPTING);
-		if (PARSER_MODE()) {
-			SKIP_TOKEN(T_OPEN_TAG);
-		}
-		RETURN_TOKEN(T_OPEN_TAG);
+		RETURN_OR_SKIP_TOKEN(T_OPEN_TAG);
 	} else {
 		goto inline_char_handler;
 	}
@@ -2059,8 +2072,12 @@ inline_char_handler:
 		}
 
 		if (*YYCURSOR == '?') {
-			if (CG(short_tags) || !strncasecmp((char*)YYCURSOR + 1, "php", 3) || (*(YYCURSOR + 1) == '=')) { /* Assume [ \t\n\r] follows "php" */
-
+			if (CG(short_tags) /* <? */
+				|| (*(YYCURSOR + 1) == '=') /* <?= */
+				|| (!strncasecmp((char*)YYCURSOR + 1, "php", 3) && /* <?php[ \t\r\n] */
+					(YYCURSOR[4] == ' ' || YYCURSOR[4] == '\t' ||
+					YYCURSOR[4] == '\n' || YYCURSOR[4] == '\r'))
+			) {
 				YYCURSOR--;
 				break;
 			}
@@ -2159,11 +2176,7 @@ inline_char_handler:
 	}
 
 	yyleng = YYCURSOR - SCNG(yy_text);
-
-	if (PARSER_MODE()) {
-		SKIP_TOKEN(T_COMMENT);
-	}
-	RETURN_TOKEN(T_COMMENT);
+	RETURN_OR_SKIP_TOKEN(T_COMMENT);
 }
 
 <ST_IN_SCRIPTING>"/*"|"/**"{WHITESPACE} {
@@ -2193,16 +2206,10 @@ inline_char_handler:
 
 	if (doc_com) {
 		CG(doc_comment) = zend_string_init(yytext, yyleng, 0);
-		if (PARSER_MODE()) {
-			SKIP_TOKEN(T_DOC_COMMENT);
-		}
-		RETURN_TOKEN(T_DOC_COMMENT);
+		RETURN_OR_SKIP_TOKEN(T_DOC_COMMENT);
 	}
 
-	if (PARSER_MODE()) {
-		SKIP_TOKEN(T_COMMENT);
-	}
-	RETURN_TOKEN(T_COMMENT);
+	RETURN_OR_SKIP_TOKEN(T_COMMENT);
 }
 
 <ST_IN_SCRIPTING>"?>"{NEWLINE}? {
@@ -2844,8 +2851,12 @@ nowdoc_scan_done:
 		RETURN_TOKEN(END);
 	}
 
-	zend_error(E_COMPILE_WARNING,"Unexpected character in input:  '%c' (ASCII=%d) state=%d", yytext[0], yytext[0], YYSTATE);
-	goto restart;
+	zend_error(E_COMPILE_WARNING, "Unexpected character in input:  '%c' (ASCII=%d) state=%d", yytext[0], yytext[0], YYSTATE);
+	if (PARSER_MODE()) {
+		goto restart;
+	} else {
+		RETURN_TOKEN(T_BAD_CHARACTER);
+	}
 }
 
 */

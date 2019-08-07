@@ -162,9 +162,6 @@
 /* Whether to build readline as dynamic module */
 #undef COMPILE_DL_READLINE
 
-/* Whether to build recode as dynamic module */
-#undef COMPILE_DL_RECODE
-
 /* Whether to build reflection as dynamic module */
 #undef COMPILE_DL_REFLECTION
 
@@ -339,12 +336,6 @@
 #undef ENABLE_CHROOT_FUNC
 
 /* */
-#undef ENABLE_GD_TTF
-
-/* */
-#undef ENCHANT_VERSION_STRING
-
-/* */
 #undef GDBM_INCLUDE_FILE
 
 /* Whether you use GNU Pth */
@@ -386,10 +377,6 @@
 
 /* do we have apparmor support? */
 #undef HAVE_APPARMOR
-
-/* Define to 1 if you have the <ApplicationServices/ApplicationServices.h>
-   header file. */
-#undef HAVE_APPLICATIONSERVICES_APPLICATIONSERVICES_H
 
 /* Define to 1 if you have the <argon2.h> header file */
 #undef HAVE_ARGON2LIB
@@ -439,9 +426,6 @@
 /* Define if system has broken getcwd */
 #undef HAVE_BROKEN_GETCWD
 
-/* Whether we have librecode 3.5 */
-#undef HAVE_BROKEN_RECODE
-
 /* Konstantin Chuguev's iconv implementation */
 #undef HAVE_BSD_ICONV
 
@@ -487,9 +471,6 @@
 /* do we have clock_get_time? */
 #undef HAVE_CLOCK_GET_TIME
 
-/* Whether you have struct cmsghdr */
-#undef HAVE_CMSGHDR
-
 /* */
 #undef HAVE_CODBC
 
@@ -526,20 +507,11 @@
 /* */
 #undef HAVE_CURL
 
-/* */
-#undef HAVE_CURL_EASY_STRERROR
-
-/* */
-#undef HAVE_CURL_MULTI_STRERROR
-
 /* Have cURL with OpenSSL support */
 #undef HAVE_CURL_OPENSSL
 
 /* Have cURL with SSL support */
 #undef HAVE_CURL_SSL
-
-/* Define to 1 if you have the `cuserid' function. */
-#undef HAVE_CUSERID
 
 /* */
 #undef HAVE_DBA
@@ -572,9 +544,6 @@
 
 /* do we have /dev/poll? */
 #undef HAVE_DEVPOLL
-
-/* Define if the target system has /dev/arandom device */
-#undef HAVE_DEV_ARANDOM
 
 /* Define if the target system has /dev/urandom device */
 #undef HAVE_DEV_URANDOM
@@ -612,9 +581,6 @@
 /* */
 #undef HAVE_DOM
 
-/* OpenSSL 0.9.7 or later */
-#undef HAVE_DSA_DEFAULT_METHOD
-
 /* Whether to enable DTrace support */
 #undef HAVE_DTRACE
 
@@ -626,6 +592,9 @@
 
 /* */
 #undef HAVE_ENCHANT_BROKER_SET_PARAM
+
+/* */
+#undef HAVE_ENCHANT_GET_VERSION
 
 /* Libzip >= 1.2.0 with encryption support */
 #undef HAVE_ENCRYPTION
@@ -708,9 +677,6 @@
 /* whether FPU control word can be manipulated by inline assembler */
 #undef HAVE_FPU_INLINE_ASM_X86
 
-/* */
-#undef HAVE_FREETDS
-
 /* Define to 1 if you have the `ftok' function. */
 #undef HAVE_FTOK
 
@@ -746,9 +712,6 @@
 
 /* Whether you have gcov */
 #undef HAVE_GCOV
-
-/* Define to 1 if you have the `gcvt' function. */
-#undef HAVE_GCVT
 
 /* */
 #undef HAVE_GD_BMP
@@ -798,7 +761,7 @@
 /* Define to 1 if you have some form of gethostbyname_r(). */
 #undef HAVE_GETHOSTBYNAME_R
 
-/* Define to 1 if you have the `gethostname' function. */
+/* */
 #undef HAVE_GETHOSTNAME
 
 /* whether getifaddrs is present and usable */
@@ -1002,9 +965,6 @@
 /* Whether to enable IPv6 support */
 #undef HAVE_IPV6
 
-/* Define to 1 if you have the `isascii' function. */
-#undef HAVE_ISASCII
-
 /* */
 #undef HAVE_ISQLEXT_H
 
@@ -1072,9 +1032,6 @@
 #undef HAVE_LIBDL
 
 /* */
-#undef HAVE_LIBDNET_STUB
-
-/* */
 #undef HAVE_LIBEDIT
 
 /* */
@@ -1119,9 +1076,6 @@
 /* */
 #undef HAVE_LIBREADLINE
 
-/* Whether we have librecode 3.5 or higher */
-#undef HAVE_LIBRECODE
-
 /* */
 #undef HAVE_LIBRESOLV
 
@@ -1140,26 +1094,14 @@
 /* */
 #undef HAVE_LIBXML
 
-/* */
-#undef HAVE_LIBZIP
-
 /* Libzip >= 1.3.1 with zip_libzip_version function */
 #undef HAVE_LIBZIP_VERSION
-
-/* Define to 1 if you have the <limits.h> header file. */
-#undef HAVE_LIMITS_H
-
-/* Define to 1 if you have the `link' function. */
-#undef HAVE_LINK
 
 /* Define to 1 if you have the <locale.h> header file. */
 #undef HAVE_LOCALE_H
 
 /* Define to 1 if you have the `localtime_r' function. */
 #undef HAVE_LOCALTIME_R
-
-/* Define to 1 if you have the `lockf' function. */
-#undef HAVE_LOCKF
 
 /* Define to 1 if you have the `log1p' function. */
 #undef HAVE_LOG1P
@@ -1172,9 +1114,6 @@
 
 /* do we have TCP_INFO? */
 #undef HAVE_LQ_TCP_INFO
-
-/* Define to 1 if you have the `lrand48' function. */
-#undef HAVE_LRAND48
 
 /* do we have mach_vm_read? */
 #undef HAVE_MACH_VM_READ
@@ -1194,9 +1133,6 @@
 /* Define to 1 if you have the `mbrlen' function. */
 #undef HAVE_MBRLEN
 
-/* Define to 1 if you have the `mbsinit' function. */
-#undef HAVE_MBSINIT
-
 /* Define if your system has mbstate_t in wchar.h */
 #undef HAVE_MBSTATE_T
 
@@ -1211,9 +1147,6 @@
 
 /* Define to 1 if you have the <memory.h> header file. */
 #undef HAVE_MEMORY_H
-
-/* Define to 1 if you have the `mempcpy' function. */
-#undef HAVE_MEMPCPY
 
 /* Define to 1 if you have the `mkfifo' function. */
 #undef HAVE_MKFIFO
@@ -1230,7 +1163,7 @@
 /* Define to 1 if you have the <monetary.h> header file. */
 #undef HAVE_MONETARY_H
 
-/* Define if you have mprotect() function */
+/* Define to 1 if you have the `mprotect' function. */
 #undef HAVE_MPROTECT
 
 /* Define to 1 if you have the `mremap' function. */
@@ -1282,16 +1215,10 @@
 #undef HAVE_OCI8_DTRACE
 
 /* */
-#undef HAVE_OCICOLLASSIGN
-
-/* */
 #undef HAVE_OCIENVCREATE
 
 /* */
 #undef HAVE_OCIENVNLSCREATE
-
-/* */
-#undef HAVE_OCILOBISTEMPORARY
 
 /* */
 #undef HAVE_OCISTMTFETCH2
@@ -1442,9 +1369,6 @@
 #undef HAVE_PQPUTCOPYDATA
 
 /* PostgreSQL 7.4 or later */
-#undef HAVE_PQPUTCOPYEND
-
-/* PostgreSQL 7.4 or later */
 #undef HAVE_PQRESULTERRORFIELD
 
 /* PostgreSQL 7.4 or later */
@@ -1494,9 +1418,6 @@
 
 /* */
 #undef HAVE_PWRITE
-
-/* Define to 1 if you have the `random' function. */
-#undef HAVE_RANDOM
 
 /* Define to 1 if you have the `RAND_egd' function. */
 #undef HAVE_RAND_EGD
@@ -1558,9 +1479,6 @@
 /* Define to 1 if you have the `setitimer' function. */
 #undef HAVE_SETITIMER
 
-/* Define to 1 if you have the `setpgid' function. */
-#undef HAVE_SETPGID
-
 /* Define to 1 if you have the `setpriority' function. */
 #undef HAVE_SETPRIORITY
 
@@ -1576,12 +1494,6 @@
 /* Define to 1 if you have the `setsid' function. */
 #undef HAVE_SETSID
 
-/* Define to 1 if you have the `setsockopt' function. */
-#undef HAVE_SETSOCKOPT
-
-/* Define to 1 if you have the `setvbuf' function. */
-#undef HAVE_SETVBUF
-
 /* */
 #undef HAVE_SHMOP
 
@@ -1591,14 +1503,8 @@
 /* Define if you have mmap(MAP_ANON) SHM support */
 #undef HAVE_SHM_MMAP_ANON
 
-/* Define if you have mmap() SHM support */
-#undef HAVE_SHM_MMAP_FILE
-
 /* Define if you have POSIX mmap() SHM support */
 #undef HAVE_SHM_MMAP_POSIX
-
-/* Define if you have mmap("/dev/zero") SHM support */
-#undef HAVE_SHM_MMAP_ZERO
 
 /* Define to 1 if you have the `shutdown' function. */
 #undef HAVE_SHUTDOWN
@@ -1606,11 +1512,8 @@
 /* */
 #undef HAVE_SHUTDOWN_SNMP_LOGGING
 
-/* Whether sigaction() is available */
+/* Define to 1 if you have the `sigaction' function. */
 #undef HAVE_SIGACTION
-
-/* Define to 1 if you have the <signal.h> header file. */
-#undef HAVE_SIGNAL_H
 
 /* Define to 1 if you have the `sigprocmask' function. */
 #undef HAVE_SIGPROCMASK
@@ -1626,9 +1529,6 @@
 
 /* */
 #undef HAVE_SIMPLEXML
-
-/* Define to 1 if you have the `sin' function. */
-#undef HAVE_SIN
 
 /* Define is hash3 algo is available */
 #undef HAVE_SLOW_HASH3
@@ -1651,13 +1551,13 @@
 /* */
 #undef HAVE_SOCKET
 
-/* Define to 1 if you have the `socketpair' function. */
+/* */
 #undef HAVE_SOCKETPAIR
 
 /* */
 #undef HAVE_SOCKETS
 
-/* Whether you have socklen_t */
+/* Define to 1 if the system has the type `socklen_t'. */
 #undef HAVE_SOCKLEN_T
 
 /* */
@@ -1690,9 +1590,6 @@
 /* have sqlite3_errstr function */
 #undef HAVE_SQLITE3_ERRSTR
 
-/* have commercial sqlite3 with crypto support */
-#undef HAVE_SQLITE3_KEY
-
 /* */
 #undef HAVE_SQLTYPES_H
 
@@ -1705,12 +1602,6 @@
 /* */
 #undef HAVE_SQL_H
 
-/* Define to 1 if you have the `srand48' function. */
-#undef HAVE_SRAND48
-
-/* Define to 1 if you have the `srandom' function. */
-#undef HAVE_SRANDOM
-
 /* Whether ssize_t is available */
 #undef HAVE_SSIZE_T
 
@@ -1719,9 +1610,6 @@
 
 /* Define to 1 if you have the `statvfs' function. */
 #undef HAVE_STATVFS
-
-/* Define to 1 if you have the <stdbool.h> header file. */
-#undef HAVE_STDBOOL_H
 
 /* Define to 1 if you have the <stdint.h> header file. */
 #undef HAVE_STDINT_H
@@ -1737,15 +1625,6 @@
 
 /* Define to 1 if you have the `strcasecmp' function. */
 #undef HAVE_STRCASECMP
-
-/* Define to 1 if you have the `strcoll' function. */
-#undef HAVE_STRCOLL
-
-/* Define to 1 if you have the `strdup' function. */
-#undef HAVE_STRDUP
-
-/* Define to 1 if you have the `strerror' function. */
-#undef HAVE_STRERROR
 
 /* Define to 1 if you have the `strfmon' function. */
 #undef HAVE_STRFMON
@@ -1768,17 +1647,11 @@
 /* Define to 1 if you have the `strnlen' function. */
 #undef HAVE_STRNLEN
 
-/* Define to 1 if you have the `strpncpy' function. */
-#undef HAVE_STRPNCPY
-
 /* Define to 1 if you have the `strptime' function. */
 #undef HAVE_STRPTIME
 
 /* whether strptime() declaration fails */
 #undef HAVE_STRPTIME_DECL_FAILS
-
-/* Define to 1 if you have the `strtod' function. */
-#undef HAVE_STRTOD
 
 /* Define to 1 if you have the `strtok_r' function. */
 #undef HAVE_STRTOK_R
@@ -1925,9 +1798,6 @@
 /* Define to 1 if you have the <sys/wait.h> header file. */
 #undef HAVE_SYS_WAIT_H
 
-/* Define to 1 if you have the `tempnam' function. */
-#undef HAVE_TEMPNAM
-
 /* Define to 1 if you have the <termios.h> header file. */
 #undef HAVE_TERMIOS_H
 
@@ -2059,7 +1929,7 @@
 /* Define to 1 if you have the `wait4' function. */
 #undef HAVE_WAIT4
 
-/* */
+/* Define to 1 if you have the `waitpid' function. */
 #undef HAVE_WAITPID
 
 /* Define to 1 if you have the <wchar.h> header file. */
@@ -2088,9 +1958,6 @@
 
 /* */
 #undef HAVE_XSL_EXSLT
-
-/* */
-#undef HAVE_YP_GET_DEFAULT_DOMAIN
 
 /* */
 #undef HAVE_ZIP
@@ -2137,9 +2004,6 @@
 /* Whether localtime_r is declared */
 #undef MISSING_LOCALTIME_R_DECL
 
-/* */
-#undef MISSING_MSGHDR_MSGFLAGS
-
 /* Whether strtok_r is declared */
 #undef MISSING_STRTOK_R_DECL
 
@@ -2162,22 +2026,22 @@
 #undef ODBCVER
 
 /* Define to the address where bug reports for this package should be sent. */
-/* #undef PACKAGE_BUGREPORT */
+#undef PACKAGE_BUGREPORT
 
 /* Define to the full name of this package. */
-/* #undef PACKAGE_NAME */
+#undef PACKAGE_NAME
 
 /* Define to the full name and version of this package. */
-/* #undef PACKAGE_STRING */
+#undef PACKAGE_STRING
 
 /* Define to the one symbol short name of this package. */
-/* #undef PACKAGE_TARNAME */
+#undef PACKAGE_TARNAME
 
 /* Define to the home page for this package. */
-/* #undef PACKAGE_URL */
+#undef PACKAGE_URL
 
 /* Define to the version of this package. */
-/* #undef PACKAGE_VERSION */
+#undef PACKAGE_VERSION
 
 /* */
 #undef PCRE2_CODE_UNIT_WIDTH
@@ -2187,9 +2051,6 @@
 
 /* Whether pdo_mysql uses mysqlnd */
 #undef PDO_USE_MYSQLND
-
-/* */
-#undef PHAR_HASH_OK
 
 /* */
 #undef PHAR_HAVE_OPENSSL
@@ -2346,9 +2207,6 @@
 
 /* Size of ssize_t */
 #undef SIZEOF_SSIZE_T
-
-/* have sqlite3 with column metadata enabled */
-#undef SQLITE_ENABLE_COLUMN_METADATA
 
 /* have sqlite3 with extension support */
 #undef SQLITE_OMIT_LOAD_EXTENSION
@@ -2521,8 +2379,6 @@ extern "C++" {
 
 #endif
 #endif /* ifndef ZEND_ACCONFIG_H_NO_C_PROTOS */
-
-#undef PTHREADS
 
 #endif /* PHP_CONFIG_H */
 

@@ -126,16 +126,7 @@ dnl
 AC_DEFUN([LIBZEND_BASIC_CHECKS],[
 AC_REQUIRE([AC_PROG_CC])
 
-AC_CHECK_HEADERS(
-inttypes.h \
-stdint.h \
-malloc.h \
-unistd.h \
-sys/types.h \
-sys/time.h \
-unix.h \
-cpuid.h \
-dlfcn.h)
+AC_CHECK_HEADERS([cpuid.h])
 
 dnl
 dnl LIBZEND_DLSYM_CHECK
@@ -155,7 +146,7 @@ _LT_AC_TRY_DLOPEN_SELF([
 ])
 
 dnl Checks for library functions.
-AC_CHECK_FUNCS(getpid kill strtod finite fpclass sigsetjmp)
+AC_CHECK_FUNCS(getpid kill finite sigsetjmp)
 
 AC_CHECK_DECLS([isfinite, isnan, isinf], [], [], [[#include <math.h>]])
 
@@ -315,10 +306,8 @@ AC_ARG_ENABLE([zend-signals],
   [ZEND_SIGNALS=$enableval],
   [ZEND_SIGNALS=yes])
 
-AC_CHECK_FUNC(sigaction, [
-	AC_DEFINE(HAVE_SIGACTION, 1, [Whether sigaction() is available])
-], [
-	ZEND_SIGNALS=no
+AC_CHECK_FUNCS([sigaction], [], [
+  ZEND_SIGNALS=no
 ])
 if test "$ZEND_SIGNALS" = "yes"; then
 	AC_DEFINE(ZEND_SIGNALS, 1, [Use zend signal handling])
@@ -333,14 +322,6 @@ AC_MSG_RESULT($ZEND_SIGNALS)
 AC_MSG_CHECKING(whether /dev/urandom exists)
 if test -r "/dev/urandom" && test -c "/dev/urandom"; then
   AC_DEFINE([HAVE_DEV_URANDOM], 1, [Define if the target system has /dev/urandom device])
-  AC_MSG_RESULT(yes)
-else
-  AC_MSG_RESULT(no)
-fi
-
-AC_MSG_CHECKING(whether /dev/arandom exists)
-if test -r "/dev/arandom" && test -c "/dev/arandom"; then
-  AC_DEFINE([HAVE_DEV_ARANDOM], 1, [Define if the target system has /dev/arandom device])
   AC_MSG_RESULT(yes)
 else
   AC_MSG_RESULT(no)
