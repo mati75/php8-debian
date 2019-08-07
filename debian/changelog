@@ -1,3 +1,18 @@
+php7.0 (7.0.33-10) unstable; urgency=medium
+
+  * Backported from 7.1.31
+   - EXIF:
+    . Fixed bug #78256 (heap-buffer-overflow on exif_process_user_comment).
+      (CVE-2019-11042)
+    . Fixed bug #78222 (heap-buffer-overflow on exif_scan_thumbnail).
+      (CVE-2019-11041)
+   - Phar:
+    . Fixed bug #77919 (Potential UAF in Phar RSHUTDOWN).
+   - SQLite:
+    . Upgraded to SQLite 3.28.0.
+
+ -- Ondřej Surý <ondrej@sury.org>  Wed, 07 Aug 2019 11:46:51 +0200
+
 php7.0 (7.0.33-9) unstable; urgency=medium
 
   * No change version bump.
