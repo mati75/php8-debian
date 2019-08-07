@@ -85,3 +85,7 @@
 0085-Fix-bug-77967-Bypassing-open_basedir-restrictions-vi.patch
 0086-Fixes-3-Updated-tests-to-have-less-fails-due-to-the-.patch
 0087-Upgrade-to-SQLite-3.28.0.patch
+0088-Fix-bug-78222-heap-buffer-overflow-on-exif_scan_thum.patch
+0089-Fix-bug-78256-heap-buffer-overflow-on-exif_process_u.patch
+0090-Fix-77919-Potential-UAF-in-Phar-RSHUTDOWN.patch
+0091-CS.patch
