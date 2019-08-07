@@ -1,3 +1,10 @@
+php7.4 (7.4.0~beta1-1) experimental; urgency=medium
+
+  * New upstream version 7.4.0~beta1
+  * Rebase patches for PHP 7.4.0~beta1
+
+ -- Ondřej Surý <ondrej@sury.org>  Wed, 07 Aug 2019 12:27:00 +0200
+
 php7.4 (7.4.0~alpha2-1) experimental; urgency=low
 
   * New upstream version 7.4.0~alpha2
