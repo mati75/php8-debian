@@ -59,7 +59,7 @@ buffer_init(struct buffer *b, int fd, const zend_stat_t *st, const void *data,
 void
 buffer_fini(struct buffer *b)
 {
-		efree(b->ebuf);
+	efree(b->ebuf);
 }
 
 int
@@ -83,6 +83,7 @@ buffer_fill(const struct buffer *bb)
 		FINFO_READ_FUNC(b->fd, b->ebuf, b->elen) != (ssize_t)b->elen)
 	{
 		efree(b->ebuf);
+		b->ebuf = NULL;
 		goto out;
 	}
 

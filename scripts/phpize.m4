@@ -111,10 +111,6 @@ php_zts_is_enabled
 CPPFLAGS=$old_CPPFLAGS
 AC_MSG_RESULT([$PHP_THREAD_SAFETY])
 
-dnl Support for building and testing Zend extensions.
-ZEND_EXT_TYPE="zend_extension"
-PHP_SUBST(ZEND_EXT_TYPE)
-
 dnl Discard optimization flags when debugging is enabled.
 if test "$PHP_DEBUG" = "yes"; then
   PHP_DEBUG=1
@@ -213,5 +209,7 @@ PHP_GEN_GLOBAL_MAKEFILE
 test -d modules || $php_shtool mkdir modules
 
 AC_CONFIG_HEADERS([config.h])
+
+AC_CONFIG_COMMANDS_PRE([PHP_PATCH_CONFIG_HEADERS([config.h.in])])
 
 AC_OUTPUT

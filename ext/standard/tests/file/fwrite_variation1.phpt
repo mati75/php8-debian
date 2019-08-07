@@ -1,11 +1,5 @@
 --TEST--
 Test fwrite() function : usage variations - r, rb & rt modes
---SKIPIF--
-<?php
-if( substr(PHP_OS, 0, 3) == 'WIN' ) {
-   die('skip...Not valid for Windows');
-}
-?>
 --FILE--
 <?php
 /*
@@ -82,11 +76,11 @@ echo "Done\n";
 -- Testing fwrite() with file having content of type numeric --
 -- Opening file in r --
 int(0)
-int(0)
+bool(false)
 int(0)
 bool(false)
 int(2)
-int(0)
+bool(false)
 int(2)
 bool(false)
 bool(true)
@@ -94,11 +88,11 @@ int(1024)
 string(32) "950b7457d1deb6332f2fc5d42f3129d6"
 -- Opening file in rb --
 int(0)
-int(0)
+bool(false)
 int(0)
 bool(false)
 int(2)
-int(0)
+bool(false)
 int(2)
 bool(false)
 bool(true)
@@ -106,11 +100,11 @@ int(1024)
 string(32) "950b7457d1deb6332f2fc5d42f3129d6"
 -- Opening file in rt --
 int(0)
-int(0)
+bool(false)
 int(0)
 bool(false)
 int(2)
-int(0)
+bool(false)
 int(2)
 bool(false)
 bool(true)
@@ -120,11 +114,11 @@ string(32) "950b7457d1deb6332f2fc5d42f3129d6"
 -- Testing fwrite() with file having content of type text --
 -- Opening file in r --
 int(0)
-int(0)
+bool(false)
 int(0)
 bool(false)
 int(2)
-int(0)
+bool(false)
 int(2)
 bool(false)
 bool(true)
@@ -132,11 +126,11 @@ int(1024)
 string(32) "e486000c4c8452774f746a27658d87fa"
 -- Opening file in rb --
 int(0)
-int(0)
+bool(false)
 int(0)
 bool(false)
 int(2)
-int(0)
+bool(false)
 int(2)
 bool(false)
 bool(true)
@@ -144,11 +138,11 @@ int(1024)
 string(32) "e486000c4c8452774f746a27658d87fa"
 -- Opening file in rt --
 int(0)
-int(0)
+bool(false)
 int(0)
 bool(false)
 int(2)
-int(0)
+bool(false)
 int(2)
 bool(false)
 bool(true)
@@ -158,11 +152,11 @@ string(32) "e486000c4c8452774f746a27658d87fa"
 -- Testing fwrite() with file having content of type text_with_new_line --
 -- Opening file in r --
 int(0)
-int(0)
+bool(false)
 int(0)
 bool(false)
 int(2)
-int(0)
+bool(false)
 int(2)
 bool(false)
 bool(true)
@@ -170,11 +164,11 @@ int(1024)
 string(32) "b09c8026a64a88d36d4c2f17983964bb"
 -- Opening file in rb --
 int(0)
-int(0)
+bool(false)
 int(0)
 bool(false)
 int(2)
-int(0)
+bool(false)
 int(2)
 bool(false)
 bool(true)
@@ -182,11 +176,11 @@ int(1024)
 string(32) "b09c8026a64a88d36d4c2f17983964bb"
 -- Opening file in rt --
 int(0)
-int(0)
+bool(false)
 int(0)
 bool(false)
 int(2)
-int(0)
+bool(false)
 int(2)
 bool(false)
 bool(true)
@@ -196,11 +190,11 @@ string(32) "b09c8026a64a88d36d4c2f17983964bb"
 -- Testing fwrite() with file having content of type alphanumeric --
 -- Opening file in r --
 int(0)
-int(0)
+bool(false)
 int(0)
 bool(false)
 int(2)
-int(0)
+bool(false)
 int(2)
 bool(false)
 bool(true)
@@ -208,11 +202,11 @@ int(1024)
 string(32) "3fabd48d8eaa65c14e0d93d6880c560c"
 -- Opening file in rb --
 int(0)
-int(0)
+bool(false)
 int(0)
 bool(false)
 int(2)
-int(0)
+bool(false)
 int(2)
 bool(false)
 bool(true)
@@ -220,11 +214,11 @@ int(1024)
 string(32) "3fabd48d8eaa65c14e0d93d6880c560c"
 -- Opening file in rt --
 int(0)
-int(0)
+bool(false)
 int(0)
 bool(false)
 int(2)
-int(0)
+bool(false)
 int(2)
 bool(false)
 bool(true)

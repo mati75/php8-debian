@@ -45,6 +45,7 @@
 #include "zend_file_cache.h"
 #include "ext/pcre/php_pcre.h"
 #include "ext/standard/md5.h"
+#include "ext/hash/php_hash.h"
 
 #ifndef ZEND_WIN32
 #include  <netdb.h>
@@ -54,6 +55,7 @@
 typedef int uid_t;
 typedef int gid_t;
 #include <io.h>
+#include <lmcons.h>
 #endif
 
 #ifndef ZEND_WIN32
@@ -110,6 +112,9 @@ zend_accel_shared_globals *accel_shared_globals = NULL;
 
 /* true globals, no need for thread safety */
 char accel_system_id[32];
+#ifdef ZEND_WIN32
+char accel_uname_id[32];
+#endif
 zend_bool accel_startup_ok = 0;
 static char *zps_failure_reason = NULL;
 char *zps_api_failure_reason = NULL;
@@ -962,11 +967,6 @@ accel_time_t zend_get_file_handle_timestamp(zend_file_handle *file_handle, size_
 #endif
 
 	switch (file_handle->type) {
-		case ZEND_HANDLE_FD:
-			if (zend_fstat(file_handle->handle.fd, &statbuf) == -1) {
-				return 0;
-			}
-			break;
 		case ZEND_HANDLE_FP:
 			if (zend_fstat(fileno(file_handle->handle.fp), &statbuf) == -1) {
 				if (zend_get_stream_timestamp(file_handle->filename, &statbuf) != SUCCESS) {
@@ -975,7 +975,6 @@ accel_time_t zend_get_file_handle_timestamp(zend_file_handle *file_handle, size_
 			}
 			break;
 		case ZEND_HANDLE_FILENAME:
-		case ZEND_HANDLE_MAPPED:
 			if (file_handle->opened_path) {
 				char *file_path = ZSTR_VAL(file_handle->opened_path);
 
@@ -1076,8 +1075,7 @@ static inline int do_validate_timestamps(zend_persistent_script *persistent_scri
 		file_handle->opened_path = NULL;
 	}
 
-	ps_handle.type = ZEND_HANDLE_FILENAME;
-	ps_handle.filename = ZSTR_VAL(persistent_script->script.filename);
+	zend_stream_init_filename(&ps_handle, ZSTR_VAL(persistent_script->script.filename));
 	ps_handle.opened_path = persistent_script->script.filename;
 
 	if (zend_get_file_handle_timestamp(&ps_handle, NULL) == persistent_script->timestamp) {
@@ -1302,9 +1300,7 @@ int zend_accel_invalidate(const char *filename, size_t filename_len, zend_bool f
 	persistent_script = zend_accel_hash_find(&ZCSG(hash), realpath);
 	if (persistent_script && !persistent_script->corrupted) {
 		zend_file_handle file_handle;
-
-		file_handle.type = ZEND_HANDLE_FILENAME;
-		file_handle.filename = ZSTR_VAL(realpath);
+		zend_stream_init_filename(&file_handle, ZSTR_VAL(realpath));
 		file_handle.opened_path = realpath;
 
 		if (force ||
@@ -1880,6 +1876,29 @@ zend_op_array *file_cache_compile_file(zend_file_handle *file_handle, int type)
 	return op_array;
 }
 
+int check_persistent_script_access(zend_persistent_script *persistent_script)
+{
+    char *phar_path, *ptr;
+    int ret;
+    if ((ZSTR_LEN(persistent_script->script.filename)<sizeof("phar://.phar")) ||
+         memcmp(ZSTR_VAL(persistent_script->script.filename), "phar://", sizeof("phar://")-1)) {
+
+        return access(ZSTR_VAL(persistent_script->script.filename), R_OK) != 0;
+
+    } else {
+        /* we got a cached file from .phar, so we have to strip prefix and path inside .phar to check access() */
+        phar_path = estrdup(ZSTR_VAL(persistent_script->script.filename)+sizeof("phar://")-1);
+        if ((ptr = strstr(phar_path, ".phar/")) != NULL)
+        {
+            *(ptr+sizeof(".phar/")-2) = 0; /* strip path inside .phar file */
+        }
+        ret = access(phar_path, R_OK) != 0;
+        efree(phar_path);
+        return ret;
+    }
+}
+
+
 /* zend_compile() replacement */
 zend_op_array *persistent_compile_file(zend_file_handle *file_handle, int type)
 {
@@ -2008,7 +2027,7 @@ zend_op_array *persistent_compile_file(zend_file_handle *file_handle, int type)
 	if (EXPECTED(persistent_script != NULL) &&
 	    UNEXPECTED(ZCG(accel_directives).validate_permission) &&
 	    file_handle->type == ZEND_HANDLE_FILENAME &&
-	    UNEXPECTED(access(ZSTR_VAL(persistent_script->script.filename), R_OK) != 0)) {
+	    UNEXPECTED(check_persistent_script_access(persistent_script))) {
 		if (type == ZEND_REQUIRE) {
 			zend_message_dispatcher(ZMSG_FAILED_REQUIRE_FOPEN, file_handle->filename);
 			zend_bailout();
@@ -2166,6 +2185,26 @@ zend_op_array *persistent_compile_file(zend_file_handle *file_handle, int type)
 	return zend_accel_load_script(persistent_script, from_shared_memory);
 }
 
+#ifdef ZEND_WIN32
+static int accel_gen_uname_id(void)
+{
+	PHP_MD5_CTX ctx;
+	unsigned char digest[16];
+	wchar_t uname[UNLEN + 1];
+	DWORD unsize = UNLEN;
+
+	if (!GetUserNameW(uname, &unsize)) {
+		return FAILURE;
+	}
+	PHP_MD5Init(&ctx);
+	PHP_MD5Update(&ctx, (void *) uname, (unsize - 1) * sizeof(wchar_t));
+	PHP_MD5Update(&ctx, ZCG(accel_directives).cache_id, strlen(ZCG(accel_directives).cache_id));
+	PHP_MD5Final(digest, &ctx);
+	php_hash_bin2hex(accel_uname_id, digest, sizeof digest);
+	return SUCCESS;
+}
+#endif
+
 /* zend_stream_open_function() replacement for PHP 5.3 and above */
 static int persistent_stream_open_function(const char *filename, zend_file_handle *handle)
 {
@@ -2180,10 +2219,8 @@ static int persistent_stream_open_function(const char *filename, zend_file_handl
 		     ZCG(cache_opline) == EG(current_execute_data)->opline)) {
 
 			/* we are in include_once or FastCGI request */
-			handle->filename = (char*)filename;
-			handle->free_filename = 0;
+			zend_stream_init_filename(handle, (char*) filename);
 			handle->opened_path = zend_string_copy(ZCG(cache_persistent_script)->script.filename);
-			handle->type = ZEND_HANDLE_FILENAME;
 			return SUCCESS;
 		}
 		ZCG(cache_opline) = NULL;
@@ -2597,9 +2634,7 @@ static void accel_globals_ctor(zend_accel_globals *accel_globals)
 static void accel_gen_system_id(void)
 {
 	PHP_MD5_CTX context;
-	unsigned char digest[16], c;
-	char *md5str = accel_system_id;
-	int i;
+	unsigned char digest[16];
 
 	PHP_MD5Init(&context);
 	PHP_MD5Update(&context, PHP_VERSION, sizeof(PHP_VERSION)-1);
@@ -2611,14 +2646,7 @@ static void accel_gen_system_id(void)
 		PHP_MD5Update(&context, __TIME__, sizeof(__TIME__)-1);
 	}
 	PHP_MD5Final(digest, &context);
-	for (i = 0; i < 16; i++) {
-		c = digest[i] >> 4;
-		c = (c <= 9) ? c + '0' : c - 10 + 'a';
-		md5str[i * 2] = c;
-		c = digest[i] &  0x0f;
-		c = (c <= 9) ? c + '0' : c - 10 + 'a';
-		md5str[(i * 2) + 1] = c;
-	}
+	php_hash_bin2hex(accel_system_id, digest, sizeof digest);
 }
 
 #ifdef HAVE_HUGE_CODE_PAGES
@@ -2745,10 +2773,10 @@ static void accel_move_code_to_huge_pages(void)
 	size_t s = 0;
 	int mib[4] = {CTL_KERN, KERN_PROC, KERN_PROC_VMMAP, getpid()};
 	long unsigned int huge_page_size = 2 * 1024 * 1024;
-	if(sysctl(mib, 4, NULL, &s, NULL, 0) == 0) {
-		void *addr = mmap(NULL, s * sizeof (struct kinfo_vmentry), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANON, -1, 0);
+	if (sysctl(mib, 4, NULL, &s, NULL, 0) == 0) {
+		s = s * 4 / 3;
+		void *addr = mmap(NULL, s, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANON, -1, 0);
 		if (addr != MAP_FAILED) {
-			s = s * 4 / 3;
 			if (sysctl(mib, 4, addr, &s, NULL, 0) == 0) {
 				uintptr_t start = (uintptr_t)addr;
 				uintptr_t end = start + s;
@@ -2766,11 +2794,14 @@ static void accel_move_code_to_huge_pages(void)
 						if (seg_end > seg_start) {
 							zend_accel_error(ACCEL_LOG_DEBUG, "remap to huge page %lx-%lx %s \n", seg_start, seg_end, entry->kve_path);
 							accel_remap_huge_pages((void*)seg_start, seg_end - seg_start, seg_end - seg_start, entry->kve_path, entry->kve_offset + seg_start - start);
+							// First relevant segment found is our binary
+							break;
 						}
 					}
 					start += sz;
 				}
 			}
+			munmap(addr, s);
 		}
 	}
 #endif
@@ -2805,6 +2836,13 @@ static int accel_startup(zend_extension *extension)
 		zend_error(E_WARNING, ACCELERATOR_PRODUCT_NAME ": module registration failed!");
 		return FAILURE;
 	}
+
+#ifdef ZEND_WIN32
+	if (UNEXPECTED(accel_gen_uname_id() == FAILURE)) {
+		zps_startup_failure("Unable to get user name", NULL, accelerator_remove_cb);
+		return SUCCESS;
+	}
+#endif
 
 #ifdef HAVE_HUGE_CODE_PAGES
 	if (ZCG(accel_directives).huge_code_pages &&
@@ -3324,6 +3362,63 @@ static void get_unresolved_initializer(zend_class_entry *ce, const char **kind, 
 	} ZEND_HASH_FOREACH_END();
 }
 
+static zend_bool preload_needed_types_known(zend_class_entry *ce);
+static void get_unlinked_dependency(zend_class_entry *ce, const char **kind, const char **name) {
+	zend_class_entry *p;
+	*kind = "Unknown reason";
+	*name = "";
+
+	if (ce->parent_name) {
+		zend_string *key = zend_string_tolower(ce->parent_name);
+		p = zend_hash_find_ptr(EG(class_table), key);
+		zend_string_release(key);
+		if (!p) {
+			*kind = "Unknown parent ";
+			*name = ZSTR_VAL(ce->parent_name);
+			return;
+		}
+		if (!(p->ce_flags & ZEND_ACC_CONSTANTS_UPDATED)) {
+			*kind = "Parent with unresolved initializers ";
+			*name = ZSTR_VAL(ce->parent_name);
+			return;
+		}
+		if (!(p->ce_flags & ZEND_ACC_PROPERTY_TYPES_RESOLVED)) {
+			*kind = "Parent with unresolved property types ";
+			*name = ZSTR_VAL(ce->parent_name);
+			return;
+		}
+	}
+
+	if (ce->num_interfaces) {
+		uint32_t i;
+		for (i = 0; i < ce->num_interfaces; i++) {
+			p = zend_hash_find_ptr(EG(class_table), ce->interface_names[i].lc_name);
+			if (!p) {
+				*kind = "Unknown interface ";
+				*name = ZSTR_VAL(ce->interface_names[i].name);
+				return;
+			}
+		}
+	}
+
+	if (ce->num_traits) {
+		uint32_t i;
+		for (i = 0; i < ce->num_traits; i++) {
+			p = zend_hash_find_ptr(EG(class_table), ce->trait_names[i].lc_name);
+			if (!p) {
+				*kind = "Unknown trait ";
+				*name = ZSTR_VAL(ce->trait_names[i].name);
+				return;
+			}
+		}
+	}
+
+	if (!preload_needed_types_known(ce)) {
+		*kind = "Unknown type dependencies";
+		return;
+	}
+}
+
 static zend_bool preload_try_resolve_constants(zend_class_entry *ce)
 {
 	zend_bool ok, changed;
@@ -3331,6 +3426,7 @@ static zend_bool preload_try_resolve_constants(zend_class_entry *ce)
 	zval *val;
 
 	EG(exception) = (void*)(uintptr_t)-1; /* prevent error reporting */
+	CG(in_compilation) = 1; /* prevent autoloading */
 	do {
 		ok = 1;
 		changed = 0;
@@ -3372,6 +3468,7 @@ static zend_bool preload_try_resolve_constants(zend_class_entry *ce)
 		}
 	} while (changed && !ok);
 	EG(exception) = NULL;
+	CG(in_compilation) = 0;
 
 	return ok;
 }
@@ -3444,17 +3541,58 @@ static zend_bool preload_is_type_known(zend_class_entry *ce, zend_type type) {
 	return known;
 }
 
-static zend_bool preload_all_types_known(zend_class_entry *ce) {
+static zend_bool preload_is_method_maybe_override(zend_class_entry *ce, zend_string *lcname) {
+	zend_class_entry *p;
+	if (ce->trait_aliases || ce->trait_precedences) {
+		return 1;
+	}
+
+	if (ce->parent_name) {
+		zend_string *key = zend_string_tolower(ce->parent_name);
+		p = zend_hash_find_ptr(EG(class_table), key);
+		zend_string_release(key);
+		if (zend_hash_exists(&p->function_table, lcname)) {
+			return 1;
+		}
+	}
+
+	if (ce->num_interfaces) {
+		uint32_t i;
+		for (i = 0; i < ce->num_interfaces; i++) {
+			zend_class_entry *p = zend_hash_find_ptr(EG(class_table), ce->interface_names[i].lc_name);
+			if (zend_hash_exists(&p->function_table, lcname)) {
+				return 1;
+			}
+		}
+	}
+
+	if (ce->num_traits) {
+		uint32_t i;
+		for (i = 0; i < ce->num_traits; i++) {
+			zend_class_entry *p = zend_hash_find_ptr(EG(class_table), ce->trait_names[i].lc_name);
+			if (zend_hash_exists(&p->function_table, lcname)) {
+				return 1;
+			}
+		}
+	}
+
+	return 0;
+}
+
+static zend_bool preload_needed_types_known(zend_class_entry *ce) {
 	zend_function *fptr;
-	ZEND_HASH_FOREACH_PTR(&ce->function_table, fptr) {
+	zend_string *lcname;
+	ZEND_HASH_FOREACH_STR_KEY_PTR(&ce->function_table, lcname, fptr) {
 		uint32_t i;
 		if (fptr->common.fn_flags & ZEND_ACC_HAS_RETURN_TYPE) {
-			if (!preload_is_type_known(ce, fptr->common.arg_info[-1].type)) {
+			if (!preload_is_type_known(ce, fptr->common.arg_info[-1].type) &&
+				preload_is_method_maybe_override(ce, lcname)) {
 				return 0;
 			}
 		}
 		for (i = 0; i < fptr->common.num_args; i++) {
-			if (!preload_is_type_known(ce, fptr->common.arg_info[i].type)) {
+			if (!preload_is_type_known(ce, fptr->common.arg_info[i].type) &&
+				preload_is_method_maybe_override(ce, lcname)) {
 				return 0;
 			}
 		}
@@ -3470,7 +3608,6 @@ static void preload_link(void)
 	zend_string *key;
 	zend_bool found, changed;
 	uint32_t i;
-	zend_op_array *op_array;
 	dtor_func_t orig_dtor;
 	zend_function *function;
 
@@ -3560,7 +3697,7 @@ static void preload_link(void)
 				 * know the types for covariant checks, but don't need them if we can ensure
 				 * compatibility through a simple string comparison. We could improve this using
 				 * a more general version of zend_can_early_bind(). */
-				if (!preload_all_types_known(ce)) {
+				if (!preload_needed_types_known(ce)) {
 					continue;
 				}
 
@@ -3624,9 +3761,12 @@ static void preload_link(void)
 					E_WARNING, ZSTR_VAL(ce->info.user.filename), ce->info.user.line_start,
 					"Can't preload already declared class %s", ZSTR_VAL(ce->name));
 			} else {
+				const char *kind, *name;
+				get_unlinked_dependency(ce, &kind, &name);
 				zend_error_at(
 					E_WARNING, ZSTR_VAL(ce->info.user.filename), ce->info.user.line_start,
-					"Can't preload unlinked class %s", ZSTR_VAL(ce->name));
+					"Can't preload unlinked class %s: %s%s",
+					ZSTR_VAL(ce->name), kind, name);
 			}
 			zend_string_release(key);
 		} else if (!(ce->ce_flags & ZEND_ACC_CONSTANTS_UPDATED)) {
@@ -3660,28 +3800,6 @@ static void preload_link(void)
 	} ZEND_HASH_FOREACH_END();
 	EG(class_table)->pDestructor = orig_dtor;
 	zend_hash_rehash(EG(class_table));
-
-	/* Move run-time declared functions back to scripts */
-	orig_dtor = EG(function_table)->pDestructor;
-	EG(function_table)->pDestructor = NULL;
-	ZEND_HASH_REVERSE_FOREACH_STR_KEY_VAL(EG(function_table), key, zv) {
-		op_array = Z_PTR_P(zv);
-		if (op_array->type == ZEND_INTERNAL_FUNCTION) {
-			break;
-		}
-		if (op_array->fn_flags & (ZEND_ACC_TOP_LEVEL|ZEND_ACC_CLOSURE)) {
-			continue;
-		}
-		script = zend_hash_find_ptr(preload_scripts, op_array->filename);
-		ZEND_ASSERT(script);
-		zend_hash_add(&script->script.function_table, key, zv);
-		ZVAL_UNDEF(zv);
-		zend_string_release(key);
-		EG(function_table)->nNumOfElements--;
-	} ZEND_HASH_FOREACH_END();
-	EG(function_table)->pDestructor = orig_dtor;
-	zend_hash_rehash(EG(function_table));
-
 
 	/* Remove DECLARE opcodes */
 	ZEND_HASH_FOREACH_PTR(preload_scripts, script) {
@@ -3805,6 +3923,15 @@ static void preload_remove_empty_includes(void)
 	} ZEND_HASH_FOREACH_END();
 }
 
+static void preload_register_trait_methods(zend_class_entry *ce) {
+	zend_op_array *op_array;
+	ZEND_HASH_FOREACH_PTR(&ce->function_table, op_array) {
+		if (!(op_array->fn_flags & ZEND_ACC_TRAIT_CLONE)) {
+			zend_shared_alloc_register_xlat_entry(op_array->opcodes, op_array);
+		}
+	} ZEND_HASH_FOREACH_END();
+}
+
 static void preload_fix_trait_methods(zend_class_entry *ce)
 {
 	zend_op_array *op_array;
@@ -3830,18 +3957,21 @@ static void preload_fix_trait_methods(zend_class_entry *ce)
 static int preload_optimize(zend_persistent_script *script)
 {
 	zend_class_entry *ce;
-	zend_op_array *op_array;
 
 	zend_shared_alloc_init_xlat_table();
 
 	ZEND_HASH_FOREACH_PTR(&script->script.class_table, ce) {
 		if (ce->ce_flags & ZEND_ACC_TRAIT) {
-			ZEND_HASH_FOREACH_PTR(&ce->function_table, op_array) {
-				if (!(op_array->fn_flags & ZEND_ACC_TRAIT_CLONE)) {
-					zend_shared_alloc_register_xlat_entry(op_array->opcodes, op_array);
-				}
-			} ZEND_HASH_FOREACH_END();
+			preload_register_trait_methods(ce);
 		}
+	} ZEND_HASH_FOREACH_END();
+
+	ZEND_HASH_FOREACH_PTR(preload_scripts, script) {
+		ZEND_HASH_FOREACH_PTR(&script->script.class_table, ce) {
+			if (ce->ce_flags & ZEND_ACC_TRAIT) {
+				preload_register_trait_methods(ce);
+			}
+		} ZEND_HASH_FOREACH_END();
 	} ZEND_HASH_FOREACH_END();
 
 	if (!zend_optimize_script(&script->script, ZCG(accel_directives).optimization_level, ZCG(accel_directives).opt_debug_level)) {
@@ -4026,12 +4156,7 @@ static int accel_preload(const char *config)
 	orig_map_ptr_last = CG(map_ptr_last);
 
 	/* Compile and execute proloading script */
-	memset(&file_handle, 0, sizeof(file_handle));
-	file_handle.filename = (char*)config;
-	file_handle.free_filename = 0;
-	file_handle.type = ZEND_HANDLE_FILENAME;
-	file_handle.opened_path = NULL;
-	file_handle.handle.fp = NULL;
+	zend_stream_init_filename(&file_handle, (char *) config);
 
 	preload_scripts = emalloc(sizeof(HashTable));
 	zend_hash_init(preload_scripts, 0, NULL, NULL, 0);

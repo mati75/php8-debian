@@ -84,27 +84,6 @@
 #include "rfc1867.h"
 
 #include "ext/standard/html_tables.h"
-
-#if HAVE_MMAP || defined(PHP_WIN32)
-# if HAVE_UNISTD_H
-#  include <unistd.h>
-#  if defined(_SC_PAGESIZE)
-#    define REAL_PAGE_SIZE sysconf(_SC_PAGESIZE);
-#  elif defined(_SC_PAGE_SIZE)
-#    define REAL_PAGE_SIZE sysconf(_SC_PAGE_SIZE);
-#  endif
-# endif
-# if HAVE_SYS_MMAN_H
-#  include <sys/mman.h>
-# endif
-# ifndef REAL_PAGE_SIZE
-#  ifdef PAGE_SIZE
-#   define REAL_PAGE_SIZE PAGE_SIZE
-#  else
-#   define REAL_PAGE_SIZE 4096
-#  endif
-# endif
-#endif
 /* }}} */
 
 PHPAPI int (*php_register_internal_extensions_func)(void) = php_register_internal_extensions;
@@ -964,7 +943,7 @@ PHPAPI size_t php_printf(const char *format, ...)
 /* {{{ php_verror */
 /* php_verror is called from php_error_docref<n> functions.
  * Its purpose is to unify error messages and automatically generate clickable
- * html error messages if correcponding ini setting (html_errors) is activated.
+ * html error messages if corresponding ini setting (html_errors) is activated.
  * See: CODING_STANDARDS.md for details.
  */
 PHPAPI ZEND_COLD void php_verror(const char *docref, const char *params, int type, const char *format, va_list args)
@@ -1163,9 +1142,9 @@ PHPAPI ZEND_COLD void php_verror(const char *docref, const char *params, int typ
 }
 /* }}} */
 
-/* {{{ php_error_docref0 */
-/* See: CODING_STANDARDS.md for details. */
-PHPAPI ZEND_COLD void php_error_docref0(const char *docref, int type, const char *format, ...)
+/* {{{ php_error_docref */
+/* Generate an error which links to docref or the php.net documentation if docref is NULL */
+PHPAPI ZEND_COLD void php_error_docref(const char *docref, int type, const char *format, ...)
 {
 	va_list args;
 
@@ -1583,13 +1562,6 @@ static void php_zend_stream_closer(void *handle) /* {{{ */
 }
 /* }}} */
 
-static void php_zend_stream_mmap_closer(void *handle) /* {{{ */
-{
-	php_stream_mmap_unmap((php_stream*)handle);
-	php_zend_stream_closer(handle);
-}
-/* }}} */
-
 static size_t php_zend_stream_fsizer(void *handle) /* {{{ */
 {
 	php_stream_statbuf  ssb;
@@ -1608,40 +1580,22 @@ static int php_stream_open_for_zend(const char *filename, zend_file_handle *hand
 
 PHPAPI int php_stream_open_for_zend_ex(const char *filename, zend_file_handle *handle, int mode) /* {{{ */
 {
-	char *p;
-	size_t len, mapped_len;
-	php_stream *stream = php_stream_open_wrapper((char *)filename, "rb", mode, &handle->opened_path);
-
+	zend_string *opened_path;
+	php_stream *stream = php_stream_open_wrapper((char *)filename, "rb", mode, &opened_path);
 	if (stream) {
-#if HAVE_MMAP || defined(PHP_WIN32)
-		size_t page_size = REAL_PAGE_SIZE;
-#endif
-
+		memset(handle, 0, sizeof(zend_file_handle));
+		handle->type = ZEND_HANDLE_STREAM;
 		handle->filename = (char*)filename;
-		handle->free_filename = 0;
+		handle->opened_path = opened_path;
 		handle->handle.stream.handle  = stream;
 		handle->handle.stream.reader  = (zend_stream_reader_t)_php_stream_read;
 		handle->handle.stream.fsizer  = php_zend_stream_fsizer;
 		handle->handle.stream.isatty  = 0;
-		/* can we mmap immediately? */
-		memset(&handle->handle.stream.mmap, 0, sizeof(handle->handle.stream.mmap));
-		len = php_zend_stream_fsizer(stream);
-		if (len != 0
-#if HAVE_MMAP || defined(PHP_WIN32)
-		&& ((len - 1) % page_size) <= page_size - ZEND_MMAP_AHEAD
-#endif
-		&& php_stream_mmap_possible(stream)
-		&& (p = php_stream_mmap_range(stream, 0, len, PHP_STREAM_MAP_MODE_SHARED_READONLY, &mapped_len)) != NULL) {
-			handle->handle.stream.closer   = php_zend_stream_mmap_closer;
-			handle->handle.stream.mmap.buf = p;
-			handle->handle.stream.mmap.len = mapped_len;
-			handle->type = ZEND_HANDLE_MAPPED;
-		} else {
-			handle->handle.stream.closer = php_zend_stream_closer;
-			handle->type = ZEND_HANDLE_STREAM;
-		}
+		handle->handle.stream.closer = php_zend_stream_closer;
 		/* suppress warning if this stream is not explicitly closed */
 		php_stream_auto_cleanup(stream);
+		/* Disable buffering to avoid double buffering between PHP and Zend streams. */
+		php_stream_set_option(stream, PHP_STREAM_OPTION_READ_BUFFER, PHP_STREAM_BUFFER_NONE, NULL);
 
 		return SUCCESS;
 	}
@@ -1880,18 +1834,6 @@ int php_request_startup(void)
 	SG(sapi_started) = 1;
 
 	return retval;
-}
-/* }}} */
-
-/* {{{ php_request_shutdown_for_exec
- */
-void php_request_shutdown_for_exec(void *dummy)
-{
-
-	/* used to close fd's in the 3..255 range here, but it's problematic
-	 */
-	zend_interned_strings_deactivate();
-	shutdown_memory_manager(1, 1);
 }
 /* }}} */
 
@@ -2417,6 +2359,7 @@ int php_module_startup(sapi_module_struct *sf, zend_module_entry *additional_mod
 				"Directive '%s' is deprecated",
 				{
 					"track_errors",
+					"allow_url_include",
 					NULL
 				}
 			},
@@ -2486,11 +2429,6 @@ int php_module_startup(sapi_module_struct *sf, zend_module_entry *additional_mod
 }
 /* }}} */
 
-void php_module_shutdown_for_exec(void)
-{
-	/* used to close fd's in the range 3.255 here, but it's problematic */
-}
-
 /* {{{ php_module_shutdown_wrapper
  */
 int php_module_shutdown_wrapper(sapi_module_struct *sapi_globals)
@@ -2513,10 +2451,6 @@ void php_module_shutdown(void)
 	}
 
 	zend_interned_strings_switch_storage(0);
-
-#ifdef ZTS
-	ts_free_worker_threads();
-#endif
 
 #if ZEND_RC_DEBUG
 	zend_rc_debug = 0;
@@ -2586,7 +2520,7 @@ void php_module_shutdown(void)
 PHPAPI int php_execute_script(zend_file_handle *primary_file)
 {
 	zend_file_handle *prepend_file_p, *append_file_p;
-	zend_file_handle prepend_file = {{0}, NULL, NULL, 0, 0}, append_file = {{0}, NULL, NULL, 0, 0};
+	zend_file_handle prepend_file, append_file;
 #if HAVE_BROKEN_GETCWD
 	volatile int old_cwd_fd = -1;
 #else
@@ -2638,20 +2572,14 @@ PHPAPI int php_execute_script(zend_file_handle *primary_file)
 		}
 
 		if (PG(auto_prepend_file) && PG(auto_prepend_file)[0]) {
-			prepend_file.filename = PG(auto_prepend_file);
-			prepend_file.opened_path = NULL;
-			prepend_file.free_filename = 0;
-			prepend_file.type = ZEND_HANDLE_FILENAME;
+			zend_stream_init_filename(&prepend_file, PG(auto_prepend_file));
 			prepend_file_p = &prepend_file;
 		} else {
 			prepend_file_p = NULL;
 		}
 
 		if (PG(auto_append_file) && PG(auto_append_file)[0]) {
-			append_file.filename = PG(auto_append_file);
-			append_file.opened_path = NULL;
-			append_file.free_filename = 0;
-			append_file.type = ZEND_HANDLE_FILENAME;
+			zend_stream_init_filename(&append_file, PG(auto_append_file));
 			append_file_p = &append_file;
 		} else {
 			append_file_p = NULL;
@@ -2665,15 +2593,13 @@ PHPAPI int php_execute_script(zend_file_handle *primary_file)
 
 		/*
 		   If cli primary file has shabang line and there is a prepend file,
-		   the `start_lineno` will be used by prepend file but not primary file,
+		   the `skip_shebang` will be used by prepend file but not primary file,
 		   save it and restore after prepend file been executed.
 		 */
-		if (CG(start_lineno) && prepend_file_p) {
-			int orig_start_lineno = CG(start_lineno);
-
-			CG(start_lineno) = 0;
+		if (CG(skip_shebang) && prepend_file_p) {
+			CG(skip_shebang) = 0;
 			if (zend_execute_scripts(ZEND_REQUIRE, NULL, 1, prepend_file_p) == SUCCESS) {
-				CG(start_lineno) = orig_start_lineno;
+				CG(skip_shebang) = 1;
 				retval = (zend_execute_scripts(ZEND_REQUIRE, NULL, 2, primary_file, append_file_p) == SUCCESS);
 			}
 		} else {

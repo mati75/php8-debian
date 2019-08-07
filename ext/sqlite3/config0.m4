@@ -5,17 +5,6 @@ PHP_ARG_WITH([sqlite3],
   [yes])
 
 if test $PHP_SQLITE3 != "no"; then
-
-  dnl when running phpize enable_maintainer_zts is not available
-  if test -z "$enable_maintainer_zts"; then
-    if test -f "$phpincludedir/main/php_config.h"; then
-      ZTS=`grep '#define ZTS' $phpincludedir/main/php_config.h|$SED 's/#define ZTS//'`
-      if test "$ZTS" -eq "1"; then
-        enable_maintainer_zts="yes"
-      fi
-    fi
-  fi
-
   PKG_CHECK_MODULES([SQLITE], [sqlite3 > 3.7.4])
 
   PHP_CHECK_LIBRARY(sqlite3, sqlite3_stmt_readonly,
@@ -25,14 +14,6 @@ if test $PHP_SQLITE3 != "no"; then
     AC_DEFINE(HAVE_SQLITE3, 1, [Define to 1 if you have the sqlite3 extension enabled.])
   ], [
     AC_MSG_ERROR([Please install SQLite 3.7.4 first or check libsqlite3 is present])
-  ])
-
-  PHP_CHECK_LIBRARY(sqlite3, sqlite3_key, [
-    AC_DEFINE(HAVE_SQLITE3_KEY, 1, [have commercial sqlite3 with crypto support])
-  ])
-
-  PHP_CHECK_LIBRARY(sqlite3, sqlite3_column_table_name, [
-    AC_DEFINE(SQLITE_ENABLE_COLUMN_METADATA, 1, [have sqlite3 with column metadata enabled])
   ])
 
   PHP_CHECK_LIBRARY(sqlite3, sqlite3_errstr, [

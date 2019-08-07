@@ -127,7 +127,7 @@ extern int php_openssl_get_ssl_stream_data_index();
 extern int php_openssl_get_x509_list_id(void);
 static struct timeval php_openssl_subtract_timeval(struct timeval a, struct timeval b);
 static int php_openssl_compare_timeval(struct timeval a, struct timeval b);
-static size_t php_openssl_sockop_io(int read, php_stream *stream, char *buf, size_t count);
+static ssize_t php_openssl_sockop_io(int read, php_stream *stream, char *buf, size_t count);
 
 const php_stream_ops php_openssl_socket_ops;
 
@@ -2079,13 +2079,13 @@ static int php_openssl_enable_crypto(php_stream *stream,
 }
 /* }}} */
 
-static size_t php_openssl_sockop_read(php_stream *stream, char *buf, size_t count) /* {{{ */
+static ssize_t php_openssl_sockop_read(php_stream *stream, char *buf, size_t count) /* {{{ */
 {
 	return php_openssl_sockop_io( 1, stream, buf, count );
 }
 /* }}} */
 
-static size_t php_openssl_sockop_write(php_stream *stream, const char *buf, size_t count) /* {{{ */
+static ssize_t php_openssl_sockop_write(php_stream *stream, const char *buf, size_t count) /* {{{ */
 {
 	return php_openssl_sockop_io( 0, stream, (char*)buf, count );
 }
@@ -2097,7 +2097,7 @@ static size_t php_openssl_sockop_write(php_stream *stream, const char *buf, size
  * for the duration of the operation, using select to do our waits. If we time out, or we have an error
  * report that back to PHP
  */
-static size_t php_openssl_sockop_io(int read, php_stream *stream, char *buf, size_t count) /* {{{ */
+static ssize_t php_openssl_sockop_io(int read, php_stream *stream, char *buf, size_t count) /* {{{ */
 {
 	php_openssl_netstream_data_t *sslsock = (php_openssl_netstream_data_t*)stream->abstract;
 
@@ -2383,7 +2383,8 @@ static inline int php_openssl_tcp_sockop_accept(php_stream *stream, php_openssl_
 
 	xparam->outputs.client = NULL;
 
-	if ((tmpzval = php_stream_context_get_option(PHP_STREAM_CONTEXT(stream), "socket", "tcp_nodelay")) != NULL &&
+	if (PHP_STREAM_CONTEXT(stream) &&
+		(tmpzval = php_stream_context_get_option(PHP_STREAM_CONTEXT(stream), "socket", "tcp_nodelay")) != NULL &&
 		zend_is_true(tmpzval)) {
 		nodelay = 1;
 	}

@@ -15,7 +15,6 @@ steps:
                        libenchant-dev \
                        libaspell-dev \
                        libpspell-dev \
-                       librecode-dev \
                        libsasl2-dev \
                        libxpm-dev \
                        libzip-dev \
@@ -34,5 +33,6 @@ steps:
                        libargon2-0-dev \
                        postgresql \
                        postgresql-contrib \
+                       llvm \
                        ${{ parameters.packages }}
     displayName: 'APT'

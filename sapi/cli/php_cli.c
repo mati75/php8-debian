@@ -587,39 +587,15 @@ static const char *param_mode_conflict = "Either execute direct code, process st
 
 /* {{{ cli_seek_file_begin
  */
-static int cli_seek_file_begin(zend_file_handle *file_handle, char *script_file, int *lineno)
+static int cli_seek_file_begin(zend_file_handle *file_handle, char *script_file)
 {
-	int c;
-
-	*lineno = 1;
-
-	file_handle->type = ZEND_HANDLE_FP;
-	file_handle->opened_path = NULL;
-	file_handle->free_filename = 0;
-	if (!(file_handle->handle.fp = VCWD_FOPEN(script_file, "rb"))) {
+	FILE *fp = VCWD_FOPEN(script_file, "rb");
+	if (!fp) {
 		php_printf("Could not open input file: %s\n", script_file);
 		return FAILURE;
 	}
-	file_handle->filename = script_file;
 
-	/* #!php support */
-	c = fgetc(file_handle->handle.fp);
-	if (c == '#' && (c = fgetc(file_handle->handle.fp)) == '!') {
-		while (c != '\n' && c != '\r' && c != EOF) {
-			c = fgetc(file_handle->handle.fp);	/* skip to end of line */
-		}
-		/* handle situations where line is terminated by \r\n */
-		if (c == '\r') {
-			if (fgetc(file_handle->handle.fp) != '\n') {
-				zend_long pos = zend_ftell(file_handle->handle.fp);
-				zend_fseek(file_handle->handle.fp, pos - 1, SEEK_SET);
-			}
-		}
-		*lineno = 2;
-	} else {
-		rewind(file_handle->handle.fp);
-	}
-
+	zend_stream_init_fp(file_handle, fp, script_file);
 	return SUCCESS;
 }
 /* }}} */
@@ -649,7 +625,6 @@ static int do_cli(int argc, char **argv) /* {{{ */
 	char *arg_free=NULL, **arg_excp=&arg_free;
 	char *script_file=NULL, *translated_path = NULL;
 	int interactive=0;
-	int lineno = 0;
 	const char *param_error=NULL;
 	int hide_argv = 0;
 
@@ -922,7 +897,7 @@ static int do_cli(int argc, char **argv) /* {{{ */
 			php_optind++;
 		}
 		if (script_file) {
-			if (cli_seek_file_begin(&file_handle, script_file, &lineno) != SUCCESS) {
+			if (cli_seek_file_begin(&file_handle, script_file) != SUCCESS) {
 				goto err;
 			} else {
 				char real_path[MAXPATHLEN];
@@ -936,12 +911,8 @@ static int do_cli(int argc, char **argv) /* {{{ */
 			/* here but this would make things only more complicated. And it */
 			/* is consitent with the way -R works where the stdin file handle*/
 			/* is also accessible. */
-			file_handle.filename = "Standard input code";
-			file_handle.handle.fp = stdin;
+			zend_stream_init_fp(&file_handle, stdin, "Standard input code");
 		}
-		file_handle.type = ZEND_HANDLE_FP;
-		file_handle.opened_path = NULL;
-		file_handle.free_filename = 0;
 		php_self = (char*)file_handle.filename;
 
 		/* before registering argv to module exchange the *new* argv[0] */
@@ -960,7 +931,7 @@ static int do_cli(int argc, char **argv) /* {{{ */
 			goto err;
 		}
 		request_started = 1;
-		CG(start_lineno) = lineno;
+		CG(skip_shebang) = 1;
 
 		zend_register_bool_constant(
 			ZEND_STRL("PHP_CLI_PROCESS_TITLE"),
@@ -1050,10 +1021,10 @@ static int do_cli(int argc, char **argv) /* {{{ */
 						}
 					} else {
 						if (script_file) {
-							if (cli_seek_file_begin(&file_handle, script_file, &lineno) != SUCCESS) {
+							if (cli_seek_file_begin(&file_handle, script_file) != SUCCESS) {
 								exit_status = 1;
 							} else {
-								CG(start_lineno) = lineno;
+								CG(skip_shebang) = 1;
 								php_execute_script(&file_handle);
 								exit_status = EG(exit_status);
 							}

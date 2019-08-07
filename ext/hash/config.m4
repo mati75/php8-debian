@@ -11,6 +11,7 @@ if test "$PHP_MHASH" != "no"; then
   AC_DEFINE(PHP_MHASH_BC, 1, [ ])
 fi
 
+dnl Defined for BC.
 AC_DEFINE(HAVE_HASH_EXT,1,[Have HASH Extension])
 
 if test $ac_cv_c_bigendian_php = yes; then
@@ -44,6 +45,4 @@ EXT_HASH_HEADERS="php_hash.h php_hash_md.h php_hash_sha.h php_hash_ripemd.h \
   php_hash_fnv.h php_hash_joaat.h php_hash_sha3.h"
 
 PHP_NEW_EXTENSION(hash, $EXT_HASH_SOURCES, 0,,$PHP_HASH_CFLAGS)
-ifdef([PHP_INSTALL_HEADERS], [
-	PHP_INSTALL_HEADERS(ext/hash, $EXT_HASH_HEADERS)
-])
+PHP_INSTALL_HEADERS(ext/hash, $EXT_HASH_HEADERS)

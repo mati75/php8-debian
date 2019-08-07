@@ -128,8 +128,6 @@ typedef int pid_t;
 #endif
 #include <assert.h>
 
-#define APACHE 0
-
 #if HAVE_UNIX_H
 #include <unix.h>
 #endif
@@ -341,7 +339,7 @@ static inline ZEND_ATTRIBUTE_DEPRECATED void php_std_error_handling() {}
 PHPAPI ZEND_COLD void php_verror(const char *docref, const char *params, int type, const char *format, va_list args) PHP_ATTRIBUTE_FORMAT(printf, 4, 0);
 
 /* PHPAPI void php_error(int type, const char *format, ...); */
-PHPAPI ZEND_COLD void php_error_docref0(const char *docref, int type, const char *format, ...)
+PHPAPI ZEND_COLD void php_error_docref(const char *docref, int type, const char *format, ...)
 	PHP_ATTRIBUTE_FORMAT(printf, 3, 4);
 PHPAPI ZEND_COLD void php_error_docref1(const char *docref, const char *param1, int type, const char *format, ...)
 	PHP_ATTRIBUTE_FORMAT(printf, 4, 5);
@@ -351,8 +349,6 @@ PHPAPI ZEND_COLD void php_error_docref2(const char *docref, const char *param1, 
 PHPAPI ZEND_COLD void php_win32_docref2_from_error(DWORD error, const char *param1, const char *param2);
 #endif
 END_EXTERN_C()
-
-#define php_error_docref php_error_docref0
 
 #define zenderror phperror
 #define zendlex phplex
@@ -449,40 +445,5 @@ END_EXTERN_C()
 #define PHP_CONNECTION_TIMEOUT 2
 
 #include "php_reentrancy.h"
-
-/* Finding offsets of elements within structures.
- * Taken from the Apache code, which in turn, was taken from X code...
- */
-
-#ifndef XtOffset
-#if defined(CRAY) || (defined(__arm) && !(defined(LINUX) || defined(__riscos__)))
-#ifdef __STDC__
-#define XtOffset(p_type, field) _Offsetof(p_type, field)
-#else
-#ifdef CRAY2
-#define XtOffset(p_type, field) \
-    (sizeof(int)*((unsigned int)&(((p_type)NULL)->field)))
-
-#else /* !CRAY2 */
-
-#define XtOffset(p_type, field) ((unsigned int)&(((p_type)NULL)->field))
-
-#endif /* !CRAY2 */
-#endif /* __STDC__ */
-#else /* ! (CRAY || __arm) */
-
-#define XtOffset(p_type, field) \
-    ((zend_long) (((char *) (&(((p_type)NULL)->field))) - ((char *) NULL)))
-
-#endif /* !CRAY */
-#endif /* ! XtOffset */
-
-#ifndef XtOffsetOf
-#ifdef offsetof
-#define XtOffsetOf(s_type, field) offsetof(s_type, field)
-#else
-#define XtOffsetOf(s_type, field) XtOffset(s_type*, field)
-#endif
-#endif /* !XtOffsetOf */
 
 #endif

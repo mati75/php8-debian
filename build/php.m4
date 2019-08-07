@@ -1323,26 +1323,6 @@ fi
 ])
 
 dnl
-dnl PHP_SOCKLEN_T
-dnl
-AC_DEFUN([PHP_SOCKLEN_T],[
-AC_CACHE_CHECK(for socklen_t,ac_cv_socklen_t,
-  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
-#include <sys/types.h>
-#include <sys/socket.h>
-]],[[
-socklen_t x;
-]])],[
-  ac_cv_socklen_t=yes
-],[
-  ac_cv_socklen_t=no
-]))
-if test "$ac_cv_socklen_t" = "yes"; then
-  AC_DEFINE(HAVE_SOCKLEN_T, 1, [Whether you have socklen_t])
-fi
-])
-
-dnl
 dnl PHP_MISSING_FCLOSE_DECL
 dnl
 dnl See if we have broken header files like SunOS has.
@@ -1838,9 +1818,7 @@ AC_DEFUN([PHP_PROG_BISON], [
 
   case $php_bison_check in
     ""|invalid[)]
-      if test -f "$abs_srcdir/Zend/zend_language_parser.h" && test -f "$abs_srcdir/Zend/zend_language_parser.c"; then
-        AC_MSG_WARN([bison $php_bison_required_version is required if you want to regenerate PHP parsers (excluded versions: $php_bison_excluded_versions)])
-      else
+      if test ! -f "$abs_srcdir/Zend/zend_language_parser.h" || test ! -f "$abs_srcdir/Zend/zend_language_parser.c"; then
         AC_MSG_ERROR([bison $php_bison_required_version is required to generate PHP parsers (excluded versions: $php_bison_excluded_versions).])
       fi
 
@@ -1895,9 +1873,7 @@ AC_DEFUN([PHP_PROG_RE2C],[
 
   case $php_re2c_check in
     ""|invalid[)]
-      if test -f "$abs_srcdir/Zend/zend_language_scanner.c"; then
-        AC_MSG_WARN([re2c $php_re2c_required_version is required if you want to regenerate PHP lexers.])
-      else
+      if test ! -f "$abs_srcdir/Zend/zend_language_scanner.c"; then
         AC_MSG_ERROR([re2c $php_re2c_required_version is required to generate PHP lexers.])
       fi
 
@@ -2108,7 +2084,7 @@ AC_DEFUN([PHP_INSTALL_HEADERS],[
 dnl
 dnl PHP_AP_EXTRACT_VERSION(/path/httpd)
 dnl
-dnl This macro is used to get a comparable version for apache1/2.
+dnl This macro is used to get a comparable version for Apache.
 dnl
 AC_DEFUN([PHP_AP_EXTRACT_VERSION],[
   ac_output=`$1 -v 2>&1 | grep version | $SED -e 's/Oracle-HTTP-//'`
@@ -2119,37 +2095,6 @@ IFS="- /.
   IFS=$ac_IFS
 
   APACHE_VERSION=`expr [$]4 \* 1000000 + [$]5 \* 1000 + [$]6`
-])
-
-dnl
-dnl PHP_DEBUG_MACRO(filename)
-dnl
-AC_DEFUN([PHP_DEBUG_MACRO],[
-  DEBUG_LOG=$1
-  cat >$1 <<X
-CONFIGURE:  $CONFIGURE_COMMAND
-CC:         $CC
-CFLAGS:     $CFLAGS
-CPPFLAGS:   $CPPFLAGS
-CXX:        $CXX
-CXXFLAGS:   $CXXFLAGS
-INCLUDES:   $INCLUDES
-LDFLAGS:    $LDFLAGS
-LIBS:       $LIBS
-DLIBS:      $DLIBS
-SAPI:       $PHP_SAPI
-PHP_RPATHS: $PHP_RPATHS
-uname -a:   `uname -a`
-
-X
-    cat >conftest.$ac_ext <<X
-main()
-{
-  exit(0);
-}
-X
-    (eval echo \"$ac_link\"; eval $ac_link && ./conftest) >>$1 2>&1
-    rm -fr conftest*
 ])
 
 dnl
@@ -2213,66 +2158,10 @@ EOF
 ])
 
 dnl
-dnl PHP_CHECK_CONFIGURE_OPTIONS
-dnl
-AC_DEFUN([PHP_CHECK_CONFIGURE_OPTIONS],[
-  for arg in $ac_configure_args; do
-    case $arg in
-      --with-*[)]
-        arg_name="`echo [$]arg | $SED -e 's/--with-/with-/g' -e 's/=.*//g'`"
-        ;;
-      --without-*[)]
-        arg_name="`echo [$]arg | $SED -e 's/--without-/with-/g' -e 's/=.*//g'`"
-        ;;
-      --enable-*[)]
-        arg_name="`echo [$]arg | $SED -e 's/--enable-/enable-/g' -e 's/=.*//g'`"
-        ;;
-      --disable-*[)]
-        arg_name="`echo [$]arg | $SED -e 's/--disable-/enable-/g' -e 's/=.*//g'`"
-        ;;
-      *[)]
-        continue
-        ;;
-    esac
-    case $arg_name in
-      dnl Allow --disable-all / --enable-all
-      enable-all[)];;
-
-      dnl Allow certain libtool options
-      enable-libtool-lock | with-pic | with-tags | enable-shared | enable-static | enable-fast-install | with-gnu-ld[)];;
-
-      dnl Allow certain TSRM options
-      with-tsrm-pth | with-tsrm-st | with-tsrm-pthreads [)];;
-
-      dnl Allow certain Zend options
-      with-zend-vm | enable-maintainer-zts | enable-inline-optimization[)];;
-
-      dnl All the rest must be set using the PHP_ARG_* macros. PHP_ARG_* macros
-      dnl set php_enable_<arg_name> or php_with_<arg_name>.
-      *[)]
-        dnl Options that exist before PHP 6
-        if test "$PHP_MAJOR_VERSION" -lt "6"; then
-          case $arg_name in
-            enable-zend-multibyte[)] continue;;
-          esac
-        fi
-
-        is_arg_set=php_[]`echo [$]arg_name | tr 'ABCDEFGHIJKLMNOPQRSTUVWXYZ-' 'abcdefghijklmnopqrstuvwxyz_'`
-        if eval test "x\$$is_arg_set" = "x"; then
-          PHP_UNKNOWN_CONFIGURE_OPTIONS="$PHP_UNKNOWN_CONFIGURE_OPTIONS
-[$]arg"
-        fi
-        ;;
-    esac
-  done
-])
-
-dnl
 dnl PHP_CHECK_PDO_INCLUDES([found [, not-found]])
 dnl
 AC_DEFUN([PHP_CHECK_PDO_INCLUDES],[
   AC_CACHE_CHECK([for PDO includes], pdo_cv_inc_path, [
-    AC_MSG_CHECKING([for PDO includes])
     if test -f $abs_srcdir/include/php/ext/pdo/php_pdo_driver.h; then
       pdo_cv_inc_path=$abs_srcdir/ext
     elif test -f $abs_srcdir/ext/pdo/php_pdo_driver.h; then
@@ -2805,4 +2694,20 @@ int main() {
   fi
   AC_DEFINE_UNQUOTED(AS_TR_CPP([PHP_HAVE_$1_INSTRUCTIONS]),
    [$have_ext_instructions], [Whether the compiler supports $1 instructions])
+])
+
+dnl
+dnl PHP_PATCH_CONFIG_HEADERS([FILE])
+dnl
+dnl PACKAGE_* symbols are automatically defined by Autoconf. When including
+dnl configuration header, warnings about redefined symbols are emitted for such
+dnl symbols if they are defined by multiple libraries. This disables all
+dnl PACKAGE_* symbols in the generated configuration header template FILE. For
+dnl example, main/php_config.h.in for PHP or config.h.in for PHP extensions.
+dnl
+AC_DEFUN([PHP_PATCH_CONFIG_HEADERS], [
+  AC_MSG_NOTICE([patching $1])
+
+  $SED -e 's/^#undef PACKAGE_[^ ]*/\/\* & \*\//g' < $srcdir/$1 \
+    > $srcdir/$1.tmp && mv $srcdir/$1.tmp $srcdir/$1
 ])

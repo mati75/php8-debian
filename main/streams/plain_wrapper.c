@@ -128,6 +128,7 @@ typedef struct {
 	unsigned is_pipe:1;			/* don't try and seek */
 	unsigned cached_fstat:1;	/* sb is valid */
 	unsigned is_pipe_blocking:1; /* allow blocking read() on pipes, currently Windows only */
+	unsigned no_forced_fstat:1;  /* Use fstat cache even if forced */
 	unsigned _reserved:28;
 
 	int lock_flag;			/* stores the lock state */
@@ -152,7 +153,7 @@ typedef struct {
 
 static int do_fstat(php_stdio_stream_data *d, int force)
 {
-	if (!d->cached_fstat || force) {
+	if (!d->cached_fstat || (force && !d->no_forced_fstat)) {
 		int fd;
 		int r;
 
@@ -334,7 +335,7 @@ PHPAPI php_stream *_php_stream_fopen_from_pipe(FILE *file, const char *mode STRE
 	return stream;
 }
 
-static size_t php_stdiop_write(php_stream *stream, const char *buf, size_t count)
+static ssize_t php_stdiop_write(php_stream *stream, const char *buf, size_t count)
 {
 	php_stdio_stream_data *data = (php_stdio_stream_data*)stream->abstract;
 
@@ -342,16 +343,15 @@ static size_t php_stdiop_write(php_stream *stream, const char *buf, size_t count
 
 	if (data->fd >= 0) {
 #ifdef PHP_WIN32
-		int bytes_written;
+		ssize_t bytes_written;
 		if (ZEND_SIZE_T_UINT_OVFL(count)) {
 			count = UINT_MAX;
 		}
 		bytes_written = _write(data->fd, buf, (unsigned int)count);
 #else
-		int bytes_written = write(data->fd, buf, count);
+		ssize_t bytes_written = write(data->fd, buf, count);
 #endif
-		if (bytes_written < 0) return 0;
-		return (size_t) bytes_written;
+		return bytes_written;
 	} else {
 
 #if HAVE_FLUSHIO
@@ -361,14 +361,14 @@ static size_t php_stdiop_write(php_stream *stream, const char *buf, size_t count
 		data->last_op = 'w';
 #endif
 
-		return fwrite(buf, 1, count, data->file);
+		return (ssize_t) fwrite(buf, 1, count, data->file);
 	}
 }
 
-static size_t php_stdiop_read(php_stream *stream, char *buf, size_t count)
+static ssize_t php_stdiop_read(php_stream *stream, char *buf, size_t count)
 {
 	php_stdio_stream_data *data = (php_stdio_stream_data*)stream->abstract;
-	size_t ret;
+	ssize_t ret;
 
 	assert(data != NULL);
 
@@ -410,7 +410,20 @@ static size_t php_stdiop_read(php_stream *stream, char *buf, size_t count)
 			ret = read(data->fd, buf,  PLAIN_WRAP_BUF_SIZE(count));
 		}
 
-		stream->eof = (ret == 0 || (ret == (size_t)-1 && errno != EWOULDBLOCK && errno != EINTR && errno != EBADF));
+		if (ret < 0) {
+			if (errno == EWOULDBLOCK || errno == EAGAIN) {
+				/* Not an error. */
+				ret = 0;
+			} else if (errno == EINTR) {
+				/* An error, but not EOF */
+			} else if (errno == EBADF) {
+				/* TODO: Remove this special-case? */
+			} else {
+				stream->eof = 1;
+			}
+		} else if (ret == 0) {
+			stream->eof = 1;
+		}
 
 	} else {
 #if HAVE_FLUSHIO
@@ -694,18 +707,15 @@ static int php_stdiop_set_option(php_stream *stream, int option, int value, void
 						return fd == -1 ? PHP_STREAM_OPTION_RETURN_ERR : PHP_STREAM_OPTION_RETURN_OK;
 
 					case PHP_STREAM_MMAP_MAP_RANGE:
-						if(do_fstat(data, 1) != 0) {
+						if (do_fstat(data, 1) != 0) {
 							return PHP_STREAM_OPTION_RETURN_ERR;
 						}
-						if (range->length == 0 && range->offset > 0 && range->offset < data->sb.st_size) {
-							range->length = data->sb.st_size - range->offset;
-						}
-						if (range->length == 0 || range->length > data->sb.st_size) {
-							range->length = data->sb.st_size;
-						}
-						if (range->offset >= data->sb.st_size) {
+						if (range->offset > data->sb.st_size) {
 							range->offset = data->sb.st_size;
-							range->length = 0;
+						}
+						if (range->length == 0 ||
+								range->length > data->sb.st_size - range->offset) {
+							range->length = data->sb.st_size - range->offset;
 						}
 						switch (range->mode) {
 							case PHP_STREAM_MAP_MODE_READONLY:
@@ -923,7 +933,7 @@ PHPAPI php_stream_ops	php_stream_stdio_ops = {
 /* }}} */
 
 /* {{{ plain files opendir/readdir implementation */
-static size_t php_plain_files_dirstream_read(php_stream *stream, char *buf, size_t count)
+static ssize_t php_plain_files_dirstream_read(php_stream *stream, char *buf, size_t count)
 {
 	DIR *dir = (DIR*)stream->abstract;
 	struct dirent *result;
@@ -931,7 +941,7 @@ static size_t php_plain_files_dirstream_read(php_stream *stream, char *buf, size
 
 	/* avoid problems if someone mis-uses the stream */
 	if (count != sizeof(php_stream_dirent))
-		return 0;
+		return -1;
 
 	result = readdir(dir);
 	if (result) {
@@ -1079,6 +1089,10 @@ PHPAPI php_stream *_php_stream_fopen(const char *filename, const char *mode, zen
 					php_stream_close(ret);
 					return NULL;
 				}
+
+				/* Make sure the fstat result is reused when we later try to get the
+				 * file size. */
+				self->no_forced_fstat = 1;
 			}
 
 			if (options & STREAM_USE_BLOCKING_PIPE) {

@@ -102,6 +102,26 @@ ZEND_API void destroy_zend_function(zend_function *function)
 	zend_function_dtor(&tmp);
 }
 
+void zend_free_internal_arg_info(zend_internal_function *function) {
+	if ((function->fn_flags & (ZEND_ACC_HAS_RETURN_TYPE|ZEND_ACC_HAS_TYPE_HINTS)) &&
+		!function->scope && function->arg_info) {
+
+		uint32_t i;
+		uint32_t num_args = function->num_args + 1;
+		zend_internal_arg_info *arg_info = function->arg_info - 1;
+
+		if (function->fn_flags & ZEND_ACC_VARIADIC) {
+			num_args++;
+		}
+		for (i = 0 ; i < num_args; i++) {
+			if (ZEND_TYPE_IS_CLASS(arg_info[i].type)) {
+				zend_string_release_ex(ZEND_TYPE_NAME(arg_info[i].type), 1);
+			}
+		}
+		free(arg_info);
+	}
+}
+
 ZEND_API void zend_function_dtor(zval *zv)
 {
 	zend_function *function = Z_PTR_P(zv);
@@ -115,23 +135,7 @@ ZEND_API void zend_function_dtor(zval *zv)
 		ZEND_ASSERT(function->common.function_name);
 		zend_string_release_ex(function->common.function_name, 1);
 
-		if ((function->common.fn_flags & (ZEND_ACC_HAS_RETURN_TYPE|ZEND_ACC_HAS_TYPE_HINTS)) &&
-		    !function->common.scope && function->common.arg_info) {
-
-			uint32_t i;
-			uint32_t num_args = function->common.num_args + 1;
-			zend_arg_info *arg_info = function->common.arg_info - 1;
-
-			if (function->common.fn_flags & ZEND_ACC_VARIADIC) {
-				num_args++;
-			}
-			for (i = 0 ; i < num_args; i++) {
-				if (ZEND_TYPE_IS_CLASS(arg_info[i].type)) {
-					zend_string_release_ex(ZEND_TYPE_NAME(arg_info[i].type), 1);
-				}
-			}
-			free(arg_info);
-		}
+		zend_free_internal_arg_info(&function->internal_function);
 
 		if (!(function->common.fn_flags & ZEND_ACC_ARENA_ALLOCATED)) {
 			pefree(function, 1);
@@ -955,7 +959,6 @@ ZEND_API int pass_two(zend_op_array *op_array)
 				ZEND_PASS_TWO_UPDATE_JMP_TARGET(op_array, opline, opline->op2);
 				break;
 			}
-			case ZEND_DECLARE_ANON_CLASS:
 			case ZEND_FE_FETCH_R:
 			case ZEND_FE_FETCH_RW:
 				/* absolute index to relative offset */
@@ -1024,33 +1027,24 @@ ZEND_API binary_op_type get_binary_op(int opcode)
 {
 	switch (opcode) {
 		case ZEND_ADD:
-		case ZEND_ASSIGN_ADD:
 			return (binary_op_type) add_function;
 		case ZEND_SUB:
-		case ZEND_ASSIGN_SUB:
 			return (binary_op_type) sub_function;
 		case ZEND_MUL:
-		case ZEND_ASSIGN_MUL:
 			return (binary_op_type) mul_function;
 		case ZEND_POW:
-		case ZEND_ASSIGN_POW:
 			return (binary_op_type) pow_function;
 		case ZEND_DIV:
-		case ZEND_ASSIGN_DIV:
 			return (binary_op_type) div_function;
 		case ZEND_MOD:
-		case ZEND_ASSIGN_MOD:
 			return (binary_op_type) mod_function;
 		case ZEND_SL:
-		case ZEND_ASSIGN_SL:
 			return (binary_op_type) shift_left_function;
 		case ZEND_SR:
-		case ZEND_ASSIGN_SR:
 			return (binary_op_type) shift_right_function;
 		case ZEND_PARENTHESIZED_CONCAT:
 		case ZEND_FAST_CONCAT:
 		case ZEND_CONCAT:
-		case ZEND_ASSIGN_CONCAT:
 			return (binary_op_type) concat_function;
 		case ZEND_IS_IDENTICAL:
 			return (binary_op_type) is_identical_function;
@@ -1068,17 +1062,15 @@ ZEND_API binary_op_type get_binary_op(int opcode)
 		case ZEND_SPACESHIP:
 			return (binary_op_type) compare_function;
 		case ZEND_BW_OR:
-		case ZEND_ASSIGN_BW_OR:
 			return (binary_op_type) bitwise_or_function;
 		case ZEND_BW_AND:
-		case ZEND_ASSIGN_BW_AND:
 			return (binary_op_type) bitwise_and_function;
 		case ZEND_BW_XOR:
-		case ZEND_ASSIGN_BW_XOR:
 			return (binary_op_type) bitwise_xor_function;
 		case ZEND_BOOL_XOR:
 			return (binary_op_type) boolean_xor_function;
 		default:
+			ZEND_ASSERT(0);
 			return (binary_op_type) NULL;
 	}
 }
