@@ -49,7 +49,6 @@ Build-Depends: apache2-dev (>= 2.4),
                libpq-dev,
                libpspell-dev,
                libqdbm-dev,
-               librecode-dev,
                libsasl2-dev,
                libsnmp-dev,
                libsodium-dev,
@@ -750,29 +749,6 @@ Description: readline module for PHP
  open source general-purpose scripting language that is especially suited
  for web development and can be embedded into HTML.
 
-Package: php7.4-recode
-Architecture: any
-Depends: php-common (>= 1:35),
-         ucf,
-         ${misc:Depends},
-         ${php:Depends},
-	 ${php-recode:Depends},
-         ${shlibs:Depends}
-Pre-Depends: ${misc:Pre-Depends},
-	     ${php-recode:Pre-Depends}
-Built-Using: ${php:Built-Using}
-Replaces: ${php-recode:Replaces}
-Breaks: ${php-recode:Breaks}
-Conflicts: ${php-recode:Conflicts}
-Provides: ${php-recode:Provides}
-Recommends: ${php-recode:Recommends}
-Description: recode module for PHP
- This package provides the recode module(s) for PHP.
- .
- PHP (recursive acronym for PHP: Hypertext Preprocessor) is a widely-used
- open source general-purpose scripting language that is especially suited
- for web development and can be embedded into HTML.
-
 Package: php7.4-snmp
 Architecture: any
 Depends: php-common (>= 1:35),
@@ -904,8 +880,8 @@ Breaks: ${php-xml:Breaks}
 Conflicts: ${php-xml:Conflicts}
 Provides: ${php-xml:Provides}
 Recommends: ${php-xml:Recommends}
-Description: DOM, SimpleXML, WDDX, XML, and XSL module for PHP
- This package provides the DOM, SimpleXML, WDDX, XML, and XSL module(s) for PHP.
+Description: DOM, SimpleXML, XML, and XSL module for PHP
+ This package provides the DOM, SimpleXML, XML, and XSL module(s) for PHP.
  .
  PHP (recursive acronym for PHP: Hypertext Preprocessor) is a widely-used
  open source general-purpose scripting language that is especially suited
