@@ -1,3 +1,10 @@
+php7.1 (7.1.31-1) unstable; urgency=medium
+
+  * New upstream version 7.1.31
+  * Rebase patches for PHP 7.1.31
+
+ -- Ondřej Surý <ondrej@sury.org>  Wed, 07 Aug 2019 12:19:51 +0200
+
 php7.1 (7.1.30-2) unstable; urgency=medium
 
   * Bump the version to cleanup stretch->buster transition
