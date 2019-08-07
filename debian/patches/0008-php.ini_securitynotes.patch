@@ -6,11 +6,9 @@ Subject: php.ini_securitynotes
  php.ini-development | 6 ++++++
  1 file changed, 6 insertions(+)
 
-diff --git a/php.ini-development b/php.ini-development
-index 444590a..28b44ed 100644
 --- a/php.ini-development
 +++ b/php.ini-development
-@@ -297,6 +297,12 @@ serialize_precision = -1
+@@ -297,6 +297,12 @@
  ; or per-virtualhost web server configuration file.
  ; Note: disables the realpath cache
  ; http://php.net/open-basedir

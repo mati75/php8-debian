@@ -9,11 +9,9 @@ Subject: temporary-path-fixes-for-multiarch
  ext/pdo_dblib/config.m4 |  2 +-
  4 files changed, 14 insertions(+), 14 deletions(-)
 
-diff --git a/ext/dba/config.m4 b/ext/dba/config.m4
-index 51bdd84..f4c1ac9 100644
 --- a/ext/dba/config.m4
 +++ b/ext/dba/config.m4
-@@ -298,7 +298,7 @@ AC_DEFUN([PHP_DBA_DB_CHECK],[
+@@ -298,7 +298,7 @@
      AC_MSG_ERROR([DBA: Could not find necessary header file(s).])
    fi
    for LIB in $2; do
@@ -22,11 +20,9 @@ index 51bdd84..f4c1ac9 100644
        lib_found="";
        PHP_TEMP_LDFLAGS(-L$THIS_PREFIX/$PHP_LIBDIR, -l$LIB,[
          AC_LINK_IFELSE([AC_LANG_PROGRAM([[
-diff --git a/ext/gmp/config.m4 b/ext/gmp/config.m4
-index 622215f..6478ec3 100644
 --- a/ext/gmp/config.m4
 +++ b/ext/gmp/config.m4
-@@ -9,6 +9,7 @@ if test "$PHP_GMP" != "no"; then
+@@ -9,6 +9,7 @@
  
    for i in $PHP_GMP /usr/local /usr; do
      test -f $i/include/gmp.h && GMP_DIR=$i && break
@@ -34,7 +30,7 @@ index 622215f..6478ec3 100644
      test -f $i/include/$MACHINE_INCLUDES/gmp.h && GMP_DIR=$i && break
    done
  
-@@ -25,6 +26,7 @@ if test "$PHP_GMP" != "no"; then
+@@ -25,6 +26,7 @@
  
    PHP_ADD_LIBRARY_WITH_PATH(gmp, $GMP_DIR/$PHP_LIBDIR, GMP_SHARED_LIBADD)
    PHP_ADD_INCLUDE($GMP_DIR/include)
@@ -42,11 +38,9 @@ index 622215f..6478ec3 100644
    PHP_INSTALL_HEADERS([ext/gmp/php_gmp_int.h])
  
    PHP_NEW_EXTENSION(gmp, gmp.c, $ext_shared,, -DZEND_ENABLE_STATIC_TSRMLS_CACHE=1)
-diff --git a/ext/ldap/config.m4 b/ext/ldap/config.m4
-index fff818b..a5aab49 100644
 --- a/ext/ldap/config.m4
 +++ b/ext/ldap/config.m4
-@@ -79,16 +79,14 @@ if test "$PHP_LDAP" != "no"; then
+@@ -79,16 +79,14 @@
      LDAP_PTHREAD=
    fi
  
@@ -66,7 +60,7 @@ index fff818b..a5aab49 100644
      if test -n "$LDAP_PTHREAD"; then
        PHP_ADD_LIBRARY($LDAP_PTHREAD)
      fi
-@@ -101,7 +99,7 @@ if test "$PHP_LDAP" != "no"; then
+@@ -101,7 +99,7 @@
      PHP_ADD_LIBRARY_WITH_PATH(ssl3, $LDAP_LIBDIR, LDAP_SHARED_LIBADD)
      AC_DEFINE(HAVE_NSLDAP,1,[ ])
  
@@ -75,7 +69,7 @@ index fff818b..a5aab49 100644
      if test -n "$LDAP_PTHREAD"; then
        PHP_ADD_LIBRARY($LDAP_PTHREAD)
      fi
-@@ -111,35 +109,35 @@ if test "$PHP_LDAP" != "no"; then
+@@ -111,35 +109,35 @@
      PHP_ADD_LIBRARY_WITH_PATH(ldapssl41, $LDAP_LIBDIR, LDAP_SHARED_LIBADD)
      AC_DEFINE(HAVE_NSLDAP,1,[ ])
  
@@ -117,11 +111,9 @@ index fff818b..a5aab49 100644
       PHP_ADD_LIBRARY_WITH_PATH(clntsh, $LDAP_LIBDIR, LDAP_SHARED_LIBADD)
       AC_DEFINE(HAVE_ORALDAP,1,[ ])
       AC_DEFINE(HAVE_ORALDAP_10,1,[ ])
-diff --git a/ext/pdo_dblib/config.m4 b/ext/pdo_dblib/config.m4
-index 33d80ac..2d885f3 100644
 --- a/ext/pdo_dblib/config.m4
 +++ b/ext/pdo_dblib/config.m4
-@@ -44,7 +44,7 @@ if test "$PHP_PDO_DBLIB" != "no"; then
+@@ -44,7 +44,7 @@
      PHP_LIBDIR=lib
    fi
  

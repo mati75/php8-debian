@@ -6,11 +6,9 @@ Subject: Fix ZEND_MM_ALIGNMENT on m64k
  Zend/Zend.m4 | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/Zend/Zend.m4 b/Zend/Zend.m4
-index 0c6014b..911403f 100644
 --- a/Zend/Zend.m4
 +++ b/Zend/Zend.m4
-@@ -280,7 +280,7 @@ typedef union _mm_align_test {
+@@ -271,7 +271,7 @@
  
  int main()
  {
@@ -19,7 +17,7 @@ index 0c6014b..911403f 100644
    int zeros = 0;
    FILE *fp;
  
-@@ -290,7 +290,7 @@ int main()
+@@ -281,7 +281,7 @@
    }
  
    fp = fopen("conftest.zend", "w");

@@ -3,7 +3,6 @@
 0003-libtool2.2.patch
 0004-php-5.4.9-phpinfo.patch
 0005-extension_api.patch
-0006-recode_is_shared.patch
 0007-proc_open.patch
 0008-php.ini_securitynotes.patch
 0009-php-5.4.7-libdb.patch
