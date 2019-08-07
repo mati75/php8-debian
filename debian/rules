@@ -193,12 +193,12 @@ COMMON_CONFIG := \
 		--with-layout=GNU \
 		--without-pear \
 		--enable-filter \
-		--with-openssl=yes \
+		--with-openssl \
 		--with-password-argon2=/usr \
-		--with-pcre-regex=/usr \
+		--with-external-pcre \
 		--enable-hash \
 		  --with-mhash=/usr \
-		--enable-libxml \
+		--with-libxml \
 		--enable-session \
 		--with-sodium \
 		--with-system-tzdata \
