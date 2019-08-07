@@ -1,3 +1,10 @@
+php7.3 (7.3.8-1) unstable; urgency=medium
+
+  * New upstream version 7.3.8
+  * Rebase patches for PHP 7.3.8
+
+ -- Ondřej Surý <ondrej@sury.org>  Wed, 07 Aug 2019 11:50:45 +0200
+
 php7.3 (7.3.7-2) unstable; urgency=medium
 
   * Add patch that reverts the break in symfony framework
