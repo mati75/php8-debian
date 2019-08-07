@@ -10,8 +10,10 @@ php7.4 (7.4.0~beta1-1) experimental; urgency=medium
   * The configure options to enable GD extension has changed to --enable-gd and --with-external-gd
   * Regenerated d/control
   * Update the configure options according to UPGRADING file (mostly pkg-config related changes)
+  * Cleanup the missing documentation
+  * Update phpapi to 20190529
 
- -- Ondřej Surý <ondrej@sury.org>  Wed, 07 Aug 2019 15:55:38 +0200
+ -- Ondřej Surý <ondrej@sury.org>  Wed, 07 Aug 2019 17:47:41 +0200
 
 php7.4 (7.4.0~alpha2-1) experimental; urgency=low
 
