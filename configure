@@ -3663,7 +3663,7 @@ ac_config_headers="$ac_config_headers main/php_config.h"
 
 PHP_MAJOR_VERSION=7
 PHP_MINOR_VERSION=3
-PHP_RELEASE_VERSION=7
+PHP_RELEASE_VERSION=8
 PHP_EXTRA_VERSION=""
 PHP_VERSION="$PHP_MAJOR_VERSION.$PHP_MINOR_VERSION.$PHP_RELEASE_VERSION$PHP_EXTRA_VERSION"
 PHP_VERSION_ID=`expr $PHP_MAJOR_VERSION \* 10000 + $PHP_MINOR_VERSION \* 100 + $PHP_RELEASE_VERSION`
@@ -19566,7 +19566,7 @@ $as_echo "$PCRE2_VER" >&6; }
         { $as_echo "$as_me:${as_lineno-$LINENO}: checking for PCRE2 10.30 or greater" >&5
 $as_echo_n "checking for PCRE2 10.30 or greater... " >&6; }
         PCRE2_VER=`$PCRE2_CONF --version`
-        if test "`echo $PCRE2_VER | sed 's,\.,,g'`" -lt 1030; then
+        if test "`echo $PCRE2_VER | $SED 's/\([0-9]*\)\.\([0-9]*\).*/\1\2/g'`" -lt "1030"; then
           as_fn_error $? "PCRE2 version 10.30 or later is required to compile php with PCRE2 support" "$LINENO" 5
         else
           { $as_echo "$as_me:${as_lineno-$LINENO}: result: $PCRE2_VER" >&5

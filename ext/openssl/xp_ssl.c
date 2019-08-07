@@ -430,6 +430,8 @@ static zend_bool php_openssl_matches_san_list(X509 *peer, const char *subject_na
 
 			if (php_openssl_matches_wildcard_name(subject_name, (const char *)cert_name)) {
 				OPENSSL_free(cert_name);
+				sk_GENERAL_NAME_pop_free(alt_names, GENERAL_NAME_free);
+
 				return 1;
 			}
 			OPENSSL_free(cert_name);
@@ -442,6 +444,8 @@ static zend_bool php_openssl_matches_san_list(X509 *peer, const char *subject_na
 					san->d.iPAddress->data[3]
 				);
 				if (strcasecmp(subject_name, (const char*)ipbuffer) == 0) {
+					sk_GENERAL_NAME_pop_free(alt_names, GENERAL_NAME_free);
+
 					return 1;
 				}
 			}
@@ -451,6 +455,8 @@ static zend_bool php_openssl_matches_san_list(X509 *peer, const char *subject_na
 			 */
 		}
 	}
+
+	sk_GENERAL_NAME_pop_free(alt_names, GENERAL_NAME_free);
 
 	return 0;
 }
@@ -825,6 +831,7 @@ static long php_openssl_load_stream_cafile(X509_STORE *cert_store, const char *c
 		buffer_active = 0;
 		if (cert && X509_STORE_add_cert(cert_store, cert)) {
 			++certs_added;
+			X509_free(cert);
 		}
 		goto cert_start;
 	}
@@ -2315,7 +2322,8 @@ static inline int php_openssl_tcp_sockop_accept(php_stream *stream, php_openssl_
 
 	xparam->outputs.client = NULL;
 
-	if ((tmpzval = php_stream_context_get_option(PHP_STREAM_CONTEXT(stream), "socket", "tcp_nodelay")) != NULL &&
+	if (PHP_STREAM_CONTEXT(stream) &&
+		(tmpzval = php_stream_context_get_option(PHP_STREAM_CONTEXT(stream), "socket", "tcp_nodelay")) != NULL &&
 		zend_is_true(tmpzval)) {
 		nodelay = 1;
 	}
