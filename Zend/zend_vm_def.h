@@ -1000,8 +1000,10 @@ ZEND_VM_COLD_CONST_HANDLER(13, ZEND_BW_NOT, CONST|TMPVAR|CV, ANY)
 	}
 
 	SAVE_OPLINE();
-	bitwise_not_function(EX_VAR(opline->result.var),
-		GET_OP1_ZVAL_PTR(BP_VAR_R));
+	if (OP1_TYPE == IS_CV && UNEXPECTED(Z_TYPE_P(op1) == IS_UNDEF)) {
+		op1 = ZVAL_UNDEFINED_OP1();
+	}
+	bitwise_not_function(EX_VAR(opline->result.var), op1);
 	FREE_OP1();
 	ZEND_VM_NEXT_OPCODE_CHECK_EXCEPTION();
 }
@@ -5099,7 +5101,7 @@ ZEND_VM_C_LABEL(send_array):
 		ht = Z_ARRVAL_P(args);
 		if (OP2_TYPE != IS_UNUSED) {
 			zend_free_op free_op2;
-			zval *op2 = GET_OP2_ZVAL_PTR_DEREF(BP_VAR_R);
+			zval *op2 = GET_OP2_ZVAL_PTR(BP_VAR_R);
 			uint32_t skip = opline->extended_value;
 			uint32_t count = zend_hash_num_elements(ht);
 			zend_long len = zval_get_long(op2);
@@ -5180,15 +5182,14 @@ ZEND_VM_HANDLER(120, ZEND_SEND_USER, CONST|TMP|VAR|CV, NUM)
 	zend_free_op free_op1;
 
 	SAVE_OPLINE();
-	arg = GET_OP1_ZVAL_PTR_DEREF(BP_VAR_R);
-	param = ZEND_CALL_VAR(EX(call), opline->result.var);
 
 	if (UNEXPECTED(ARG_MUST_BE_SENT_BY_REF(EX(call)->func, opline->op2.num))) {
 		zend_param_must_be_ref(EX(call)->func, opline->op2.num);
 	}
 
+	arg = GET_OP1_ZVAL_PTR_DEREF(BP_VAR_R);
+	param = ZEND_CALL_VAR(EX(call), opline->result.var);
 	ZVAL_COPY(param, arg);
-
 	FREE_OP1();
 	ZEND_VM_NEXT_OPCODE_CHECK_EXCEPTION();
 }
@@ -8584,7 +8585,7 @@ ZEND_VM_COLD_CONSTCONST_HANDLER(189, ZEND_IN_ARRAY, CONST|TMP|VAR|CV, CONST, NUM
 	ZEND_VM_NEXT_OPCODE_CHECK_EXCEPTION();
 }
 
-ZEND_VM_COLD_CONST_HANDLER(190, ZEND_COUNT, CONST|TMP|VAR|CV, UNUSED)
+ZEND_VM_COLD_CONST_HANDLER(190, ZEND_COUNT, CONST|TMPVAR|CV, UNUSED)
 {
 	USE_OPLINE
 	zend_free_op free_op1;
@@ -8592,8 +8593,8 @@ ZEND_VM_COLD_CONST_HANDLER(190, ZEND_COUNT, CONST|TMP|VAR|CV, UNUSED)
 	zend_long count;
 
 	SAVE_OPLINE();
-	op1 = GET_OP1_ZVAL_PTR_DEREF(BP_VAR_R);
-	do {
+	op1 = GET_OP1_ZVAL_PTR_UNDEF(BP_VAR_R);
+	while (1) {
 		if (Z_TYPE_P(op1) == IS_ARRAY) {
 			count = zend_array_count(Z_ARRVAL_P(op1));
 			break;
@@ -8617,20 +8618,27 @@ ZEND_VM_COLD_CONST_HANDLER(190, ZEND_COUNT, CONST|TMP|VAR|CV, UNUSED)
 
 			/* If There's no handler and it doesn't implement Countable then add a warning */
 			count = 1;
-		} else if (Z_TYPE_P(op1) == IS_NULL) {
+		} else if ((OP1_TYPE & (IS_VAR|IS_CV)) != 0 && Z_TYPE_P(op1) == IS_REFERENCE) {
+			op1 = Z_REFVAL_P(op1);
+			continue;
+		} else if (Z_TYPE_P(op1) <= IS_NULL) {
+			if (OP1_TYPE == IS_CV && UNEXPECTED(Z_TYPE_P(op1) == IS_UNDEF)) {
+				ZVAL_UNDEFINED_OP1();
+			}
 			count = 0;
 		} else {
 			count = 1;
 		}
 		zend_error(E_WARNING, "%s(): Parameter must be an array or an object that implements Countable", opline->extended_value ? "sizeof" : "count");
-	} while (0);
+		break;
+	}
 
 	ZVAL_LONG(EX_VAR(opline->result.var), count);
 	FREE_OP1();
 	ZEND_VM_NEXT_OPCODE_CHECK_EXCEPTION();
 }
 
-ZEND_VM_COLD_CONST_HANDLER(191, ZEND_GET_CLASS, UNUSED|CONST|TMP|VAR|CV, UNUSED)
+ZEND_VM_COLD_CONST_HANDLER(191, ZEND_GET_CLASS, UNUSED|CONST|TMPVAR|CV, UNUSED)
 {
 	USE_OPLINE
 
@@ -8649,12 +8657,21 @@ ZEND_VM_COLD_CONST_HANDLER(191, ZEND_GET_CLASS, UNUSED|CONST|TMP|VAR|CV, UNUSED)
 		zval *op1;
 
 		SAVE_OPLINE();
-		op1 = GET_OP1_ZVAL_PTR_DEREF(BP_VAR_R);
-		if (Z_TYPE_P(op1) == IS_OBJECT) {
-			ZVAL_STR_COPY(EX_VAR(opline->result.var), Z_OBJCE_P(op1)->name);
-		} else {
-			zend_error(E_WARNING, "get_class() expects parameter 1 to be object, %s given", zend_get_type_by_const(Z_TYPE_P(op1)));
-			ZVAL_FALSE(EX_VAR(opline->result.var));
+		op1 = GET_OP1_ZVAL_PTR_UNDEF(BP_VAR_R);
+		while (1) {
+			if (Z_TYPE_P(op1) == IS_OBJECT) {
+				ZVAL_STR_COPY(EX_VAR(opline->result.var), Z_OBJCE_P(op1)->name);
+			} else if ((OP1_TYPE & (IS_VAR|IS_CV)) != 0 && Z_TYPE_P(op1) == IS_REFERENCE) {
+				op1 = Z_REFVAL_P(op1);
+				continue;
+			} else {
+				if (OP1_TYPE == IS_CV && UNEXPECTED(Z_TYPE_P(op1) == IS_UNDEF)) {
+					ZVAL_UNDEFINED_OP1();
+				}
+				zend_error(E_WARNING, "get_class() expects parameter 1 to be object, %s given", zend_get_type_by_const(Z_TYPE_P(op1)));
+				ZVAL_FALSE(EX_VAR(opline->result.var));
+			}
+			break;
 		}
 		FREE_OP1();
 		ZEND_VM_NEXT_OPCODE_CHECK_EXCEPTION();
