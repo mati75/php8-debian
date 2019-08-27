@@ -666,8 +666,8 @@ ZEND_BEGIN_ARG_INFO(arginfo_imagecopy, 0)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO(arginfo_imagecopymerge, 0)
-	ZEND_ARG_INFO(0, src_im)
 	ZEND_ARG_INFO(0, dst_im)
+	ZEND_ARG_INFO(0, src_im)
 	ZEND_ARG_INFO(0, dst_x)
 	ZEND_ARG_INFO(0, dst_y)
 	ZEND_ARG_INFO(0, src_x)
@@ -678,8 +678,8 @@ ZEND_BEGIN_ARG_INFO(arginfo_imagecopymerge, 0)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO(arginfo_imagecopymergegray, 0)
-	ZEND_ARG_INFO(0, src_im)
 	ZEND_ARG_INFO(0, dst_im)
+	ZEND_ARG_INFO(0, src_im)
 	ZEND_ARG_INFO(0, dst_x)
 	ZEND_ARG_INFO(0, dst_y)
 	ZEND_ARG_INFO(0, src_x)
@@ -1836,8 +1836,8 @@ PHP_FUNCTION(imagelayereffect)
 }
 /* }}} */
 
-#define CHECK_RGB_RANGE(component, name) \
-	if (component < 0 || component > 255) { \
+#define CHECK_RGBA_RANGE(component, name) \
+	if (component < 0 || component > gd##name##Max) { \
 		php_error_docref(NULL, E_WARNING, #name " component is out of range"); \
 		RETURN_FALSE; \
 	}
@@ -1859,9 +1859,10 @@ PHP_FUNCTION(imagecolorallocatealpha)
 		RETURN_FALSE;
 	}
 
-	CHECK_RGB_RANGE(red, Red);
-	CHECK_RGB_RANGE(green, Green);
-	CHECK_RGB_RANGE(blue, Blue);
+	CHECK_RGBA_RANGE(red, Red);
+	CHECK_RGBA_RANGE(green, Green);
+	CHECK_RGBA_RANGE(blue, Blue);
+	CHECK_RGBA_RANGE(alpha, Alpha);
 
 	ct = gdImageColorAllocateAlpha(im, red, green, blue, alpha);
 	if (ct < 0) {
@@ -1887,6 +1888,11 @@ PHP_FUNCTION(imagecolorresolvealpha)
 		RETURN_FALSE;
 	}
 
+	CHECK_RGBA_RANGE(red, Red);
+	CHECK_RGBA_RANGE(green, Green);
+	CHECK_RGBA_RANGE(blue, Blue);
+	CHECK_RGBA_RANGE(alpha, Alpha);
+
 	RETURN_LONG(gdImageColorResolveAlpha(im, red, green, blue, alpha));
 }
 /* }}} */
@@ -1907,6 +1913,11 @@ PHP_FUNCTION(imagecolorclosestalpha)
 		RETURN_FALSE;
 	}
 
+	CHECK_RGBA_RANGE(red, Red);
+	CHECK_RGBA_RANGE(green, Green);
+	CHECK_RGBA_RANGE(blue, Blue);
+	CHECK_RGBA_RANGE(alpha, Alpha);
+
 	RETURN_LONG(gdImageColorClosestAlpha(im, red, green, blue, alpha));
 }
 /* }}} */
@@ -1926,6 +1937,11 @@ PHP_FUNCTION(imagecolorexactalpha)
 	if ((im = (gdImagePtr)zend_fetch_resource(Z_RES_P(IM), "Image", le_gd)) == NULL) {
 		RETURN_FALSE;
 	}
+
+	CHECK_RGBA_RANGE(red, Red);
+	CHECK_RGBA_RANGE(green, Green);
+	CHECK_RGBA_RANGE(blue, Blue);
+	CHECK_RGBA_RANGE(alpha, Alpha);
 
 	RETURN_LONG(gdImageColorExactAlpha(im, red, green, blue, alpha));
 }
@@ -2868,9 +2884,9 @@ PHP_FUNCTION(imagecolorallocate)
 		RETURN_FALSE;
 	}
 
-	CHECK_RGB_RANGE(red, Red);
-	CHECK_RGB_RANGE(green, Green);
-	CHECK_RGB_RANGE(blue, Blue);
+	CHECK_RGBA_RANGE(red, Red);
+	CHECK_RGBA_RANGE(green, Green);
+	CHECK_RGBA_RANGE(blue, Blue);
 
 	ct = gdImageColorAllocate(im, red, green, blue);
 	if (ct < 0) {
@@ -2955,6 +2971,10 @@ PHP_FUNCTION(imagecolorclosest)
 		RETURN_FALSE;
 	}
 
+	CHECK_RGBA_RANGE(red, Red);
+	CHECK_RGBA_RANGE(green, Green);
+	CHECK_RGBA_RANGE(blue, Blue);
+
 	RETURN_LONG(gdImageColorClosest(im, red, green, blue));
 }
 /* }}} */
@@ -2974,6 +2994,10 @@ PHP_FUNCTION(imagecolorclosesthwb)
 	if ((im = (gdImagePtr)zend_fetch_resource(Z_RES_P(IM), "Image", le_gd)) == NULL) {
 		RETURN_FALSE;
 	}
+
+	CHECK_RGBA_RANGE(red, Red);
+	CHECK_RGBA_RANGE(green, Green);
+	CHECK_RGBA_RANGE(blue, Blue);
 
 	RETURN_LONG(gdImageColorClosestHWB(im, red, green, blue));
 }
@@ -3029,6 +3053,10 @@ PHP_FUNCTION(imagecolorresolve)
 		RETURN_FALSE;
 	}
 
+	CHECK_RGBA_RANGE(red, Red);
+	CHECK_RGBA_RANGE(green, Green);
+	CHECK_RGBA_RANGE(blue, Blue);
+
 	RETURN_LONG(gdImageColorResolve(im, red, green, blue));
 }
 /* }}} */
@@ -3048,6 +3076,10 @@ PHP_FUNCTION(imagecolorexact)
 	if ((im = (gdImagePtr)zend_fetch_resource(Z_RES_P(IM), "Image", le_gd)) == NULL) {
 		RETURN_FALSE;
 	}
+
+	CHECK_RGBA_RANGE(red, Red);
+	CHECK_RGBA_RANGE(green, Green);
+	CHECK_RGBA_RANGE(blue, Blue);
 
 	RETURN_LONG(gdImageColorExact(im, red, green, blue));
 }
@@ -3069,6 +3101,11 @@ PHP_FUNCTION(imagecolorset)
 	if ((im = (gdImagePtr)zend_fetch_resource(Z_RES_P(IM), "Image", le_gd)) == NULL) {
 		RETURN_FALSE;
 	}
+
+	CHECK_RGBA_RANGE(red, Red);
+	CHECK_RGBA_RANGE(green, Green);
+	CHECK_RGBA_RANGE(blue, Blue);
+	CHECK_RGBA_RANGE(alpha, Alpha);
 
 	col = color;
 
@@ -3774,7 +3811,7 @@ PHP_FUNCTION(imagecopy)
 }
 /* }}} */
 
-/* {{{ proto bool imagecopymerge(resource src_im, resource dst_im, int dst_x, int dst_y, int src_x, int src_y, int src_w, int src_h, int pct)
+/* {{{ proto bool imagecopymerge(resource dst_im, resource src_im, int dst_x, int dst_y, int src_x, int src_y, int src_w, int src_h, int pct)
    Merge one part of an image with another */
 PHP_FUNCTION(imagecopymerge)
 {
@@ -3808,7 +3845,7 @@ PHP_FUNCTION(imagecopymerge)
 }
 /* }}} */
 
-/* {{{ proto bool imagecopymergegray(resource src_im, resource dst_im, int dst_x, int dst_y, int src_x, int src_y, int src_w, int src_h, int pct)
+/* {{{ proto bool imagecopymergegray(resource dst_im, resource src_im, int dst_x, int dst_y, int src_x, int src_y, int src_w, int src_h, int pct)
    Merge one part of an image with another */
 PHP_FUNCTION(imagecopymergegray)
 {

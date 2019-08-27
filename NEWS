@@ -1,5 +1,36 @@
 PHP                                                                        NEWS
 |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+22 Aug 2019, PHP 7.4.0beta4
+
+- Core:
+  . Fixed bug #78220 (Can't access OneDrive folder). (cmb, ab)
+  . Fixed bug #78396 (Second file_put_contents in Shutdown hangs script).
+    (Nikita)
+  . Fixed bug #78406 (Broken file includes with user-defined stream filters).
+    (Nikita)
+  . Fixed bug #72530 (Use After Free in GC with Certain Destructors). (Nikita)
+  . Fixed bug #78386 (fstat mode has unexpected value on PHP 7.4). (cmb)
+
+- Date:
+  . Fixed bug #78383 (Casting a DateTime to array no longer returns its
+    properties). (Nikita)
+
+- MySQLnd:
+  . Fixed connect_attr issues and added the _server_host connection attribute.
+    (Qianqian Bu)
+
+- OpenSSL:
+  . Fixed bug #78391 (Assertion failure in openssl_random_pseudo_bytes).
+    (Nikita)
+
+- Reflection:
+  . Fixed bug #78410 (Cannot "manually" unserialize class that is final and
+    extends an internal one). (Nikita)
+
+- SPL:
+  . Fixed bug #78409 (Segfault when creating instance of ArrayIterator without
+    constructor). (Nikita)
+
 08 Aug 2019, PHP 7.4.0beta2
 
 - Core:
@@ -8,6 +39,7 @@ PHP                                                                        NEWS
   . Fixed bug #78344 (Segmentation fault on zend_check_protected). (Nikita)
   . Fixed bug #78356 (Array returned from ArrayAccess is incorrectly unpacked
     as argument). (Nikita)
+  . Fixed bug #78379 (Cast to object confuses GC, causes crash). (Dmitry)
 
 - Exif:
   . Fixed bug #78333 (Exif crash (bus error) due to wrong alignment and
