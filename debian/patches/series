@@ -1,6 +1,5 @@
 0001-libtool_fixes.patch
 0002-debian_quirks.patch
-0003-libtool2.2.patch
 0004-php-5.4.9-phpinfo.patch
 0005-extension_api.patch
 0006-proc_open.patch
