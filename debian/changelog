@@ -1,3 +1,10 @@
+php7.4 (7.4.0~beta4-1) experimental; urgency=medium
+
+  * Remove 0003-libtool2.2.patch, it's no longer needed [GL #1236]
+  * New upstream version 7.4.0~beta4
+
+ -- Ondřej Surý <ondrej@sury.org>  Tue, 27 Aug 2019 15:22:26 +0200
+
 php7.4 (7.4.0~beta2-1) experimental; urgency=medium
 
   * New upstream version 7.4.0~beta2
