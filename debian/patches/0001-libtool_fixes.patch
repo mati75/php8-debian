@@ -7,7 +7,7 @@ Subject: libtool_fixes
  1 file changed, 2 deletions(-)
 
 diff --git a/configure.ac b/configure.ac
-index bb8de6d..b7224d4 100644
+index de22482..6649ed3 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -1459,8 +1459,6 @@ AC_PROVIDE_IFELSE([PHP_REQUIRE_CXX], [], [
