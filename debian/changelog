@@ -1,3 +1,10 @@
+php7.4 (7.4.0~beta4-2) experimental; urgency=medium
+
+  * Enable FFI experimental extension
+  * Add libffi to B-D
+
+ -- Ondřej Surý <ondrej@sury.org>  Wed, 28 Aug 2019 10:50:48 +0200
+
 php7.4 (7.4.0~beta4-1) experimental; urgency=medium
 
   * Remove 0003-libtool2.2.patch, it's no longer needed [GL #1236]
