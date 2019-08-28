@@ -11,7 +11,7 @@ Restrictions: needs-root
 Tests: mod-php
 Depends: apache2,
          libapache2-mod-php7.4,
-         wget
+          wget
 Restrictions: needs-root
 
 Tests: fpm
