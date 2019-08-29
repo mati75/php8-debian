@@ -91,3 +91,4 @@
 0091-Fix-bug-78222-heap-buffer-overflow-on-exif_scan_thum.patch
 0092-Fix-bug-78256-heap-buffer-overflow-on-exif_process_u.patch
 0093-Fix-77919-Potential-UAF-in-Phar-RSHUTDOWN.patch
+0094-Make-use-of-pkg-config-for-libxml2.patch
