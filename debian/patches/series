@@ -84,3 +84,13 @@
 0089-Fix-bug-78256-heap-buffer-overflow-on-exif_process_u.patch
 0090-Fix-77919-Potential-UAF-in-Phar-RSHUTDOWN.patch
 0091-CS.patch
+0092-Fix-CVE-2019-13224-don-t-allow-different-encodings-f.patch
+0093-Fix-75457-heap-use-after-free-in-php7.0.25.patch
+0094-NEWS.patch
+0095-relax-test-offset-may-be-different-on-various-system.patch
+0096-Fix-Opcache-test-fails-regarding-to-AppVeyor-image-u.patch
+0097-Fixed-test-on-32-bit-systems.patch
+0098-Remove-unstable-dns-tests.patch
+0099-Prevent-test-case-failure.patch
+0100-Fix-module-name-in-test-cases.patch
+0101-Fix-test-expectations-to-match-the-implementation.patch
