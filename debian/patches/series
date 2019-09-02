@@ -92,3 +92,12 @@
 0092-Fix-bug-78256-heap-buffer-overflow-on-exif_process_u.patch
 0093-Fix-77919-Potential-UAF-in-Phar-RSHUTDOWN.patch
 0094-Make-use-of-pkg-config-for-libxml2.patch
+0095-Fix-75457-heap-use-after-free-in-php7.0.25.patch
+0096-Fix-CVE-2019-13224-don-t-allow-different-encodings-f.patch
+0097-NEWS.patch
+0098-relax-test-offset-may-be-different-on-various-system.patch
+0099-Fix-erroneous-test-expectation.patch
+0100-Fix-getColumnMeta-test.patch
+0101-test-fixes.patch
+0102-Fixed-test-on-32-bit-systems.patch
+0103-Prevent-test-case-failure.patch
