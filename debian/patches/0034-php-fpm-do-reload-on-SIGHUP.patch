@@ -9,10 +9,10 @@ Subject: php-fpm-do-reload-on-SIGHUP
  3 files changed, 9 insertions(+), 1 deletion(-)
 
 diff --git a/sapi/fpm/fpm/fpm_events.c b/sapi/fpm/fpm/fpm_events.c
-index 1750fab..8c5d4f1 100644
+index 81db9f8..83637d9 100644
 --- a/sapi/fpm/fpm/fpm_events.c
 +++ b/sapi/fpm/fpm/fpm_events.c
-@@ -111,6 +111,11 @@ static void fpm_got_signal(struct fpm_event_s *ev, short which, void *arg) /* {{
+@@ -124,6 +124,11 @@ static void fpm_got_signal(struct fpm_event_s *ev, short which, void *arg) /* {{
  				zlog(ZLOG_NOTICE, "Reloading in progress ...");
  				fpm_pctl(FPM_PCTL_STATE_RELOADING, FPM_PCTL_ACTION_SET);
  				break;
