@@ -3,9 +3,59 @@ Date: Sat, 2 May 2015 10:26:50 +0200
 Subject: libtool_fixes
 
 ---
- TSRM/configure.ac | 3 ---
- configure.ac      | 2 --
- 2 files changed, 5 deletions(-)
+ TSRM/configure.ac                                  |  3 --
+ configure.ac                                       |  2 --
+ debian/patches/0001-libtool_fixes.patch            |  8 ++---
+ debian/patches/0002-static_openssl.patch           |  4 +--
+ debian/patches/0003-debian_quirks.patch            | 34 ++++++----------------
+ debian/patches/0004-libtool2.2.patch               |  6 ++--
+ debian/patches/0005-we_WANT_libtool.patch          |  4 +--
+ debian/patches/0006-php-5.4.9-phpinfo.patch        |  8 ++---
+ debian/patches/0007-extension_api.patch            | 14 ++++-----
+ debian/patches/0008-no_apache_installed.patch      |  4 +--
+ debian/patches/0009-recode_is_shared.patch         |  4 +--
+ debian/patches/0010-proc_open.patch                |  2 --
+ debian/patches/0011-php.ini_securitynotes.patch    |  4 +--
+ debian/patches/0012-php-5.4.7-libdb.patch          |  8 ++---
+ ...t-for-use-of-the-system-timezone-database.patch | 20 +++++--------
+ debian/patches/0014-force_libmysqlclient_r.patch   |  8 ++---
+ .../0015-strcmp_null-OnUpdateErrorLog.patch        |  3 --
+ debian/patches/0016-dont-gitclean-in-build.patch   |  4 +--
+ debian/patches/0017-qdbm-is-usr_include_qdbm.patch |  4 +--
+ debian/patches/0018-session_save_path.patch        | 12 ++------
+ .../0019-php-fpm-man-section-and-cleanup.patch     |  6 ++--
+ debian/patches/0020-fpm-config.patch               |  2 --
+ debian/patches/0021-php-fpm-sysconfdir.patch       |  4 +--
+ debian/patches/0022-lp564920-fix-big-files.patch   |  6 ++--
+ .../0023-temporary-path-fixes-for-multiarch.patch  | 32 +++++++-------------
+ debian/patches/0024-hurd-noptrace.patch            |  4 +--
+ debian/patches/0025-php-5.3.9-mysqlnd.patch        |  8 ++---
+ debian/patches/0026-php-5.3.9-gnusrc.patch         | 24 ++-------------
+ debian/patches/0027-php-5.3.3-macropen.patch       | 12 ++------
+ debian/patches/0028-php-5.2.4-norpath.patch        |  6 ++--
+ debian/patches/0029-php-5.2.4-embed.patch          |  4 +--
+ debian/patches/0030-php-fpm-m68k.patch             |  4 +--
+ .../0031-expose_all_built_and_installed_apis.patch |  8 ++---
+ debian/patches/0032-Use-system-timezone.patch      |  4 +--
+ .../0033-zlib-largefile-function-renaming.patch    |  2 --
+ .../patches/0034-php-fpm-do-reload-on-SIGHUP.patch | 16 ++++------
+ debian/patches/0035-php-5.4.8-ldap_r.patch         |  4 +--
+ debian/patches/0036-php-5.4.9-fixheader.patch      |  4 +--
+ debian/patches/0037-php-5.6.0-noNO.patch           | 10 +++----
+ debian/patches/0038-php-5.6.0-oldpcre.patch        | 12 ++------
+ ...ck-phpdbg-to-explicitly-link-with-libedit.patch |  4 +--
+ .../0040-Fix-ZEND_MM_ALIGNMENT-on-m64k.patch       |  6 ++--
+ ...o-install-php7-module-directly-to-APXS_LI.patch |  4 +--
+ ...validation-icon-to-not-expose-the-reader-.patch |  2 --
+ ...t-INSTALL_ROOT-into-phar.phar-exec-stanza.patch |  4 +--
+ ...I-library-has-to-be-linked-as-lxmlrpc-epi.patch |  4 +--
+ ...nd-libdir-datadir-into-EXPANDED_LIBDIR-DA.patch |  4 +--
+ ...ext-date-lib-parse_tz-PATH_MAX-HURD-FTBFS.patch | 18 +++++-------
+ ...47-Use-pkg-config-for-FreeType2-detection.patch |  4 +--
+ ...048-ext-intl-Use-pkg-config-to-detect-icu.patch | 14 ++++-----
+ ...2596-add-getallheaders-apache_request_hea.patch | 23 ++++-----------
+ ...for-intl-compilation-on-older-distributio.patch |  4 +--
+ 52 files changed, 114 insertions(+), 305 deletions(-)
 
 diff --git a/TSRM/configure.ac b/TSRM/configure.ac
 index 0f6d53d..49556fe 100644
@@ -22,7 +72,7 @@ index 0f6d53d..49556fe 100644
  dnl TSRM_PTHREAD
  
 diff --git a/configure.ac b/configure.ac
-index 873854c..ce35667 100644
+index e82ab31..d387ff1 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -1432,8 +1432,6 @@ AC_PROVIDE_IFELSE([PHP_REQUIRE_CXX], [], [
@@ -34,3 +84,1690 @@ index 873854c..ce35667 100644
  dnl libtool 1.4.3 needs this.
  PHP_SET_LIBTOOL_VARIABLE([--preserve-dup-deps])
  
+diff --git a/debian/patches/0001-libtool_fixes.patch b/debian/patches/0001-libtool_fixes.patch
+index 37bc5b4..620f860 100644
+--- a/debian/patches/0001-libtool_fixes.patch
++++ b/debian/patches/0001-libtool_fixes.patch
+@@ -7,11 +7,9 @@ Subject: libtool_fixes
+  configure.ac      | 2 --
+  2 files changed, 5 deletions(-)
+ 
+-diff --git a/TSRM/configure.ac b/TSRM/configure.ac
+-index 0f6d53d..49556fe 100644
+ --- a/TSRM/configure.ac
+ +++ b/TSRM/configure.ac
+-@@ -17,9 +17,6 @@ TSRM_BASIC_CHECKS
++@@ -17,9 +17,6 @@
+  TSRM_THREADS_CHECKS
+  
+  AM_PROG_LIBTOOL
+@@ -21,11 +19,9 @@ index 0f6d53d..49556fe 100644
+  
+  dnl TSRM_PTHREAD
+  
+-diff --git a/configure.ac b/configure.ac
+-index 873854c..ce35667 100644
+ --- a/configure.ac
+ +++ b/configure.ac
+-@@ -1432,8 +1432,6 @@ AC_PROVIDE_IFELSE([PHP_REQUIRE_CXX], [], [
++@@ -1432,8 +1432,6 @@
+  ])
+  AC_PROG_LIBTOOL
+  
+diff --git a/debian/patches/0002-static_openssl.patch b/debian/patches/0002-static_openssl.patch
+index d9726af..b7a6fd2 100644
+--- a/debian/patches/0002-static_openssl.patch
++++ b/debian/patches/0002-static_openssl.patch
+@@ -6,11 +6,9 @@ Subject: static_openssl
+  acinclude.m4 | 4 +---
+  1 file changed, 1 insertion(+), 3 deletions(-)
+ 
+-diff --git a/acinclude.m4 b/acinclude.m4
+-index 15340b4..ae30eb3 100644
+ --- a/acinclude.m4
+ +++ b/acinclude.m4
+-@@ -2418,9 +2418,7 @@ AC_DEFUN([PHP_SETUP_OPENSSL],[
++@@ -2418,9 +2418,7 @@
+  
+      PHP_ADD_INCLUDE($OPENSSL_INCDIR)
+  
+diff --git a/debian/patches/0003-debian_quirks.patch b/debian/patches/0003-debian_quirks.patch
+index 242a29f..8cd06c7 100644
+--- a/debian/patches/0003-debian_quirks.patch
++++ b/debian/patches/0003-debian_quirks.patch
+@@ -13,11 +13,9 @@ Subject: debian_quirks
+  scripts/phpize.in     |  4 ++--
+  8 files changed, 22 insertions(+), 17 deletions(-)
+ 
+-diff --git a/configure.ac b/configure.ac
+-index ce35667..28a1bc6 100644
+ --- a/configure.ac
+ +++ b/configure.ac
+-@@ -1106,7 +1106,7 @@ if test "$PHP_CLI" = "no"; then
++@@ -1106,7 +1106,7 @@
+  fi
+  
+  PHP_ARG_WITH(pear, [whether to install PEAR],
+@@ -26,7 +24,7 @@ index ce35667..28a1bc6 100644
+    --without-pear          Do not install PEAR], DEFAULT, yes)
+  
+  if test "$PHP_PEAR" != "no"; then
+-@@ -1143,6 +1143,7 @@ dnl
++@@ -1143,6 +1143,7 @@
+    PHP_ADD_MAKEFILE_FRAGMENT($abs_srcdir/pear/Makefile.frag,$abs_srcdir/pear,pear)
+  fi
+  
+@@ -34,7 +32,7 @@ index ce35667..28a1bc6 100644
+  
+  dnl Configuring Zend and TSRM.
+  dnl -------------------------------------------------------------------------
+-@@ -1215,6 +1216,8 @@ dnl Build extension directory path
++@@ -1215,6 +1216,8 @@
+  
+  ZEND_MODULE_API_NO=`$EGREP '#define ZEND_MODULE_API_NO ' $srcdir/Zend/zend_modules.h|$SED 's/#define ZEND_MODULE_API_NO //'`
+  
+@@ -43,7 +41,7 @@ index ce35667..28a1bc6 100644
+  if test -z "$EXTENSION_DIR"; then
+    extbasedir=$ZEND_MODULE_API_NO
+    if test "$oldstyleextdir" = "yes"; then
+-@@ -1529,6 +1532,7 @@ $php_shtool mkdir -p scripts/man1
++@@ -1529,6 +1532,7 @@
+  ALL_OUTPUT_FILES="php7.spec main/build-defs.h \
+  scripts/phpize scripts/man1/phpize.1 \
+  scripts/php-config scripts/man1/php-config.1 \
+@@ -51,11 +49,9 @@ index ce35667..28a1bc6 100644
+  $PHP_OUTPUT_FILES"
+  
+  dnl
+-diff --git a/ext/ext_skel b/ext/ext_skel
+-index 936d128..f9b5aa3 100755
+ --- a/ext/ext_skel
+ +++ b/ext/ext_skel
+-@@ -70,7 +70,7 @@ if test -d "$extname" ; then
++@@ -70,7 +70,7 @@
+  fi
+  
+  if test -z "$skel_dir"; then
+@@ -64,11 +60,9 @@ index 936d128..f9b5aa3 100755
+  fi
+  
+  ## convert skel_dir to full path
+-diff --git a/php.ini-development b/php.ini-development
+-index 6fd4018..2cb93e1 100644
+ --- a/php.ini-development
+ +++ b/php.ini-development
+-@@ -706,7 +706,7 @@ default_charset = "UTF-8"
++@@ -706,7 +706,7 @@
+  ;;;;;;;;;;;;;;;;;;;;;;;;;
+  
+  ; UNIX: "/path1:/path2"
+@@ -77,11 +71,9 @@ index 6fd4018..2cb93e1 100644
+  ;
+  ; Windows: "\path1;\path2"
+  ;include_path = ".;c:\php\includes"
+-diff --git a/php.ini-production b/php.ini-production
+-index 91c6129..7732e1d 100644
+ --- a/php.ini-production
+ +++ b/php.ini-production
+-@@ -713,7 +713,7 @@ default_charset = "UTF-8"
++@@ -713,7 +713,7 @@
+  ;;;;;;;;;;;;;;;;;;;;;;;;;
+  
+  ; UNIX: "/path1:/path2"
+@@ -90,11 +82,9 @@ index 91c6129..7732e1d 100644
+  ;
+  ; Windows: "\path1;\path2"
+  ;include_path = ".;c:\php\includes"
+-diff --git a/sapi/cli/php.1.in b/sapi/cli/php.1.in
+-index 88a43d3..a202630 100644
+ --- a/sapi/cli/php.1.in
+ +++ b/sapi/cli/php.1.in
+-@@ -365,13 +365,14 @@ Shows configuration for extension
++@@ -365,13 +365,14 @@
+  Show configuration file names
+  .SH FILES
+  .TP 15
+@@ -114,8 +104,6 @@ index 88a43d3..a202630 100644
+  .SH EXAMPLES
+  .TP 5
+  \fI@program_prefix@php \-r 'echo "Hello World\\n";'\fP
+-diff --git a/scripts/Makefile.frag b/scripts/Makefile.frag
+-index 06be3af..ca1cd7c 100644
+ --- a/scripts/Makefile.frag
+ +++ b/scripts/Makefile.frag
+ @@ -2,8 +2,8 @@
+@@ -129,11 +117,9 @@ index 06be3af..ca1cd7c 100644
+  
+  BUILD_FILES = \
+  	scripts/phpize.m4 \
+-diff --git a/scripts/php-config.in b/scripts/php-config.in
+-index d6c62cc..fa25dc7 100644
+ --- a/scripts/php-config.in
+ +++ b/scripts/php-config.in
+-@@ -6,11 +6,11 @@ datarootdir="@datarootdir@"
++@@ -6,11 +6,11 @@
+  exec_prefix="@exec_prefix@"
+  version="@PHP_VERSION@"
+  vernum="@PHP_VERSION_ID@"
+@@ -149,8 +135,6 @@ index d6c62cc..fa25dc7 100644
+  man_dir=`eval echo @mandir@`
+  program_prefix="@program_prefix@"
+  program_suffix="@program_suffix@"
+-diff --git a/scripts/phpize.in b/scripts/phpize.in
+-index afec191..2abf0d9 100644
+ --- a/scripts/phpize.in
+ +++ b/scripts/phpize.in
+ @@ -4,8 +4,8 @@
+diff --git a/debian/patches/0004-libtool2.2.patch b/debian/patches/0004-libtool2.2.patch
+index ee7390b..989e7b9 100644
+--- a/debian/patches/0004-libtool2.2.patch
++++ b/debian/patches/0004-libtool2.2.patch
+@@ -6,11 +6,9 @@ Subject: libtool2.2
+  scripts/phpize.in | 7 +++++--
+  1 file changed, 5 insertions(+), 2 deletions(-)
+ 
+-diff --git a/scripts/phpize.in b/scripts/phpize.in
+-index 2abf0d9..e42d01a 100644
+ --- a/scripts/phpize.in
+ +++ b/scripts/phpize.in
+-@@ -9,7 +9,9 @@ includedir="$prefix/include/php/@DEBIAN_PHP_API@"
++@@ -9,7 +9,9 @@
+  builddir="`pwd`"
+  SED="@SED@"
+  
+@@ -21,7 +19,7 @@ index 2abf0d9..e42d01a 100644
+  FILES="acinclude.m4 Makefile.global config.sub config.guess ltmain.sh run-tests*.php"
+  CLEAN_FILES="$FILES *.o *.lo *.la .libs/ build/ modules/ install-sh \
+  	mkinstalldirs missing config.nice config.sub config.guess configure configure.ac \
+-@@ -145,8 +147,9 @@ phpize_copy_files()
++@@ -145,8 +147,9 @@
+    test -d build || mkdir build
+  
+    (cd "$phpdir" && cp $FILES_BUILD "$builddir"/build)
+diff --git a/debian/patches/0005-we_WANT_libtool.patch b/debian/patches/0005-we_WANT_libtool.patch
+index 59604ef..dc913d6 100644
+--- a/debian/patches/0005-we_WANT_libtool.patch
++++ b/debian/patches/0005-we_WANT_libtool.patch
+@@ -6,11 +6,9 @@ Subject: we_WANT_libtool
+  build/build2.mk | 3 ++-
+  1 file changed, 2 insertions(+), 1 deletion(-)
+ 
+-diff --git a/build/build2.mk b/build/build2.mk
+-index 1742bdf..c70ba60 100644
+ --- a/build/build2.mk
+ +++ b/build/build2.mk
+-@@ -46,7 +46,8 @@ $(TOUCH_FILES):
++@@ -46,7 +46,8 @@
+  
+  aclocal.m4: configure.ac acinclude.m4
+  	@echo rebuilding $@
+diff --git a/debian/patches/0006-php-5.4.9-phpinfo.patch b/debian/patches/0006-php-5.4.9-phpinfo.patch
+index c3e19bc..5b93850 100644
+--- a/debian/patches/0006-php-5.4.9-phpinfo.patch
++++ b/debian/patches/0006-php-5.4.9-phpinfo.patch
+@@ -10,11 +10,9 @@ The available extensions are not related to this command.
+  ext/standard/tests/general_functions/phpinfo.phpt | 1 -
+  2 files changed, 4 deletions(-)
+ 
+-diff --git a/ext/standard/info.c b/ext/standard/info.c
+-index 1b7b050..630d77a 100644
+ --- a/ext/standard/info.c
+ +++ b/ext/standard/info.c
+-@@ -837,9 +837,6 @@ PHPAPI void php_print_info(int flag)
++@@ -837,9 +837,6 @@
+  #ifdef ARCHITECTURE
+  		php_info_print_table_row(2, "Architecture", ARCHITECTURE);
+  #endif
+@@ -24,11 +22,9 @@ index 1b7b050..630d77a 100644
+  
+  		if (sapi_module.pretty_name) {
+  			php_info_print_table_row(2, "Server API", sapi_module.pretty_name );
+-diff --git a/ext/standard/tests/general_functions/phpinfo.phpt b/ext/standard/tests/general_functions/phpinfo.phpt
+-index 4b0c206..3fac823 100644
+ --- a/ext/standard/tests/general_functions/phpinfo.phpt
+ +++ b/ext/standard/tests/general_functions/phpinfo.phpt
+-@@ -20,7 +20,6 @@ PHP Version => %s
++@@ -20,7 +20,6 @@
+  
+  System => %s
+  Build Date => %s%a
+diff --git a/debian/patches/0007-extension_api.patch b/debian/patches/0007-extension_api.patch
+index cc10d00..0adfc98 100644
+--- a/debian/patches/0007-extension_api.patch
++++ b/debian/patches/0007-extension_api.patch
+@@ -7,11 +7,9 @@ Subject: extension_api
+  scripts/php-config.in | 4 ++++
+  2 files changed, 8 insertions(+), 1 deletion(-)
+ 
+-diff --git a/configure.ac b/configure.ac
+-index 28a1bc6..cc2286d 100644
+ --- a/configure.ac
+ +++ b/configure.ac
+-@@ -1218,8 +1218,10 @@ ZEND_MODULE_API_NO=`$EGREP '#define ZEND_MODULE_API_NO ' $srcdir/Zend/zend_modul
++@@ -1218,8 +1218,10 @@
+  
+  AC_SUBST(ZEND_MODULE_API_NO)
+  
+@@ -23,7 +21,7 @@ index 28a1bc6..cc2286d 100644
+    if test "$oldstyleextdir" = "yes"; then
+      if test "$PHP_DEBUG" = "1"; then
+        part1=debug
+-@@ -1357,6 +1359,7 @@ PHP_SUBST(CXX)
++@@ -1357,6 +1359,7 @@
+  PHP_SUBST(CXXFLAGS)
+  PHP_SUBST(CXXFLAGS_CLEAN)
+  PHP_SUBST_OLD(DEBUG_CFLAGS)
+@@ -31,11 +29,9 @@ index 28a1bc6..cc2286d 100644
+  PHP_SUBST_OLD(EXTENSION_DIR)
+  PHP_SUBST_OLD(EXTRA_LDFLAGS)
+  PHP_SUBST_OLD(EXTRA_LDFLAGS_PROGRAM)
+-diff --git a/scripts/php-config.in b/scripts/php-config.in
+-index fa25dc7..746a58e 100644
+ --- a/scripts/php-config.in
+ +++ b/scripts/php-config.in
+-@@ -19,6 +19,7 @@ php_cli_binary=NONE
++@@ -19,6 +19,7 @@
+  php_cgi_binary=NONE
+  configure_options="@CONFIGURE_OPTIONS@"
+  php_sapis="@PHP_INSTALLED_SAPIS@"
+@@ -43,7 +39,7 @@ index fa25dc7..746a58e 100644
+  
+  # Set php_cli_binary and php_cgi_binary if available
+  for sapi in $php_sapis; do
+-@@ -57,6 +58,8 @@ case "$1" in
++@@ -57,6 +58,8 @@
+    echo $include_dir;;
+  --php-binary)
+    echo $php_binary;;
+@@ -52,7 +48,7 @@ index fa25dc7..746a58e 100644
+  --php-sapis)
+    echo $php_sapis;;
+  --configure-options)
+-@@ -80,6 +83,7 @@ Options:
++@@ -80,6 +83,7 @@
+    --man-dir           [$man_dir]
+    --php-binary        [$php_binary]
+    --php-sapis         [$php_sapis]
+diff --git a/debian/patches/0008-no_apache_installed.patch b/debian/patches/0008-no_apache_installed.patch
+index 01d43c8..02c7812 100644
+--- a/debian/patches/0008-no_apache_installed.patch
++++ b/debian/patches/0008-no_apache_installed.patch
+@@ -6,11 +6,9 @@ Subject: no_apache_installed
+  sapi/apache2handler/config.m4 | 8 --------
+  1 file changed, 8 deletions(-)
+ 
+-diff --git a/sapi/apache2handler/config.m4 b/sapi/apache2handler/config.m4
+-index 8879140..68e456c 100644
+ --- a/sapi/apache2handler/config.m4
+ +++ b/sapi/apache2handler/config.m4
+-@@ -58,14 +58,6 @@ if test "$PHP_APXS2" != "no"; then
++@@ -58,14 +58,6 @@
+  
+    APACHE_CFLAGS="$APACHE_CPPFLAGS -I$APXS_INCLUDEDIR $APR_CFLAGS $APU_CFLAGS -DZEND_ENABLE_STATIC_TSRMLS_CACHE=1"
+  
+diff --git a/debian/patches/0009-recode_is_shared.patch b/debian/patches/0009-recode_is_shared.patch
+index d7315f8..53a0b9d 100644
+--- a/debian/patches/0009-recode_is_shared.patch
++++ b/debian/patches/0009-recode_is_shared.patch
+@@ -6,11 +6,9 @@ Subject: recode_is_shared
+  ext/recode/config9.m4 | 2 +-
+  1 file changed, 1 insertion(+), 1 deletion(-)
+ 
+-diff --git a/ext/recode/config9.m4 b/ext/recode/config9.m4
+-index 66df50e..f0a98ca 100644
+ --- a/ext/recode/config9.m4
+ +++ b/ext/recode/config9.m4
+-@@ -13,6 +13,6 @@ if test "$PHP_RECODE" != "no"; then
++@@ -13,6 +13,6 @@
+    fi
+  
+    if test -n "$recode_conflict"; then
+diff --git a/debian/patches/0010-proc_open.patch b/debian/patches/0010-proc_open.patch
+index b7a3e99..0c6815d 100644
+--- a/debian/patches/0010-proc_open.patch
++++ b/debian/patches/0010-proc_open.patch
+@@ -6,8 +6,6 @@ Subject: proc_open
+  ext/standard/proc_open.c | 2 +-
+  1 file changed, 1 insertion(+), 1 deletion(-)
+ 
+-diff --git a/ext/standard/proc_open.c b/ext/standard/proc_open.c
+-index 9aa5f74..81368fd 100644
+ --- a/ext/standard/proc_open.c
+ +++ b/ext/standard/proc_open.c
+ @@ -57,7 +57,7 @@
+diff --git a/debian/patches/0011-php.ini_securitynotes.patch b/debian/patches/0011-php.ini_securitynotes.patch
+index 02b8f40..14ba87a 100644
+--- a/debian/patches/0011-php.ini_securitynotes.patch
++++ b/debian/patches/0011-php.ini_securitynotes.patch
+@@ -6,11 +6,9 @@ Subject: php.ini_securitynotes
+  php.ini-development | 6 ++++++
+  1 file changed, 6 insertions(+)
+ 
+-diff --git a/php.ini-development b/php.ini-development
+-index 2cb93e1..c2b4771 100644
+ --- a/php.ini-development
+ +++ b/php.ini-development
+-@@ -302,6 +302,12 @@ serialize_precision = -1
++@@ -302,6 +302,12 @@
+  ; or per-virtualhost web server configuration file.
+  ; Note: disables the realpath cache
+  ; http://php.net/open-basedir
+diff --git a/debian/patches/0012-php-5.4.7-libdb.patch b/debian/patches/0012-php-5.4.7-libdb.patch
+index 50c7ffb..249dbab 100644
+--- a/debian/patches/0012-php-5.4.7-libdb.patch
++++ b/debian/patches/0012-php-5.4.7-libdb.patch
+@@ -7,11 +7,9 @@ Subject: php-5.4.7-libdb
+  ext/dba/dba.c     |  8 ++++++++
+  2 files changed, 10 insertions(+), 50 deletions(-)
+ 
+-diff --git a/ext/dba/config.m4 b/ext/dba/config.m4
+-index bc0fd55..0f270a8 100644
+ --- a/ext/dba/config.m4
+ +++ b/ext/dba/config.m4
+-@@ -346,61 +346,13 @@ if test "$PHP_DB4" != "no"; then
++@@ -346,61 +346,13 @@
+    dbdp4="/usr/local/BerkeleyDB.4."
+    dbdp5="/usr/local/BerkeleyDB.5."
+    for i in $PHP_DB4 ${dbdp5}1 ${dbdp5}0 ${dbdp4}8 ${dbdp4}7 ${dbdp4}6 ${dbdp4}5 ${dbdp4}4 ${dbdp4}3 ${dbdp4}2 ${dbdp4}1 ${dbdp}0 /usr/local /usr; do
+@@ -75,8 +73,6 @@ index bc0fd55..0f270a8 100644
+  fi
+  PHP_DBA_STD_RESULT(db4,Berkeley DB4)
+  
+-diff --git a/ext/dba/dba.c b/ext/dba/dba.c
+-index a003416..6cd3b4d 100644
+ --- a/ext/dba/dba.c
+ +++ b/ext/dba/dba.c
+ @@ -53,6 +53,10 @@
+@@ -90,7 +86,7 @@ index a003416..6cd3b4d 100644
+  /* {{{ arginfo */
+  ZEND_BEGIN_ARG_INFO_EX(arginfo_dba_popen, 0, 0, 2)
+  	ZEND_ARG_INFO(0, path)
+-@@ -558,6 +562,10 @@ PHP_MINFO_FUNCTION(dba)
++@@ -558,6 +562,10 @@
+  
+  	php_info_print_table_start();
+   	php_info_print_table_row(2, "DBA support", "enabled");
+diff --git a/debian/patches/0013-Add-support-for-use-of-the-system-timezone-database.patch b/debian/patches/0013-Add-support-for-use-of-the-system-timezone-database.patch
+index c9c7ffb..80f52f3 100644
+--- a/debian/patches/0013-Add-support-for-use-of-the-system-timezone-database.patch
++++ b/debian/patches/0013-Add-support-for-use-of-the-system-timezone-database.patch
+@@ -39,11 +39,9 @@ r1: initial revision
+  ext/date/lib/parse_tz.c | 536 +++++++++++++++++++++++++++++++++++++++++++++++-
+  2 files changed, 546 insertions(+), 3 deletions(-)
+ 
+-diff --git a/ext/date/config0.m4 b/ext/date/config0.m4
+-index e464156..00dae8b 100644
+ --- a/ext/date/config0.m4
+ +++ b/ext/date/config0.m4
+-@@ -10,6 +10,19 @@ io.h
++@@ -10,6 +10,19 @@
+  dnl Check for strtoll, atoll
+  AC_CHECK_FUNCS(strtoll atoll)
+  
+@@ -63,8 +61,6 @@ index e464156..00dae8b 100644
+  PHP_DATE_CFLAGS="-I@ext_builddir@/lib -DZEND_ENABLE_STATIC_TSRMLS_CACHE=1 -DHAVE_TIMELIB_CONFIG_H=1"
+  timelib_sources="lib/astro.c lib/dow.c lib/parse_date.c lib/parse_tz.c
+                   lib/timelib.c lib/tm2unixtime.c lib/unixtime2tm.c lib/parse_iso_intervals.c lib/interval.c"
+-diff --git a/ext/date/lib/parse_tz.c b/ext/date/lib/parse_tz.c
+-index 960e528..501b09e 100644
+ --- a/ext/date/lib/parse_tz.c
+ +++ b/ext/date/lib/parse_tz.c
+ @@ -25,8 +25,21 @@
+@@ -89,7 +85,7 @@ index 960e528..501b09e 100644
+  
+  #if (defined(__APPLE__) || defined(__APPLE_CC__)) && (defined(__BIG_ENDIAN__) || defined(__LITTLE_ENDIAN__))
+  # if defined(__LITTLE_ENDIAN__)
+-@@ -67,6 +80,11 @@ static int read_php_preamble(const unsigned char **tzf, timelib_tzinfo *tz)
++@@ -67,6 +80,11 @@
+  {
+  	uint32_t version;
+  
+@@ -101,7 +97,7 @@ index 960e528..501b09e 100644
+  	/* read ID */
+  	version = (*tzf)[3] - '0';
+  	*tzf += 4;
+-@@ -374,7 +392,429 @@ void timelib_dump_tzinfo(timelib_tzinfo *tz)
++@@ -374,7 +392,429 @@
+  	}
+  }
+  
+@@ -532,7 +528,7 @@ index 960e528..501b09e 100644
+  {
+  	int left = 0, right = tzdb->index_size - 1;
+  
+-@@ -400,9 +840,48 @@ static int seek_to_tz_position(const unsigned char **tzf, char *timezone, const
++@@ -400,9 +840,48 @@
+  	return 0;
+  }
+  
+@@ -581,7 +577,7 @@ index 960e528..501b09e 100644
+  }
+  
+  const timelib_tzdb_index_entry *timelib_timezone_identifiers_list(const timelib_tzdb *tzdb, int *count)
+-@@ -414,7 +893,30 @@ const timelib_tzdb_index_entry *timelib_timezone_identifiers_list(const timelib_
++@@ -414,7 +893,30 @@
+  int timelib_timezone_id_is_valid(char *timezone, const timelib_tzdb *tzdb)
+  {
+  	const unsigned char *tzf;
+@@ -613,7 +609,7 @@ index 960e528..501b09e 100644
+  }
+  
+  static int skip_64bit_preamble(const unsigned char **tzf, timelib_tzinfo *tz)
+-@@ -456,12 +958,14 @@ static timelib_tzinfo* timelib_tzinfo_ctor(char *name)
++@@ -456,12 +958,14 @@
+  timelib_tzinfo *timelib_parse_tzfile(char *timezone, const timelib_tzdb *tzdb, int *error_code)
+  {
+  	const unsigned char *tzf;
+@@ -629,7 +625,7 @@ index 960e528..501b09e 100644
+  		tmp = timelib_tzinfo_ctor(timezone);
+  
+  		version = read_preamble(&tzf, tmp, &type);
+-@@ -484,6 +988,29 @@ timelib_tzinfo *timelib_parse_tzfile(char *timezone, const timelib_tzdb *tzdb, i
++@@ -484,6 +988,29 @@
+  			timelib_tzinfo_dtor(tmp);
+  			return NULL;
+  		}
+@@ -659,7 +655,7 @@ index 960e528..501b09e 100644
+  		if (version == 2 || version == 3) {
+  			if (!skip_64bit_preamble(&tzf, tmp)) {
+  				/* 64 bit preamble is not in place */
+-@@ -501,6 +1028,9 @@ timelib_tzinfo *timelib_parse_tzfile(char *timezone, const timelib_tzdb *tzdb, i
++@@ -501,6 +1028,9 @@
+  		} else {
+  			set_default_location_and_comments(&tzf, tmp);
+  		}
+diff --git a/debian/patches/0014-force_libmysqlclient_r.patch b/debian/patches/0014-force_libmysqlclient_r.patch
+index df2d7a8..3ee93e2 100644
+--- a/debian/patches/0014-force_libmysqlclient_r.patch
++++ b/debian/patches/0014-force_libmysqlclient_r.patch
+@@ -7,11 +7,9 @@ Subject: force_libmysqlclient_r
+  ext/pdo_mysql/config.m4 | 2 +-
+  2 files changed, 2 insertions(+), 2 deletions(-)
+ 
+-diff --git a/ext/mysqli/config.m4 b/ext/mysqli/config.m4
+-index c5dfe5d..87dd43e 100644
+ --- a/ext/mysqli/config.m4
+ +++ b/ext/mysqli/config.m4
+-@@ -59,7 +59,7 @@ elif test "$PHP_MYSQLI" != "no"; then
++@@ -59,7 +59,7 @@
+      MYSQL_LIB_CFG='--libmysqld-libs'
+      dnl mysqlnd doesn't support embedded, so we have to add some extra stuff
+      mysqli_extra_sources="mysqli_embedded.c"
+@@ -20,11 +18,9 @@ index c5dfe5d..87dd43e 100644
+      MYSQL_LIB_CFG='--libs_r'
+      MYSQL_LIB_NAME='mysqlclient_r'
+    else
+-diff --git a/ext/pdo_mysql/config.m4 b/ext/pdo_mysql/config.m4
+-index 4991df0..7227b3a 100755
+ --- a/ext/pdo_mysql/config.m4
+ +++ b/ext/pdo_mysql/config.m4
+-@@ -67,7 +67,7 @@ if test "$PHP_PDO_MYSQL" != "no"; then
++@@ -67,7 +67,7 @@
+        if test "x$SED" = "x"; then
+          AC_PATH_PROG(SED, sed)
+        fi
+diff --git a/debian/patches/0015-strcmp_null-OnUpdateErrorLog.patch b/debian/patches/0015-strcmp_null-OnUpdateErrorLog.patch
+index 186f627..8272bf7 100644
+--- a/debian/patches/0015-strcmp_null-OnUpdateErrorLog.patch
++++ b/debian/patches/0015-strcmp_null-OnUpdateErrorLog.patch
+@@ -7,9 +7,6 @@ Subject: strcmp_null-OnUpdateErrorLog
+  1 file changed, 10 insertions(+)
+  create mode 100644 tests/func/null-new_val.phpt
+ 
+-diff --git a/tests/func/null-new_val.phpt b/tests/func/null-new_val.phpt
+-new file mode 100644
+-index 0000000..412da39
+ --- /dev/null
+ +++ b/tests/func/null-new_val.phpt
+ @@ -0,0 +1,10 @@
+diff --git a/debian/patches/0016-dont-gitclean-in-build.patch b/debian/patches/0016-dont-gitclean-in-build.patch
+index e27f6c9..32e430b 100644
+--- a/debian/patches/0016-dont-gitclean-in-build.patch
++++ b/debian/patches/0016-dont-gitclean-in-build.patch
+@@ -6,11 +6,9 @@ Subject: dont-gitclean-in-build
+  build/build.mk | 1 -
+  1 file changed, 1 deletion(-)
+ 
+-diff --git a/build/build.mk b/build/build.mk
+-index 1ce958f..b8c7492 100644
+ --- a/build/build.mk
+ +++ b/build/build.mk
+-@@ -63,6 +63,5 @@ gitclean-work:
++@@ -63,6 +63,5 @@
+  	@if (test ! -f '.git/info/exclude' || grep -s "git-ls-files" .git/info/exclude); then \
+  		(echo "Rebuild .git/info/exclude" && echo '*.o' > .git/info/exclude && git svn propget svn:ignore | grep -v config.nice >> .git/info/exclude); \
+  	fi; \
+diff --git a/debian/patches/0017-qdbm-is-usr_include_qdbm.patch b/debian/patches/0017-qdbm-is-usr_include_qdbm.patch
+index 131d35e..d410e12 100644
+--- a/debian/patches/0017-qdbm-is-usr_include_qdbm.patch
++++ b/debian/patches/0017-qdbm-is-usr_include_qdbm.patch
+@@ -6,11 +6,9 @@ Subject: qdbm-is-usr_include_qdbm
+  ext/dba/config.m4 | 4 ++++
+  1 file changed, 4 insertions(+)
+ 
+-diff --git a/ext/dba/config.m4 b/ext/dba/config.m4
+-index 0f270a8..7d074f7 100644
+ --- a/ext/dba/config.m4
+ +++ b/ext/dba/config.m4
+-@@ -116,6 +116,10 @@ if test "$PHP_QDBM" != "no"; then
++@@ -116,6 +116,10 @@
+        THIS_PREFIX=$i
+        THIS_INCLUDE=$i/include/depot.h
+        break
+diff --git a/debian/patches/0018-session_save_path.patch b/debian/patches/0018-session_save_path.patch
+index eb7c49e..90c668d 100644
+--- a/debian/patches/0018-session_save_path.patch
++++ b/debian/patches/0018-session_save_path.patch
+@@ -8,11 +8,9 @@ Subject: session_save_path
+  php.ini-production    | 2 +-
+  3 files changed, 3 insertions(+), 3 deletions(-)
+ 
+-diff --git a/ext/session/session.c b/ext/session/session.c
+-index 65fb306..544120a 100644
+ --- a/ext/session/session.c
+ +++ b/ext/session/session.c
+-@@ -790,7 +790,7 @@ static PHP_INI_MH(OnUpdateRfc1867Freq) /* {{{ */
++@@ -790,7 +790,7 @@
+  /* {{{ PHP_INI
+   */
+  PHP_INI_BEGIN()
+@@ -21,11 +19,9 @@ index 65fb306..544120a 100644
+  	STD_PHP_INI_ENTRY("session.name",               "PHPSESSID", PHP_INI_ALL, OnUpdateName,          session_name,       php_ps_globals,    ps_globals)
+  	PHP_INI_ENTRY("session.save_handler",           "files",     PHP_INI_ALL, OnUpdateSaveHandler)
+  	STD_PHP_INI_BOOLEAN("session.auto_start",       "0",         PHP_INI_PERDIR, OnUpdateBool,       auto_start,         php_ps_globals,    ps_globals)
+-diff --git a/php.ini-development b/php.ini-development
+-index c2b4771..ede3a99 100644
+ --- a/php.ini-development
+ +++ b/php.ini-development
+-@@ -1367,7 +1367,7 @@ session.save_handler = files
++@@ -1367,7 +1367,7 @@
+  ; where MODE is the octal representation of the mode. Note that this
+  ; does not overwrite the process's umask.
+  ; http://php.net/session.save-path
+@@ -34,11 +30,9 @@ index c2b4771..ede3a99 100644
+  
+  ; Whether to use strict session mode.
+  ; Strict session mode does not accept uninitialized session ID and regenerate
+-diff --git a/php.ini-production b/php.ini-production
+-index 7732e1d..ded1452 100644
+ --- a/php.ini-production
+ +++ b/php.ini-production
+-@@ -1368,7 +1368,7 @@ session.save_handler = files
++@@ -1368,7 +1368,7 @@
+  ; where MODE is the octal representation of the mode. Note that this
+  ; does not overwrite the process's umask.
+  ; http://php.net/session.save-path
+diff --git a/debian/patches/0019-php-fpm-man-section-and-cleanup.patch b/debian/patches/0019-php-fpm-man-section-and-cleanup.patch
+index e9681e3..df7a6d7 100644
+--- a/debian/patches/0019-php-fpm-man-section-and-cleanup.patch
++++ b/debian/patches/0019-php-fpm-man-section-and-cleanup.patch
+@@ -6,11 +6,9 @@ Subject: php-fpm-man-section-and-cleanup
+  sapi/fpm/php-fpm.8.in | 22 ++--------------------
+  1 file changed, 2 insertions(+), 20 deletions(-)
+ 
+-diff --git a/sapi/fpm/php-fpm.8.in b/sapi/fpm/php-fpm.8.in
+-index 86edaa8..19e66a0 100644
+ --- a/sapi/fpm/php-fpm.8.in
+ +++ b/sapi/fpm/php-fpm.8.in
+-@@ -139,22 +139,8 @@ The configuration file for the php-fpm daemon.
++@@ -139,22 +139,8 @@
+  .TP
+  .B php.ini
+  The standard php configuration file.
+@@ -35,7 +33,7 @@ index 86edaa8..19e66a0 100644
+  .P
+  .PD 0
+  .RS
+-@@ -168,10 +154,6 @@ If your installation has no appropriate init script, launch php-fpm with no argu
++@@ -168,10 +154,6 @@
+  .RE
+  .PD 1
+  .P
+diff --git a/debian/patches/0020-fpm-config.patch b/debian/patches/0020-fpm-config.patch
+index f55d2a9..bd5b360 100644
+--- a/debian/patches/0020-fpm-config.patch
++++ b/debian/patches/0020-fpm-config.patch
+@@ -6,8 +6,6 @@ Subject: fpm-config
+  sapi/fpm/php-fpm.conf.in | 6 +++---
+  1 file changed, 3 insertions(+), 3 deletions(-)
+ 
+-diff --git a/sapi/fpm/php-fpm.conf.in b/sapi/fpm/php-fpm.conf.in
+-index 56c18e8..4741195 100644
+ --- a/sapi/fpm/php-fpm.conf.in
+ +++ b/sapi/fpm/php-fpm.conf.in
+ @@ -14,14 +14,14 @@
+diff --git a/debian/patches/0021-php-fpm-sysconfdir.patch b/debian/patches/0021-php-fpm-sysconfdir.patch
+index a485055..b9cd568 100644
+--- a/debian/patches/0021-php-fpm-sysconfdir.patch
++++ b/debian/patches/0021-php-fpm-sysconfdir.patch
+@@ -6,11 +6,9 @@ Subject: php-fpm-sysconfdir
+  sapi/fpm/fpm/fpm_conf.c | 2 +-
+  1 file changed, 1 insertion(+), 1 deletion(-)
+ 
+-diff --git a/sapi/fpm/fpm/fpm_conf.c b/sapi/fpm/fpm/fpm_conf.c
+-index 42ee60b..ff23b65 100644
+ --- a/sapi/fpm/fpm/fpm_conf.c
+ +++ b/sapi/fpm/fpm/fpm_conf.c
+-@@ -1707,7 +1707,7 @@ int fpm_conf_init_main(int test_conf, int force_daemon) /* {{{ */
++@@ -1707,7 +1707,7 @@
+  		char *tmp;
+  
+  		if (fpm_globals.prefix == NULL) {
+diff --git a/debian/patches/0022-lp564920-fix-big-files.patch b/debian/patches/0022-lp564920-fix-big-files.patch
+index 91de411..a324abf 100644
+--- a/debian/patches/0022-lp564920-fix-big-files.patch
++++ b/debian/patches/0022-lp564920-fix-big-files.patch
+@@ -6,11 +6,9 @@ Subject: lp564920-fix-big-files
+  main/streams/plain_wrapper.c | 8 +++++++-
+  1 file changed, 7 insertions(+), 1 deletion(-)
+ 
+-diff --git a/main/streams/plain_wrapper.c b/main/streams/plain_wrapper.c
+-index d409fe9..6e979cc 100644
+ --- a/main/streams/plain_wrapper.c
+ +++ b/main/streams/plain_wrapper.c
+-@@ -693,7 +693,13 @@ static int php_stdiop_set_option(php_stream *stream, int option, int value, void
++@@ -693,7 +693,13 @@
+  
+  				switch (value) {
+  					case PHP_STREAM_MMAP_SUPPORTED:
+@@ -24,4 +22,4 @@ index d409fe9..6e979cc 100644
+ +						return PHP_STREAM_OPTION_RETURN_OK;
+  
+  					case PHP_STREAM_MMAP_MAP_RANGE:
+- 						if(do_fstat(data, 1) != 0) {
++ 						if (do_fstat(data, 1) != 0) {
+diff --git a/debian/patches/0023-temporary-path-fixes-for-multiarch.patch b/debian/patches/0023-temporary-path-fixes-for-multiarch.patch
+index 454fc32..e2f461c 100644
+--- a/debian/patches/0023-temporary-path-fixes-for-multiarch.patch
++++ b/debian/patches/0023-temporary-path-fixes-for-multiarch.patch
+@@ -11,11 +11,9 @@ Subject: temporary-path-fixes-for-multiarch
+  ext/pdo_dblib/config.m4 |  2 +-
+  6 files changed, 17 insertions(+), 17 deletions(-)
+ 
+-diff --git a/acinclude.m4 b/acinclude.m4
+-index ae30eb3..d8db50e 100644
+ --- a/acinclude.m4
+ +++ b/acinclude.m4
+-@@ -2308,7 +2308,7 @@ AC_DEFUN([PHP_SETUP_KERBEROS],[
++@@ -2308,7 +2308,7 @@
+      fi
+  
+      for i in $PHP_KERBEROS; do
+@@ -24,7 +22,7 @@ index ae30eb3..d8db50e 100644
+          PHP_KERBEROS_DIR=$i
+          break
+        fi
+-@@ -2387,7 +2387,7 @@ AC_DEFUN([PHP_SETUP_OPENSSL],[
++@@ -2387,7 +2387,7 @@
+        if test -r $i/include/openssl/evp.h; then
+          OPENSSL_INCDIR=$i/include
+        fi
+@@ -33,11 +31,9 @@ index ae30eb3..d8db50e 100644
+          OPENSSL_LIBDIR=$i/$PHP_LIBDIR
+        fi
+        test -n "$OPENSSL_INCDIR" && test -n "$OPENSSL_LIBDIR" && break
+-diff --git a/ext/dba/config.m4 b/ext/dba/config.m4
+-index 7d074f7..9feefc8 100644
+ --- a/ext/dba/config.m4
+ +++ b/ext/dba/config.m4
+-@@ -273,7 +273,7 @@ AC_DEFUN([PHP_DBA_DB_CHECK],[
++@@ -273,7 +273,7 @@
+      AC_MSG_ERROR([DBA: Could not find necessary header file(s).])
+    fi
+    for LIB in $2; do
+@@ -46,11 +42,9 @@ index 7d074f7..9feefc8 100644
+        lib_found="";
+        PHP_TEMP_LDFLAGS(-L$THIS_PREFIX/$PHP_LIBDIR, -l$LIB,[
+          AC_TRY_LINK([
+-diff --git a/ext/gmp/config.m4 b/ext/gmp/config.m4
+-index 1567d30..a094763 100644
+ --- a/ext/gmp/config.m4
+ +++ b/ext/gmp/config.m4
+-@@ -7,6 +7,7 @@ if test "$PHP_GMP" != "no"; then
++@@ -7,6 +7,7 @@
+  
+    for i in $PHP_GMP /usr/local /usr; do
+      test -f $i/include/gmp.h && GMP_DIR=$i && break
+@@ -58,7 +52,7 @@ index 1567d30..a094763 100644
+      test -f $i/include/$MACHINE_INCLUDES/gmp.h && GMP_DIR=$i && break
+    done
+  
+-@@ -23,6 +24,7 @@ if test "$PHP_GMP" != "no"; then
++@@ -23,6 +24,7 @@
+  
+    PHP_ADD_LIBRARY_WITH_PATH(gmp, $GMP_DIR/$PHP_LIBDIR, GMP_SHARED_LIBADD)
+    PHP_ADD_INCLUDE($GMP_DIR/include)
+@@ -66,11 +60,9 @@ index 1567d30..a094763 100644
+  
+    PHP_NEW_EXTENSION(gmp, gmp.c, $ext_shared,, -DZEND_ENABLE_STATIC_TSRMLS_CACHE=1)
+    PHP_SUBST(GMP_SHARED_LIBADD)
+-diff --git a/ext/ldap/config.m4 b/ext/ldap/config.m4
+-index 1a35c94..2a90b56 100644
+ --- a/ext/ldap/config.m4
+ +++ b/ext/ldap/config.m4
+-@@ -117,16 +117,14 @@ if test "$PHP_LDAP" != "no"; then
++@@ -117,16 +117,14 @@
+      LDAP_PTHREAD=
+    fi
+  
+@@ -90,7 +82,7 @@ index 1a35c94..2a90b56 100644
+      if test -n "$LDAP_PTHREAD"; then
+        PHP_ADD_LIBRARY($LDAP_PTHREAD)
+      fi
+-@@ -139,7 +137,7 @@ if test "$PHP_LDAP" != "no"; then
++@@ -139,7 +137,7 @@
+      PHP_ADD_LIBRARY_WITH_PATH(ssl3, $LDAP_LIBDIR, LDAP_SHARED_LIBADD)
+      AC_DEFINE(HAVE_NSLDAP,1,[ ])
+  
+@@ -99,7 +91,7 @@ index 1a35c94..2a90b56 100644
+      if test -n "$LDAP_PTHREAD"; then
+        PHP_ADD_LIBRARY($LDAP_PTHREAD)
+      fi
+-@@ -149,35 +147,35 @@ if test "$PHP_LDAP" != "no"; then
++@@ -149,35 +147,35 @@
+      PHP_ADD_LIBRARY_WITH_PATH(ldapssl41, $LDAP_LIBDIR, LDAP_SHARED_LIBADD)
+      AC_DEFINE(HAVE_NSLDAP,1,[ ])
+  
+@@ -141,11 +133,9 @@ index 1a35c94..2a90b56 100644
+       PHP_ADD_LIBRARY_WITH_PATH(clntsh, $LDAP_LIBDIR, LDAP_SHARED_LIBADD)
+       AC_DEFINE(HAVE_ORALDAP,1,[ ])
+       AC_DEFINE(HAVE_ORALDAP_10,1,[ ])
+-diff --git a/ext/pcre/config0.m4 b/ext/pcre/config0.m4
+-index 721b7f6..3c5e58c 100644
+ --- a/ext/pcre/config0.m4
+ +++ b/ext/pcre/config0.m4
+-@@ -23,7 +23,7 @@ PHP_ARG_WITH(pcre-jit,,[  --with-pcre-jit         Enable PCRE JIT functionality
++@@ -23,7 +23,7 @@
+      AC_MSG_RESULT([$PCRE_INCDIR])
+  
+      AC_MSG_CHECKING([for PCRE library location])
+@@ -154,11 +144,9 @@ index 721b7f6..3c5e58c 100644
+        test -f $j/libpcre.a || test -f $j/libpcre.$SHLIB_SUFFIX_NAME && PCRE_LIBDIR=$j
+      done
+  
+-diff --git a/ext/pdo_dblib/config.m4 b/ext/pdo_dblib/config.m4
+-index 6f21fa7..3f4c784 100644
+ --- a/ext/pdo_dblib/config.m4
+ +++ b/ext/pdo_dblib/config.m4
+-@@ -46,7 +46,7 @@ if test "$PHP_PDO_DBLIB" != "no"; then
++@@ -46,7 +46,7 @@
+      PHP_LIBDIR=lib
+    fi
+  
+diff --git a/debian/patches/0024-hurd-noptrace.patch b/debian/patches/0024-hurd-noptrace.patch
+index 90b8836..e471860 100644
+--- a/debian/patches/0024-hurd-noptrace.patch
++++ b/debian/patches/0024-hurd-noptrace.patch
+@@ -6,11 +6,9 @@ Subject: hurd-noptrace
+  sapi/fpm/config.m4 | 5 +++++
+  1 file changed, 5 insertions(+)
+ 
+-diff --git a/sapi/fpm/config.m4 b/sapi/fpm/config.m4
+-index 4cf4ba4..bdce0bd 100644
+ --- a/sapi/fpm/config.m4
+ +++ b/sapi/fpm/config.m4
+-@@ -147,6 +147,11 @@ AC_DEFUN([AC_FPM_TRACE],
++@@ -147,6 +147,11 @@
+          pid_t child;
+          int status;
+  
+diff --git a/debian/patches/0025-php-5.3.9-mysqlnd.patch b/debian/patches/0025-php-5.3.9-mysqlnd.patch
+index d80b04a..4b6ef5e 100644
+--- a/debian/patches/0025-php-5.3.9-mysqlnd.patch
++++ b/debian/patches/0025-php-5.3.9-mysqlnd.patch
+@@ -7,11 +7,9 @@ Subject: php-5.3.9-mysqlnd
+  ext/pdo_mysql/pdo_mysql.c        | 2 +-
+  2 files changed, 2 insertions(+), 2 deletions(-)
+ 
+-diff --git a/ext/mysqlnd/mysqlnd_connection.c b/ext/mysqlnd/mysqlnd_connection.c
+-index dc42a16..605bfd0 100644
+ --- a/ext/mysqlnd/mysqlnd_connection.c
+ +++ b/ext/mysqlnd/mysqlnd_connection.c
+-@@ -560,7 +560,7 @@ MYSQLND_METHOD(mysqlnd_conn_data, get_scheme)(MYSQLND_CONN_DATA * conn, MYSQLND_
++@@ -560,7 +560,7 @@
+  	if (hostname.l == sizeof("localhost") - 1 && !strncasecmp(hostname.s, "localhost", hostname.l)) {
+  		DBG_INF_FMT("socket=%s", socket_or_pipe->s? socket_or_pipe->s:"n/a");
+  		if (!socket_or_pipe->s) {
+@@ -20,11 +18,9 @@ index dc42a16..605bfd0 100644
+  			socket_or_pipe->l = strlen(socket_or_pipe->s);
+  		}
+  		transport.l = mnd_sprintf(&transport.s, 0, "unix://%s", socket_or_pipe->s);
+-diff --git a/ext/pdo_mysql/pdo_mysql.c b/ext/pdo_mysql/pdo_mysql.c
+-index 94b825b..d8aa14b 100644
+ --- a/ext/pdo_mysql/pdo_mysql.c
+ +++ b/ext/pdo_mysql/pdo_mysql.c
+-@@ -53,7 +53,7 @@ ZEND_DECLARE_MODULE_GLOBALS(pdo_mysql)
++@@ -53,7 +53,7 @@
+  #  define PDO_MYSQL_UNIX_ADDR PHP_MYSQL_UNIX_SOCK_ADDR
+  # else
+  #  if !PHP_WIN32
+diff --git a/debian/patches/0026-php-5.3.9-gnusrc.patch b/debian/patches/0026-php-5.3.9-gnusrc.patch
+index b4c6d78..1eefddc 100644
+--- a/debian/patches/0026-php-5.3.9-gnusrc.patch
++++ b/debian/patches/0026-php-5.3.9-gnusrc.patch
+@@ -15,8 +15,6 @@ Subject: php-5.3.9-gnusrc
+  main/streams/streams.c             | 1 -
+  10 files changed, 5 insertions(+), 10 deletions(-)
+ 
+-diff --git a/Zend/zend_language_parser.c b/Zend/zend_language_parser.c
+-index dbd30da..989912c 100644
+ --- a/Zend/zend_language_parser.c
+ +++ b/Zend/zend_language_parser.c
+ @@ -69,6 +69,8 @@
+@@ -28,11 +26,9 @@ index dbd30da..989912c 100644
+  
+  /*
+     +----------------------------------------------------------------------+
+-diff --git a/configure.ac b/configure.ac
+-index cc2286d..dc91f27 100644
+ --- a/configure.ac
+ +++ b/configure.ac
+-@@ -124,6 +124,8 @@ AC_DEFUN([PHP_EXT_DIR],[$config_m4_dir])dnl
++@@ -124,6 +124,8 @@
+  AC_DEFUN([PHP_EXT_SRCDIR],[$abs_srcdir/$config_m4_dir])dnl
+  AC_DEFUN([PHP_ALWAYS_SHARED],[])dnl
+  
+@@ -41,8 +37,6 @@ index cc2286d..dc91f27 100644
+  dnl Setting up the PHP version based on the information above.
+  dnl -------------------------------------------------------------------------
+  
+-diff --git a/ext/interbase/interbase.c b/ext/interbase/interbase.c
+-index 6f28b3f..5f20048 100644
+ --- a/ext/interbase/interbase.c
+ +++ b/ext/interbase/interbase.c
+ @@ -22,7 +22,6 @@
+@@ -53,8 +47,6 @@ index 6f28b3f..5f20048 100644
+  
+  #include "php.h"
+  
+-diff --git a/ext/pdo_firebird/firebird_driver.c b/ext/pdo_firebird/firebird_driver.c
+-index 3060615..34e234a 100644
+ --- a/ext/pdo_firebird/firebird_driver.c
+ +++ b/ext/pdo_firebird/firebird_driver.c
+ @@ -20,7 +20,6 @@
+@@ -65,11 +57,9 @@ index 3060615..34e234a 100644
+  
+  #include "php.h"
+  #include "zend_exceptions.h"
+-diff --git a/ext/standard/file.c b/ext/standard/file.c
+-index ff3bef3..c7d1912 100644
+ --- a/ext/standard/file.c
+ +++ b/ext/standard/file.c
+-@@ -108,9 +108,6 @@ php_file_globals file_globals;
++@@ -108,9 +108,6 @@
+  #endif
+  
+  #if defined(HAVE_FNMATCH) && !defined(PHP_WIN32)
+@@ -79,8 +69,6 @@ index ff3bef3..c7d1912 100644
+  # include <fnmatch.h>
+  #endif
+  
+-diff --git a/ext/zlib/zlib_fopen_wrapper.c b/ext/zlib/zlib_fopen_wrapper.c
+-index ff242736..82109bf 100644
+ --- a/ext/zlib/zlib_fopen_wrapper.c
+ +++ b/ext/zlib/zlib_fopen_wrapper.c
+ @@ -19,8 +19,6 @@
+@@ -92,8 +80,6 @@ index ff242736..82109bf 100644
+  #include "php.h"
+  #include "php_zlib.h"
+  #include "fopen_wrappers.h"
+-diff --git a/main/php.h b/main/php.h
+-index 3b0b896..50eb2aa 100644
+ --- a/main/php.h
+ +++ b/main/php.h
+ @@ -31,6 +31,7 @@
+@@ -104,8 +90,6 @@ index 3b0b896..50eb2aa 100644
+  #include "php_version.h"
+  #include "zend.h"
+  #include "zend_sort.h"
+-diff --git a/main/streams/cast.c b/main/streams/cast.c
+-index 9ef5420..6f5baa3 100644
+ --- a/main/streams/cast.c
+ +++ b/main/streams/cast.c
+ @@ -18,7 +18,6 @@
+@@ -116,8 +100,6 @@ index 9ef5420..6f5baa3 100644
+  #include "php.h"
+  #include "php_globals.h"
+  #include "php_network.h"
+-diff --git a/main/streams/memory.c b/main/streams/memory.c
+-index 7011cff..b484b1c 100644
+ --- a/main/streams/memory.c
+ +++ b/main/streams/memory.c
+ @@ -18,7 +18,6 @@
+@@ -128,8 +110,6 @@ index 7011cff..b484b1c 100644
+  #include "php.h"
+  #include "ext/standard/base64.h"
+  
+-diff --git a/main/streams/streams.c b/main/streams/streams.c
+-index 9daae57..75e6307 100644
+ --- a/main/streams/streams.c
+ +++ b/main/streams/streams.c
+ @@ -21,7 +21,6 @@
+diff --git a/debian/patches/0027-php-5.3.3-macropen.patch b/debian/patches/0027-php-5.3.3-macropen.patch
+index 6b4bca9..f504d7c 100644
+--- a/debian/patches/0027-php-5.3.3-macropen.patch
++++ b/debian/patches/0027-php-5.3.3-macropen.patch
+@@ -8,11 +8,9 @@ Subject: php-5.3.3-macropen
+  ext/dba/dba_db4.c | 4 ++--
+  3 files changed, 5 insertions(+), 5 deletions(-)
+ 
+-diff --git a/ext/dba/dba.c b/ext/dba/dba.c
+-index 6cd3b4d..370ac08 100644
+ --- a/ext/dba/dba.c
+ +++ b/ext/dba/dba.c
+-@@ -993,7 +993,7 @@ restart:
++@@ -993,7 +993,7 @@
+  		}
+  	}
+  
+@@ -21,11 +19,9 @@ index 6cd3b4d..370ac08 100644
+  		dba_close(info);
+  		php_error_docref2(NULL, Z_STRVAL(args[0]), Z_STRVAL(args[1]), E_WARNING, "Driver initialization failed for handler: %s%s%s", hptr->name, error?": ":"", error?error:"");
+  		FREENOW;
+-diff --git a/ext/dba/dba_db3.c b/ext/dba/dba_db3.c
+-index dd1bcb8..aca3c93 100644
+ --- a/ext/dba/dba_db3.c
+ +++ b/ext/dba/dba_db3.c
+-@@ -96,9 +96,9 @@ DBA_OPEN_FUNC(db3)
++@@ -96,9 +96,9 @@
+  	    dbp->set_errcall(dbp, php_dba_db3_errcall_fcn);
+  		if(
+  #if (DB_VERSION_MAJOR > 4 || (DB_VERSION_MAJOR == 4 && DB_VERSION_MINOR >= 1))
+@@ -37,11 +33,9 @@ index dd1bcb8..aca3c93 100644
+  #endif
+  			dba_db3_data *data;
+  
+-diff --git a/ext/dba/dba_db4.c b/ext/dba/dba_db4.c
+-index 63a69bd..a77cc22 100644
+ --- a/ext/dba/dba_db4.c
+ +++ b/ext/dba/dba_db4.c
+-@@ -125,9 +125,9 @@ DBA_OPEN_FUNC(db4)
++@@ -125,9 +125,9 @@
+  	    dbp->set_errcall(dbp, php_dba_db4_errcall_fcn);
+  	    if (
+  #if (DB_VERSION_MAJOR > 4 || (DB_VERSION_MAJOR == 4 && DB_VERSION_MINOR >= 1))
+diff --git a/debian/patches/0028-php-5.2.4-norpath.patch b/debian/patches/0028-php-5.2.4-norpath.patch
+index a27a445..41041aa 100644
+--- a/debian/patches/0028-php-5.2.4-norpath.patch
++++ b/debian/patches/0028-php-5.2.4-norpath.patch
+@@ -6,11 +6,9 @@ Subject: php-5.2.4-norpath
+  acinclude.m4 | 2 ++
+  1 file changed, 2 insertions(+)
+ 
+-diff --git a/acinclude.m4 b/acinclude.m4
+-index d8db50e..ea70349 100644
+ --- a/acinclude.m4
+ +++ b/acinclude.m4
+-@@ -432,6 +432,7 @@ AC_DEFUN([PHP_EVAL_INCLINE],[
++@@ -432,6 +432,7 @@
+  dnl internal, don't use
+  AC_DEFUN([_PHP_ADD_LIBPATH_GLOBAL],[
+    PHP_RUN_ONCE(LIBPATH, $1, [
+@@ -18,7 +16,7 @@ index d8db50e..ea70349 100644
+      test -n "$ld_runpath_switch" && LDFLAGS="$LDFLAGS $ld_runpath_switch$1"
+      LDFLAGS="$LDFLAGS -L$1"
+      PHP_RPATHS="$PHP_RPATHS $1"
+-@@ -451,6 +452,7 @@ AC_DEFUN([PHP_ADD_LIBPATH],[
++@@ -451,6 +452,7 @@
+      ],[
+        if test "$ext_shared" = "yes"; then
+          $2="-L$ai_p [$]$2"
+diff --git a/debian/patches/0029-php-5.2.4-embed.patch b/debian/patches/0029-php-5.2.4-embed.patch
+index f723785..cffb8a7 100644
+--- a/debian/patches/0029-php-5.2.4-embed.patch
++++ b/debian/patches/0029-php-5.2.4-embed.patch
+@@ -6,11 +6,9 @@ Subject: php-5.2.4-embed
+  sapi/embed/config.m4 | 2 +-
+  1 file changed, 1 insertion(+), 1 deletion(-)
+ 
+-diff --git a/sapi/embed/config.m4 b/sapi/embed/config.m4
+-index dcdb4d6..3df87d8 100644
+ --- a/sapi/embed/config.m4
+ +++ b/sapi/embed/config.m4
+-@@ -12,7 +12,7 @@ if test "$PHP_EMBED" != "no"; then
++@@ -12,7 +12,7 @@
+    case "$PHP_EMBED" in
+      yes|shared)
+        PHP_EMBED_TYPE=shared
+diff --git a/debian/patches/0030-php-fpm-m68k.patch b/debian/patches/0030-php-fpm-m68k.patch
+index 793075d..786efd2 100644
+--- a/debian/patches/0030-php-fpm-m68k.patch
++++ b/debian/patches/0030-php-fpm-m68k.patch
+@@ -6,8 +6,6 @@ Subject: php-fpm-m68k
+  sapi/fpm/fpm/fpm_atomic.h | 34 ++++++++++++++++++++++++++++++++++
+  1 file changed, 34 insertions(+)
+ 
+-diff --git a/sapi/fpm/fpm/fpm_atomic.h b/sapi/fpm/fpm/fpm_atomic.h
+-index 7b17df6..93e5774 100644
+ --- a/sapi/fpm/fpm/fpm_atomic.h
+ +++ b/sapi/fpm/fpm/fpm_atomic.h
+ @@ -4,6 +4,12 @@
+@@ -23,7 +21,7 @@ index 7b17df6..93e5774 100644
+  #if HAVE_INTTYPES_H
+  # include <inttypes.h>
+  #else
+-@@ -136,6 +142,34 @@ static inline atomic_uint_t atomic_cmp_set(atomic_t *lock, atomic_uint_t old, at
++@@ -136,6 +142,34 @@
+  #error Sparc v8 and predecessors are not and will not be supported (see bug report 53310)
+  #endif /* #if (__sparcv9 || __sparcv9__) */
+  
+diff --git a/debian/patches/0031-expose_all_built_and_installed_apis.patch b/debian/patches/0031-expose_all_built_and_installed_apis.patch
+index 24daa48..af23377 100644
+--- a/debian/patches/0031-expose_all_built_and_installed_apis.patch
++++ b/debian/patches/0031-expose_all_built_and_installed_apis.patch
+@@ -7,11 +7,9 @@ Subject: expose_all_built_and_installed_apis
+  scripts/php-config.in        | 5 ++++-
+  2 files changed, 5 insertions(+), 2 deletions(-)
+ 
+-diff --git a/scripts/man1/php-config.1.in b/scripts/man1/php-config.1.in
+-index 0a025dc..ab89a1c 100644
+ --- a/scripts/man1/php-config.1.in
+ +++ b/scripts/man1/php-config.1.in
+-@@ -44,7 +44,7 @@ Full path to php CLI or CGI binary
++@@ -44,7 +44,7 @@
+  .TP
+  .PD 0
+  .B \-\-php-sapis
+@@ -20,11 +18,9 @@ index 0a025dc..ab89a1c 100644
+  .TP
+  .PD 0
+  .B \-\-configure-options
+-diff --git a/scripts/php-config.in b/scripts/php-config.in
+-index 746a58e..bcbbe22 100644
+ --- a/scripts/php-config.in
+ +++ b/scripts/php-config.in
+-@@ -18,9 +18,12 @@ exe_extension="@EXEEXT@"
++@@ -18,9 +18,12 @@
+  php_cli_binary=NONE
+  php_cgi_binary=NONE
+  configure_options="@CONFIGURE_OPTIONS@"
+diff --git a/debian/patches/0032-Use-system-timezone.patch b/debian/patches/0032-Use-system-timezone.patch
+index 568f470..ce1ce07 100644
+--- a/debian/patches/0032-Use-system-timezone.patch
++++ b/debian/patches/0032-Use-system-timezone.patch
+@@ -13,11 +13,9 @@ To be used in tandem with use_embedded_timezonedb.patch and use_embedded_timezon
+  ext/date/php_date.c | 17 +++++++++++++++++
+  1 file changed, 17 insertions(+)
+ 
+-diff --git a/ext/date/php_date.c b/ext/date/php_date.c
+-index 9ad4427..7479550 100644
+ --- a/ext/date/php_date.c
+ +++ b/ext/date/php_date.c
+-@@ -1032,6 +1032,23 @@ static char* guess_timezone(const timelib_tzdb *tzdb)
++@@ -1032,6 +1032,23 @@
+  		DATEG(timezone_valid) = 1;
+  		return DATEG(default_timezone);
+  	}
+diff --git a/debian/patches/0033-zlib-largefile-function-renaming.patch b/debian/patches/0033-zlib-largefile-function-renaming.patch
+index 6b5eff9..b259e8e 100644
+--- a/debian/patches/0033-zlib-largefile-function-renaming.patch
++++ b/debian/patches/0033-zlib-largefile-function-renaming.patch
+@@ -6,8 +6,6 @@ Subject: zlib-largefile-function-renaming
+  ext/zlib/zlib.c | 12 ++++++++++++
+  1 file changed, 12 insertions(+)
+ 
+-diff --git a/ext/zlib/zlib.c b/ext/zlib/zlib.c
+-index fde9f02..592793c 100644
+ --- a/ext/zlib/zlib.c
+ +++ b/ext/zlib/zlib.c
+ @@ -49,6 +49,18 @@
+diff --git a/debian/patches/0034-php-fpm-do-reload-on-SIGHUP.patch b/debian/patches/0034-php-fpm-do-reload-on-SIGHUP.patch
+index 554e392..a40970d 100644
+--- a/debian/patches/0034-php-fpm-do-reload-on-SIGHUP.patch
++++ b/debian/patches/0034-php-fpm-do-reload-on-SIGHUP.patch
+@@ -8,11 +8,9 @@ Subject: php-fpm-do-reload-on-SIGHUP
+  sapi/fpm/php-fpm.8.in      | 2 +-
+  3 files changed, 9 insertions(+), 1 deletion(-)
+ 
+-diff --git a/sapi/fpm/fpm/fpm_events.c b/sapi/fpm/fpm/fpm_events.c
+-index 3917a96..7e9b890 100644
+ --- a/sapi/fpm/fpm/fpm_events.c
+ +++ b/sapi/fpm/fpm/fpm_events.c
+-@@ -112,6 +112,11 @@ static void fpm_got_signal(struct fpm_event_s *ev, short which, void *arg) /* {{
++@@ -112,6 +112,11 @@
+  				zlog(ZLOG_NOTICE, "Reloading in progress ...");
+  				fpm_pctl(FPM_PCTL_STATE_RELOADING, FPM_PCTL_ACTION_SET);
+  				break;
+@@ -24,11 +22,9 @@ index 3917a96..7e9b890 100644
+  		}
+  
+  		if (fpm_globals.is_child) {
+-diff --git a/sapi/fpm/fpm/fpm_signals.c b/sapi/fpm/fpm/fpm_signals.c
+-index 4c9f966..9ae1d48 100644
+ --- a/sapi/fpm/fpm/fpm_signals.c
+ +++ b/sapi/fpm/fpm/fpm_signals.c
+-@@ -159,6 +159,7 @@ static void sig_handler(int signo) /* {{{ */
++@@ -159,6 +159,7 @@
+  		[SIGINT]  = 'I',
+  		[SIGUSR1] = '1',
+  		[SIGUSR2] = '2',
+@@ -36,7 +32,7 @@ index 4c9f966..9ae1d48 100644
+  		[SIGQUIT] = 'Q',
+  		[SIGCHLD] = 'C'
+  	};
+-@@ -205,6 +206,7 @@ int fpm_signals_init_main() /* {{{ */
++@@ -205,6 +206,7 @@
+  	    0 > sigaction(SIGINT,   &act, 0) ||
+  	    0 > sigaction(SIGUSR1,  &act, 0) ||
+  	    0 > sigaction(SIGUSR2,  &act, 0) ||
+@@ -44,7 +40,7 @@ index 4c9f966..9ae1d48 100644
+  	    0 > sigaction(SIGCHLD,  &act, 0) ||
+  	    0 > sigaction(SIGQUIT,  &act, 0)) {
+  
+-@@ -234,6 +236,7 @@ int fpm_signals_init_child() /* {{{ */
++@@ -234,6 +236,7 @@
+  	    0 > sigaction(SIGINT,   &act_dfl,  0) ||
+  	    0 > sigaction(SIGUSR1,  &act_dfl,  0) ||
+  	    0 > sigaction(SIGUSR2,  &act_dfl,  0) ||
+@@ -52,11 +48,9 @@ index 4c9f966..9ae1d48 100644
+  	    0 > sigaction(SIGCHLD,  &act_dfl,  0) ||
+  	    0 > sigaction(SIGQUIT,  &act,      0)) {
+  
+-diff --git a/sapi/fpm/php-fpm.8.in b/sapi/fpm/php-fpm.8.in
+-index 19e66a0..31cfff9 100644
+ --- a/sapi/fpm/php-fpm.8.in
+ +++ b/sapi/fpm/php-fpm.8.in
+-@@ -150,7 +150,7 @@ Once started, php-fpm then responds to several POSIX signals:
++@@ -150,7 +150,7 @@
+  .TP
+  .B SIGUSR1 			\fPre-open log file
+  .TP
+diff --git a/debian/patches/0035-php-5.4.8-ldap_r.patch b/debian/patches/0035-php-5.4.8-ldap_r.patch
+index 0fb4916..499af81 100644
+--- a/debian/patches/0035-php-5.4.8-ldap_r.patch
++++ b/debian/patches/0035-php-5.4.8-ldap_r.patch
+@@ -7,11 +7,9 @@ Use -lldap_r by default.
+  ext/ldap/config.m4 | 5 ++++-
+  1 file changed, 4 insertions(+), 1 deletion(-)
+ 
+-diff --git a/ext/ldap/config.m4 b/ext/ldap/config.m4
+-index 2a90b56..bab9ea5 100644
+ --- a/ext/ldap/config.m4
+ +++ b/ext/ldap/config.m4
+-@@ -117,7 +117,10 @@ if test "$PHP_LDAP" != "no"; then
++@@ -117,7 +117,10 @@
+      LDAP_PTHREAD=
+    fi
+  
+diff --git a/debian/patches/0036-php-5.4.9-fixheader.patch b/debian/patches/0036-php-5.4.9-fixheader.patch
+index 4f840ed..2bc8e7c 100644
+--- a/debian/patches/0036-php-5.4.9-fixheader.patch
++++ b/debian/patches/0036-php-5.4.9-fixheader.patch
+@@ -7,11 +7,9 @@ Make generated php_config.h constant across rebuilds.
+  configure.ac | 2 +-
+  1 file changed, 1 insertion(+), 1 deletion(-)
+ 
+-diff --git a/configure.ac b/configure.ac
+-index dc91f27..69cb0ad 100644
+ --- a/configure.ac
+ +++ b/configure.ac
+-@@ -1310,7 +1310,7 @@ PHP_BUILD_DATE=`date -u +%Y-%m-%d`
++@@ -1310,7 +1310,7 @@
+  fi
+  AC_DEFINE_UNQUOTED(PHP_BUILD_DATE,"$PHP_BUILD_DATE",[PHP build date])
+  
+diff --git a/debian/patches/0037-php-5.6.0-noNO.patch b/debian/patches/0037-php-5.6.0-noNO.patch
+index 9c3c6fa..27d3c6c 100644
+--- a/debian/patches/0037-php-5.6.0-noNO.patch
++++ b/debian/patches/0037-php-5.6.0-noNO.patch
+@@ -6,11 +6,9 @@ Subject: php-5.6.0-noNO
+  ext/standard/tests/strings/setlocale_variation2.phpt | 11 ++++++++---
+  1 file changed, 8 insertions(+), 3 deletions(-)
+ 
+-diff --git a/ext/standard/tests/strings/setlocale_variation2.phpt b/ext/standard/tests/strings/setlocale_variation2.phpt
+-index fad3298..346c987 100644
+ --- a/ext/standard/tests/strings/setlocale_variation2.phpt
+ +++ b/ext/standard/tests/strings/setlocale_variation2.phpt
+-@@ -55,6 +55,7 @@ $all_system_locales = list_system_locales();
++@@ -55,6 +55,7 @@
+  //try different locale names
+  $failure_locale = array();
+  $success_count = 0;
+@@ -18,7 +16,7 @@ index fad3298..346c987 100644
+  
+  echo "-- Test setlocale() with all available locale in the system --\n";
+  // gather all locales installed in the system(stored $all_system_locales),
+-@@ -64,6 +65,10 @@ foreach($all_system_locales as $value){
++@@ -64,6 +65,10 @@
+    if(setlocale(LC_ALL,$value )){
+     $success_count++;
+    }
+@@ -29,7 +27,7 @@ index fad3298..346c987 100644
+    else{
+     //failure values are put in to an array $failure_locale
+     $failure_locale[] = $value;
+-@@ -72,11 +77,11 @@ foreach($all_system_locales as $value){
++@@ -72,11 +77,11 @@
+  
+  echo "No of locales found on the machine = ".count($all_system_locales)."\n";
+  echo "No of setlocale() success = ".$success_count."\n";
+@@ -43,7 +41,7 @@ index fad3298..346c987 100644
+    echo "FAILED\n";
+    echo "Names of locale() for which setlocale() failed ...\n";
+    var_dump($failure_locale);
+-@@ -92,6 +97,6 @@ echo "Done\n";
++@@ -92,6 +97,6 @@
+  -- Test setlocale() with all available locale in the system --
+  No of locales found on the machine = %d
+  No of setlocale() success = %d
+diff --git a/debian/patches/0038-php-5.6.0-oldpcre.patch b/debian/patches/0038-php-5.6.0-oldpcre.patch
+index d7717c1..e68cbc3 100644
+--- a/debian/patches/0038-php-5.6.0-oldpcre.patch
++++ b/debian/patches/0038-php-5.6.0-oldpcre.patch
+@@ -8,22 +8,18 @@ Subject: php-5.6.0-oldpcre
+  ext/pcre/tests/match_flags3.phpt |  2 +-
+  3 files changed, 4 insertions(+), 10 deletions(-)
+ 
+-diff --git a/ext/pcre/tests/bug37911.phpt b/ext/pcre/tests/bug37911.phpt
+-index 2b7481a..0d2859d 100644
+ --- a/ext/pcre/tests/bug37911.phpt
+ +++ b/ext/pcre/tests/bug37911.phpt
+-@@ -37,5 +37,5 @@ array(3) {
++@@ -37,5 +37,5 @@
+    string(4) "blub"
+  }
+  
+ -Warning: preg_replace_callback(): Compilation failed: group name must start with a non-digit at offset %d in %sbug37911.php on line %d
+ +Warning: preg_replace_callback(): Numeric named subpatterns are not allowed in %sbug37911.php on line %d
+  NULL
+-diff --git a/ext/pcre/tests/grep2.phpt b/ext/pcre/tests/grep2.phpt
+-index 1a8476c..0cf8d4a 100644
+ --- a/ext/pcre/tests/grep2.phpt
+ +++ b/ext/pcre/tests/grep2.phpt
+-@@ -40,12 +40,6 @@ array(1) {
++@@ -40,12 +40,6 @@
+    string(1) "1"
+  }
+  bool(true)
+@@ -38,11 +34,9 @@ index 1a8476c..0cf8d4a 100644
+  }
+ -bool(false)
+ +bool(true)
+-diff --git a/ext/pcre/tests/match_flags3.phpt b/ext/pcre/tests/match_flags3.phpt
+-index 695f0c1..05c62a0 100644
+ --- a/ext/pcre/tests/match_flags3.phpt
+ +++ b/ext/pcre/tests/match_flags3.phpt
+-@@ -41,5 +41,5 @@ array(1) {
++@@ -41,5 +41,5 @@
+    }
+  }
+  
+diff --git a/debian/patches/0039-hack-phpdbg-to-explicitly-link-with-libedit.patch b/debian/patches/0039-hack-phpdbg-to-explicitly-link-with-libedit.patch
+index cae7fad..f9eee38 100644
+--- a/debian/patches/0039-hack-phpdbg-to-explicitly-link-with-libedit.patch
++++ b/debian/patches/0039-hack-phpdbg-to-explicitly-link-with-libedit.patch
+@@ -6,11 +6,9 @@ Subject: hack-phpdbg-to-explicitly-link-with-libedit
+  sapi/phpdbg/config.m4 | 4 +++-
+  1 file changed, 3 insertions(+), 1 deletion(-)
+ 
+-diff --git a/sapi/phpdbg/config.m4 b/sapi/phpdbg/config.m4
+-index 3cdd904..da5f829 100644
+ --- a/sapi/phpdbg/config.m4
+ +++ b/sapi/phpdbg/config.m4
+-@@ -31,7 +31,9 @@ if test "$BUILD_PHPDBG" = "" && test "$PHP_PHPDBG" != "no"; then
++@@ -31,7 +31,9 @@
+    if test "$PHP_PHPDBG_READLINE" = "yes"; then
+      if test "$PHP_READLINE" != "no" -o  "$PHP_LIBEDIT" != "no"; then
+    	  AC_DEFINE(HAVE_PHPDBG_READLINE, 1, [ ])
+diff --git a/debian/patches/0040-Fix-ZEND_MM_ALIGNMENT-on-m64k.patch b/debian/patches/0040-Fix-ZEND_MM_ALIGNMENT-on-m64k.patch
+index 5a5b2aa..01f108a 100644
+--- a/debian/patches/0040-Fix-ZEND_MM_ALIGNMENT-on-m64k.patch
++++ b/debian/patches/0040-Fix-ZEND_MM_ALIGNMENT-on-m64k.patch
+@@ -6,11 +6,9 @@ Subject: Fix ZEND_MM_ALIGNMENT on m64k
+  Zend/Zend.m4 | 4 ++--
+  1 file changed, 2 insertions(+), 2 deletions(-)
+ 
+-diff --git a/Zend/Zend.m4 b/Zend/Zend.m4
+-index cd55e60..2ec2e05 100644
+ --- a/Zend/Zend.m4
+ +++ b/Zend/Zend.m4
+-@@ -239,7 +239,7 @@ typedef union _mm_align_test {
++@@ -239,7 +239,7 @@
+  
+  int main()
+  {
+@@ -19,7 +17,7 @@ index cd55e60..2ec2e05 100644
+    int zeros = 0;
+    FILE *fp;
+  
+-@@ -249,7 +249,7 @@ int main()
++@@ -249,7 +249,7 @@
+    }
+  
+    fp = fopen("conftest.zend", "w");
+diff --git a/debian/patches/0041-Add-patch-to-install-php7-module-directly-to-APXS_LI.patch b/debian/patches/0041-Add-patch-to-install-php7-module-directly-to-APXS_LI.patch
+index 13cd1d6..aa00191 100644
+--- a/debian/patches/0041-Add-patch-to-install-php7-module-directly-to-APXS_LI.patch
++++ b/debian/patches/0041-Add-patch-to-install-php7-module-directly-to-APXS_LI.patch
+@@ -6,11 +6,9 @@ Subject: Add patch to install php7 module directly to APXS_LIBEXEC
+  sapi/apache2handler/config.m4 | 15 +++------------
+  1 file changed, 3 insertions(+), 12 deletions(-)
+ 
+-diff --git a/sapi/apache2handler/config.m4 b/sapi/apache2handler/config.m4
+-index 68e456c..35c6144 100644
+ --- a/sapi/apache2handler/config.m4
+ +++ b/sapi/apache2handler/config.m4
+-@@ -59,18 +59,9 @@ if test "$PHP_APXS2" != "no"; then
++@@ -59,18 +59,9 @@
+    APACHE_CFLAGS="$APACHE_CPPFLAGS -I$APXS_INCLUDEDIR $APR_CFLAGS $APU_CFLAGS -DZEND_ENABLE_STATIC_TSRMLS_CACHE=1"
+  
+    APXS_LIBEXECDIR='$(INSTALL_ROOT)'`$APXS -q LIBEXECDIR`
+diff --git a/debian/patches/0042-Remove-W3C-validation-icon-to-not-expose-the-reader-.patch b/debian/patches/0042-Remove-W3C-validation-icon-to-not-expose-the-reader-.patch
+index bf21c24..40ce732 100644
+--- a/debian/patches/0042-Remove-W3C-validation-icon-to-not-expose-the-reader-.patch
++++ b/debian/patches/0042-Remove-W3C-validation-icon-to-not-expose-the-reader-.patch
+@@ -7,8 +7,6 @@ Subject: Remove W3C validation icon to not expose the reader's IP address to
+  sapi/fpm/status.html.in | 5 -----
+  1 file changed, 5 deletions(-)
+ 
+-diff --git a/sapi/fpm/status.html.in b/sapi/fpm/status.html.in
+-index 2440638..d6fae46 100644
+ --- a/sapi/fpm/status.html.in
+ +++ b/sapi/fpm/status.html.in
+ @@ -71,11 +71,6 @@
+diff --git a/debian/patches/0043-Don-t-put-INSTALL_ROOT-into-phar.phar-exec-stanza.patch b/debian/patches/0043-Don-t-put-INSTALL_ROOT-into-phar.phar-exec-stanza.patch
+index 9bbb54a..23bcdc3 100644
+--- a/debian/patches/0043-Don-t-put-INSTALL_ROOT-into-phar.phar-exec-stanza.patch
++++ b/debian/patches/0043-Don-t-put-INSTALL_ROOT-into-phar.phar-exec-stanza.patch
+@@ -6,11 +6,9 @@ Subject: Don't put $(INSTALL_ROOT) into phar.phar exec stanza
+  ext/phar/Makefile.frag | 2 +-
+  1 file changed, 1 insertion(+), 1 deletion(-)
+ 
+-diff --git a/ext/phar/Makefile.frag b/ext/phar/Makefile.frag
+-index 2b7f0ff..d14c1d6 100644
+ --- a/ext/phar/Makefile.frag
+ +++ b/ext/phar/Makefile.frag
+-@@ -23,7 +23,7 @@ PHP_PHARCMD_EXECUTABLE = ` \
++@@ -23,7 +23,7 @@
+  	else \
+  		$(top_srcdir)/build/shtool echo -n -- "$(PHP_EXECUTABLE)"; \
+  	fi;`
+diff --git a/debian/patches/0044-XMLRPC-EPI-library-has-to-be-linked-as-lxmlrpc-epi.patch b/debian/patches/0044-XMLRPC-EPI-library-has-to-be-linked-as-lxmlrpc-epi.patch
+index 3d6b91d..87752c8 100644
+--- a/debian/patches/0044-XMLRPC-EPI-library-has-to-be-linked-as-lxmlrpc-epi.patch
++++ b/debian/patches/0044-XMLRPC-EPI-library-has-to-be-linked-as-lxmlrpc-epi.patch
+@@ -6,11 +6,9 @@ Subject: XMLRPC-EPI library has to be linked as -lxmlrpc-epi
+  ext/xmlrpc/config.m4 | 2 +-
+  1 file changed, 1 insertion(+), 1 deletion(-)
+ 
+-diff --git a/ext/xmlrpc/config.m4 b/ext/xmlrpc/config.m4
+-index 32042ba..9c2a68b 100644
+ --- a/ext/xmlrpc/config.m4
+ +++ b/ext/xmlrpc/config.m4
+-@@ -117,7 +117,7 @@ dnl for xmlrpc-epi because of this.
++@@ -117,7 +117,7 @@
+    fi
+  
+    PHP_ADD_INCLUDE($XMLRPC_DIR)
+diff --git a/debian/patches/0045-Really-expand-libdir-datadir-into-EXPANDED_LIBDIR-DA.patch b/debian/patches/0045-Really-expand-libdir-datadir-into-EXPANDED_LIBDIR-DA.patch
+index a4e7032..ea576e5 100644
+--- a/debian/patches/0045-Really-expand-libdir-datadir-into-EXPANDED_LIBDIR-DA.patch
++++ b/debian/patches/0045-Really-expand-libdir-datadir-into-EXPANDED_LIBDIR-DA.patch
+@@ -6,11 +6,9 @@ Subject: Really expand $libdir/$datadir into @EXPANDED_LIBDIR/DATADIR@
+  configure.ac | 4 ++--
+  1 file changed, 2 insertions(+), 2 deletions(-)
+ 
+-diff --git a/configure.ac b/configure.ac
+-index 69cb0ad..7137d52 100644
+ --- a/configure.ac
+ +++ b/configure.ac
+-@@ -1265,9 +1265,9 @@ EXPANDED_LOCALSTATEDIR=`eval echo $localstatedir`
++@@ -1265,9 +1265,9 @@
+  EXPANDED_BINDIR=`eval echo $bindir`
+  EXPANDED_SBINDIR=`eval echo $sbindir`
+  EXPANDED_MANDIR=`eval echo $mandir`
+diff --git a/debian/patches/0046-Fix-ext-date-lib-parse_tz-PATH_MAX-HURD-FTBFS.patch b/debian/patches/0046-Fix-ext-date-lib-parse_tz-PATH_MAX-HURD-FTBFS.patch
+index 1f49bbc..11f129b 100644
+--- a/debian/patches/0046-Fix-ext-date-lib-parse_tz-PATH_MAX-HURD-FTBFS.patch
++++ b/debian/patches/0046-Fix-ext-date-lib-parse_tz-PATH_MAX-HURD-FTBFS.patch
+@@ -6,11 +6,9 @@ Subject: Fix ext/date/lib/parse_tz PATH_MAX HURD FTBFS
+  ext/date/lib/parse_tz.c | 55 ++++++++++++++++++++++++++++++++++++-------------
+  1 file changed, 41 insertions(+), 14 deletions(-)
+ 
+-diff --git a/ext/date/lib/parse_tz.c b/ext/date/lib/parse_tz.c
+-index 501b09e..bf298d5 100644
+ --- a/ext/date/lib/parse_tz.c
+ +++ b/ext/date/lib/parse_tz.c
+-@@ -499,13 +499,19 @@ static char *parse_iso6709(char *p, double *result)
++@@ -499,13 +499,19 @@
+  static struct location_info **create_location_table(void)
+  {
+      struct location_info **li, *i;
+@@ -32,7 +30,7 @@ index 501b09e..bf298d5 100644
+      if (!fp) {
+          return NULL;
+      }
+-@@ -640,12 +646,14 @@ static void create_zone_index(timelib_tzdb *db)
++@@ -640,12 +646,14 @@
+  
+  	do {
+  		struct dirent **ents;
+@@ -50,7 +48,7 @@ index 501b09e..bf298d5 100644
+  
+  		count = php_scandir(name, &ents, index_filter, php_alphasort);
+  
+-@@ -653,7 +661,9 @@ static void create_zone_index(timelib_tzdb *db)
++@@ -653,7 +661,9 @@
+  			struct stat st;
+  			const char *leaf = ents[count - 1]->d_name;
+  
+@@ -61,7 +59,7 @@ index 501b09e..bf298d5 100644
+  				 top, leaf);
+  			
+  			if (strlen(name) && stat(name, &st) == 0) {
+-@@ -662,7 +672,9 @@ static void create_zone_index(timelib_tzdb *db)
++@@ -662,7 +672,9 @@
+  
+  				if (root[0] == '/') root++;
+  
+@@ -72,7 +70,7 @@ index 501b09e..bf298d5 100644
+  					 *root ? "/": "", leaf);
+  
+  				if (S_ISDIR(st.st_mode)) {
+-@@ -688,6 +700,7 @@ static void create_zone_index(timelib_tzdb *db)
++@@ -688,6 +700,7 @@
+  		}
+  		
+  		if (count != -1) free(ents);
+@@ -80,7 +78,7 @@ index 501b09e..bf298d5 100644
+  		free(top);
+  	} while (dirstack_top);
+  
+-@@ -786,18 +799,24 @@ static const char *canonical_tzname(const char *timezone)
++@@ -786,18 +799,24 @@
+   * length of the mapped data is placed in *length. */
+  static char *map_tzfile(const char *timezone, size_t *length)
+  {
+@@ -109,7 +107,7 @@ index 501b09e..bf298d5 100644
+  	if (fd == -1) {
+  		return NULL;
+  	} else if (fstat(fd, &st) != 0 || !is_valid_tzfile(&st, fd)) {
+-@@ -896,7 +915,9 @@ int timelib_timezone_id_is_valid(char *timezone, const timelib_tzdb *tzdb)
++@@ -896,7 +915,9 @@
+  
+  #ifdef HAVE_SYSTEM_TZDATA
+  	if (tzdb == timezonedb_system) {
+@@ -120,7 +118,7 @@ index 501b09e..bf298d5 100644
+  		struct stat st;
+  
+  		if (timezone[0] == '\0' || strstr(timezone, "..") != NULL) {
+-@@ -910,9 +931,15 @@ int timelib_timezone_id_is_valid(char *timezone, const timelib_tzdb *tzdb)
++@@ -910,9 +931,15 @@
+  			}
+  		}
+  
+diff --git a/debian/patches/0047-Use-pkg-config-for-FreeType2-detection.patch b/debian/patches/0047-Use-pkg-config-for-FreeType2-detection.patch
+index 1dfe1cc..5817679 100644
+--- a/debian/patches/0047-Use-pkg-config-for-FreeType2-detection.patch
++++ b/debian/patches/0047-Use-pkg-config-for-FreeType2-detection.patch
+@@ -6,11 +6,9 @@ Subject: Use pkg-config for FreeType2 detection
+  ext/gd/config.m4 | 30 +++++++++++++++++++-----------
+  1 file changed, 19 insertions(+), 11 deletions(-)
+ 
+-diff --git a/ext/gd/config.m4 b/ext/gd/config.m4
+-index 7abbee4..20a2cc8 100644
+ --- a/ext/gd/config.m4
+ +++ b/ext/gd/config.m4
+-@@ -186,21 +186,29 @@ AC_DEFUN([PHP_GD_XPM],[
++@@ -186,21 +186,29 @@
+  AC_DEFUN([PHP_GD_FREETYPE2],[
+    if test "$PHP_FREETYPE_DIR" != "no"; then
+  
+diff --git a/debian/patches/0048-ext-intl-Use-pkg-config-to-detect-icu.patch b/debian/patches/0048-ext-intl-Use-pkg-config-to-detect-icu.patch
+index 69bb8c8..e864c4a 100644
+--- a/debian/patches/0048-ext-intl-Use-pkg-config-to-detect-icu.patch
++++ b/debian/patches/0048-ext-intl-Use-pkg-config-to-detect-icu.patch
+@@ -9,11 +9,9 @@ because icu-config is deprecated.
+  ext/intl/msgformat/msgformat_helpers.cpp | 16 +++++++++-------
+  2 files changed, 16 insertions(+), 18 deletions(-)
+ 
+-diff --git a/ext/intl/config.m4 b/ext/intl/config.m4
+-index 52408f8..592cea3 100644
+ --- a/ext/intl/config.m4
+ +++ b/ext/intl/config.m4
+-@@ -9,16 +9,8 @@ if test "$PHP_INTL" != "no"; then
++@@ -9,16 +9,8 @@
+    PHP_SETUP_ICU(INTL_SHARED_LIBADD)
+    PHP_SUBST(INTL_SHARED_LIBADD)
+    PHP_REQUIRE_CXX()
+@@ -32,7 +30,7 @@ index 52408f8..592cea3 100644
+      intl_error.c \
+      intl_convert.c \
+      collator/collator.c \
+-@@ -68,7 +60,11 @@ if test "$PHP_INTL" != "no"; then
++@@ -68,7 +60,11 @@
+      transliterator/transliterator_methods.c \
+      uchar/uchar.c \
+      idn/idn.c \
+@@ -45,11 +43,9 @@ index 52408f8..592cea3 100644
+  
+    PHP_INTL_CXX_SOURCES="intl_convertcpp.cpp \
+      common/common_enum.cpp \
+-diff --git a/ext/intl/msgformat/msgformat_helpers.cpp b/ext/intl/msgformat/msgformat_helpers.cpp
+-index 25fa3e5..641457a 100644
+ --- a/ext/intl/msgformat/msgformat_helpers.cpp
+ +++ b/ext/intl/msgformat/msgformat_helpers.cpp
+-@@ -216,6 +216,8 @@ static HashTable *umsg_parse_format(MessageFormatter_object *mfo,
++@@ -216,6 +216,8 @@
+  			continue;
+  		}
+  
+@@ -58,7 +54,7 @@ index 25fa3e5..641457a 100644
+  		UMessagePatternArgType argType = p.getArgType();
+  		/* No type specified, treat it as a string */
+  		if (argType == UMSGPAT_ARG_TYPE_NONE) {
+-@@ -229,15 +231,15 @@ static HashTable *umsg_parse_format(MessageFormatter_object *mfo,
++@@ -229,15 +231,15 @@
+  					UnicodeString typeString = mp.getSubstring(type_part);
+  					/* This is all based on the rules in the docs for MessageFormat
+  					 * @see http://icu-project.org/apiref/icu4c/classMessageFormat.html */
+@@ -78,7 +74,7 @@ index 25fa3e5..641457a 100644
+  								type = Formattable::kDouble;
+  							} else { /* some style invalid/unknown to us */
+  								type = Formattable::kDouble;
+-@@ -245,10 +247,10 @@ static HashTable *umsg_parse_format(MessageFormatter_object *mfo,
++@@ -245,10 +247,10 @@
+  						} else { // if missing style, part, make it a double
+  							type = Formattable::kDouble;
+  						}
+diff --git a/debian/patches/0049-Fixed-bug-62596-add-getallheaders-apache_request_hea.patch b/debian/patches/0049-Fixed-bug-62596-add-getallheaders-apache_request_hea.patch
+index 9da65eb..674f883 100644
+--- a/debian/patches/0049-Fixed-bug-62596-add-getallheaders-apache_request_hea.patch
++++ b/debian/patches/0049-Fixed-bug-62596-add-getallheaders-apache_request_hea.patch
+@@ -13,11 +13,9 @@ Subject: Fixed bug #62596 add getallheaders (apache_request_headers) missing
+  5 files changed, 143 insertions(+), 50 deletions(-)
+  create mode 100644 sapi/fpm/tests/getallheaders.phpt
+ 
+-diff --git a/main/SAPI.c b/main/SAPI.c
+-index 6216fd8..0138335 100644
+ --- a/main/SAPI.c
+ +++ b/main/SAPI.c
+-@@ -1104,6 +1104,56 @@ SAPI_API void sapi_terminate_process(void) {
++@@ -1104,6 +1104,56 @@
+  	}
+  }
+  
+@@ -74,11 +72,9 @@ index 6216fd8..0138335 100644
+  /*
+   * Local variables:
+   * tab-width: 4
+-diff --git a/main/SAPI.h b/main/SAPI.h
+-index 5a5620b..d452240 100644
+ --- a/main/SAPI.h
+ +++ b/main/SAPI.h
+-@@ -151,6 +151,7 @@ SAPI_API void sapi_shutdown(void);
++@@ -151,6 +151,7 @@
+  SAPI_API void sapi_activate(void);
+  SAPI_API void sapi_deactivate(void);
+  SAPI_API void sapi_initialize_empty_request(void);
+@@ -86,11 +82,9 @@ index 5a5620b..d452240 100644
+  END_EXTERN_C()
+  
+  /*
+-diff --git a/sapi/cgi/cgi_main.c b/sapi/cgi/cgi_main.c
+-index 16bb212..2eed928 100644
+ --- a/sapi/cgi/cgi_main.c
+ +++ b/sapi/cgi/cgi_main.c
+-@@ -1596,54 +1596,6 @@ PHP_FUNCTION(apache_child_terminate) /* {{{ */
++@@ -1596,54 +1596,6 @@
+  }
+  /* }}} */
+  
+@@ -145,7 +139,7 @@ index 16bb212..2eed928 100644
+  PHP_FUNCTION(apache_request_headers) /* {{{ */
+  {
+  	if (zend_parse_parameters_none()) {
+-@@ -1653,7 +1605,7 @@ PHP_FUNCTION(apache_request_headers) /* {{{ */
++@@ -1653,7 +1605,7 @@
+  	if (fcgi_is_fastcgi()) {
+  		fcgi_request *request = (fcgi_request*) SG(server_context);
+  
+@@ -154,11 +148,9 @@ index 16bb212..2eed928 100644
+  	} else {
+  		char buf[128];
+  		char **env, *p, *q, *var, *val, *t = buf;
+-diff --git a/sapi/fpm/fpm/fpm_main.c b/sapi/fpm/fpm/fpm_main.c
+-index f0cc3a0..6b1383e 100644
+ --- a/sapi/fpm/fpm/fpm_main.c
+ +++ b/sapi/fpm/fpm/fpm_main.c
+-@@ -1533,6 +1533,10 @@ PHP_FUNCTION(fastcgi_finish_request) /* {{{ */
++@@ -1533,6 +1533,10 @@
+  {
+  	fcgi_request *request = (fcgi_request*) SG(server_context);
+  
+@@ -169,7 +161,7 @@ index f0cc3a0..6b1383e 100644
+  	if (!fcgi_is_closed(request)) {
+  		php_output_end_all();
+  		php_header();
+-@@ -1547,8 +1551,27 @@ PHP_FUNCTION(fastcgi_finish_request) /* {{{ */
++@@ -1547,8 +1551,27 @@
+  }
+  /* }}} */
+  
+@@ -198,9 +190,6 @@ index f0cc3a0..6b1383e 100644
+  	PHP_FE_END
+  };
+  
+-diff --git a/sapi/fpm/tests/getallheaders.phpt b/sapi/fpm/tests/getallheaders.phpt
+-new file mode 100644
+-index 0000000..b41f1c6
+ --- /dev/null
+ +++ b/sapi/fpm/tests/getallheaders.phpt
+ @@ -0,0 +1,67 @@
+diff --git a/debian/patches/0050-Amend-C-11-for-intl-compilation-on-older-distributio.patch b/debian/patches/0050-Amend-C-11-for-intl-compilation-on-older-distributio.patch
+index 0b78d1e..ff1c590 100644
+--- a/debian/patches/0050-Amend-C-11-for-intl-compilation-on-older-distributio.patch
++++ b/debian/patches/0050-Amend-C-11-for-intl-compilation-on-older-distributio.patch
+@@ -6,11 +6,9 @@ Subject: Amend C++11 for intl compilation on older distributions
+  ext/intl/config.m4 | 2 +-
+  1 file changed, 1 insertion(+), 1 deletion(-)
+ 
+-diff --git a/ext/intl/config.m4 b/ext/intl/config.m4
+-index 592cea3..1398d83 100644
+ --- a/ext/intl/config.m4
+ +++ b/ext/intl/config.m4
+-@@ -85,7 +85,7 @@ if test "$PHP_INTL" != "no"; then
++@@ -85,7 +85,7 @@
+      breakiterator/rulebasedbreakiterator_methods.cpp \
+      breakiterator/codepointiterator_internal.cpp \
+      breakiterator/codepointiterator_methods.cpp"
