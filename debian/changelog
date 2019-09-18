@@ -1,3 +1,41 @@
+php7.0 (7.0.33-0+deb9u5) stretch-security; urgency=medium
+
+  * Backported security fixes from PHP 7.1.29:
+   - EXIF:
+    . Fixed bug #77950 (Heap-buffer-overflow in _estrndup via
+      exif_process_IFD_TAG).
+   - Mail:
+    . Fixed bug #77821 (Potential heap corruption in TSendMail()).
+  * Backported from 7.1.30
+   - EXIF:
+    . Fixed bug #77988 (heap-buffer-overflow on php_jpg_get16).
+      (CVE-2019-11040)
+   - GD:
+    . Fixed bug #77973 (Uninitialized read in gdImageCreateFromXbm).
+      (CVE-2019-11038)
+   - Iconv:
+    . Fixed bug #78069 (Out-of-bounds read in iconv.c:_php_iconv_mime_decode()
+      due to integer overflow). (CVE-2019-11039).
+   - SQLite:
+    . Fixed bug #77967 (Bypassing open_basedir restrictions via file uris).
+  * Backported from 7.1.31
+   - EXIF:
+    . Fixed bug #78256 (heap-buffer-overflow on exif_process_user_comment).
+      (CVE-2019-11042)
+    . Fixed bug #78222 (heap-buffer-overflow on exif_scan_thumbnail).
+      (CVE-2019-11041)
+   - Phar:
+    . Fixed bug #77919 (Potential UAF in Phar RSHUTDOWN).
+   - SQLite:
+    . Upgraded to SQLite 3.28.0.
+  * Backported from 7.1.32
+   - mbstring:
+    . Fixed CVE-2019-13224 (don't allow different encodings for onig_new_deluxe)
+   - pcre:
+    . Fixed bug #75457 (heap use-after-free in pcrelib)
+
+ -- Ondřej Surý <ondrej@sury.org>  Wed, 18 Sep 2019 11:55:34 +0200
+
 php7.0 (7.0.33-0+deb9u4) stretch-security; urgency=medium
 
   * Update d/watch for new php.net pages
