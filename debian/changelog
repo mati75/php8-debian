@@ -1,43 +1,10 @@
-php7.3 (7.3.9-1) unstable; urgency=medium
+php7.3 (7.3.9-1~deb10u1) buster-security; urgency=high
 
   * New upstream version 7.3.9
+  * php7.3-curl: Add Breaks against php7.0-curl for smoother upgrades from
+    stretch.  (Closes: #929689)
 
- -- Ondřej Surý <ondrej@sury.org>  Mon, 02 Sep 2019 14:46:39 +0200
-
-php7.3 (7.3.8-1) unstable; urgency=medium
-
-  * New upstream version 7.3.8
-  * Rebase patches for PHP 7.3.8
-
- -- Ondřej Surý <ondrej@sury.org>  Wed, 07 Aug 2019 11:50:45 +0200
-
-php7.3 (7.3.7-2) unstable; urgency=medium
-
-  * Add patch that reverts the break in symfony framework
-
- -- Ondřej Surý <ondrej@sury.org>  Thu, 25 Jul 2019 13:44:26 +0200
-
-php7.3 (7.3.7-1) unstable; urgency=medium
-
-  * New upstream version 7.3.7
-
- -- Ondřej Surý <ondrej@sury.org>  Wed, 10 Jul 2019 08:52:54 +0200
-
-php7.3 (7.3.6-1) unstable; urgency=medium
-
-  [ Ondřej Surý ]
-  * New upstream version 7.3.6
-
-  [ Andreas Beckmann ]
-  * php7.3-curl: Add Breaks against php7.0-curl for smoother upgrades from stretch.  (Closes: #929689)
-
- -- Ondřej Surý <ondrej@sury.org>  Fri, 31 May 2019 13:36:51 +0200
-
-php7.3 (7.3.5-1) unstable; urgency=medium
-
-  * New upstream version 7.3.5
-
- -- Ondřej Surý <ondrej@sury.org>  Fri, 03 May 2019 10:16:15 +0200
+ -- Ondřej Surý <ondrej@sury.org>  Wed, 18 Sep 2019 12:33:23 +0200
 
 php7.3 (7.3.4-2) unstable; urgency=medium
 
