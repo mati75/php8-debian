@@ -1,3 +1,10 @@
+php7.4 (7.4.0~rc3-1) experimental; urgency=medium
+
+  * New upstream version 7.4.0~rc3
+  * GMP now uses autodetection (don't pass /usr to configure)
+
+ -- Ondřej Surý <ondrej@sury.org>  Tue, 08 Oct 2019 07:23:10 +0200
+
 php7.4 (7.4.0~beta4-2) experimental; urgency=medium
 
   * Enable FFI experimental extension
