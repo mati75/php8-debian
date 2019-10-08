@@ -6,11 +6,9 @@ Subject: php-5.2.4-embed
  sapi/embed/config.m4 | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sapi/embed/config.m4 b/sapi/embed/config.m4
-index 069f4dc..8bb583b 100644
 --- a/sapi/embed/config.m4
 +++ b/sapi/embed/config.m4
-@@ -11,7 +11,7 @@ if test "$PHP_EMBED" != "no"; then
+@@ -11,7 +11,7 @@
    case "$PHP_EMBED" in
      yes|shared)
        PHP_EMBED_TYPE=shared

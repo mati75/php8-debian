@@ -7,11 +7,9 @@ Subject: php-5.3.9-mysqlnd
  ext/pdo_mysql/pdo_mysql.c        | 2 +-
  2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/ext/mysqlnd/mysqlnd_connection.c b/ext/mysqlnd/mysqlnd_connection.c
-index 9154731..a4c3ab5 100644
 --- a/ext/mysqlnd/mysqlnd_connection.c
 +++ b/ext/mysqlnd/mysqlnd_connection.c
-@@ -552,7 +552,7 @@ MYSQLND_METHOD(mysqlnd_conn_data, get_scheme)(MYSQLND_CONN_DATA * conn, MYSQLND_
+@@ -552,7 +552,7 @@
  	if (hostname.l == sizeof("localhost") - 1 && !strncasecmp(hostname.s, "localhost", hostname.l)) {
  		DBG_INF_FMT("socket=%s", socket_or_pipe->s? socket_or_pipe->s:"n/a");
  		if (!socket_or_pipe->s) {
@@ -20,11 +18,9 @@ index 9154731..a4c3ab5 100644
  			socket_or_pipe->l = strlen(socket_or_pipe->s);
  		}
  		transport.l = mnd_sprintf(&transport.s, 0, "unix://%s", socket_or_pipe->s);
-diff --git a/ext/pdo_mysql/pdo_mysql.c b/ext/pdo_mysql/pdo_mysql.c
-index 54e1c93..b355a83 100644
 --- a/ext/pdo_mysql/pdo_mysql.c
 +++ b/ext/pdo_mysql/pdo_mysql.c
-@@ -51,7 +51,7 @@ ZEND_DECLARE_MODULE_GLOBALS(pdo_mysql)
+@@ -51,7 +51,7 @@
  #  define PDO_MYSQL_UNIX_ADDR PHP_MYSQL_UNIX_SOCK_ADDR
  # else
  #  if !PHP_WIN32

@@ -7,12 +7,10 @@ Use -lldap_r by default.
  ext/ldap/config.m4 | 5 ++++-
  1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/ext/ldap/config.m4 b/ext/ldap/config.m4
-index a5aab49..dc9974b 100644
 --- a/ext/ldap/config.m4
 +++ b/ext/ldap/config.m4
-@@ -79,7 +79,10 @@ if test "$PHP_LDAP" != "no"; then
-     LDAP_PTHREAD=
+@@ -65,7 +65,10 @@
+     AC_MSG_ERROR(Cannot find ldap.h)
    fi
  
 -  if test -f $LDAP_LIBDIR/liblber.a || test -f $LDAP_LIBDIR/liblber.$SHLIB_SUFFIX_NAME || test -f $LDAP_LIBDIR/$DEB_HOST_MULTIARCH/liblber.a || test -f $LDAP_LIBDIR/$DEB_HOST_MULTIARCH/liblber.$SHLIB_SUFFIX_NAME; then
