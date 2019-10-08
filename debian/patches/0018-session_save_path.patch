@@ -35,10 +35,10 @@ index c2b4771..ede3a99 100644
  ; Whether to use strict session mode.
  ; Strict session mode does not accept uninitialized session ID and regenerate
 diff --git a/php.ini-production b/php.ini-production
-index 7732e1d..ded1452 100644
+index bba9980..206655e 100644
 --- a/php.ini-production
 +++ b/php.ini-production
-@@ -1368,7 +1368,7 @@ session.save_handler = files
+@@ -1363,7 +1363,7 @@ session.save_handler = files
  ; where MODE is the octal representation of the mode. Note that this
  ; does not overwrite the process's umask.
  ; http://php.net/session.save-path
