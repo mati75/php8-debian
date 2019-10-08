@@ -148,11 +148,6 @@
 ;   Development Value: Off
 ;   Production Value: Off
 
-; track_errors
-;   Default Value: Off
-;   Development Value: On
-;   Production Value: Off
-
 ; variables_order
 ;   Default Value: "EGPCS"
 ;   Development Value: "GPCS"
@@ -288,6 +283,13 @@ implicit_flush = Off
 ; So only set this entry, if you really want to implement such a
 ; callback-function.
 unserialize_callback_func =
+
+; The unserialize_max_depth specifies the default depth limit for unserialized
+; structures. Setting the depth limit too high may result in stack overflows
+; during unserialization. The unserialize_max_depth ini setting can be
+; overridden by the max_depth option on individual unserialize() calls.
+; A value of 0 disables the depth limit.
+;unserialize_max_depth = 4096
 
 ; When floats & doubles are serialized, store serialize_precision significant
 ; digits after the floating point. The default value ensures that when floats
@@ -910,6 +912,7 @@ default_socket_timeout = 60
 ;
 ;extension=bz2
 ;extension=curl
+;extension=ffi
 ;extension=fileinfo
 ;extension=gd2
 ;extension=gettext
@@ -1896,6 +1899,11 @@ ldap.max_links = -1
 ; start-up.
 ; http://php.net/opcache.preload
 ;opcache.preload=
+
+; Preloading code as root is not allowed for security reasons. This directive
+; facilitates to let the preloading to be run as another user.
+; http://php.net/opcache.preload_user
+;opcache.preload_user=
 
 ; Prevents caching files that are less than this number of seconds old. It
 ; protects from caching of incompletely updated files. In case all file updates

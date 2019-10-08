@@ -1,5 +1,96 @@
 PHP                                                                        NEWS
 |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+03 Oct 2019, PHP 7.4.0RC3
+
+- Core:
+  . Fixed bug #78604 (token_get_all() does not properly tokenize FOO<?php with
+    short_open_tag=0). (Nikita)
+
+- FFI:
+  . Fixed bug #78543 (is_callable() on FFI\CData throws Exception). (cmb)
+
+- GMP:
+  . Fixed bug #78574 (broken shared build). (Remi)
+
+- MBString:
+  . Fixed bug #78579 (mb_decode_numericentity: args number inconsistency).
+    (cmb)
+  . Fixed bug #78609 (mb_check_encoding() no longer supports stringable
+    objects). (cmb)
+
+- OpenSSL:
+  . Changed the default config path (Windows only). (cmb)
+
+- Standard:
+  . Fixed bug #78549 (Stack overflow due to nested serialized input). (Nikita)
+
+19 Sep 2019, PHP 7.4.0RC2
+
+- Core:
+  . Fixed incorrect usage of QM_ASSIGN instruction. It must not return IS_VAR.
+    As a side effect, this allowed passing left hand list() "by reference",
+    instead of compile-time error. (Dmitry)
+  . Fixed bug #78531 (Crash when using undefined variable as object). (Dmitry)
+  . Fixed bug #78535 (auto_detect_line_endings value not parsed as bool).
+    (bugreportuser)
+
+- FFI:
+  . Added missing FFI::isNull(). (Philip Hofstetter)
+  . Fixed bug #78488 (OOB in ZEND_FUNCTION(ffi_trampoline)). (Dmitry)
+
+- Opcache:
+  . Add opcache.preload_user INI directive. (Dmitry)
+  . Fixed bug #78514 (Preloading segfaults with inherited typed property).
+    (Nikita)
+  . Fixed bug #78429 (opcache_compile_file(__FILE__); segfaults). (cmb)
+
+- PCRE:
+  . Fixed bug #78349 (Bundled pcre2 library missing LICENCE file). (Peter Kokot)
+
+- PDO_Firebird:
+  . Implemented FR #77863 (PDO firebird support type Boolean in input
+    parameters). (Simonov Denis)
+
+- PDO_MySQL:
+  . Fixed bug #41997 (SP call yields additional empty result set). (cmb)
+
+- sodium:
+  . Fixed bug #78510 (Partially uninitialized buffer returned by
+    sodium_crypto_generichash_init()). (Frank Denis, cmb)
+  . Fixed bug #78516 (password_hash(): Memory cost is not in allowed range).
+    (cmb, Nikita)
+
+- Standard:
+  . Fixed bug #78506 (Error in a php_user_filter::filter() is not reported).
+    (Nikita)
+
+05 Sep 2019, PHP 7.4.0RC1
+
+- Core:
+  . Fixed bug #77812 (Interactive mode does not support PHP 7.3-style heredoc).
+    (cmb, Nikita)
+  . Fixed bug #78438 (Corruption when __unserializing deeply nested structures).
+    (cmb, Nikita)
+  . Fixed bug #78441 (Parse error due to heredoc identifier followed by digit).
+    (cmb)
+  . Fixed bug #78454 (Consecutive numeric separators cause OOM error).
+    (Theodore Brown)
+  . Fixed bug #78335 (Static properties/variables containing cycles report as
+    leak). (Nikita)
+  . Fixed bug #78460 (PEAR installation failure). (Peter Kokot, L. Declercq)
+
+- FPM:
+  . Fixed bug #78334 (fpm log prefix message includes wrong stdout/stderr
+    notation). (Tsuyoshi Sadakata)
+
+- ODBC:
+  . Fixed bug #78473 (odbc_close() closes arbitrary resources). (cmb)
+
+- SPL:
+  . Fixed bug #78436 (Missing addref in SplPriorityQueue EXTR_BOTH mode).
+    (Nikita)
+  . Fixed bug #78456 (Segfault when serializing SplDoublyLinkedList). (Nikita)
+
 22 Aug 2019, PHP 7.4.0beta4
 
 - Core:

@@ -275,7 +275,7 @@ static const func_info_t func_infos[] = {
 	F0("sleep",                        MAY_BE_FALSE | MAY_BE_LONG),
 	F0("usleep",                       MAY_BE_NULL | MAY_BE_FALSE),
 #if HAVE_NANOSLEEP
-	F0("time_nanosleep",               MAY_BE_NULL | MAY_BE_FALSE | MAY_BE_TRUE),
+	F0("time_nanosleep",               MAY_BE_NULL | MAY_BE_FALSE | MAY_BE_TRUE | MAY_BE_ARRAY | MAY_BE_ARRAY_KEY_STRING | MAY_BE_ARRAY_OF_LONG),
 	F0("time_sleep_until",             MAY_BE_NULL | MAY_BE_FALSE | MAY_BE_TRUE),
 #endif
 #if HAVE_STRPTIME
@@ -400,7 +400,7 @@ static const func_info_t func_infos[] = {
 	F1("system",                       MAY_BE_FALSE | MAY_BE_STRING),
 	F1("escapeshellcmd",               MAY_BE_NULL | MAY_BE_STRING),
 	F1("escapeshellarg",               MAY_BE_NULL | MAY_BE_STRING),
-	F1("passthru",                     MAY_BE_FALSE | MAY_BE_STRING),
+	F1("passthru",                     MAY_BE_NULL | MAY_BE_FALSE),
 	F1("shell_exec",                   MAY_BE_NULL | MAY_BE_FALSE | MAY_BE_STRING),
 #ifdef PHP_CAN_SUPPORT_PROC_OPEN
 	F1("proc_open",                    MAY_BE_FALSE | MAY_BE_RESOURCE),
@@ -412,6 +412,8 @@ static const func_info_t func_infos[] = {
 	F0("proc_nice",                    MAY_BE_FALSE | MAY_BE_TRUE),
 #endif
 	F0("rand",                         MAY_BE_NULL | MAY_BE_LONG),
+	F1("random_bytes",                 MAY_BE_STRING),
+	F1("random_int",                   MAY_BE_LONG),
 	F0("srand",                        MAY_BE_NULL),
 	F0("getrandmax",                   MAY_BE_NULL | MAY_BE_LONG),
 	F0("mt_rand",                      MAY_BE_NULL | MAY_BE_FALSE | MAY_BE_LONG),
@@ -499,8 +501,8 @@ static const func_info_t func_infos[] = {
 	F1("sys_getloadavg",               MAY_BE_FALSE | MAY_BE_ARRAY | MAY_BE_ARRAY_KEY_LONG | MAY_BE_ARRAY_OF_DOUBLE),
 #endif
 #ifdef HAVE_GETTIMEOFDAY
-	F1("microtime",                    MAY_BE_NULL | MAY_BE_DOUBLE | MAY_BE_ARRAY | MAY_BE_ARRAY_KEY_LONG | MAY_BE_ARRAY_OF_LONG | MAY_BE_STRING),
-	F1("gettimeofday",                 MAY_BE_NULL | MAY_BE_DOUBLE | MAY_BE_ARRAY | MAY_BE_ARRAY_KEY_STRING | MAY_BE_ARRAY_OF_LONG | MAY_BE_STRING),
+	F1("microtime",                    MAY_BE_NULL | MAY_BE_DOUBLE | MAY_BE_STRING),
+	F1("gettimeofday",                 MAY_BE_NULL | MAY_BE_DOUBLE | MAY_BE_ARRAY | MAY_BE_ARRAY_KEY_STRING | MAY_BE_ARRAY_OF_LONG),
 #endif
 #ifdef HAVE_GETRUSAGE
 	F1("getrusage",                    MAY_BE_NULL | MAY_BE_FALSE | MAY_BE_ARRAY | MAY_BE_ARRAY_KEY_STRING | MAY_BE_ARRAY_OF_LONG),
@@ -682,7 +684,7 @@ static const func_info_t func_infos[] = {
 	F1("stream_get_transports",        MAY_BE_FALSE | MAY_BE_ARRAY | MAY_BE_ARRAY_KEY_LONG | MAY_BE_ARRAY_OF_STRING),
 	F1("stream_resolve_include_path",  MAY_BE_NULL | MAY_BE_FALSE | MAY_BE_STRING),
 	F0("stream_is_local",              MAY_BE_FALSE | MAY_BE_TRUE),
-	F1("get_headers",                  MAY_BE_NULL | MAY_BE_FALSE | MAY_BE_ARRAY | MAY_BE_ARRAY_KEY_LONG | MAY_BE_ARRAY_OF_STRING | MAY_BE_ARRAY_OF_ARRAY),
+	F1("get_headers",                  MAY_BE_NULL | MAY_BE_FALSE | MAY_BE_ARRAY | MAY_BE_ARRAY_KEY_ANY | MAY_BE_ARRAY_OF_STRING | MAY_BE_ARRAY_OF_ARRAY),
 #if HAVE_SYS_TIME_H || defined(PHP_WIN32)
 	F0("stream_set_timeout",           MAY_BE_NULL | MAY_BE_FALSE | MAY_BE_TRUE),
 	F0("socket_set_timeout",           MAY_BE_NULL | MAY_BE_FALSE | MAY_BE_TRUE),
@@ -848,6 +850,8 @@ static const func_info_t func_infos[] = {
 	F1("array_chunk",                  MAY_BE_NULL | MAY_BE_ARRAY | MAY_BE_ARRAY_KEY_ANY | MAY_BE_ARRAY_OF_REF | MAY_BE_ARRAY_OF_ANY),
 	F1("array_combine",                MAY_BE_NULL | MAY_BE_FALSE | MAY_BE_ARRAY | MAY_BE_ARRAY_KEY_ANY | MAY_BE_ARRAY_OF_REF | MAY_BE_ARRAY_OF_ANY),
 	F0("array_key_exists",             MAY_BE_NULL | MAY_BE_FALSE | MAY_BE_TRUE),
+	FN("array_key_first",              MAY_BE_NULL | MAY_BE_LONG | MAY_BE_STRING),
+	FN("array_key_last",               MAY_BE_NULL | MAY_BE_LONG | MAY_BE_STRING),
 	F1("pos",                          UNKNOWN_INFO),
 	F0("sizeof",                       MAY_BE_NULL | MAY_BE_LONG),
 	F0("key_exists",                   MAY_BE_NULL | MAY_BE_FALSE | MAY_BE_TRUE),
@@ -1207,12 +1211,15 @@ static const func_info_t func_infos[] = {
 
 	/* ext/hash */
 	F1("hash",                                  MAY_BE_NULL | MAY_BE_FALSE | MAY_BE_STRING),
+	F0("hash_equals",                           MAY_BE_NULL | MAY_BE_FALSE | MAY_BE_TRUE),
 	F1("hash_file",                             MAY_BE_NULL | MAY_BE_FALSE | MAY_BE_STRING),
 	F1("hash_hmac",                             MAY_BE_NULL | MAY_BE_FALSE | MAY_BE_STRING),
+	F1("hash_hmac_algos",                       MAY_BE_ARRAY | MAY_BE_ARRAY_KEY_LONG | MAY_BE_ARRAY_OF_STRING),
 	F1("hash_hmac_file",                        MAY_BE_NULL | MAY_BE_FALSE | MAY_BE_STRING),
+	F1("hash_hkdf",                             MAY_BE_NULL | MAY_BE_FALSE | MAY_BE_STRING),
 	F1("hash_init",                             MAY_BE_NULL | MAY_BE_FALSE | MAY_BE_OBJECT),
 	F0("hash_update",                           MAY_BE_NULL | MAY_BE_FALSE | MAY_BE_TRUE),
-	F0("hash_update_stream",                    MAY_BE_NULL | MAY_BE_LONG),
+	F0("hash_update_stream",                    MAY_BE_NULL | MAY_BE_FALSE | MAY_BE_LONG),
 	F0("hash_update_file",                      MAY_BE_NULL | MAY_BE_FALSE | MAY_BE_TRUE),
 	F1("hash_final",                            MAY_BE_NULL | MAY_BE_STRING),
 	F1("hash_copy",                             MAY_BE_NULL | MAY_BE_FALSE | MAY_BE_OBJECT),
@@ -1600,6 +1607,17 @@ static const func_info_t func_infos[] = {
 	F1("imageaffinematrixconcat",				MAY_BE_NULL | MAY_BE_FALSE | MAY_BE_ARRAY | MAY_BE_ARRAY_KEY_LONG | MAY_BE_ARRAY_OF_DOUBLE),
 	F0("imagesetinterpolation",					MAY_BE_NULL | MAY_BE_FALSE | MAY_BE_TRUE),
 	F1("imageresolution",						MAY_BE_NULL | MAY_BE_FALSE | MAY_BE_TRUE | MAY_BE_ARRAY | MAY_BE_ARRAY_KEY_LONG | MAY_BE_ARRAY_OF_LONG),
+
+	/* ext/spl */
+	F1("class_implements",						MAY_BE_FALSE | MAY_BE_ARRAY | MAY_BE_ARRAY_KEY_STRING | MAY_BE_ARRAY_OF_STRING),
+	F1("class_parents",							MAY_BE_FALSE | MAY_BE_ARRAY | MAY_BE_ARRAY_KEY_STRING | MAY_BE_ARRAY_OF_STRING),
+	F1("class_uses",							MAY_BE_FALSE | MAY_BE_ARRAY | MAY_BE_ARRAY_KEY_STRING | MAY_BE_ARRAY_OF_STRING),
+	F0("iterator_apply",						MAY_BE_NULL | MAY_BE_LONG),
+	F0("iterator_count",						MAY_BE_FALSE | MAY_BE_LONG),
+	F1("iterator_to_array",						MAY_BE_FALSE | MAY_BE_ARRAY | MAY_BE_ARRAY_KEY_ANY | MAY_BE_ARRAY_OF_REF | MAY_BE_ARRAY_OF_ANY),
+	F1("spl_classes",							MAY_BE_NULL | MAY_BE_ARRAY | MAY_BE_ARRAY_KEY_STRING | MAY_BE_ARRAY_OF_STRING),
+	F1("spl_object_hash",						MAY_BE_NULL | MAY_BE_STRING),
+	F0("spl_object_id",							MAY_BE_NULL | MAY_BE_LONG),
 
 };
 
