@@ -1379,6 +1379,10 @@ tail_call:
 					ref = Z_COUNTED_P(zv);
 					goto tail_call;
 				}
+				if (GC_REF_ADDRESS(ht) != 0 && GC_REF_CHECK_COLOR(ht, GC_BLACK)) {
+					GC_TRACE_REF(ht, "removing from buffer");
+					GC_REMOVE_FROM_BUFFER(ht);
+				}
 			} else {
 				return count;
 			}
@@ -1545,7 +1549,6 @@ ZEND_API int zend_gc_collect_cycles(void)
 
 		/* Destroy zvals */
 		GC_TRACE("Destroying zvals");
-		GC_G(gc_protected) = 1;
 		current = GC_IDX2PTR(GC_FIRST_ROOT);
 		last = GC_IDX2PTR(GC_G(first_unused));
 		while (current != last) {
@@ -1596,7 +1599,6 @@ ZEND_API int zend_gc_collect_cycles(void)
 
 		GC_TRACE("Collection finished");
 		GC_G(collected) += count;
-		GC_G(gc_protected) = 0;
 		GC_G(gc_active) = 0;
 	}
 

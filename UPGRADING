@@ -316,6 +316,12 @@ PHP 7.4 UPGRADE NOTES
 
     RFC: https://wiki.php.net/rfc/custom_object_serialization
 
+  . A new 'max_depth' option for unserialize(), as well as a
+    unserialize_max_depth ini setting have been added. These control the
+    maximum depth of structures permitted during unserialization, and are
+    intended to prevent stack overflows. The default depth limit is 4096 and
+    can be disabled by setting unserialize_max_depth=0.
+
   . array_merge() and array_merge_recursive() may now be called without any
     arguments, in which case they will return an empty array. This is useful
     in conjunction with the spread operator, e.g. array_merge(...$arrays).
@@ -365,7 +371,7 @@ PHP 7.4 UPGRADE NOTES
     ReflectionMethod::getClosure() and closure rebinding is deprecated. Doing
     so is equivalent to calling a non-static method statically, which has been
     deprecated since PHP 7.0.
-  . Unbinding $this of a non-static closure is deprecated.
+  . Unbinding $this of a non-static closure that uses $this is deprecated.
   . Using "parent" inside a class without a parent is deprecated, and will throw
     a compile-time error in the future. Currently an error will only be
     generated if/when the parent is accessed at run-time.
@@ -403,6 +409,11 @@ PHP 7.4 UPGRADE NOTES
         echo new ReflectionClass(Foo::class), "\n";
         // $str = ReflectionClass::export(Foo::class, true) is:
         $str = (string) new ReflectionClass(Foo::class);
+
+- Socket:
+  . The AI_IDN_ALLOW_UNASSIGNED and AI_IDN_USE_STD3_ASCII_RULES flags for
+    socket_addrinfo_lookup() are deprecated, due to an upstream deprecation in
+    glibc.
 
 - Standard:
   . Passing invalid characters to ''base_convert()'', ''bindec()'', ''octdec()''
@@ -547,6 +558,10 @@ PHP 7.4 UPGRADE NOTES
   . The Intl extension now requires at least ICU 50.1.
   . ResourceBundle now implements Countable.
 
+- Ldap:
+  . Support for nsldap has been removed.
+  . Support for umich_ldap has been removed.
+
 - Libxml:
   . All libxml based extensions now require libxml 2.7.6 or newer.
 
@@ -647,6 +662,11 @@ PHP 7.4 UPGRADE NOTES
   . New INI directive to include or exclude arguments from stack traces
     generated for exceptions.
 
+- opcache.preload_user
+  . New INI directive to specifiy the user account under which preloading code
+    is executed, if it was to be run as root otherwise (which is not allowed
+    for security reasons).
+
 ========================================
 12. Windows Support
 ========================================
@@ -669,6 +689,10 @@ PHP 7.4 UPGRADE NOTES
 - OPcache now supports an arbitrary amount of separate caches per user via the
   the INI directive opcache.cache_id. All processes with the same cache ID and
   user share an OPcache instance.
+
+- The OpenSSL default config path has been changed to 
+  "C:\Program Files\Common Files\SSL\openssl.cnf" and
+  "C:\Program Files (x86)\Common Files\SSL\openssl.cnf", repectively.
 
 ========================================
 13. Migration to pkg-config

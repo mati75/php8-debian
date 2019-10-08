@@ -1205,9 +1205,6 @@
 /* Define to 1 if you have the <nmmintrin.h> header file. */
 #undef HAVE_NMMINTRIN_H
 
-/* */
-#undef HAVE_NSLDAP
-
 /* Defined to 1 if the PHP OCI8 extension for Oracle Database is configured */
 #undef HAVE_OCI8
 
@@ -1244,15 +1241,6 @@
 
 /* */
 #undef HAVE_ORALDAP
-
-/* */
-#undef HAVE_ORALDAP_10
-
-/* */
-#undef HAVE_ORALDAP_11
-
-/* */
-#undef HAVE_ORALDAP_12
 
 /* */
 #undef HAVE_PCRE

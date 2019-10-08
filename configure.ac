@@ -17,7 +17,7 @@ dnl Basic autoconf initialization, generation of config.nice.
 dnl ----------------------------------------------------------------------------
 
 AC_PREREQ([2.68])
-AC_INIT([PHP],[7.4.0beta4],[https://bugs.php.net],[php],[https://www.php.net])
+AC_INIT([PHP],[7.4.0RC3],[https://bugs.php.net],[php],[https://www.php.net])
 AC_CONFIG_SRCDIR([main/php_version.h])
 AC_CONFIG_AUX_DIR([build])
 AC_PRESERVE_HELP_ORDER
@@ -1103,7 +1103,9 @@ enable_static=yes
 
 case $php_sapi_module in
   shared[)]
-    enable_static=no
+    if test "$PHP_CGI" = "no" && test "$PHP_CLI" = "no" && test "$PHP_FPM" = "no" && test "$PHP_LITESPEED" = "no" && test "$PHP_PHPDBG" = "no"; then
+      enable_static=no
+    fi
     case $with_pic in
       yes)
         standard_libtool_flag='-prefer-pic'
@@ -1550,6 +1552,8 @@ PHP_GEN_GLOBAL_MAKEFILE
 
 AC_DEFINE([HAVE_BUILD_DEFS_H], 1, [ ])
 
+dnl Make directories when building in a separate build directory.
+$php_shtool mkdir -p pear
 $php_shtool mkdir -p scripts
 $php_shtool mkdir -p scripts/man1
 
