@@ -1,3 +1,12 @@
+php5.6 (5.6.40-13) experimental; urgency=medium
+
+  * Backported from 7.1.33
+   - FPM:
+    . Fixed bug #78599 (env_path_info underflow in fpm_main.c can lead to
+    RCE). (CVE-2019-11043)
+
+ -- Ondřej Surý <ondrej@debian.org>  Thu, 24 Oct 2019 21:07:59 +0200
+
 php5.6 (5.6.40-12) experimental; urgency=medium
 
   * Backported from 7.1.32
