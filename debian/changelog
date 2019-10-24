@@ -1,3 +1,9 @@
+php7.1 (7.1.32-2) unstable; urgency=medium
+
+  * [CVE-2019-11043]: Add fix for RCE in FPM
+
+ -- Ondřej Surý <ondrej@debian.org>  Thu, 24 Oct 2019 20:42:32 +0200
+
 php7.1 (7.1.32-1) unstable; urgency=medium
 
   * New upstream version 7.1.32
