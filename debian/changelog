@@ -1,3 +1,12 @@
+php7.0 (7.0.33-0+deb9u6) stretch-security; urgency=medium
+
+  * Backported from 7.1.33
+   - FPM:
+    . Fixed bug #78599 (env_path_info underflow in fpm_main.c can lead to
+    RCE). (CVE-2019-11043)
+
+ -- Ondřej Surý <ondrej@debian.org>  Thu, 24 Oct 2019 20:50:20 +0200
+
 php7.0 (7.0.33-0+deb9u5) stretch-security; urgency=medium
 
   * Backported security fixes from PHP 7.1.29:
