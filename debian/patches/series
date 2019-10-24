@@ -99,3 +99,5 @@
 0099-Prevent-test-case-failure.patch
 0100-Fix-module-name-in-test-cases.patch
 0101-Fix-test-expectations-to-match-the-implementation.patch
+0102-Fix-bug-78599-env_path_info-underflow-can-lead-to-RC.patch
+0103-add-NEWS-entry.patch
