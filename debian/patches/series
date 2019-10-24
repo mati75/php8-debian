@@ -101,3 +101,5 @@
 0101-test-fixes.patch
 0102-Fixed-test-on-32-bit-systems.patch
 0103-Prevent-test-case-failure.patch
+0104-Fix-bug-78599-env_path_info-underflow-can-lead-to-RC.patch
+0105-add-NEWS-entry.patch
