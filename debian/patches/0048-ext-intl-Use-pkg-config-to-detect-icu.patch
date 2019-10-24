@@ -46,7 +46,7 @@ index 52408f8..592cea3 100644
    PHP_INTL_CXX_SOURCES="intl_convertcpp.cpp \
      common/common_enum.cpp \
 diff --git a/ext/intl/msgformat/msgformat_helpers.cpp b/ext/intl/msgformat/msgformat_helpers.cpp
-index 25fa3e5..641457a 100644
+index 3e9b0d7..fa54ba9 100644
 --- a/ext/intl/msgformat/msgformat_helpers.cpp
 +++ b/ext/intl/msgformat/msgformat_helpers.cpp
 @@ -216,6 +216,8 @@ static HashTable *umsg_parse_format(MessageFormatter_object *mfo,
