@@ -792,6 +792,12 @@ static ZEND_COLD void zend_verify_arg_error(
 	const char *fname, *fsep, *fclass;
 	const char *need_msg, *need_kind, *need_or_null, *given_msg, *given_kind;
 
+	if (EG(exception)) {
+		/* The type verification itself might have already thrown an exception
+		 * through a promoted warning. */
+		return;
+	}
+
 	if (value) {
 		zend_verify_type_error_common(
 			zf, arg_info, ce, value,
@@ -2765,6 +2771,7 @@ static zend_always_inline void zend_fetch_property_address(zval *result, zval *c
 
 			/* this should modify object only if it's empty */
 			if (type == BP_VAR_UNSET) {
+				ZVAL_NULL(result);
 				return;
 			}
 
@@ -2815,6 +2822,9 @@ static zend_always_inline void zend_fetch_property_address(zval *result, zval *c
 			}
 			return;
 		}
+	} else if (UNEXPECTED(Z_ISERROR_P(ptr))) {
+		ZVAL_ERROR(result);
+		return;
 	}
 
 	ZVAL_INDIRECT(result, ptr);
@@ -2855,6 +2865,7 @@ static zend_always_inline void zend_assign_to_property_reference(zval *container
 		variable_ptr = &EG(uninitialized_zval);
 	} else if (UNEXPECTED(Z_TYPE(variable) != IS_INDIRECT)) {
 		zend_throw_error(NULL, "Cannot assign by reference to overloaded object");
+		zval_ptr_dtor(&variable);
 		variable_ptr = &EG(uninitialized_zval);
 	} else if (/*OP_DATA_TYPE == IS_VAR &&*/ UNEXPECTED(Z_ISERROR_P(value_ptr))) {
 		variable_ptr = &EG(uninitialized_zval);
