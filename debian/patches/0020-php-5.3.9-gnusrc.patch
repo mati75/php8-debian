@@ -14,6 +14,8 @@ Subject: php-5.3.9-gnusrc
  main/streams/streams.c             | 1 -
  9 files changed, 5 insertions(+), 9 deletions(-)
 
+diff --git a/Zend/zend_language_parser.c b/Zend/zend_language_parser.c
+index e43443b..15798e0 100644
 --- a/Zend/zend_language_parser.c
 +++ b/Zend/zend_language_parser.c
 @@ -69,6 +69,8 @@
@@ -25,9 +27,11 @@ Subject: php-5.3.9-gnusrc
  
  /*
     +----------------------------------------------------------------------+
+diff --git a/configure.ac b/configure.ac
+index fd5620c..f1c20fb 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -130,6 +130,8 @@
+@@ -130,6 +130,8 @@ AC_DEFUN([PHP_EXT_DIR],[$config_m4_dir])dnl
  AC_DEFUN([PHP_EXT_SRCDIR],[$abs_srcdir/$config_m4_dir])dnl
  AC_DEFUN([PHP_ALWAYS_SHARED],[])dnl
  
@@ -36,6 +40,8 @@ Subject: php-5.3.9-gnusrc
  dnl Setting up the PHP version based on the information above.
  dnl ----------------------------------------------------------------------------
  
+diff --git a/ext/pdo_firebird/firebird_driver.c b/ext/pdo_firebird/firebird_driver.c
+index 8b2a128..a0f5e51 100644
 --- a/ext/pdo_firebird/firebird_driver.c
 +++ b/ext/pdo_firebird/firebird_driver.c
 @@ -20,7 +20,6 @@
@@ -46,9 +52,11 @@ Subject: php-5.3.9-gnusrc
  
  #include "php.h"
  #include "zend_exceptions.h"
+diff --git a/ext/standard/file.c b/ext/standard/file.c
+index 12effbd..1935f6b 100644
 --- a/ext/standard/file.c
 +++ b/ext/standard/file.c
-@@ -105,9 +105,6 @@
+@@ -105,9 +105,6 @@ php_file_globals file_globals;
  #endif
  
  #if defined(HAVE_FNMATCH) && !defined(PHP_WIN32)
@@ -58,6 +66,8 @@ Subject: php-5.3.9-gnusrc
  # include <fnmatch.h>
  #endif
  
+diff --git a/ext/zlib/zlib_fopen_wrapper.c b/ext/zlib/zlib_fopen_wrapper.c
+index 514773f..b6a7f4c 100644
 --- a/ext/zlib/zlib_fopen_wrapper.c
 +++ b/ext/zlib/zlib_fopen_wrapper.c
 @@ -17,8 +17,6 @@
@@ -69,6 +79,8 @@ Subject: php-5.3.9-gnusrc
  #include "php.h"
  #include "php_zlib.h"
  #include "fopen_wrappers.h"
+diff --git a/main/php.h b/main/php.h
+index dbd7673..dad168c 100644
 --- a/main/php.h
 +++ b/main/php.h
 @@ -29,6 +29,7 @@
@@ -79,6 +91,8 @@ Subject: php-5.3.9-gnusrc
  #include "php_version.h"
  #include "zend.h"
  #include "zend_sort.h"
+diff --git a/main/streams/cast.c b/main/streams/cast.c
+index 262ec5e..c20c9e6 100644
 --- a/main/streams/cast.c
 +++ b/main/streams/cast.c
 @@ -16,7 +16,6 @@
@@ -89,6 +103,8 @@ Subject: php-5.3.9-gnusrc
  #include "php.h"
  #include "php_globals.h"
  #include "php_network.h"
+diff --git a/main/streams/memory.c b/main/streams/memory.c
+index 4b92fc2..90f71dc 100644
 --- a/main/streams/memory.c
 +++ b/main/streams/memory.c
 @@ -16,7 +16,6 @@
@@ -99,6 +115,8 @@ Subject: php-5.3.9-gnusrc
  #include "php.h"
  #include "ext/standard/base64.h"
  
+diff --git a/main/streams/streams.c b/main/streams/streams.c
+index 495feab..0210fac 100644
 --- a/main/streams/streams.c
 +++ b/main/streams/streams.c
 @@ -19,7 +19,6 @@

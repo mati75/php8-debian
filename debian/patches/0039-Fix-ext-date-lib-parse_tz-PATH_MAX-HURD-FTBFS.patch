@@ -6,9 +6,11 @@ Subject: Fix ext/date/lib/parse_tz PATH_MAX HURD FTBFS
  ext/date/lib/parse_tz.c | 55 ++++++++++++++++++++++++++++++++++++-------------
  1 file changed, 41 insertions(+), 14 deletions(-)
 
+diff --git a/ext/date/lib/parse_tz.c b/ext/date/lib/parse_tz.c
+index 9b39c6e..4f271d7 100644
 --- a/ext/date/lib/parse_tz.c
 +++ b/ext/date/lib/parse_tz.c
-@@ -537,13 +537,19 @@
+@@ -537,13 +537,19 @@ static char *parse_iso6709(char *p, double *result)
  static struct location_info **create_location_table(void)
  {
      struct location_info **li, *i;
@@ -30,7 +32,7 @@ Subject: Fix ext/date/lib/parse_tz PATH_MAX HURD FTBFS
      if (!fp) {
          return NULL;
      }
-@@ -678,12 +684,14 @@
+@@ -678,12 +684,14 @@ static void create_zone_index(timelib_tzdb *db)
  
  	do {
  		struct dirent **ents;
@@ -48,7 +50,7 @@ Subject: Fix ext/date/lib/parse_tz PATH_MAX HURD FTBFS
  
  		count = php_scandir(name, &ents, index_filter, php_alphasort);
  
-@@ -691,7 +699,9 @@
+@@ -691,7 +699,9 @@ static void create_zone_index(timelib_tzdb *db)
  			struct stat st;
  			const char *leaf = ents[count - 1]->d_name;
  
@@ -59,7 +61,7 @@ Subject: Fix ext/date/lib/parse_tz PATH_MAX HURD FTBFS
  				 top, leaf);
  			
  			if (strlen(name) && stat(name, &st) == 0) {
-@@ -700,7 +710,9 @@
+@@ -700,7 +710,9 @@ static void create_zone_index(timelib_tzdb *db)
  
  				if (root[0] == '/') root++;
  
@@ -70,7 +72,7 @@ Subject: Fix ext/date/lib/parse_tz PATH_MAX HURD FTBFS
  					 *root ? "/": "", leaf);
  
  				if (S_ISDIR(st.st_mode)) {
-@@ -726,6 +738,7 @@
+@@ -726,6 +738,7 @@ static void create_zone_index(timelib_tzdb *db)
  		}
  		
  		if (count != -1) free(ents);
@@ -78,7 +80,7 @@ Subject: Fix ext/date/lib/parse_tz PATH_MAX HURD FTBFS
  		free(top);
  	} while (dirstack_top);
  
-@@ -824,18 +837,24 @@
+@@ -824,18 +837,24 @@ static const char *canonical_tzname(const char *timezone)
   * length of the mapped data is placed in *length. */
  static char *map_tzfile(const char *timezone, size_t *length)
  {
@@ -107,7 +109,7 @@ Subject: Fix ext/date/lib/parse_tz PATH_MAX HURD FTBFS
  	if (fd == -1) {
  		return NULL;
  	} else if (fstat(fd, &st) != 0 || !is_valid_tzfile(&st, fd)) {
-@@ -934,7 +953,9 @@
+@@ -934,7 +953,9 @@ int timelib_timezone_id_is_valid(char *timezone, const timelib_tzdb *tzdb)
  
  #ifdef HAVE_SYSTEM_TZDATA
  	if (tzdb == timezonedb_system) {
@@ -118,7 +120,7 @@ Subject: Fix ext/date/lib/parse_tz PATH_MAX HURD FTBFS
  		struct stat st;
  
  		if (timezone[0] == '\0' || strstr(timezone, "..") != NULL) {
-@@ -948,9 +969,15 @@
+@@ -948,9 +969,15 @@ int timelib_timezone_id_is_valid(char *timezone, const timelib_tzdb *tzdb)
  			}
  		}
  
