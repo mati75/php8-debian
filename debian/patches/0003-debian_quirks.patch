@@ -13,7 +13,7 @@ Subject: debian_quirks
  7 files changed, 20 insertions(+), 16 deletions(-)
 
 diff --git a/configure.ac b/configure.ac
-index 0a725d8..ececa9f 100644
+index 6ad48f0..7517e38 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -1160,7 +1160,7 @@ if test "$PHP_CLI" = "no"; then
@@ -56,10 +56,10 @@ index 97e1657..dbdeb2d 100644
  ; Windows: "\path1;\path2"
  ;include_path = ".;c:\php\includes"
 diff --git a/php.ini-production b/php.ini-production
-index a44fe0f..5c4389f 100644
+index c4f9a71..465ce60 100644
 --- a/php.ini-production
 +++ b/php.ini-production
-@@ -733,7 +733,7 @@ default_charset = "UTF-8"
+@@ -728,7 +728,7 @@ default_charset = "UTF-8"
  ;;;;;;;;;;;;;;;;;;;;;;;;;
  
  ; UNIX: "/path1:/path2"
