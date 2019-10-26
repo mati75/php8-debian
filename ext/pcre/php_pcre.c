@@ -565,7 +565,7 @@ static zend_always_inline size_t calculate_unit_length(pcre_cache_entry *pce, ch
 
 /* {{{ pcre_get_compiled_regex_cache
  */
-PHPAPI pcre_cache_entry* pcre_get_compiled_regex_cache(zend_string *regex)
+PHPAPI pcre_cache_entry* pcre_get_compiled_regex_cache_ex(zend_string *regex, int locale_aware)
 {
 	pcre2_code			*re = NULL;
 	uint32_t			 coptions = 0;
@@ -587,7 +587,7 @@ PHPAPI pcre_cache_entry* pcre_get_compiled_regex_cache(zend_string *regex)
 	zend_string 		*key;
 	pcre_cache_entry *ret;
 
-	if (BG(locale_string) &&
+	if (locale_aware && BG(locale_string) &&
 		(ZSTR_LEN(BG(locale_string)) != 1 && ZSTR_VAL(BG(locale_string))[0] != 'C')) {
 		key = zend_string_alloc(ZSTR_LEN(regex) + ZSTR_LEN(BG(locale_string)) + 1, 0);
 		memcpy(ZSTR_VAL(key), ZSTR_VAL(BG(locale_string)), ZSTR_LEN(BG(locale_string)) + 1);
@@ -801,6 +801,12 @@ PHPAPI pcre_cache_entry* pcre_get_compiled_regex_cache(zend_string *regex)
 			if (!pcre2_pattern_info(re, PCRE2_INFO_JITSIZE, &jit_size) && jit_size > 0) {
 				poptions |= PREG_JIT;
 			}
+		} else if (rc == PCRE2_ERROR_NOMEMORY) {
+			php_error_docref(NULL, E_WARNING,
+				"Allocation of JIT memory failed, PCRE JIT will be disabled. "
+				"This is likely caused by security restrictions. "
+				"Either grant PHP permission to allocate executable memory, or set pcre.jit=0");
+			PCRE_G(jit) = 0;
 		} else {
 			pcre2_get_error_message(rc, error, sizeof(error));
 			php_error_docref(NULL, E_WARNING, "JIT compilation failed: %s", error);
@@ -870,6 +876,14 @@ PHPAPI pcre_cache_entry* pcre_get_compiled_regex_cache(zend_string *regex)
 	}
 
 	return ret;
+}
+/* }}} */
+
+/* {{{ pcre_get_compiled_regex_cache
+ */
+PHPAPI pcre_cache_entry* pcre_get_compiled_regex_cache(zend_string *regex)
+{
+	return pcre_get_compiled_regex_cache_ex(regex, 1);
 }
 /* }}} */
 

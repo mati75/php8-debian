@@ -2624,6 +2624,7 @@ COMMAND $cmd
 			if (!$cfg['keep']['php']) {
 				@unlink($test_file);
 			}
+			@unlink($tmp_post);
 
 			if (!$leaked && !$failed_headers) {
 				if (isset($section_text['XFAIL'])) {
@@ -2653,6 +2654,7 @@ COMMAND $cmd
 			if (!$cfg['keep']['php']) {
 				@unlink($test_file);
 			}
+			@unlink($tmp_post);
 
 			if (!$leaked && !$failed_headers) {
 				if (isset($section_text['XFAIL'])) {
@@ -2690,10 +2692,6 @@ COMMAND $cmd
 
 	if ($warn) {
 		$restype[] = 'WARN';
-	}
-
-	if ($passed) {
-		@unlink($tmp_post);
 	}
 
 	if (!$passed) {
@@ -3505,6 +3503,8 @@ function junit_get_suitename_for($file_name)
 function junit_path_to_classname($file_name)
 {
 	global $JUNIT;
+
+	if (!junit_enabled()) return '';
 
 	$ret = $JUNIT['name'];
 	$_tmp = array();

@@ -3631,6 +3631,7 @@ ZEND_VM_HANDLER(113, ZEND_INIT_STATIC_METHOD_CALL, UNUSED|CLASS_FETCH|CONST|VAR,
 			ce = zend_fetch_class_by_name(Z_STR_P(RT_CONSTANT(opline, opline->op1)), Z_STR_P(RT_CONSTANT(opline, opline->op1) + 1), ZEND_FETCH_CLASS_DEFAULT | ZEND_FETCH_CLASS_EXCEPTION);
 			if (UNEXPECTED(ce == NULL)) {
 				ZEND_ASSERT(EG(exception));
+				FREE_UNFETCHED_OP2();
 				HANDLE_EXCEPTION();
 			}
 			if (OP2_TYPE != IS_CONST) {
@@ -5209,7 +5210,7 @@ ZEND_VM_HOT_HANDLER(63, ZEND_RECV, NUM, UNUSED|CACHE_SLOT)
 		zval *param = EX_VAR(opline->result.var);
 
 		SAVE_OPLINE();
-		if (UNEXPECTED(!zend_verify_recv_arg_type(EX(func), arg_num, param, NULL, CACHE_ADDR(opline->op2.num)) || EG(exception))) {
+		if (UNEXPECTED(!zend_verify_recv_arg_type(EX(func), arg_num, param, NULL, CACHE_ADDR(opline->op2.num)))) {
 			HANDLE_EXCEPTION();
 		}
 	}
@@ -5248,17 +5249,19 @@ ZEND_VM_HOT_HANDLER(64, ZEND_RECV_INIT, NUM, CONST, CACHE_SLOT)
 					ZVAL_COPY_VALUE(cache_val, param);
 				}
 			}
+			ZEND_VM_C_GOTO(recv_init_check_type);
 		} else {
 			ZVAL_COPY(param, default_value);
 		}
-	}
+	} else {
+ZEND_VM_C_LABEL(recv_init_check_type):
+		if (UNEXPECTED((EX(func)->op_array.fn_flags & ZEND_ACC_HAS_TYPE_HINTS) != 0)) {
+			zval *default_value = RT_CONSTANT(opline, opline->op2);
 
-	if (UNEXPECTED((EX(func)->op_array.fn_flags & ZEND_ACC_HAS_TYPE_HINTS) != 0)) {
-		zval *default_value = RT_CONSTANT(opline, opline->op2);
-
-		SAVE_OPLINE();
-		if (UNEXPECTED(!zend_verify_recv_arg_type(EX(func), arg_num, param, default_value, CACHE_ADDR(opline->extended_value)) || EG(exception))) {
-			HANDLE_EXCEPTION();
+			SAVE_OPLINE();
+			if (UNEXPECTED(!zend_verify_recv_arg_type(EX(func), arg_num, param, default_value, CACHE_ADDR(opline->extended_value)))) {
+				HANDLE_EXCEPTION();
+			}
 		}
 	}
 
