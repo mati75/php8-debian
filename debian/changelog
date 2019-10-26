@@ -1,3 +1,10 @@
+php7.4 (7.4.0~rc4-1) experimental; urgency=medium
+
+  * Bump d/phpapi to 20190902
+  * New upstream version 7.4.0~rc4
+
+ -- Ondřej Surý <ondrej@debian.org>  Sat, 26 Oct 2019 11:10:04 +0200
+
 php7.4 (7.4.0~rc3-1) experimental; urgency=medium
 
   * New upstream version 7.4.0~rc3
