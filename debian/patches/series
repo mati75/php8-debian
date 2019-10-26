@@ -49,4 +49,3 @@
 0049-Fix-rl_completion_matches-compilation-with-newer-lib.patch
 0050-PATCH-Fixed-bug-62596-add-getallheaders-apache_reque.patch
 0051-Amend-C-11-for-intl-compilation-on-older-distributio.patch
-0052-Fix-bug-78599-env_path_info-underflow-can-lead-to-RC.patch

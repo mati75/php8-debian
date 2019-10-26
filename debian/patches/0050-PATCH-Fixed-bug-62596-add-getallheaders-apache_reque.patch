@@ -153,7 +153,7 @@ index cecf32a..ab32d93 100644
  		char buf[128];
  		char **env, *p, *q, *var, *val, *t = buf;
 diff --git a/sapi/fpm/fpm/fpm_main.c b/sapi/fpm/fpm/fpm_main.c
-index 24a7e5d..4cfed57 100644
+index 50f9298..8b72112 100644
 --- a/sapi/fpm/fpm/fpm_main.c
 +++ b/sapi/fpm/fpm/fpm_main.c
 @@ -1533,6 +1533,10 @@ PHP_FUNCTION(fastcgi_finish_request) /* {{{ */
