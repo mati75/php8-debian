@@ -41,6 +41,7 @@ chown $user: $datadir
 
 case "$mysqld_version" in
     5.7|8.0)
+	mysqld="$mysqld --skip-mysqlx"
 	$mysqld --initialize-insecure
 	;;
     5.5|5.6|10.0|*)
