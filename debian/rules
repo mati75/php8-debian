@@ -113,13 +113,6 @@ ifeq (,$(filter $(DEB_HOST_ARCH),$(SANE_ARCHS)))
   CONFIGURE_PCRE_JIT := --without-pcre-jit
 endif
 
-MYSQL_VERSION := $(shell /usr/sbin/mysqld -V 2>/dev/null | sed -ne 's/.*Ver \([0-9]\+\.[0-9]\+\).*/\1/p')
-
-ifeq (8.0,$(MYSQL_VERSION))
-  $(warning Temporarily tests with MySQL 8.0 on Ubuntu 19.10)
-  RUN_TESTS := no
-endif
-
 ifeq (yes,$(RUN_TESTS))
   MYSQL_PORT := $(shell for i in $$(seq 1025 3600 | sort -R); do nc -z localhost $$i || { echo $$i; exit; } ; done)
   MYSQL_DATA_DIR := $(shell readlink -f mysql_db)
