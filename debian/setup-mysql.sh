@@ -40,7 +40,11 @@ chmod go-rx $datadir
 chown $user: $datadir
 
 case "$mysqld_version" in
-    5.7|8.0)
+    5.7)
+	mysqld="$mysqld"
+	$mysqld --initialize-insecure
+	;;
+    8.0)
 	mysqld="$mysqld --skip-mysqlx"
 	$mysqld --initialize-insecure
 	;;
