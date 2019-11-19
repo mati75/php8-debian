@@ -204,6 +204,8 @@ int php_json_yyparse (php_json_parser *parser);
 
 static int php_json_yylex(union YYSTYPE *value, php_json_parser *parser);
 static void php_json_yyerror(php_json_parser *parser, char const *msg);
+static int php_json_parser_array_create(php_json_parser *parser, zval *array);
+static int php_json_parser_object_create(php_json_parser *parser, zval *array);
 
 
 
@@ -504,10 +506,10 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    85,    85,    95,    94,   112,   113,   122,   125,   129,
-     136,   146,   155,   154,   172,   173,   182,   185,   189,   194,
-     202,   203,   207,   208,   209,   210,   211,   212,   213,   214,
-     215
+       0,    87,    87,    97,    96,   114,   115,   124,   131,   135,
+     142,   152,   161,   160,   178,   179,   188,   195,   199,   204,
+     212,   213,   217,   218,   219,   220,   221,   222,   223,   224,
+     225
 };
 #endif
 
@@ -1456,7 +1458,11 @@ yyreduce:
   case 7:
 
     {
-				parser->methods.object_create(parser, &(yyval.value));
+				if ((parser->scanner.options & PHP_JSON_OBJECT_AS_ARRAY) && parser->methods.object_create == php_json_parser_object_create) {
+					ZVAL_EMPTY_ARRAY(&(yyval.value));
+				} else {
+					parser->methods.object_create(parser, &(yyval.value));
+				}
 			}
 
     break;
@@ -1527,7 +1533,11 @@ yyreduce:
   case 16:
 
     {
-				parser->methods.array_create(parser, &(yyval.value));
+				if (parser->methods.array_create == php_json_parser_array_create) {
+					ZVAL_EMPTY_ARRAY(&(yyval.value));
+				} else {
+					parser->methods.array_create(parser, &(yyval.value));
+				}
 			}
 
     break;
