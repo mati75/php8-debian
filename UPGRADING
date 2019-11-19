@@ -42,6 +42,9 @@ PHP 7.4 UPGRADE NOTES
     with the STREAM_OPTION_READ_BUFFER option. Custom stream wrapper
     implementations may need to implement the stream_set_option() method to
     avoid a warning (always returning false is a sufficient implementation).
+  . The "creating default object from empty value" warning is now consistently
+    thrown if a falsy value is promoted into an stdClass object. Previously some
+    cases like `$null->prop[0] = $val` missed this warning.
 
 - BCMath:
   . BCMath functions will now warn if a non well-formed number is passed, such
@@ -153,6 +156,9 @@ PHP 7.4 UPGRADE NOTES
     considered failures.
   . fread() and fwrite() on plain files will now throw a notice on failure,
     such as when trying to write to a read-only file resource.
+  . The stream_read() and stream_write() methods on stream wrappers now
+    interpret "false" as a failure return values. If no data is available, but
+    no error occurred, an empty string should be returned instead.
   . round(-0.0) will now return -0.0 rather than +0.0.
 
 - Tokenizer:
@@ -591,6 +597,9 @@ PHP 7.4 UPGRADE NOTES
     exists "?" operator. For more details see the RFC:
     https://wiki.php.net/rfc/pdo_escape_placeholders
 
+- PDO_Firebird:
+  . The extension now also support dialect 1 in addition to dialect 3.
+
 - Reflection:
   . Numeric value of class, property, function and constant modifiers was
     changed. Don't filter methods and properties through
@@ -673,7 +682,7 @@ PHP 7.4 UPGRADE NOTES
     generated for exceptions.
 
 - opcache.preload_user
-  . New INI directive to specifiy the user account under which preloading code
+  . New INI directive to specify the user account under which preloading code
     is executed, if it was to be run as root otherwise (which is not allowed
     for security reasons).
 
@@ -702,7 +711,7 @@ PHP 7.4 UPGRADE NOTES
 
 - The OpenSSL default config path has been changed to 
   "C:\Program Files\Common Files\SSL\openssl.cnf" and
-  "C:\Program Files (x86)\Common Files\SSL\openssl.cnf", repectively.
+  "C:\Program Files (x86)\Common Files\SSL\openssl.cnf", respectively.
 
 ========================================
 13. Migration to pkg-config

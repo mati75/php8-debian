@@ -1,5 +1,63 @@
 PHP                                                                        NEWS
 |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+14 Nov 2019, PHP 7.4.0RC6
+
+- Core:
+  . Fixed bug #78768 (redefinition of typedef zend_property_info). (Nikita)
+  . Fixed bug #78788 (./configure generates invalid php_version.h). (max)
+
+- Standard:
+  . Fixed bug #77930 (stream_copy_to_stream should use mmap more often).
+    (Nikita)
+  . Fixed bug #78759 (array_search in $GLOBALS). (Nikita)
+
+- OpenSSL:
+  . Fixed bug #78775 (TLS issues from HTTP request affecting other encrypted
+    connections). (Nikita)
+
+- Reflection:
+  . Fixed bug #78774 (ReflectionNamedType on Typed Properties Crash). (Nikita)
+
+31 Oct 2019, PHP 7.4.0RC5
+
+- Core:
+  . Fixed bug #78226 (Unexpected __set behavior with typed properties). (Nikita)
+
+- COM:
+  . Fixed bug #78694 (Appending to a variant array causes segfault). (cmb)
+
+- Date:
+  . Fixed bug #70153 (\DateInterval incorrectly unserialized). (Maksim Iakunin)
+  . Fixed bug #78751 (Serialising DatePeriod converts DateTimeImmutable). (cmb)
+
+- FFI:
+  . Fixed bug #78716 (Function name mangling is wrong for some parameter 
+    types). (cmb)
+  . Fixed bug #78762 (Failing FFI::cast() may leak memory). (cmb)
+  . Fixed bug #78761 (Zend memory heap corruption with preload and casting).
+    (cmb)
+  . Implement FR #78270 (Support __vectorcall convention with FFI). (cmb)
+
+- FPM:
+  . Fixed bug #78599 (env_path_info underflow in fpm_main.c can lead to RCE).
+    (CVE-2019-11043) (Jakub Zelenka)
+  . Fixed bug #74083 (master PHP-fpm is stopped on multiple reloads).
+    (Maksim Nikulin)
+
+-Opcache:
+  . Fixed bug #78512 (Cannot make preload work). (Dmitry)
+
+- PDO_Firebird:
+  . Implemented FR #65690 (PDO_Firebird should also support dialect 1).
+    (Simonov Denis)
+
+- Reflection:
+  . Fixed bug #78697 (ReflectionClass::implementsInterface - inaccurate error 
+    message with traits). (villfa)
+
+- Testing:
+  . Fixed bug #78684 (PCRE bug72463_2 test is sending emails on Linux). (cmb)
+
 17 Oct 2019, PHP 7.4.0RC4
 
 - Core:
