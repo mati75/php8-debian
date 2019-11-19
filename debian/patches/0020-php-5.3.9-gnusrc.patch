@@ -28,7 +28,7 @@ index e43443b..15798e0 100644
  /*
     +----------------------------------------------------------------------+
 diff --git a/configure.ac b/configure.ac
-index fd5620c..f1c20fb 100644
+index 0b84c40..f5d228a 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -130,6 +130,8 @@ AC_DEFUN([PHP_EXT_DIR],[$config_m4_dir])dnl
@@ -41,7 +41,7 @@ index fd5620c..f1c20fb 100644
  dnl ----------------------------------------------------------------------------
  
 diff --git a/ext/pdo_firebird/firebird_driver.c b/ext/pdo_firebird/firebird_driver.c
-index 8b2a128..a0f5e51 100644
+index b1869f2..7a28fd5 100644
 --- a/ext/pdo_firebird/firebird_driver.c
 +++ b/ext/pdo_firebird/firebird_driver.c
 @@ -20,7 +20,6 @@

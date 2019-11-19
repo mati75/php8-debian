@@ -8,7 +8,7 @@ Make generated php_config.h constant across rebuilds.
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/configure.ac b/configure.ac
-index f1c20fb..55d8745 100644
+index f5d228a..0893060 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -1309,7 +1309,7 @@ PHP_BUILD_DATE=`date -u +%Y-%m-%d`
