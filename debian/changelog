@@ -1,3 +1,12 @@
+php7.0 (7.0.33-13) unstable; urgency=medium
+
+  * Use mysqld --initialize-insecure for MySQL 8.0 (for Ubuntu 19.10)
+  * Disable MySQL X Plugin in the tests
+  * Remove --skip-grant-tables to fix FTBFS with MySQL 8.0
+  * Remove --without-mysqlx from MySQL 5.7
+
+ -- Ondřej Surý <ondrej@debian.org>  Thu, 28 Nov 2019 08:41:44 +0100
+
 php7.0 (7.0.33-12) unstable; urgency=medium
 
   * Backported from 7.1.33
