@@ -200,7 +200,7 @@ ZEND_METHOD(Closure, bind)
 				ce = closure->func.common.scope;
 			} else if ((ce = zend_lookup_class_ex(class_name, NULL, 1)) == NULL) {
 				zend_error(E_WARNING, "Class '%s' not found", ZSTR_VAL(class_name));
-				zend_string_release_ex(class_name, 0);
+				zend_tmp_string_release(tmp_class_name);
 				RETURN_NULL();
 			}
 			zend_tmp_string_release(tmp_class_name);
@@ -268,8 +268,16 @@ static int zend_create_closure_from_callable(zval *return_value, zval *callable,
 
 	mptr = fcc.function_handler;
 	if (mptr->common.fn_flags & ZEND_ACC_CALL_VIA_TRAMPOLINE) {
-		memset(&call, 0, sizeof(zend_internal_function));
+		/* For Closure::fromCallable([$closure, "__invoke"]) return $closure. */
+		if (fcc.object && fcc.object->ce == zend_ce_closure
+				&& zend_string_equals_literal(mptr->common.function_name, "__invoke")) {
+			ZVAL_OBJ(return_value, fcc.object);
+			GC_ADDREF(fcc.object);
+			zend_free_trampoline(mptr);
+			return SUCCESS;
+		}
 
+		memset(&call, 0, sizeof(zend_internal_function));
 		call.type = ZEND_INTERNAL_FUNCTION;
 		call.fn_flags = mptr->common.fn_flags & ZEND_ACC_STATIC;
 		call.handler = zend_closure_call_magic;
