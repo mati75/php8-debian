@@ -7,10 +7,10 @@ Subject: php-5.2.4-norpath
  1 file changed, 2 insertions(+)
 
 diff --git a/acinclude.m4 b/acinclude.m4
-index 07bdc9d..54f2ae4 100644
+index 2547231..62db825 100644
 --- a/acinclude.m4
 +++ b/acinclude.m4
-@@ -432,6 +432,7 @@ AC_DEFUN([PHP_EVAL_INCLINE],[
+@@ -434,6 +434,7 @@ AC_DEFUN([PHP_EVAL_INCLINE],[
  dnl internal, don't use
  AC_DEFUN([_PHP_ADD_LIBPATH_GLOBAL],[
    PHP_RUN_ONCE(LIBPATH, $1, [
@@ -18,7 +18,7 @@ index 07bdc9d..54f2ae4 100644
      test -n "$ld_runpath_switch" && LDFLAGS="$LDFLAGS $ld_runpath_switch$1"
      LDFLAGS="$LDFLAGS -L$1"
      PHP_RPATHS="$PHP_RPATHS $1"
-@@ -451,6 +452,7 @@ AC_DEFUN([PHP_ADD_LIBPATH],[
+@@ -453,6 +454,7 @@ AC_DEFUN([PHP_ADD_LIBPATH],[
      ],[
        if test "$ext_shared" = "yes"; then
          $2="-L$ai_p [$]$2"
