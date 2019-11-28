@@ -1,3 +1,9 @@
+php7.4 (7.4.0-1) unstable; urgency=medium
+
+  * New upstream version 7.4.0
+
+ -- Ondřej Surý <ondrej@debian.org>  Thu, 28 Nov 2019 08:25:29 +0100
+
 php7.4 (7.4.0~rc6-1) experimental; urgency=medium
 
   * Fix the FTBFS with MySQL 8.0
