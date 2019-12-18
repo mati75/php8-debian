@@ -1,3 +1,20 @@
+php7.0 (7.0.33-14) unstable; urgency=medium
+
+  * Backported from 7.2.26
+   - Bcmath:
+    . Fixed bug #78878 (Buffer underflow in bc_shift_addsub). (CVE-2019-11046).
+   - Core:
+    . Fixed bug #78862 (link() silently truncates after a null byte on Windows).
+      (CVE-2019-11044).
+    . Fixed bug #78863 (DirectoryIterator class silently truncates after a null
+      byte). (CVE-2019-11045).
+   - EXIF:
+    . Fixed bug #78793 (Use-after-free in exif parsing under memory sanitizer).
+      (CVE-2019-11050).
+    . Fixed bug #78910 (Heap-buffer-overflow READ in exif). (CVE-2019-11047).
+
+ -- Ondřej Surý <ondrej@debian.org>  Wed, 18 Dec 2019 15:53:35 +0100
+
 php7.0 (7.0.33-13) unstable; urgency=medium
 
   * Use mysqld --initialize-insecure for MySQL 8.0 (for Ubuntu 19.10)
