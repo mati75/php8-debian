@@ -1,3 +1,9 @@
+php7.3 (7.3.13-1) unstable; urgency=medium
+
+  * New upstream version 7.3.13
+
+ -- Ondřej Surý <ondrej@debian.org>  Wed, 18 Dec 2019 15:47:19 +0100
+
 php7.3 (7.3.12-1) unstable; urgency=medium
 
   * Use mysqld --initialize-insecure for MySQL 8.0 (for Ubuntu 19.10)
