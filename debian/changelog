@@ -1,3 +1,9 @@
+php7.2 (7.2.26-1) unstable; urgency=medium
+
+  * New upstream version 7.2.26
+
+ -- Ondřej Surý <ondrej@debian.org>  Wed, 18 Dec 2019 15:56:15 +0100
+
 php7.2 (7.2.25-1) unstable; urgency=medium
 
   * Use mysqld --initialize-insecure for MySQL 8.0 (for Ubuntu 19.10)
