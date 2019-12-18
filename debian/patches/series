@@ -96,3 +96,9 @@
 0101-Fix-test-expectations-to-match-the-implementation.patch
 0102-Fix-bug-78599-env_path_info-underflow-can-lead-to-RC.patch
 0103-add-NEWS-entry.patch
+0104-Fix-78878-Buffer-underflow-in-bc_shift_addsub.patch
+0105-Fix-78862-link-silently-truncates-after-a-null-byte-.patch
+0106-Fix-78863-DirectoryIterator-class-silently-truncates.patch
+0107-Fix-bug-78793.patch
+0108-Fixed-bug-78910.patch
+0109-Fix-tests.patch
