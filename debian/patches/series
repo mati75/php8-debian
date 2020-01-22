@@ -57,3 +57,7 @@
 0057-Fix-bug-78793.patch
 0058-Fixed-bug-78910.patch
 0059-relax-tests.patch
+0060-Fix-79091-heap-use-after-free-in-session_create_id.patch
+0061-Fix-79099-OOB-read-in-php_strip_tags_ex.patch
+0062-Fix-bug-79037-global-buffer-overflow-in-mbfl_filt_co.patch
+0063-update-NEWS.patch
