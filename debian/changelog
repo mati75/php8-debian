@@ -1,3 +1,16 @@
+php7.1 (7.1.33-4) unstable; urgency=medium
+
+  * Backported from 7.2.27
+   - Mbstring:
+    . Fixed bug #79037 (global buffer-overflow in `mbfl_filt_conv_big5_wchar`).
+      (CVE-2020-7060)
+   - Session:
+    . Fixed bug #79091 (heap use-after-free in session_create_id()).
+   - Standard:
+    . Fixed bug #79099 (OOB read in php_strip_tags_ex). (CVE-2020-7059).
+
+ -- Ondřej Surý <ondrej@debian.org>  Wed, 22 Jan 2020 10:18:44 +0100
+
 php7.1 (7.1.33-3) unstable; urgency=medium
 
   * Backported from 7.2.26
