@@ -102,3 +102,6 @@
 0107-Fix-bug-78793.patch
 0108-Fixed-bug-78910.patch
 0109-Fix-tests.patch
+0110-Fix-79099-OOB-read-in-php_strip_tags_ex.patch
+0111-Fix-bug-79037-global-buffer-overflow-in-mbfl_filt_co.patch
+0112-update-NEWS.patch
