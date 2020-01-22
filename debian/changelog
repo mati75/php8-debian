@@ -1,3 +1,14 @@
+php7.0 (7.0.33-15) unstable; urgency=medium
+
+  * Backported from 7.2.27
+   - Mbstring:
+    . Fixed bug #79037 (global buffer-overflow in `mbfl_filt_conv_big5_wchar`).
+      (CVE-2020-7060)
+   - Standard:
+    . Fixed bug #79099 (OOB read in php_strip_tags_ex). (CVE-2020-7059).
+
+ -- Ondřej Surý <ondrej@debian.org>  Wed, 22 Jan 2020 10:08:19 +0100
+
 php7.0 (7.0.33-14) unstable; urgency=medium
 
   * Backported from 7.2.26
