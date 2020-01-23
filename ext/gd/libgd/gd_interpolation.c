@@ -2334,7 +2334,7 @@ int gdTransformAffineGetImage(gdImagePtr *dst,
  *  src_area - Rectangular region to rotate in the src image
  *
  * Returns:
- *  GD_TRUE if the affine is rectilinear or GD_FALSE
+ *  GD_TRUE on success or GD_FALSE on failure
  */
 int gdTransformAffineCopy(gdImagePtr dst,
 		  int dst_x, int dst_y,
@@ -2351,7 +2351,7 @@ int gdTransformAffineCopy(gdImagePtr dst,
 	gdPointF pt, src_pt;
 	gdRect bbox;
 	int end_x, end_y;
-	gdInterpolationMethod interpolation_id_bak = GD_DEFAULT;
+	gdInterpolationMethod interpolation_id_bak = src->interpolation_id;
 	interpolation_method interpolation_bak;
 
 	/* These methods use special implementations */
@@ -2393,7 +2393,10 @@ int gdTransformAffineCopy(gdImagePtr dst,
 	end_y = bbox.height + (int) fabs(bbox.y);
 
 	/* Get inverse affine to let us work with destination -> source */
-	gdAffineInvert(inv, affine);
+	if (gdAffineInvert(inv, affine) == GD_FALSE) {
+		gdImageSetInterpolationMethod(src, interpolation_id_bak);
+		return GD_FALSE;
+	}
 
 	src_offset_x =  src_region->x;
 	src_offset_y =  src_region->y;
