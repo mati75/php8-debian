@@ -1,3 +1,12 @@
+php7.3 (7.3.14-1) unstable; urgency=medium
+
+  * Bump the debhelper compat to 10
+  * Bump the Standards Version (no change)
+  * Disable dh_autoreconf for PHP, it breaks the build
+  * New upstream version 7.3.14
+
+ -- Ondřej Surý <ondrej@debian.org>  Thu, 23 Jan 2020 14:57:09 +0100
+
 php7.3 (7.3.13-1) unstable; urgency=medium
 
   * New upstream version 7.3.13
