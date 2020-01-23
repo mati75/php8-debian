@@ -43,22 +43,17 @@
 #endif
 
 /* {{{ cruft for thread safe SSL crypto locks */
-#if defined(ZTS) && defined(HAVE_CURL_SSL)
-# ifdef PHP_WIN32
+#if defined(ZTS) && defined(HAVE_CURL_OLD_OPENSSL)
+# if defined(HAVE_OPENSSL_CRYPTO_H)
 #  define PHP_CURL_NEED_OPENSSL_TSL
 #  include <openssl/crypto.h>
-# elif defined(HAVE_CURL_OPENSSL)
-#  if defined(HAVE_OPENSSL_CRYPTO_H)
-#   define PHP_CURL_NEED_OPENSSL_TSL
-#   include <openssl/crypto.h>
-#  else
-#   warning \
+# else
+#  warning \
 	"libcurl was compiled with OpenSSL support, but configure could not find " \
 	"openssl/crypto.h; thus no SSL crypto locking callbacks will be set, which may " \
 	"cause random crashes on SSL requests"
-#  endif
-# endif /* HAVE_CURL_OPENSSL */
-#endif /* ZTS && HAVE_CURL_SSL */
+# endif
+#endif /* ZTS && HAVE_CURL_OLD_OPENSSL */
 /* }}} */
 
 #define SMART_STR_PREALLOC 4096
@@ -2754,7 +2749,7 @@ static int _php_curl_setopt(php_curl *ch, zend_long option, zval *zvalue) /* {{{
 				zend_string *string_key;
 				zend_ulong  num_key;
 #if LIBCURL_VERSION_NUM >= 0x073800 /* 7.56.0 */
-				curl_mime *mime;
+				curl_mime *mime = NULL;
 				curl_mimepart *part;
 				CURLcode form_error;
 #else
@@ -2769,9 +2764,11 @@ static int _php_curl_setopt(php_curl *ch, zend_long option, zval *zvalue) /* {{{
 				}
 
 #if LIBCURL_VERSION_NUM >= 0x073800 /* 7.56.0 */
-				mime = curl_mime_init(ch->cp);
-				if (mime == NULL) {
-					return FAILURE;
+				if (zend_hash_num_elements(postfields) > 0) {
+					mime = curl_mime_init(ch->cp);
+					if (mime == NULL) {
+						return FAILURE;
+					}
 				}
 #endif
 

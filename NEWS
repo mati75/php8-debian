@@ -1,18 +1,102 @@
 PHP                                                                        NEWS
 |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
-19 Dec 2019, PHP 7.4.1
-
-- Bcmath:
-  . Fixed bug #78878 (Buffer underflow in bc_shift_addsub). (CVE-2019-11046).
-    (cmb)
+23 Jan 2020, PHP 7.4.2
 
 - Core:
-  . Fixed bug #78862 (link() silently truncates after a null byte on Windows).
-    (CVE-2019-11044). (cmb)
-  . Fixed bug #78863 (DirectoryIterator class silently truncates after a null
-    byte). (CVE-2019-11045). (cmb)
-  . Fixed bug #78943 (mail() may release string with refcount==1 twice).
-    (CVE-2019-11049). (cmb)
+  . Preloading support on Windows has been disabled. (Nikita)
+  . Fixed bug #79022 (class_exists returns True for classes that are not ready
+    to be used). (Laruence)
+  . Fixed bug #78929 (plus signs in cookie values are converted to spaces).
+    (Alexey Kachalin)
+  . Fixed bug #78973 (Destructor during CV freeing causes segfault if opline
+    never saved). (Nikita)
+  . Fixed bug #78776 (Abstract method implementation from trait does not check
+    "static"). (Nikita)
+  . Fixed bug #78999 (Cycle leak when using function result as temporary).
+    (Dmitry)
+  . Fixed bug #79008 (General performance regression with PHP 7.4 on Windows).
+    (cmb)
+  . Fixed bug #79002 (Serializing uninitialized typed properties with __sleep
+    makes unserialize throw). (Nikita)
+
+- CURL:
+  . Fixed bug #79033 (Curl timeout error with specific url and post). (cmb)
+  . Fixed bug #79063 (curl openssl does not respect PKG_CONFIG_PATH). (Nikita)
+
+- Date:
+  . Fixed bug #79015 (undefined-behavior in php_date.c). (cmb)
+
+- DBA:
+  . Fixed bug #78808 ([LMDB] MDB_MAP_FULL: Environment mapsize limit reached).
+    (cmb)
+
+- Exif:
+  . Fixed bug #79046 (NaN to int cast undefined behavior in exif). (Nikita)
+
+- Fileinfo:
+  . Fixed bug #74170 (locale information change after mime_content_type).
+    (Sergei Turchanov)
+
+- GD:
+  . Fixed bug #79067 (gdTransformAffineCopy() may use unitialized values). (cmb)
+  . Fixed bug #79068 (gdTransformAffineCopy() changes interpolation method).
+    (cmb)
+
+- Libxml:
+  . Fixed bug #79029 (Use After Free's in XMLReader / XMLWriter). (Laruence)
+
+- Mbstring:
+  . Fixed bug #79037 (global buffer-overflow in `mbfl_filt_conv_big5_wchar`).
+    (CVE-2020-7060) (Nikita)
+
+- OPcache:
+  . Fixed bug #78961 (erroneous optimization of re-assigned $GLOBALS). (Dmitry)
+  . Fixed bug #78950 (Preloading trait method with static variables). (Nikita)
+  . Fixed bug #78903 (Conflict in RTD key for closures results in crash).
+    (Nikita)
+  . Fixed bug #78986 (Opcache segfaults when inheriting ctor from immutable
+    into mutable class). (Nikita)
+  . Fixed bug #79040 (Warning Opcode handlers are unusable due to ASLR). (cmb)
+  . Fixed bug #79055 (Typed property become unknown with OPcache file cache).
+    (Nikita)
+
+- Pcntl:
+  . Fixed bug #78402 (Converting null to string in error message is bad DX).
+    (SATŌ Kentarō)
+
+- PDO_PgSQL:
+  . Fixed bug #78983 (pdo_pgsql config.w32 cannot find libpq-fe.h). (SATŌ
+    Kentarō)
+  . Fixed bug #78980 (pgsqlGetNotify() overlooks dead connection). (SATŌ
+    Kentarō)
+  . Fixed bug #78982 (pdo_pgsql returns dead persistent connection). (SATŌ
+    Kentarō)
+
+- Session:
+  . Fixed bug #79091 (heap use-after-free in session_create_id()). (cmb,
+    Nikita)
+  . Fixed bug #79031 (Session unserialization problem). (Nikita)
+
+- Shmop:
+  . Fixed bug #78538 (shmop memory leak). (cmb)
+
+- Sqlite3:
+  . Fixed bug #79056 (sqlite does not respect PKG_CONFIG_PATH during
+    compilation). (Nikita)
+
+- Spl:
+  . Fixed bug #78976 (SplFileObject::fputcsv returns -1 on failure). (cmb)
+
+- Standard:
+  . Fixed bug #79099 (OOB read in php_strip_tags_ex). (CVE-2020-7059). (cmb)
+  . Fixed bug #79000 (Non-blocking socket stream reports EAGAIN as error).
+    (Nikita)
+  . Fixed bug #54298 (Using empty additional_headers adding extraneous CRLF).
+    (cmb)
+
+18 Dec 2019, PHP 7.4.1
+
+- Core:
   . Fixed bug #78810 (RW fetches do not throw "uninitialized property"
     exception). (Nikita)
   . Fixed bug #78868 (Calling __autoload() with incorrect EG(fake_scope) value).
@@ -28,12 +112,6 @@ PHP                                                                        NEWS
   . Fixed bug #78849 (GD build broken with -D SIGNED_COMPARE_SLOW). (cmb)
   . Fixed bug #78923 (Artifacts when convoluting image with transparency).
     (wilson chen)
-
-- EXIF:
-  . Fixed bug #78793 (Use-after-free in exif parsing under memory sanitizer).
-    (CVE-2019-11050). (Nikita)
-  . Fixed bug #78910 (Heap-buffer-overflow READ in exif). (CVE-2019-11047).
-    (Nikita)
 
 - FPM:
   . Fixed bug #76601 (Partially working php-fpm ater incomplete reload).

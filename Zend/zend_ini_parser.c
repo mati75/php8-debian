@@ -1377,6 +1377,66 @@ yydestruct (const char *yymsg, int yytype, YYSTYPE *yyvaluep)
 
         break;
 
+    case 47: /* section_string_or_value  */
+
+      { zval_ini_dtor(&((*yyvaluep))); }
+
+        break;
+
+    case 48: /* string_or_value  */
+
+      { zval_ini_dtor(&((*yyvaluep))); }
+
+        break;
+
+    case 49: /* option_offset  */
+
+      { zval_ini_dtor(&((*yyvaluep))); }
+
+        break;
+
+    case 50: /* encapsed_list  */
+
+      { zval_ini_dtor(&((*yyvaluep))); }
+
+        break;
+
+    case 51: /* var_string_list_section  */
+
+      { zval_ini_dtor(&((*yyvaluep))); }
+
+        break;
+
+    case 52: /* var_string_list  */
+
+      { zval_ini_dtor(&((*yyvaluep))); }
+
+        break;
+
+    case 53: /* expr  */
+
+      { zval_ini_dtor(&((*yyvaluep))); }
+
+        break;
+
+    case 54: /* cfg_var_ref  */
+
+      { zval_ini_dtor(&((*yyvaluep))); }
+
+        break;
+
+    case 55: /* constant_literal  */
+
+      { zval_ini_dtor(&((*yyvaluep))); }
+
+        break;
+
+    case 56: /* constant_string  */
+
+      { zval_ini_dtor(&((*yyvaluep))); }
+
+        break;
+
 
       default:
         break;
