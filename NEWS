@@ -1,6 +1,66 @@
 PHP                                                                        NEWS
 |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
-19 Dec 2019, PHP 7.3.13
+23 Jan 2020, PHP 7.3.14
+
+- Core
+  . Fixed bug #78999 (Cycle leak when using function result as temporary).
+    (Dmitry)
+
+- CURL:
+  . Fixed bug #79033 (Curl timeout error with specific url and post). (cmb)
+
+- Date:
+  . Fixed bug #79015 (undefined-behavior in php_date.c). (cmb)
+
+- DBA:
+  . Fixed bug #78808 ([LMDB] MDB_MAP_FULL: Environment mapsize limit reached).
+    (cmb)
+
+- Fileinfo:
+  . Fixed bug #74170 (locale information change after mime_content_type).
+    (Sergei Turchanov)
+
+- GD:
+  . Fixed bug #78923 (Artifacts when convoluting image with transparency).
+    (wilson chen)
+  . Fixed bug #79067 (gdTransformAffineCopy() may use unitialized values). (cmb)
+  . Fixed bug #79068 (gdTransformAffineCopy() changes interpolation method).
+    (cmb)
+
+- Libxml:
+  . Fixed bug #79029 (Use After Free's in XMLReader / XMLWriter). (Laruence)
+
+- Mbstring:
+  . Fixed bug #79037 (global buffer-overflow in `mbfl_filt_conv_big5_wchar`). 
+    (CVE-2020-7060) (Nikita)
+
+- OPcache:
+  . Fixed bug #79040 (Warning Opcode handlers are unusable due to ASLR). (cmb)
+
+- Pcntl:
+  . Fixed bug #78402 (Converting null to string in error message is bad DX).
+    (SATŌ Kentarō)
+
+- PDO_PgSQL:
+  . Fixed bug #78983 (pdo_pgsql config.w32 cannot find libpq-fe.h). (SATŌ
+    Kentarō)
+  . Fixed bug #78980 (pgsqlGetNotify() overlooks dead connection). (SATŌ
+    Kentarō)
+  . Fixed bug #78982 (pdo_pgsql returns dead persistent connection). (SATŌ
+    Kentarō)
+
+- Session:
+  . Fixed bug #79091 (heap use-after-free in session_create_id()). (cmb, Nikita)
+
+- Shmop:
+  . Fixed bug #78538 (shmop memory leak). (cmb)
+
+- Standard:
+  . Fixed bug #79099 (OOB read in php_strip_tags_ex). (CVE-2020-7059). (cmb)
+  . Fixed bug #54298 (Using empty additional_headers adding extraneous CRLF).
+    (cmb)
+
+18 Dec 2019, PHP 7.3.13
 
 - Bcmath:
   . Fixed bug #78878 (Buffer underflow in bc_shift_addsub). (CVE-2019-11046).
