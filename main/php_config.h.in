@@ -507,11 +507,8 @@
 /* */
 #undef HAVE_CURL
 
-/* Have cURL with OpenSSL support */
-#undef HAVE_CURL_OPENSSL
-
-/* Have cURL with SSL support */
-#undef HAVE_CURL_SSL
+/* Have cURL with old OpenSSL */
+#undef HAVE_CURL_OLD_OPENSSL
 
 /* */
 #undef HAVE_DBA
