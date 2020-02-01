@@ -1,3 +1,9 @@
+php7.2 (7.2.27-5) unstable; urgency=medium
+
+  * Move the update-alternatives call from postinst/prerm to systemd startup script
+
+ -- Ondřej Surý <ondrej@debian.org>  Sat, 01 Feb 2020 18:59:37 +0100
+
 php7.2 (7.2.27-4) unstable; urgency=medium
 
   * Make the creation of the default socket work on new installs
