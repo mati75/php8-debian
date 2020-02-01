@@ -1,3 +1,9 @@
+php7.4 (7.4.2-2) unstable; urgency=medium
+
+  * Create a generic /run/php/php-fpm.sock socket using update-alternatives
+
+ -- Ondřej Surý <ondrej@debian.org>  Sat, 01 Feb 2020 10:17:27 +0100
+
 php7.4 (7.4.2-1) unstable; urgency=medium
 
   * New upstream version 7.4.2
