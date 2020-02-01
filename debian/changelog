@@ -1,3 +1,9 @@
+php7.3 (7.3.14-2) unstable; urgency=medium
+
+  * Create a generic /run/php/php-fpm.sock socket using update-alternatives
+
+ -- Ondřej Surý <ondrej@debian.org>  Sat, 01 Feb 2020 11:16:58 +0100
+
 php7.3 (7.3.14-1) unstable; urgency=medium
 
   * Bump the debhelper compat to 10
