@@ -22,6 +22,8 @@ if [ "$1" = "triggered" ] && [ "$2" = "/etc/php/@PHP_VERSION@/fpm/conf.d" ]; the
 fi
 
 if [ "$1" = "configure" ]; then
+    touch /run/php/php@PHP_VERSION@-fpm.sock
     update-alternatives \
         --install /run/php/php-fpm.sock php-fpm.sock /run/php/php@PHP_VERSION@-fpm.sock @PHP_MAJOR@@PHP_MINOR@
+    test -f /run/php/php@PHP_VERSION@-fpm.sock && /run/php/php@PHP_VERSION@-fpm.sock
 fi
