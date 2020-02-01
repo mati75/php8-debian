@@ -1,3 +1,12 @@
+php7.0 (7.0.33-16) unstable; urgency=medium
+
+  * Bump the debhelper compat to 10
+  * Bump the Standards Version (no change)
+  * Disable dh_autoreconf for PHP, it breaks the build
+  * Create a generic /run/php/php-fpm.sock socket using update-alternatives
+
+ -- Ondřej Surý <ondrej@debian.org>  Sat, 01 Feb 2020 11:24:11 +0100
+
 php7.0 (7.0.33-15) unstable; urgency=medium
 
   * Backported from 7.2.27
