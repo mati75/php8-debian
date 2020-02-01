@@ -1,3 +1,9 @@
+php7.3 (7.3.14-3) unstable; urgency=medium
+
+  * Use a mock socket file for setting up FPM socket alternatives
+
+ -- Ondřej Surý <ondrej@debian.org>  Sat, 01 Feb 2020 13:12:20 +0100
+
 php7.3 (7.3.14-2) unstable; urgency=medium
 
   * Create a generic /run/php/php-fpm.sock socket using update-alternatives
