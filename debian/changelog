@@ -1,3 +1,9 @@
+php5.6 (5.6.40-21) experimental; urgency=medium
+
+  * Use absolute path to update-alternatives
+
+ -- Ondřej Surý <ondrej@debian.org>  Wed, 05 Feb 2020 17:46:09 +0100
+
 php5.6 (5.6.40-20) experimental; urgency=medium
 
   * Move the update-alternatives call from postinst/prerm to systemd startup script
