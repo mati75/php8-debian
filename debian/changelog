@@ -1,3 +1,9 @@
+php7.2 (7.2.27-6) unstable; urgency=medium
+
+  * Use absolute path to update-alternatives
+
+ -- Ondřej Surý <ondrej@debian.org>  Wed, 05 Feb 2020 17:46:59 +0100
+
 php7.2 (7.2.27-5) unstable; urgency=medium
 
   * Move the update-alternatives call from postinst/prerm to systemd startup script
