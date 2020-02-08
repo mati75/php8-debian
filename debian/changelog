@@ -1,3 +1,10 @@
+php7.4 (7.4.2-7) unstable; urgency=medium
+
+  * Add a note about PIDFile= and pid= match in php-fpm.conf
+  * Silently ignore errors from update-alternatives in php-fpm.service
+
+ -- Ondřej Surý <ondrej@debian.org>  Sat, 08 Feb 2020 13:04:50 +0100
+
 php7.4 (7.4.2-6) unstable; urgency=medium
 
   * Use absolute path to update-alternatives
