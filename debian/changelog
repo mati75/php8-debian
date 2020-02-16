@@ -1,3 +1,30 @@
+php7.0 (7.0.33-0+deb9u7) stretch-security; urgency=medium
+
+  * Use mysqld --initialize-insecure for MySQL 8.0 (for Ubuntu 19.10)
+  * Disable MySQL X Plugin in the tests
+  * Remove --skip-grant-tables to fix FTBFS with MySQL 8.0
+  * Remove --without-mysqlx from MySQL 5.7
+  * Backported from 7.2.27
+   - Mbstring:
+    . Fixed bug #79037 (global buffer-overflow in `mbfl_filt_conv_big5_wchar`).
+      (CVE-2020-7060)
+   - Standard:
+    . Fixed bug #79099 (OOB read in php_strip_tags_ex). (CVE-2020-7059).
+  * Backported from 7.2.26
+   - Bcmath:
+    . Fixed bug #78878 (Buffer underflow in bc_shift_addsub). (CVE-2019-11046).
+   - Core:
+    . Fixed bug #78862 (link() silently truncates after a null byte on Windows).
+      (CVE-2019-11044).
+    . Fixed bug #78863 (DirectoryIterator class silently truncates after a null
+      byte). (CVE-2019-11045).
+   - EXIF:
+    . Fixed bug #78793 (Use-after-free in exif parsing under memory sanitizer).
+      (CVE-2019-11050).
+    . Fixed bug #78910 (Heap-buffer-overflow READ in exif). (CVE-2019-11047).
+
+ -- Ondřej Surý <ondrej@debian.org>  Sun, 16 Feb 2020 16:11:40 +0100
+
 php7.0 (7.0.33-0+deb9u6) stretch-security; urgency=medium
 
   * Backported from 7.1.33
