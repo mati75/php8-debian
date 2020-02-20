@@ -15,7 +15,7 @@ Subject: php-5.3.9-gnusrc
  9 files changed, 5 insertions(+), 9 deletions(-)
 
 diff --git a/Zend/zend_language_parser.c b/Zend/zend_language_parser.c
-index e43443b..15798e0 100644
+index d6c5db2..aca86d3 100644
 --- a/Zend/zend_language_parser.c
 +++ b/Zend/zend_language_parser.c
 @@ -69,6 +69,8 @@
@@ -28,7 +28,7 @@ index e43443b..15798e0 100644
  /*
     +----------------------------------------------------------------------+
 diff --git a/configure.ac b/configure.ac
-index 567753c..fe1fa25 100644
+index 7104929..63081a8 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -130,6 +130,8 @@ AC_DEFUN([PHP_EXT_DIR],[$config_m4_dir])dnl
@@ -116,7 +116,7 @@ index 4b92fc2..90f71dc 100644
  #include "ext/standard/base64.h"
  
 diff --git a/main/streams/streams.c b/main/streams/streams.c
-index ce37094..021de56 100644
+index f269f06..00be5f0 100644
 --- a/main/streams/streams.c
 +++ b/main/streams/streams.c
 @@ -19,7 +19,6 @@
