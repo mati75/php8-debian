@@ -93,31 +93,10 @@ do_reload() {
 	return 0
 }
 
-do_tmpfiles() {
-    local type path mode user group
-
-    [ "$1" != no ] && V=-v
-    
-    TMPFILES=/usr/lib/tmpfiles.d/php@PHP_VERSION@-fpm.conf
-
-    if [ -r "$TMPFILES" ]; then
-	while read type path mode user group age argument; do
-	    if [ "$type" = "d" ]; then
-		mkdir $V -p "$path"
-		chmod $V "$mode" "$path"
-		chown $V "$user:$group" "$path"
-	    fi
-	done < "$TMPFILES"
-    fi
-}
-
 case "$1" in
     start)
-	if init_is_upstart; then
-	    exit 1
-	fi
 	[ "$VERBOSE" != no ] && log_daemon_msg "Starting $DESC" "$NAME"
-	do_tmpfiles $VERBOSE
+	systemd-tmpfiles --remove --create /usr/lib/tmpfiles.d/php@PHP_VERSION@-fpm.conf
 	case "$?" in
 	    0)
 		do_start
@@ -130,9 +109,6 @@ case "$1" in
 	esac
 	;;
     stop)
-	if init_is_upstart; then
-	    exit 0
-	fi
 	[ "$VERBOSE" != no ] && log_daemon_msg "Stopping $DESC" "$NAME"
 	do_stop
 	case "$?" in
@@ -144,10 +120,7 @@ case "$1" in
         status_of_proc "$DAEMON" "$NAME" && exit 0 || exit $?
         ;;
     reload|force-reload)
-	if init_is_upstart; then
-	    exit 1
-	fi
-    	log_daemon_msg "Reloading $DESC" "$NAME"
+	log_daemon_msg "Reloading $DESC" "$NAME"
 	do_reload
 	log_end_msg $?
 	;;
@@ -162,9 +135,6 @@ case "$1" in
 	fi
 	;;
     restart)
-	if init_is_upstart; then
-	    exit 1
-	fi
 	log_daemon_msg "Restarting $DESC" "$NAME"
 	do_stop
 	case "$?" in
@@ -177,7 +147,7 @@ case "$1" in
 		esac
 		;;
 	  *)
-	  	# Failed to stop
+		# Failed to stop
 		log_end_msg 1
 		;;
 	esac
