@@ -124,3 +124,10 @@
 0124-Fix-79099-OOB-read-in-php_strip_tags_ex.patch
 0125-Fix-bug-79037-global-buffer-overflow-in-mbfl_filt_co.patch
 0126-update-NEWS.patch
+0127-Fix-MSVC-build.patch
+0128-More-checks-for-php_strip_tags_ex.patch
+0129-Fix-test-cases.patch
+0130-Fix-bug-79221-Null-Pointer-Dereference-in-PHP-Sessio.patch
+0131-Fix-bug-79082-Files-added-to-tar-with-Phar-buildFrom.patch
+0132-NEWS.patch
+0133-renew-certs-for-openssl-tests.patch
