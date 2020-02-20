@@ -115,22 +115,6 @@ ifeq (yes,$(RUN_TESTS))
   MYSQL_SOCKET := $(MYSQL_DATA_DIR)/mysql.sock
 endif
 
-ifeq (linux,$(DEB_HOST_ARCH_OS))
-  CONFIGURE_SYSTEMD := --with-fpm-systemd
-  DH_SYSTEMD        := --with systemd
-else
-  CONFIGURE_SYSTEMD := --without-fpm-systemd
-  DH_SYSTEMD        :=
-endif
-
-# Disable systemd on Ubuntu 12.04 LTS
-ifeq (Ubuntu,$(DEB_VENDOR))
-  ifeq (precise,$(DEB_DISTRIBUTION))
-  CONFIGURE_SYSTEMD := --without-fpm-systemd
-  DH_SYSTEMD        :=
-  endif
-endif
-
 ifeq ($(DEB_HOST_ARCH),$(filter $(DEB_HOST_ARCH),amd64 armel armhf i386 ia64 powerpc))
   CONFIGURE_DTRACE_ARGS := --enable-dtrace
 else
@@ -139,7 +123,7 @@ endif
 
 # specify some options to our patch system
 QUILT_DIFF_OPTS := -p
-QUILT_NO_DIFF_TIMESTAMPS := 1 
+QUILT_NO_DIFF_TIMESTAMPS := 1
 export QUILT_DIFF_OPTS QUILT_NO_DIFF_TIMESTAMPS
 
 export PROG_SENDMAIL := /usr/sbin/sendmail
@@ -245,7 +229,7 @@ export fpm_config = \
 		--with-config-file-scan-dir=/etc/php/$(PHP_NAME_VERSION)/fpm/conf.d \
 		$(COMMON_CONFIG) \
 		--with-libevent-dir=/usr \
-		$(CONFIGURE_SYSTEMD)
+		--with-fpm-systemd
 
 export phpdbg_config = \
 		--prefix=/usr --enable-phpdbg --enable-cli --disable-cgi \
@@ -273,7 +257,7 @@ ext_config     += $(foreach ext_ext,$(ext_EXTENSIONS),$($(ext_ext)_config))
 #$(info Enabled config $(ext_config))
 
 %:
-	dh $@ $(DH_SYSTEMD) --with apache2 --without autoreconf $(PARALLEL)
+	dh $@ --with systemd --with apache2 --without autoreconf $(PARALLEL)
 
 PREPARE_FILES := $(addprefix debian/,$(shell cat debian/prepare-files))
 
