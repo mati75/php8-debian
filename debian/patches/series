@@ -61,3 +61,11 @@
 0061-Fix-79099-OOB-read-in-php_strip_tags_ex.patch
 0062-Fix-bug-79037-global-buffer-overflow-in-mbfl_filt_co.patch
 0063-update-NEWS.patch
+0064-More-checks-for-php_strip_tags_ex.patch
+0065-Fix-77569-Write-Acess-Violation-in-DomImplementation.patch
+0066-Fix-typo-in-recent-bugfix.patch
+0067-Fix-bug-79221-Null-Pointer-Dereference-in-PHP-Sessio.patch
+0068-Fix-bug-79082-Files-added-to-tar-with-Phar-buildFrom.patch
+0069-Mark-bug76348.phpt-as-online-test.patch
+0070-NEWS.patch
+0071-renew-certs-for-openssl-tests.patch
