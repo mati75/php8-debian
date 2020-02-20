@@ -105,3 +105,10 @@
 0110-Fix-79099-OOB-read-in-php_strip_tags_ex.patch
 0111-Fix-bug-79037-global-buffer-overflow-in-mbfl_filt_co.patch
 0112-update-NEWS.patch
+0113-More-checks-for-php_strip_tags_ex.patch
+0114-Fix-77569-Write-Acess-Violation-in-DomImplementation.patch
+0115-Fix-typo-in-recent-bugfix.patch
+0116-Fix-bug-79221-Null-Pointer-Dereference-in-PHP-Sessio.patch
+0117-Fix-bug-79082-Files-added-to-tar-with-Phar-buildFrom.patch
+0118-NEWS.patch
+0119-renew-certs-for-openssl-tests.patch
