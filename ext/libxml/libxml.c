@@ -382,9 +382,6 @@ static int php_libxml_streams_IO_read(void *context, char *buffer, int len)
 
 static int php_libxml_streams_IO_write(void *context, const char *buffer, int len)
 {
-	if (CG(unclean_shutdown)) {
-		return -1;
-	}
 	return php_stream_write((php_stream*)context, buffer, len);
 }
 
@@ -752,7 +749,9 @@ PHP_LIBXML_API void php_libxml_initialize(void)
 {
 	if (!_php_libxml_initialized) {
 		/* we should be the only one's to ever init!! */
+		ZEND_IGNORE_LEAKS_BEGIN();
 		xmlInitParser();
+		ZEND_IGNORE_LEAKS_END();
 
 		_php_libxml_default_entity_loader = xmlGetExternalEntityLoader();
 		xmlSetExternalEntityLoader(_php_libxml_pre_ext_ent_loader);
