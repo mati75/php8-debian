@@ -1,3 +1,11 @@
+php7.3 (7.3.15-1) unstable; urgency=medium
+
+  * Remove upstart support, use systemd-tmpfiles to create tmpfiles
+    (Closes: #923032)
+  * New upstream version 7.3.15
+
+ -- Ondřej Surý <ondrej@debian.org>  Thu, 20 Feb 2020 13:18:20 +0100
+
 php7.3 (7.3.14-6) unstable; urgency=medium
 
   * Use absolute path to update-alternatives
