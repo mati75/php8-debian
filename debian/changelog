@@ -1,3 +1,19 @@
+php7.1 (7.1.33-10) unstable; urgency=medium
+
+  * Remove upstart support, use systemd-tmpfiles to create tmpfiles
+    (Closes: #923032)
+  * Backported from 7.2.28
+   - DOM:
+    . Fixed bug #77569: (Write Access Violation in DomImplementation).
+   - Phar:
+    . Fixed bug #79082 (Files added to tar with Phar::buildFromIterator
+      have all-access permissions). (CVE-2020-7063)
+   - Session:
+    . Fixed bug #79221 (Null Pointer Dereference in PHP Session Upload
+      Progress). (CVE-2020-7062)
+
+ -- Ondřej Surý <ondrej@debian.org>  Thu, 20 Feb 2020 13:43:15 +0100
+
 php7.1 (7.1.33-9) unstable; urgency=medium
 
   * Use absolute path to update-alternatives
