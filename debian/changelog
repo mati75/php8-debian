@@ -1,9 +1,10 @@
-php7.4 (7.4.2-8) unstable; urgency=medium
+php7.4 (7.4.3-1) unstable; urgency=medium
 
   * Remove upstart support, use systemd-tmpfiles to create tmpfiles
     (Closes: #923032)
+  * New upstream version 7.4.3
 
- -- Ondřej Surý <ondrej@debian.org>  Thu, 20 Feb 2020 09:39:55 +0100
+ -- Ondřej Surý <ondrej@debian.org>  Thu, 20 Feb 2020 13:12:06 +0100
 
 php7.4 (7.4.2-7) unstable; urgency=medium
 
