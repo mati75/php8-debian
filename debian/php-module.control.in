@@ -1,6 +1,6 @@
 Package: @package@
 Architecture: any
-Depends: php-common (>= 1:35),
+Depends: php-common (>= 1:73),
          ucf,
          ${misc:Depends},
          ${php:Depends},
