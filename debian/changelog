@@ -1,3 +1,13 @@
+php5.6 (5.6.40-23) unstable; urgency=medium
+
+  * Remove the PIDFile= setting from systemd unit file (it should not be
+    needed with Type=notify)
+  * Use php-fpm-socket-helper from php-common >= 1:73 to update the
+    default socket
+  * Fixup upstart removal (missing prepare-files update) (Closes: #951745)
+
+ -- Ondřej Surý <ondrej@debian.org>  Fri, 21 Feb 2020 18:37:13 +0100
+
 php5.6 (5.6.40-22) unstable; urgency=medium
 
   * Backported from 7.2.28
