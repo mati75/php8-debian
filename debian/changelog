@@ -1,3 +1,13 @@
+php7.0 (7.0.33-22) unstable; urgency=medium
+
+  * Remove the PIDFile= setting from systemd unit file (it should not be
+    needed with Type=notify)
+  * Use php-fpm-socket-helper from php-common >= 1:73 to update the
+    default socket
+  * Fixup upstart removal (missing prepare-files update) (Closes: #951745)
+
+ -- Ondřej Surý <ondrej@debian.org>  Fri, 21 Feb 2020 18:37:38 +0100
+
 php7.0 (7.0.33-21) unstable; urgency=medium
 
   * Remove upstart support, use systemd-tmpfiles to create tmpfiles
