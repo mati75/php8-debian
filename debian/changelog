@@ -1,3 +1,9 @@
+php7.1 (7.1.33-13) unstable; urgency=medium
+
+  * Use pkg-config for PHP_SETUP_LIBXML
+
+ -- Ondřej Surý <ondrej@debian.org>  Sun, 23 Feb 2020 16:19:48 +0100
+
 php7.1 (7.1.33-12) unstable; urgency=medium
 
   * Update version in debian/php-fpm.maintscript
