@@ -69,3 +69,4 @@
 0069-Mark-bug76348.phpt-as-online-test.patch
 0070-NEWS.patch
 0071-renew-certs-for-openssl-tests.patch
+0072-Use-pkg-config-for-PHP_SETUP_LIBXML.patch
