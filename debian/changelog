@@ -1,3 +1,10 @@
+php7.4 (7.4.3-4) unstable; urgency=medium
+
+  * Remove /etc/init/php@PHP_VERSION@-fpm.conf, not
+    /etc/init/php@PHP_VERSION@.conf (Closes: #951745)
+
+ -- Ondřej Surý <ondrej@debian.org>  Sun, 23 Feb 2020 08:07:28 +0100
+
 php7.4 (7.4.3-3) unstable; urgency=medium
 
   * Fixup upstart removal (missing prepare-files update) (Closes: #951745)
