@@ -117,3 +117,4 @@
 0117-Fix-bug-79082-Files-added-to-tar-with-Phar-buildFrom.patch
 0118-NEWS.patch
 0119-renew-certs-for-openssl-tests.patch
+0120-Use-pkg-config-for-PHP_SETUP_LIBXML.patch
