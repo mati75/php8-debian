@@ -1,3 +1,11 @@
+php5.6 (5.6.40-24) unstable; urgency=medium
+
+  * Update version in debian/php-fpm.maintscript
+  * Remove /etc/init/php@PHP_VERSION@-fpm.conf, not
+    /etc/init/php@PHP_VERSION@.conf
+
+ -- Ondřej Surý <ondrej@debian.org>  Sun, 23 Feb 2020 08:17:07 +0100
+
 php5.6 (5.6.40-23) unstable; urgency=medium
 
   * Remove the PIDFile= setting from systemd unit file (it should not be
