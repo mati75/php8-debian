@@ -1,3 +1,9 @@
+php7.3 (7.3.15-4) unstable; urgency=medium
+
+  * Use pkg-config for PHP_SETUP_LIBXML
+
+ -- Ondřej Surý <ondrej@debian.org>  Sun, 23 Feb 2020 16:19:57 +0100
+
 php7.3 (7.3.15-3) unstable; urgency=medium
 
   * Remove /etc/init/php@PHP_VERSION@-fpm.conf, not
