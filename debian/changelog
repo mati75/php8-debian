@@ -1,3 +1,9 @@
+php7.0 (7.0.33-25) unstable; urgency=medium
+
+  * Really add the PHP_SETUP_LIBXML patch
+
+ -- Ondřej Surý <ondrej@debian.org>  Tue, 25 Feb 2020 09:55:19 +0100
+
 php7.0 (7.0.33-24) unstable; urgency=medium
 
   * Use pkg-config for PHP_SETUP_LIBXML
