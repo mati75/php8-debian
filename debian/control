@@ -233,19 +233,12 @@ Package: php7.4-fpm
 Architecture: any
 Depends: libmagic1,
          mime-support,
-<<<<<<< HEAD
          php7.4-cli,
          php7.4-common (= ${binary:Version}),
          php7.4-json,
          php7.4-opcache,
+         procps,
          systemd | systemd-tmpfiles,
-=======
-         php7.0-cli,
-         php7.0-common (= ${binary:Version}),
-         php7.0-json,
-         php7.0-opcache,
-	 procps,
->>>>>>> f9d8fa8c3... php-fpm has to depend on procps due kill usage in systemd service file (Closes: #861855)
          tzdata,
          ucf,
          ${misc:Depends},
