@@ -474,9 +474,6 @@
 /* */
 #undef HAVE_CODBC
 
-/* Compiler supports VLA */
-#undef HAVE_COMPILER_C99_VLA
-
 /* whether __cpuid_count is available */
 #undef HAVE_CPUID_COUNT
 
