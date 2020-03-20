@@ -1,3 +1,16 @@
+php7.0 (7.0.33-26) unstable; urgency=medium
+
+  * Add (non-existent) systemd-tmpfiles package as alternative to systemd
+  * Backported from 7.2.29
+   - Core:
+    . Fixed bug #79329 (get_headers() silently truncates after a null
+      byte) (CVE-2020-7066)
+   - EXIF:
+    . Fixed bug #79282 (Use-of-uninitialized-value in exif)
+      (CVE-2020-7064)
+
+ -- Ondřej Surý <ondrej@debian.org>  Fri, 20 Mar 2020 14:58:09 +0100
+
 php7.0 (7.0.33-25) unstable; urgency=medium
 
   * Really add the PHP_SETUP_LIBXML patch
