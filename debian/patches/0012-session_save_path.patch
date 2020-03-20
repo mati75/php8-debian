@@ -22,7 +22,7 @@ index 092dea8..a954725 100644
  	PHP_INI_ENTRY("session.save_handler",           "files",     PHP_INI_ALL, OnUpdateSaveHandler)
  	STD_PHP_INI_BOOLEAN("session.auto_start",       "0",         PHP_INI_PERDIR, OnUpdateBool,       auto_start,         php_ps_globals,    ps_globals)
 diff --git a/php.ini-development b/php.ini-development
-index 805b2ab..ffefaf1 100644
+index c2de1cc..771c30e 100644
 --- a/php.ini-development
 +++ b/php.ini-development
 @@ -1341,7 +1341,7 @@ session.save_handler = files
@@ -35,7 +35,7 @@ index 805b2ab..ffefaf1 100644
  ; Whether to use strict session mode.
  ; Strict session mode does not accept an uninitialized session ID, and
 diff --git a/php.ini-production b/php.ini-production
-index 335ed0b..c7f6618 100644
+index 9554695..4029279 100644
 --- a/php.ini-production
 +++ b/php.ini-production
 @@ -1339,7 +1339,7 @@ session.save_handler = files

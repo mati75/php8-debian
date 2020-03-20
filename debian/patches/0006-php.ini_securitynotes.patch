@@ -7,7 +7,7 @@ Subject: php.ini_securitynotes
  1 file changed, 6 insertions(+)
 
 diff --git a/php.ini-development b/php.ini-development
-index c1895c6..805b2ab 100644
+index c764a77..c2de1cc 100644
 --- a/php.ini-development
 +++ b/php.ini-development
 @@ -304,6 +304,12 @@ serialize_precision = -1
@@ -22,4 +22,4 @@ index c1895c6..805b2ab 100644
 +;
  ;open_basedir =
  
- ; This directive allows you to disable certain functions for security reasons.
+ ; This directive allows you to disable certain functions.
