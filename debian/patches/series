@@ -118,3 +118,8 @@
 0118-NEWS.patch
 0119-renew-certs-for-openssl-tests.patch
 0120-Use-pkg-config-for-PHP_SETUP_LIBXML.patch
+0121-Fixed-bug-79282.patch
+0122-Fix-test.patch
+0123-fix-test.patch
+0124-Fix-bug-79329-get_headers-should-not-accept-0.patch
+0125-Update-NEWS.patch
