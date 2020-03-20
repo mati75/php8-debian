@@ -1,3 +1,12 @@
+php7.2 (7.2.29-1) unstable; urgency=medium
+
+  * Add (non-existent) systemd-tmpfiles package as alternative to systemd
+  * php-fpm has to depend on procps due kill usage in systemd service file
+    (Closes: #861855)
+  * New upstream version 7.2.29
+
+ -- Ondřej Surý <ondrej@debian.org>  Fri, 20 Mar 2020 14:52:52 +0100
+
 php7.2 (7.2.28-4) unstable; urgency=medium
 
   * Use pkg-config for PHP_SETUP_LIBXML
