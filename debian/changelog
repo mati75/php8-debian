@@ -1,3 +1,18 @@
+php5.6 (5.6.40-26) unstable; urgency=medium
+
+  * Add (non-existent) systemd-tmpfiles package as alternative to systemd
+  * php-fpm has to depend on procps due kill usage in systemd service file
+    (Closes: #861855)
+  * Backported from 7.2.29
+   - Core:
+    . Fixed bug #79329 (get_headers() silently truncates after a null
+      byte) (CVE-2020-7066)
+   - EXIF:
+    . Fixed bug #79282 (Use-of-uninitialized-value in exif)
+      (CVE-2020-7064)
+
+ -- Ondřej Surý <ondrej@debian.org>  Fri, 20 Mar 2020 14:59:29 +0100
+
 php5.6 (5.6.40-25) unstable; urgency=medium
 
   * Use pkg-config for PHP_SETUP_LIBXML
