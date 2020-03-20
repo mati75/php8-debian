@@ -1,3 +1,12 @@
+php7.4 (7.4.4-1) unstable; urgency=medium
+
+  * Add (non-existent yet) systemd-tmpfiles package as alternative to systemd
+  * php-fpm has to depend on procps due kill usage in systemd service file
+    (Closes: #861855)
+  * New upstream version 7.4.4
+
+ -- Ondřej Surý <ondrej@debian.org>  Fri, 20 Mar 2020 14:45:16 +0100
+
 php7.4 (7.4.3-4) unstable; urgency=medium
 
   * Remove /etc/init/php@PHP_VERSION@-fpm.conf, not
