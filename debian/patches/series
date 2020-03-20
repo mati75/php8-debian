@@ -132,3 +132,8 @@
 0132-NEWS.patch
 0133-renew-certs-for-openssl-tests.patch
 0134-Use-pkg-config-for-PHP_SETUP_LIBXML.patch
+0135-Fixed-bug-79282.patch
+0136-Fix-test.patch
+0137-fix-test.patch
+0138-Fix-bug-79329-get_headers-should-not-accept-0.patch
+0139-Update-NEWS.patch
