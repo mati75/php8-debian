@@ -70,3 +70,8 @@
 0070-NEWS.patch
 0071-renew-certs-for-openssl-tests.patch
 0072-Use-pkg-config-for-PHP_SETUP_LIBXML.patch
+0073-Fixed-bug-79282.patch
+0074-Fix-test.patch
+0075-fix-test.patch
+0076-Fix-bug-79329-get_headers-should-not-accept-0.patch
+0077-Update-NEWS.patch
