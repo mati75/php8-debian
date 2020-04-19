@@ -123,3 +123,6 @@
 0123-fix-test.patch
 0124-Fix-bug-79329-get_headers-should-not-accept-0.patch
 0125-Update-NEWS.patch
+0126-Fix-bug-79330-make-all-execution-modes-consistent-in.patch
+0127-Fix-bug-79465-use-unsigneds-as-indexes.patch
+0128-NEWS.patch
