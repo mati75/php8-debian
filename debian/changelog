@@ -1,3 +1,9 @@
+php7.3 (7.3.17-1) unstable; urgency=medium
+
+  * New upstream version 7.3.17
+
+ -- Ondřej Surý <ondrej@debian.org>  Sun, 19 Apr 2020 09:42:27 +0200
+
 php7.3 (7.3.16-1) unstable; urgency=medium
 
   * Add (non-existent) systemd-tmpfiles package as alternative to systemd
