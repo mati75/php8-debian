@@ -137,3 +137,7 @@
 0137-fix-test.patch
 0138-Fix-bug-79329-get_headers-should-not-accept-0.patch
 0139-Update-NEWS.patch
+0140-Fix-bug-79330-make-all-execution-modes-consistent-in.patch
+0141-Fix-bug-79465-use-unsigneds-as-indexes.patch
+0142-NEWS.patch
+0143-ZTS.patch
