@@ -75,3 +75,6 @@
 0075-fix-test.patch
 0076-Fix-bug-79329-get_headers-should-not-accept-0.patch
 0077-Update-NEWS.patch
+0078-Fix-bug-79330-make-all-execution-modes-consistent-in.patch
+0079-Fix-bug-79465-use-unsigneds-as-indexes.patch
+0080-NEWS.patch
