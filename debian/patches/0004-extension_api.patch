@@ -8,10 +8,10 @@ Subject: extension_api
  2 files changed, 8 insertions(+), 1 deletion(-)
 
 diff --git a/configure.ac b/configure.ac
-index c72cf68..fb56260 100644
+index 3e43ef2..c75f6a1 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -1231,8 +1231,10 @@ ZEND_MODULE_API_NO=`$EGREP '#define ZEND_MODULE_API_NO ' $srcdir/Zend/zend_modul
+@@ -1232,8 +1232,10 @@ ZEND_MODULE_API_NO=`$EGREP '#define ZEND_MODULE_API_NO ' $srcdir/Zend/zend_modul
  
  AC_SUBST(ZEND_MODULE_API_NO)
  
@@ -23,7 +23,7 @@ index c72cf68..fb56260 100644
    if test "$oldstyleextdir" = "yes"; then
      if test "$PHP_DEBUG" = "1"; then
        part1=debug
-@@ -1367,6 +1369,7 @@ PHP_SUBST(CXX)
+@@ -1368,6 +1370,7 @@ PHP_SUBST(CXX)
  PHP_SUBST(CXXFLAGS)
  PHP_SUBST(CXXFLAGS_CLEAN)
  PHP_SUBST_OLD(DEBUG_CFLAGS)
