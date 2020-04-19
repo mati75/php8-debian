@@ -1,3 +1,12 @@
+php7.0 (7.0.33-27) unstable; urgency=medium
+
+  * Backported from 7.2.30
+   - Standard:
+    . Fixed bug #79330 (shell_exec silently truncates after a null byte).
+    . Fixed bug #79465 (OOB Read in urldecode). (CVE-2020-7067)
+
+ -- Ondřej Surý <ondrej@debian.org>  Sun, 19 Apr 2020 09:57:07 +0200
+
 php7.0 (7.0.33-26) unstable; urgency=medium
 
   * Add (non-existent) systemd-tmpfiles package as alternative to systemd
