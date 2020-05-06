@@ -126,3 +126,4 @@
 0126-Fix-bug-79330-make-all-execution-modes-consistent-in.patch
 0127-Fix-bug-79465-use-unsigneds-as-indexes.patch
 0128-NEWS.patch
+0129-Fix-bug-76895.patch
