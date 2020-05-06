@@ -78,3 +78,4 @@
 0078-Fix-bug-79330-make-all-execution-modes-consistent-in.patch
 0079-Fix-bug-79465-use-unsigneds-as-indexes.patch
 0080-NEWS.patch
+0081-Fix-bug-76895.patch
