@@ -141,3 +141,4 @@
 0141-Fix-bug-79465-use-unsigneds-as-indexes.patch
 0142-NEWS.patch
 0143-ZTS.patch
+0144-Fix-bug-72333-fwrite-on-non-blocking-SSL-sockets-doe.patch
