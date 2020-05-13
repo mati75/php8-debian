@@ -127,3 +127,4 @@
 0127-Fix-bug-79465-use-unsigneds-as-indexes.patch
 0128-NEWS.patch
 0129-Fix-bug-76895.patch
+0130-Fix-Bug-79296-ZipArchive-open-fails-on-empty-file.patch
