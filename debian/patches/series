@@ -142,3 +142,4 @@
 0142-NEWS.patch
 0143-ZTS.patch
 0144-Fix-bug-72333-fwrite-on-non-blocking-SSL-sockets-doe.patch
+0145-Backport-the-aarch64-ZEND_SIGNED_MULTIPLY_LONG-assem.patch
