@@ -1,5 +1,46 @@
 PHP                                                                        NEWS
 |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+14 May 2020, PHP 7.3.18
+
+- Core:
+  . Fixed bug #78875 (Long filenames cause OOM and temp files are not cleaned). 
+    (CVE-2019-11048) (cmb)
+  . Fixed bug #78876 (Long variables in multipart/form-data cause OOM and temp 
+    files are not cleaned). (CVE-2019-11048) (cmb)
+  . Fixed bug #79434 (PHP 7.3 and PHP-7.4 crash with NULL-pointer dereference
+    on !CS constant). (Nikita)
+  . Fixed bug #79477 (casting object into array creates references). (Nikita)
+  . Fixed bug #79470 (PHP incompatible with 3rd party file system on demand).
+    (cmb)
+  . Fixed bug #78784 (Unable to interact with files inside a VFS for Git
+    repository). (cmb)
+
+- DOM:
+  . Fixed bug #78221 (DOMNode::normalize() doesn't remove empty text nodes).
+    (cmb)
+
+- FCGI:
+  . Fixed bug #79491 (Search for .user.ini extends up to root dir). (cmb)
+
+- MBString:
+  . Fixed bug #79441 (Segfault in mb_chr() if internal encoding is unsupported).
+    (Girgias)
+
+- OpenSSL:
+  . Fixed bug #79497 (stream_socket_client() throws an unknown error sometimes
+    with <1s timeout). (Joe Cai)
+
+- Phar:
+  . Fix bug #79503 (Memory leak on duplicate metadata). (cmb)
+
+- SimpleXML:
+  . Fixed bug #79528 (Different object of the same xml between 7.4.5 and
+    7.4.4). (cmb)
+
+- Standard:
+  . Fixed bug #79468 (SIGSEGV when closing stream handle with a stream filter
+    appended). (dinosaur)
+
 16 Apr 2020, PHP 7.3.17
 
 - Core:
@@ -36,7 +77,7 @@ PHP                                                                        NEWS
 
 - Standard:
   . Fixed bug #79330 (shell_exec() silently truncates after a null byte). (stas)
-  . Fixed bug #79465 (OOB Read in urldecode()). (stas)
+  . Fixed bug #79465 (OOB Read in urldecode()). (CVE-2020-7067) (stas)
   . Fixed bug #79410 (system() swallows last chunk if it is exactly 4095 bytes
     without newline). (Christian Schneider)
 
