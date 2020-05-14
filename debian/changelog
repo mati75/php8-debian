@@ -1,3 +1,9 @@
+php7.0 (7.0.33-29) unstable; urgency=medium
+
+  * Fix the patch for bugfix #76895
+
+ -- Ondřej Surý <ondrej@debian.org>  Thu, 14 May 2020 11:06:52 +0200
+
 php7.0 (7.0.33-28) unstable; urgency=medium
 
   * Add upstream patch to fix bug #76895
