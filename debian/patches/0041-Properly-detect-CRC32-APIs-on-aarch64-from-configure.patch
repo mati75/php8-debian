@@ -12,7 +12,7 @@ Closes GH-5564.
  2 files changed, 8 insertions(+), 2 deletions(-)
 
 diff --git a/configure.ac b/configure.ac
-index 6738c65..f5533c5 100644
+index 37b8115..bc78cc6 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -722,6 +722,12 @@ if test "x$php_crypt_r" = "x1"; then
