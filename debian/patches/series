@@ -47,3 +47,6 @@
 0047-Use-pkg-config-for-FreeType2-detection.patch
 0048-Amend-C-11-for-intl-compilation-on-older-distributio.patch
 0049-Use-pkg-config-for-PHP_SETUP_LIBXML.patch
+0050-Allow-numeric-UG-ID-in-FPM-listen.-owner-group.patch
+0051-Allow-fpm-tests-to-be-run-with-long-socket-path.patch
+0052-Skip-fpm-tests-not-designed-to-be-run-as-root.patch
