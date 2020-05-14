@@ -50,3 +50,6 @@
 0050-Amend-C-11-for-intl-compilation-on-older-distributio.patch
 0051-Use-pkg-config-for-PHP_SETUP_LIBXML.patch
 0052-Fix-Bug-79296-ZipArchive-open-fails-on-empty-file.patch
+0053-Allow-numeric-UG-ID-in-FPM-listen.-owner-group.patch
+0054-Allow-fpm-tests-to-be-run-with-long-socket-path.patch
+0055-Skip-fpm-tests-not-designed-to-be-run-as-root.patch
