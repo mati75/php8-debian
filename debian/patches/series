@@ -83,3 +83,6 @@
 0083-Fix-78875-Long-filenames-cause-OOM-and-temp-files-ar.patch
 0084-Fix-78876-Long-variables-cause-OOM-and-temp-files-ar.patch
 0085-Update-NEWS.patch
+0086-Allow-numeric-UG-ID-in-FPM-listen.-owner-group.patch
+0087-Allow-fpm-tests-to-be-run-with-long-socket-path.patch
+0088-Skip-fpm-tests-not-designed-to-be-run-as-root.patch
