@@ -7,7 +7,7 @@ Subject: Fix Bug #79296 ZipArchive::open fails on empty file
  1 file changed, 15 insertions(+)
 
 diff --git a/ext/zip/php_zip.c b/ext/zip/php_zip.c
-index 52f058c..2203a44 100644
+index 52f058c..8fa14f3 100644
 --- a/ext/zip/php_zip.c
 +++ b/ext/zip/php_zip.c
 @@ -1572,6 +1572,21 @@ static ZIPARCHIVE_METHOD(open)
@@ -20,7 +20,7 @@ index 52f058c..2203a44 100644
 +
 +	/* open for write without option to empty the archive */
 +	if ((flags & (ZIP_TRUNCATE | ZIP_RDONLY)) == 0) {
-+		zend_stat_t st;
++		struct stat st;
 +
 +		/* exists and is empty */
 +		if (VCWD_STAT(resolved_path, &st) == 0 && st.st_size == 0) {
