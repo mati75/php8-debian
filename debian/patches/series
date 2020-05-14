@@ -128,3 +128,6 @@
 0128-NEWS.patch
 0129-Fix-bug-76895.patch
 0130-Fix-Bug-79296-ZipArchive-open-fails-on-empty-file.patch
+0131-Fix-78875-Long-filenames-cause-OOM-and-temp-files-ar.patch
+0132-Fix-78876-Long-variables-cause-OOM-and-temp-files-ar.patch
+0133-Update-NEWS.patch
