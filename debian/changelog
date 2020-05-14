@@ -1,3 +1,16 @@
+php7.0 (7.0.33-28) unstable; urgency=medium
+
+  * Add upstream patch to fix bug #76895
+  * Add patch to reduce BC break introduced in libzip 1.6.0
+  * Backported from 7.2.31
+   - Core:
+    . Fixed bug #78875 (Long filenames cause OOM and temp files are not cleaned).
+      (CVE-2019-11048)
+    . Fixed bug #78876 (Long variables in multipart/form-data cause OOM and temp
+      files are not cleaned). (CVE-2019-11048)
+
+ -- Ondřej Surý <ondrej@debian.org>  Thu, 14 May 2020 10:07:47 +0200
+
 php7.0 (7.0.33-27) unstable; urgency=medium
 
   * Backported from 7.2.30
