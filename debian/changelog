@@ -1,3 +1,9 @@
+php5.6 (5.6.40-29) unstable; urgency=medium
+
+  * Fix the FTBFS caused libzip 1.6.0 BC fix
+
+ -- Ondřej Surý <ondrej@debian.org>  Thu, 14 May 2020 10:45:49 +0200
+
 php5.6 (5.6.40-28) unstable; urgency=medium
 
   * Add upstream patch to fix bug #72333
