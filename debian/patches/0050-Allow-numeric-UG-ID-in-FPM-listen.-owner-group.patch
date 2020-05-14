@@ -14,10 +14,10 @@ Subject: Allow numeric [UG]ID in FPM listen.{owner,group}
  create mode 100644 sapi/fpm/tests/socket-uds-numeric-ugid.phpt
 
 diff --git a/NEWS b/NEWS
-index 76bed1c..79889fd 100644
+index b9cc1ef..dd80d3d 100644
 --- a/NEWS
 +++ b/NEWS
-@@ -13,6 +13,10 @@ PHP                                                                        NEWS
+@@ -54,6 +54,10 @@ PHP                                                                        NEWS
    . Fixed bug #79396 (DateTime hour incorrect during DST jump forward). (Nate
      Brunette)
  
