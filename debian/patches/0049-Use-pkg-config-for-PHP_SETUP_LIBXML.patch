@@ -8,7 +8,7 @@ Subject: Use pkg-config for PHP_SETUP_LIBXML
  2 files changed, 12 insertions(+), 136 deletions(-)
 
 diff --git a/acinclude.m4 b/acinclude.m4
-index 982e477..25d5eb6 100644
+index ae3e90a..7ab3ac2 100644
 --- a/acinclude.m4
 +++ b/acinclude.m4
 @@ -2534,79 +2534,17 @@ ifelse([$3],[],,[else $3])
@@ -98,7 +98,7 @@ index 982e477..25d5eb6 100644
  
  dnl -------------------------------------------------------------------------
 diff --git a/aclocal.m4 b/aclocal.m4
-index 26b874a..5f1f712 100644
+index 75856bb..e50a475 100644
 --- a/aclocal.m4
 +++ b/aclocal.m4
 @@ -2534,79 +2534,17 @@ ifelse([$3],[],,[else $3])
