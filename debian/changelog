@@ -1,3 +1,9 @@
+php7.4 (7.4.7-1) unstable; urgency=medium
+
+  * New upstream version 7.4.7
+
+ -- Ondřej Surý <ondrej@debian.org>  Fri, 12 Jun 2020 09:42:27 +0200
+
 php7.4 (7.4.6-1) unstable; urgency=medium
 
   * Properly detect CRC32 APIs on aarch64 from configure
