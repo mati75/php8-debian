@@ -1,3 +1,9 @@
+php7.3 (7.3.19-1) unstable; urgency=medium
+
+  * New upstream version 7.3.19
+
+ -- Ondřej Surý <ondrej@debian.org>  Fri, 12 Jun 2020 09:45:39 +0200
+
 php7.3 (7.3.18-1) unstable; urgency=medium
 
   * Add upstream patch to allow numeric [UG]ID in FPM listen.{owner,group}
