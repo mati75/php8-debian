@@ -1,7 +1,5 @@
 /*
    +----------------------------------------------------------------------+
-   | PHP Version 7                                                        |
-   +----------------------------------------------------------------------+
    | Copyright (c) The PHP Group                                          |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
@@ -72,7 +70,7 @@
 
 #define DEFAULT_PROMPT "\\b \\> "
 
-ZEND_DECLARE_MODULE_GLOBALS(cli_readline);
+ZEND_DECLARE_MODULE_GLOBALS(cli_readline)
 
 static char php_last_char = '\0';
 static FILE *pager_pipe = NULL;

@@ -1,7 +1,5 @@
 /*
   +----------------------------------------------------------------------+
-  | PHP Version 7                                                        |
-  +----------------------------------------------------------------------+
   | Copyright (c) The PHP Group                                          |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
@@ -291,8 +289,7 @@ PHP_HASH_API void PHP_GOSTFinal(unsigned char digest[32], PHP_GOST_CTX *context)
 		GostTransform(context, context->buffer);
 	}
 
-	l[0] = context->count[0];
-	l[1] = context->count[1];
+	memcpy(l, context->count, sizeof(context->count));
 	Gost(context, l);
 	memcpy(l, &context->state[8], sizeof(l));
 	Gost(context, l);

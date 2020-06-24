@@ -3,7 +3,7 @@ Streams Based IPv6 UDP Loopback test
 --SKIPIF--
 <?php
 	/* If IPv6 is supported on the platform this will error out with code 111 -
-	 * Connection refused (or code 10049 on Windows).  If IPv6 is NOT supported, $errno will be set to
+	 * Connection refused.  If IPv6 is NOT supported, $errno will be set to
 	 * something else (indicating parse/getaddrinfo error)
 	 * Note: Might be a good idea to export an IPv6 support indicator
 	 * (such as AF_INET6 exported by ext/sockets), however, since we
@@ -12,9 +12,7 @@ Streams Based IPv6 UDP Loopback test
    	 */
 
 	@stream_socket_client('tcp://[::1]:0', $errno);
-	if ((PHP_OS_FAMILY === 'Windows' && $errno !== 10049) || (PHP_OS_FAMILY !== 'Windows' && $errno !== 111)) {
-		die('skip IPv6 is not supported.');
-	}
+	if ($errno != 111) die('skip IPv6 not supported.');
 ?>
 --FILE--
 <?php
@@ -28,23 +26,23 @@ Streams Based IPv6 UDP Loopback test
     }
   }
 
-	if (!$server) {
-		die('Unable to create AF_INET6 socket [server]');
-	}
+    if (!$server) {
+        die('Unable to create AF_INET6 socket [server]');
+    }
 
-	/* Connect to it */
-	$client = stream_socket_client("udp://[::1]:$port");
-	if (!$client) {
-		die('Unable to create AF_INET6 socket [client]');
-	}
+    /* Connect to it */
+    $client = stream_socket_client("udp://[::1]:$port");
+    if (!$client) {
+        die('Unable to create AF_INET6 socket [client]');
+    }
 
-	fwrite($client, "ABCdef123\n");
+    fwrite($client, "ABCdef123\n");
 
-	$data = fread($server, 10);
-	var_dump($data);
+    $data = fread($server, 10);
+    var_dump($data);
 
-	fclose($client);
-	fclose($server);
+    fclose($client);
+    fclose($server);
 ?>
 --EXPECT--
 string(10) "ABCdef123

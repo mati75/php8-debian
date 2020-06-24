@@ -1,7 +1,5 @@
 /*
    +----------------------------------------------------------------------+
-   | PHP Version 7                                                        |
-   +----------------------------------------------------------------------+
    | Copyright (c) The PHP Group                                          |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
@@ -26,6 +24,7 @@
 #include "ext/standard/basic_functions.h"
 #include "ext/standard/info.h"
 #include "lsapilib.h"
+#include "lsapi_main_arginfo.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -108,7 +107,7 @@ static int php_lsapi_startup(sapi_module_struct *sapi_module)
 
 /* {{{ sapi_lsapi_ini_defaults */
 
-/* overwriteable ini defaults must be set in sapi_cli_ini_defaults() */
+/* overwritable ini defaults must be set in sapi_cli_ini_defaults() */
 #define INI_DEFAULT(name,value)\
     ZVAL_STRING(tmp, value, 0);\
     zend_hash_update(configuration_hash, name, sizeof(name), tmp, sizeof(zval), (void**)&entry);\
@@ -192,7 +191,7 @@ static int sapi_lsapi_deactivate(void)
 
 /* {{{ sapi_lsapi_getenv
  */
-static char *sapi_lsapi_getenv( char * name, size_t name_len )
+static char *sapi_lsapi_getenv(const char * name, size_t name_len )
 {
     if ( lsapi_mode ) {
         return LSAPI_GetEnv( name );
@@ -510,7 +509,7 @@ static int sapi_lsapi_send_headers(sapi_headers_struct *sapi_headers)
 
 /* {{{ sapi_lsapi_send_headers
  */
-static void sapi_lsapi_log_message(char *message, int syslog_type_int)
+static void sapi_lsapi_log_message(const char *message, int syslog_type_int)
 {
     char buf[8192];
     int len = strlen( message );
@@ -522,7 +521,7 @@ static void sapi_lsapi_log_message(char *message, int syslog_type_int)
             len = 8191;
         ++len;
     }
-    LSAPI_Write_Stderr( message, len);
+    LSAPI_Write_Stderr( message, len );
 }
 /* }}} */
 
@@ -806,7 +805,7 @@ static int alter_ini( const char * pKey, int keyLen, const char * pValue, int va
               Use ACTIVATE stage in legacy mode only.
 
               RUNTIME stage should be used here,
-              as with ACTIVATE it's impossible to change the option from script with ini_set 
+              as with ACTIVATE it's impossible to change the option from script with ini_set
             */
             if(!mod_lsapi_mode)
             {
@@ -1617,28 +1616,12 @@ int main( int argc, char * argv[] )
 
 /*   LiteSpeed PHP module starts here */
 
-/* {{{ arginfo */
-ZEND_BEGIN_ARG_INFO(arginfo_litespeed__void, 0)
-ZEND_END_ARG_INFO()
-/* }}} */
-
 PHP_FUNCTION(litespeed_request_headers);
 PHP_FUNCTION(litespeed_response_headers);
 PHP_FUNCTION(apache_get_modules);
 PHP_FUNCTION(litespeed_finish_request);
 
 PHP_MINFO_FUNCTION(litespeed);
-
-static const zend_function_entry litespeed_functions[] = {
-    PHP_FE(litespeed_request_headers,   arginfo_litespeed__void)
-    PHP_FE(litespeed_response_headers,  arginfo_litespeed__void)
-    PHP_FE(apache_get_modules,          arginfo_litespeed__void)
-    PHP_FE(litespeed_finish_request,    arginfo_litespeed__void)
-    PHP_FALIAS(getallheaders,           litespeed_request_headers,  arginfo_litespeed__void)
-    PHP_FALIAS(apache_request_headers,  litespeed_request_headers,  arginfo_litespeed__void)
-    PHP_FALIAS(apache_response_headers, litespeed_response_headers, arginfo_litespeed__void)
-    {NULL, NULL, NULL}
-};
 
 static PHP_MINIT_FUNCTION(litespeed)
 {
@@ -1657,7 +1640,7 @@ static PHP_MINIT_FUNCTION(litespeed)
     }
     /*
      * mod_lsapi always sets this env var,
-     * so we can detect mod_lsapi mode with its presense.
+     * so we can detect mod_lsapi mode with its presence.
      */
     mod_lsapi_mode = ( getenv("LSAPI_DISABLE_CPAN_BEHAV") != NULL );
 
@@ -1677,7 +1660,7 @@ static PHP_MSHUTDOWN_FUNCTION(litespeed)
 zend_module_entry litespeed_module_entry = {
     STANDARD_MODULE_HEADER,
     "litespeed",
-    litespeed_functions,
+    ext_functions,
     PHP_MINIT(litespeed),
     PHP_MSHUTDOWN(litespeed),
     NULL,
@@ -1699,14 +1682,13 @@ static int add_associate_array( const char * pKey, int keyLen, const char * pVal
    Fetch all HTTP request headers */
 PHP_FUNCTION(litespeed_request_headers)
 {
-    /* TODO: */
-    if (ZEND_NUM_ARGS() > 0) {
-        WRONG_PARAM_COUNT;
+    if (zend_parse_parameters_none() == FAILURE) {
+        RETURN_THROWS();
     }
+
     array_init(return_value);
 
     LSAPI_ForeachOrgHeader( add_associate_array, return_value );
-
 }
 /* }}} */
 
@@ -1722,9 +1704,9 @@ PHP_FUNCTION(litespeed_response_headers)
     int          len;
     char         headerBuf[SAPI_LSAPI_MAX_HEADER_LENGTH];
 
-    if (ZEND_NUM_ARGS() > 0) {
-        WRONG_PARAM_COUNT;
-    }
+    if (zend_parse_parameters_none() == FAILURE) {
+		RETURN_THROWS();
+	}
 
     if (!&SG(sapi_headers).headers) {
         RETURN_FALSE;
@@ -1764,10 +1746,11 @@ PHP_FUNCTION(apache_get_modules)
         "mod_rewrite", "mod_mime", "mod_headers", "mod_expires", "mod_auth_basic", NULL
     };
     const char **name = mod_names;
-    /* TODO: */
-    if (ZEND_NUM_ARGS() > 0) {
-        WRONG_PARAM_COUNT;
-    }
+
+    if (zend_parse_parameters_none() == FAILURE) {
+		RETURN_THROWS();
+	}
+
     array_init(return_value);
     while( *name )
     {
@@ -1778,13 +1761,13 @@ PHP_FUNCTION(apache_get_modules)
 /* }}} */
 
 
-/* {{{ proto array litespeed_finish_request(void)
+/* {{{ proto bool litespeed_finish_request(void)
    Flushes all response data to the client */
 PHP_FUNCTION(litespeed_finish_request)
 {
-    if (ZEND_NUM_ARGS() > 0) {
-        WRONG_PARAM_COUNT;
-    }
+	if (zend_parse_parameters_none() == FAILURE) {
+		RETURN_THROWS();
+	}
 
     php_output_end_all();
     php_header();

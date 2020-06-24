@@ -51,7 +51,11 @@ $counter = 1;
    is an executable file */
 foreach($files_arr as $file) {
   echo "-- Iteration $counter --\n";
-  var_dump( is_executable($file) );
+  try {
+    var_dump( is_executable($file) );
+  } catch (TypeError $e) {
+    echo $e->getMessage(), "\n";
+  }
   $counter++;
   clearstatcache();
 }
@@ -63,7 +67,7 @@ echo "Done\n";
 unlink(__DIR__."/is_executable_variation1/bar.tmp");
 rmdir(__DIR__."/is_executable_variation1/");
 ?>
---EXPECTF--
+--EXPECT--
 *** Testing is_executable(): usage variations ***
 -- Iteration 1 --
 bool(false)
@@ -76,13 +80,9 @@ bool(false)
 -- Iteration 5 --
 bool(false)
 -- Iteration 6 --
-
-Warning: is_executable() expects parameter 1 to be a valid path, string given in %s on line %d
-NULL
+is_executable(): Argument #1 ($filename) must be a valid path, string given
 -- Iteration 7 --
-
-Warning: is_executable() expects parameter 1 to be a valid path, string given in %s on line %d
-NULL
+is_executable(): Argument #1 ($filename) must be a valid path, string given
 -- Iteration 8 --
 bool(false)
 -- Iteration 9 --

@@ -7,8 +7,16 @@ Venkat Raman Don
 if(substr(PHP_OS, 0, 3) != 'WIN' ) {
 		die('skip windows only test');
 }
-include_once __DIR__ . '/windows_links/common.inc';
-skipIfSeCreateSymbolicLinkPrivilegeIsDisabled(__FILE__);
+if(PHP_WINDOWS_VERSION_MAJOR < 6)  {
+        die('skip windows version 6.0+ only test');
+}
+
+$fn = "bug47767.lnk";
+$ret = exec("mklink $fn " . __FILE__ .' 2>&1', $out);
+@unlink($fn);
+if (strpos($ret, 'privilege')) {
+	die('skip. SeCreateSymbolicLinkPrivilege not enable for this user.');
+}
 ?>
 --FILE--
 <?php

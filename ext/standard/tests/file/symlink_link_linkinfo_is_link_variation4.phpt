@@ -1,5 +1,11 @@
 --TEST--
 Test symlink(), linkinfo(), link() and is_link() functions : usage variations - access/update file through hard link
+--SKIPIF--
+<?php
+if (substr(PHP_OS, 0, 3) == 'WIN') {
+    die('skip no symlinks on Windows');
+}
+?>
 --FILE--
 <?php
 /* Prototype: bool symlink ( string $target, string $link );

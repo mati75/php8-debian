@@ -1,7 +1,5 @@
 /*
    +----------------------------------------------------------------------+
-   | PHP Version 7                                                        |
-   +----------------------------------------------------------------------+
    | Copyright (c) The PHP Group                                          |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
@@ -728,7 +726,7 @@ static inline void phpdbg_handle_exception(void) /* {{{ */
 	EG(exception) = NULL;
 
 	ZVAL_OBJ(&zv, ex);
-	zend_call_method_with_0_params(&zv, ex->ce, &ex->ce->__tostring, "__tostring", &tmp);
+	zend_call_known_instance_method_with_0_params(ex->ce->__tostring, ex, &tmp);
 	file = zval_get_string(zend_read_property(zend_get_exception_base(&zv), &zv, ZEND_STRL("file"), 1, &rv));
 	line = zval_get_long(zend_read_property(zend_get_exception_base(&zv), &zv, ZEND_STRL("line"), 1, &rv));
 
@@ -1230,9 +1228,8 @@ static int add_module_info(zend_module_entry *module) /* {{{ */ {
 }
 /* }}} */
 
-static int add_zendext_info(zend_extension *ext) /* {{{ */ {
+static void add_zendext_info(zend_extension *ext) /* {{{ */ {
 	phpdbg_write("extension", "name=\"%s\"", "%s\n", ext->name);
-	return 0;
 }
 /* }}} */
 
@@ -1710,7 +1707,7 @@ void phpdbg_execute_ex(zend_execute_data *execute_data) /* {{{ */
 
 #ifdef ZEND_WIN32
 		if (EG(timed_out)) {
-			zend_timeout(0);
+			zend_timeout();
 		}
 #endif
 

@@ -1,7 +1,5 @@
 /*
    +----------------------------------------------------------------------+
-   | PHP Version 7                                                        |
-   +----------------------------------------------------------------------+
    | Copyright (c) The PHP Group                                          |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
@@ -38,7 +36,6 @@
 #include <stdio.h>
 #include <errno.h>
 
-#include "microtime.h"
 #include "ext/date/php_date.h"
 
 #define NUL  '\0'
@@ -100,7 +97,7 @@ PHP_FUNCTION(gettimeofday)
 /* }}} */
 
 #ifdef HAVE_GETRUSAGE
-/* {{{ proto array getrusage([int who])
+/* {{{ proto array|false getrusage([int who])
    Returns an array of usage statistics */
 PHP_FUNCTION(getrusage)
 {
@@ -131,7 +128,7 @@ PHP_FUNCTION(getrusage)
 #ifdef PHP_WIN32 /* Windows only implements a limited amount of fields from the rusage struct */
 	PHP_RUSAGE_PARA(ru_majflt);
 	PHP_RUSAGE_PARA(ru_maxrss);
-#elif !defined(_OSD_POSIX)
+#elif !defined(_OSD_POSIX) && !defined(__HAIKU__)
 	PHP_RUSAGE_PARA(ru_oublock);
 	PHP_RUSAGE_PARA(ru_inblock);
 	PHP_RUSAGE_PARA(ru_msgsnd);

@@ -1,7 +1,5 @@
 /*
    +----------------------------------------------------------------------+
-   | PHP Version 7                                                        |
-   +----------------------------------------------------------------------+
    | Copyright (c) The PHP Group                                          |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
@@ -31,9 +29,6 @@ typedef struct {
 PHPAPI void PHP_SHA1Init(PHP_SHA1_CTX *);
 PHPAPI void PHP_SHA1Update(PHP_SHA1_CTX *, const unsigned char *, size_t);
 PHPAPI void PHP_SHA1Final(unsigned char[20], PHP_SHA1_CTX *);
-PHPAPI void make_sha1_digest(char *sha1str, unsigned char *digest);
-
-PHP_FUNCTION(sha1);
-PHP_FUNCTION(sha1_file);
+PHPAPI void make_sha1_digest(char *sha1str, const unsigned char *digest);
 
 #endif

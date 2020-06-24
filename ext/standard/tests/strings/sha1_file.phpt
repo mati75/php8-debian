@@ -46,12 +46,6 @@ var_dump( sha1_file(12) );
 echo "\n-- NULL as filename --\n";
 var_dump( sha1_file(NULL) );
 
-echo "\n-- Zero arguments --\n";
- var_dump ( sha1_file() );
-
-echo "\n-- More than valid number of arguments ( valid is 2) --\n";
-var_dump ( sha1_file("EmptyFileSHA1.txt", true, NULL) );
-
 echo "\n-- Hexadecimal Output for Empty file as Argument --\n";
 var_dump( sha1_file("EmptyFileSHA1.txt") );
 
@@ -69,7 +63,6 @@ unlink("DataFileSHA1.txt");
 unlink("EmptyFileSHA1.txt");
 
 ?>
-===DONE===
 --EXPECTF--
 *** Testing sha1_file() : basic functionality ***
 
@@ -82,28 +75,18 @@ bool(false)
 
 -- invalid filename --
 
-Warning: sha1_file(rewncwYcn89q): failed to open stream: No such file or directory in %s on line %d
+Warning: sha1_file(rewncwYcn89q): Failed to open stream: No such file or directory in %s on line %d
 bool(false)
 
 -- Scalar value as filename --
 
-Warning: sha1_file(12): failed to open stream: No such file or directory in %s on line %d
+Warning: sha1_file(12): Failed to open stream: No such file or directory in %s on line %d
 bool(false)
 
 -- NULL as filename --
 
 Warning: sha1_file(): Filename cannot be empty in %s on line %d
 bool(false)
-
--- Zero arguments --
-
-Warning: sha1_file() expects at least 1 parameter, 0 given in %s on line %d
-NULL
-
--- More than valid number of arguments ( valid is 2) --
-
-Warning: sha1_file() expects at most 2 parameters, 3 given in %s on line %d
-NULL
 
 -- Hexadecimal Output for Empty file as Argument --
 string(40) "da39a3ee5e6b4b0d3255bfef95601890afd80709"
@@ -116,4 +99,3 @@ string(40) "d16a568ab98233deff7ec8b1668eb4b3d9e53fee"
 
 -- Raw Binary Output for a valid file with some contents --
 string(40) "d16a568ab98233deff7ec8b1668eb4b3d9e53fee"
-===DONE===

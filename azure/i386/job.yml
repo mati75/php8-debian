@@ -10,8 +10,8 @@ jobs:
     - template: apt.yml
     - script: |
         ./buildconf --force
-        export CFLAGS=-m32
-        export CXXFLAGS=-m32
+        export CFLAGS="-m32 -msse2"
+        export CXXFLAGS="-m32 -msse2"
         export LDFLAGS=-L/usr/lib/i386-linux-gnu
         export PKG_CONFIG=/usr/bin/i686-linux-gnu-pkg-config
         ./configure ${{ parameters.configurationParameters }} \
@@ -29,7 +29,6 @@ jobs:
             --enable-gd \
             --with-jpeg \
             --with-webp \
-            --with-freetype \
             --with-xpm \
             --enable-exif \
             --with-zip \
@@ -39,7 +38,6 @@ jobs:
             --enable-xmlreader \
             --with-xsl \
             --with-tidy \
-            --with-xmlrpc \
             --enable-sysvsem \
             --enable-sysvshm \
             --enable-shmop \
@@ -63,6 +61,7 @@ jobs:
             --enable-zend-test \
             --with-mhash \
             --with-sodium \
+            --enable-dba \
             --enable-werror \
             --with-config-file-path=/etc \
             --with-config-file-scan-dir=/etc/php.d
@@ -94,3 +93,8 @@ jobs:
         configurationName: ${{ parameters.configurationName }}
         runTestsName: 'OpCache'
         runTestsParameters: -d zend_extension=opcache.so
+    - template: test.yml
+      parameters:
+        configurationName: ${{ parameters.configurationName }}
+        runTestsName: 'JIT'
+        runTestsParameters: -d zend_extension=opcache.so -d opcache.jit_buffer_size=16M

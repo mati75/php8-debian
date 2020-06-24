@@ -1,5 +1,11 @@
 --TEST--
 Test lstat() and stat() functions: usage variations - writing data into file
+--SKIPIF--
+<?php
+if (substr(PHP_OS, 0, 3) == 'WIN') {
+    die('skip.. Not valid for Windows');
+}
+?>
 --FILE--
 <?php
 /* Prototype: array lstat ( string $filename );
@@ -23,8 +29,7 @@ echo "*** Testing stat() on file after data is written in it ***\n";
 $fh = fopen($file_name,"w");
 $old_stat = stat($file_name);
 clearstatcache();
-$blksize = PHP_OS_FAMILY === 'Windows' ? 4096 : $old_stat['blksize'];
-fwrite($fh, str_repeat("Hello World", $blksize));
+fwrite($fh, str_repeat("Hello World", $old_stat['blksize']));
 $new_stat = stat($file_name);
 
 // compare self stats

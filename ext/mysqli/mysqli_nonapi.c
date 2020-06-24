@@ -1,7 +1,5 @@
 /*
   +----------------------------------------------------------------------+
-  | PHP Version 7                                                        |
-  +----------------------------------------------------------------------+
   | Copyright (c) The PHP Group                                          |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
@@ -85,7 +83,7 @@ void mysqli_common_connect(INTERNAL_FUNCTION_PARAMETERS, zend_bool is_real_conne
 	if (!is_real_connect) {
 		if (zend_parse_parameters(ZEND_NUM_ARGS(), "|s!s!s!s!l!s!", &hostname, &hostname_len, &username, &username_len,
 				&passwd, &passwd_len, &dbname, &dbname_len, &port, &port_is_null, &socket, &socket_len) == FAILURE) {
-			return;
+			RETURN_THROWS();
 		}
 
 		if (object && instanceof_function(Z_OBJCE_P(object), mysqli_link_class_entry)) {
@@ -103,7 +101,7 @@ void mysqli_common_connect(INTERNAL_FUNCTION_PARAMETERS, zend_bool is_real_conne
 		/* We have flags too */
 		if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O|s!s!s!s!l!s!l", &object, mysqli_link_class_entry,
 				&hostname, &hostname_len, &username, &username_len, &passwd, &passwd_len, &dbname, &dbname_len, &port, &port_is_null, &socket, &socket_len, &flags) == FAILURE) {
-			return;
+			RETURN_THROWS();
 		}
 
 		mysqli_resource = (Z_MYSQLI_P(object))->ptr;
@@ -113,7 +111,7 @@ void mysqli_common_connect(INTERNAL_FUNCTION_PARAMETERS, zend_bool is_real_conne
 		flags |= CLIENT_MULTI_RESULTS; /* needed for mysql_multi_query() */
 		/* remove some insecure options */
 		flags &= ~CLIENT_MULTI_STATEMENTS;   /* don't allow multi_queries via connect parameter */
-#if !defined(MYSQLI_USE_MYSQLND)
+#ifndef MYSQLI_USE_MYSQLND
 		if (PG(open_basedir) && PG(open_basedir)[0] != '\0') {
 			flags &= ~CLIENT_LOCAL_FILES;
 		}
@@ -244,7 +242,7 @@ void mysqli_common_connect(INTERNAL_FUNCTION_PARAMETERS, zend_bool is_real_conne
 		goto err;
 	}
 	if (!mysql->mysql) {
-#if !defined(MYSQLI_USE_MYSQLND)
+#ifndef MYSQLI_USE_MYSQLND
 		if (!(mysql->mysql = mysql_init(NULL))) {
 #else
 		if (!(mysql->mysql = mysqlnd_init(MYSQLND_CLIENT_KNOWS_RSET_COPY_DATA, persistent))) {
@@ -254,7 +252,7 @@ void mysqli_common_connect(INTERNAL_FUNCTION_PARAMETERS, zend_bool is_real_conne
 		new_connection = TRUE;
 	}
 
-#if !defined(MYSQLI_USE_MYSQLND)
+#ifndef MYSQLI_USE_MYSQLND
 	/* BC for prior to bug fix #53425 */
 	flags |= CLIENT_MULTI_RESULTS;
 
@@ -327,7 +325,7 @@ void mysqli_common_connect(INTERNAL_FUNCTION_PARAMETERS, zend_bool is_real_conne
 	/* clear error */
 	php_mysqli_set_error(mysql_errno(mysql->mysql), (char *) mysql_error(mysql->mysql));
 
-#if !defined(MYSQLI_USE_MYSQLND)
+#ifndef MYSQLI_USE_MYSQLND
 	mysql->mysql->reconnect = MyG(reconnect);
 #endif
 	unsigned int allow_local_infile = MyG(allow_local_infile);
@@ -392,6 +390,10 @@ PHP_FUNCTION(mysqli_link_construct)
    Returns the numerical value of the error message from last connect command */
 PHP_FUNCTION(mysqli_connect_errno)
 {
+	if (zend_parse_parameters_none() == FAILURE) {
+		RETURN_THROWS();
+	}
+
 	RETURN_LONG(MyG(error_no));
 }
 /* }}} */
@@ -400,6 +402,10 @@ PHP_FUNCTION(mysqli_connect_errno)
    Returns the text of the error message from previous MySQL operation */
 PHP_FUNCTION(mysqli_connect_error)
 {
+	if (zend_parse_parameters_none() == FAILURE) {
+		RETURN_THROWS();
+	}
+
 	if (MyG(error_msg)) {
 		RETURN_STRING(MyG(error_msg));
 	} else {
@@ -426,7 +432,7 @@ PHP_FUNCTION(mysqli_fetch_assoc)
 
 /* {{{ proto mixed mysqli_fetch_all(object result [,int resulttype])
    Fetches all result rows as an associative array, a numeric array, or both */
-#if defined(MYSQLI_USE_MYSQLND)
+#ifdef MYSQLI_USE_MYSQLND
 PHP_FUNCTION(mysqli_fetch_all)
 {
 	MYSQL_RES	*result;
@@ -434,7 +440,7 @@ PHP_FUNCTION(mysqli_fetch_all)
 	zend_long		mode = MYSQLND_FETCH_NUM;
 
 	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O|l", &mysql_result, mysqli_result_class_entry, &mode) == FAILURE) {
-		return;
+		RETURN_THROWS();
 	}
 	MYSQLI_FETCH_RESOURCE(result, MYSQL_RES *, mysql_result, "mysqli_result", MYSQLI_STATUS_VALID);
 
@@ -453,7 +459,7 @@ PHP_FUNCTION(mysqli_fetch_all)
 PHP_FUNCTION(mysqli_get_client_stats)
 {
 	if (zend_parse_parameters_none() == FAILURE) {
-		return;
+		RETURN_THROWS();
 	}
 	mysqlnd_get_client_stats(return_value);
 }
@@ -468,7 +474,7 @@ PHP_FUNCTION(mysqli_get_connection_stats)
 
 	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
 									 &mysql_link, mysqli_link_class_entry) == FAILURE) {
-		return;
+		RETURN_THROWS();
 	}
 	MYSQLI_FETCH_RESOURCE_CONN(mysql, mysql_link, MYSQLI_STATUS_VALID);
 
@@ -485,10 +491,10 @@ PHP_FUNCTION(mysqli_error_list)
 	zval		*mysql_link;
 
 	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &mysql_link, mysqli_link_class_entry) == FAILURE) {
-		return;
+		RETURN_THROWS();
 	}
 	MYSQLI_FETCH_RESOURCE_CONN(mysql, mysql_link, MYSQLI_STATUS_VALID);
-#if defined(MYSQLI_USE_MYSQLND)
+#ifdef MYSQLI_USE_MYSQLND
 	if (1) {
 		MYSQLND_ERROR_LIST_ELEMENT * message;
 		zend_llist_position pos;
@@ -531,10 +537,10 @@ PHP_FUNCTION(mysqli_stmt_error_list)
 	zval 	*mysql_stmt;
 
 	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &mysql_stmt, mysqli_stmt_class_entry) == FAILURE) {
-		return;
+		RETURN_THROWS();
 	}
 	MYSQLI_FETCH_RESOURCE_STMT(stmt, mysql_stmt, MYSQLI_STATUS_INITIALIZED);
-#if defined(MYSQLI_USE_MYSQLND)
+#ifdef MYSQLI_USE_MYSQLND
 	if (stmt->stmt && stmt->stmt->data && stmt->stmt->data->error_info) {
 		MYSQLND_ERROR_LIST_ELEMENT * message;
 		zend_llist_position pos;
@@ -587,7 +593,7 @@ PHP_FUNCTION(mysqli_multi_query)
 	size_t 		query_len;
 
 	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os", &mysql_link, mysqli_link_class_entry, &query, &query_len) == FAILURE) {
-		return;
+		RETURN_THROWS();
 	}
 	MYSQLI_FETCH_RESOURCE_CONN(mysql, mysql_link, MYSQLI_STATUS_VALID);
 
@@ -637,7 +643,7 @@ PHP_FUNCTION(mysqli_query)
 	zend_long 				resultmode = MYSQLI_STORE_RESULT;
 
 	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os|l", &mysql_link, mysqli_link_class_entry, &query, &query_len, &resultmode) == FAILURE) {
-		return;
+		RETURN_THROWS();
 	}
 
 	if (!query_len) {
@@ -716,7 +722,7 @@ PHP_FUNCTION(mysqli_query)
 }
 /* }}} */
 
-#if defined(MYSQLI_USE_MYSQLND)
+#ifdef MYSQLI_USE_MYSQLND
 #include "php_network.h"
 /* {{{ mysqlnd_zval_array_to_mysqlnd_array functions */
 static int mysqlnd_zval_array_to_mysqlnd_array(zval *in_array, MYSQLND ***out_array)
@@ -725,7 +731,7 @@ static int mysqlnd_zval_array_to_mysqlnd_array(zval *in_array, MYSQLND ***out_ar
 	int i = 0, current = 0;
 
 	if (Z_TYPE_P(in_array) != IS_ARRAY) {
-		return 0;
+		return SUCCESS;
 	}
 	*out_array = ecalloc(zend_hash_num_elements(Z_ARRVAL_P(in_array)) + 1, sizeof(MYSQLND *));
 	ZEND_HASH_FOREACH_VAL(Z_ARRVAL_P(in_array), elem) {
@@ -738,18 +744,18 @@ static int mysqlnd_zval_array_to_mysqlnd_array(zval *in_array, MYSQLND ***out_ar
 			MYSQLI_RESOURCE *my_res;
 			mysqli_object *intern = Z_MYSQLI_P(elem);
 			if (!(my_res = (MYSQLI_RESOURCE *)intern->ptr)) {
-		  		php_error_docref(NULL, E_WARNING, "[%d] Couldn't fetch %s", i, ZSTR_VAL(intern->zo.ce->name));
-				continue;
+		  		zend_throw_error(NULL, "%s object is already closed", ZSTR_VAL(intern->zo.ce->name));
+				return FAILURE;
 		  	}
 			mysql = (MY_MYSQL*) my_res->ptr;
 			if (MYSQLI_STATUS_VALID && my_res->status < MYSQLI_STATUS_VALID) {
-				php_error_docref(NULL, E_WARNING, "Invalid object %d or resource %s", i, ZSTR_VAL(intern->zo.ce->name));
-				continue;
+				zend_throw_error(NULL, "%s object is not fully initialized", ZSTR_VAL(intern->zo.ce->name));
+				return FAILURE;
 			}
 			(*out_array)[current++] = mysql->mysql;
 		}
 	} ZEND_HASH_FOREACH_END();
-	return 0;
+	return SUCCESS;
 }
 /* }}} */
 
@@ -840,7 +846,7 @@ PHP_FUNCTION(mysqli_poll)
 	int 			desc_num;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "a!a!al|l", &r_array, &e_array, &dont_poll_array, &sec, &usec) == FAILURE) {
-		return;
+		RETURN_THROWS();
 	}
 	if (sec < 0 || usec < 0) {
 		php_error_docref(NULL, E_WARNING, "Negative values passed for sec and/or usec");
@@ -853,10 +859,16 @@ PHP_FUNCTION(mysqli_poll)
 	}
 
 	if (r_array != NULL) {
-		mysqlnd_zval_array_to_mysqlnd_array(r_array, &new_r_array);
+		if (mysqlnd_zval_array_to_mysqlnd_array(r_array, &new_r_array) == FAILURE) {
+			efree(new_r_array);
+			RETURN_THROWS();
+		}
 	}
 	if (e_array != NULL) {
-		mysqlnd_zval_array_to_mysqlnd_array(e_array, &new_e_array);
+		if (mysqlnd_zval_array_to_mysqlnd_array(e_array, &new_e_array) == FAILURE) {
+			efree(new_e_array);
+			RETURN_THROWS();
+		}
 	}
 
 	ret = mysqlnd_poll(new_r_array, new_e_array, &new_dont_poll_array, sec, usec, &desc_num);
@@ -897,7 +909,7 @@ PHP_FUNCTION(mysqli_reap_async_query)
 	MYSQL_RES 			*result = NULL;
 
 	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &mysql_link, mysqli_link_class_entry) == FAILURE) {
-		return;
+		RETURN_THROWS();
 	}
 
 	MYSQLI_FETCH_RESOURCE_CONN(mysql, mysql_link, MYSQLI_STATUS_VALID);
@@ -950,7 +962,7 @@ PHP_FUNCTION(mysqli_stmt_get_result)
 	zval 			*mysql_stmt;
 
 	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &mysql_stmt, mysqli_stmt_class_entry) == FAILURE) {
-		return;
+		RETURN_THROWS();
 	}
 	MYSQLI_FETCH_RESOURCE_STMT(stmt, mysql_stmt, MYSQLI_STATUS_VALID);
 
@@ -976,7 +988,7 @@ PHP_FUNCTION(mysqli_get_warnings)
 	MYSQLI_WARNING		*w = NULL;
 
 	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &mysql_link, mysqli_link_class_entry) == FAILURE) {
-		return;
+		RETURN_THROWS();
 	}
 	MYSQLI_FETCH_RESOURCE_CONN(mysql, mysql_link, MYSQLI_STATUS_VALID);
 
@@ -1006,7 +1018,7 @@ PHP_FUNCTION(mysqli_stmt_get_warnings)
 	MYSQLI_WARNING		*w = NULL;
 
 	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &stmt_link, mysqli_stmt_class_entry) == FAILURE) {
-		return;
+		RETURN_THROWS();
 	}
 	MYSQLI_FETCH_RESOURCE_STMT(stmt, stmt_link, MYSQLI_STATUS_VALID);
 
@@ -1023,7 +1035,6 @@ PHP_FUNCTION(mysqli_stmt_get_warnings)
 }
 /* }}} */
 
-#ifdef HAVE_MYSQLI_SET_CHARSET
 /* {{{ proto bool mysqli_set_charset(object link, string csname)
    sets client character set */
 PHP_FUNCTION(mysqli_set_charset)
@@ -1034,7 +1045,7 @@ PHP_FUNCTION(mysqli_set_charset)
 	size_t		csname_len;
 
 	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os", &mysql_link, mysqli_link_class_entry, &cs_name, &csname_len) == FAILURE) {
-		return;
+		RETURN_THROWS();
 	}
 	MYSQLI_FETCH_RESOURCE_CONN(mysql, mysql_link, MYSQLI_STATUS_VALID);
 
@@ -1044,9 +1055,7 @@ PHP_FUNCTION(mysqli_set_charset)
 	RETURN_TRUE;
 }
 /* }}} */
-#endif
 
-#ifdef HAVE_MYSQLI_GET_CHARSET
 /* {{{ proto object mysqli_get_charset(object link) U
    returns a character set object */
 PHP_FUNCTION(mysqli_get_charset)
@@ -1055,19 +1064,19 @@ PHP_FUNCTION(mysqli_get_charset)
 	zval					*mysql_link;
 	const char 				*name = NULL, *collation = NULL, *dir = NULL, *comment = NULL;
 	uint32_t				minlength, maxlength, number, state;
-#if !defined(MYSQLI_USE_MYSQLND)
+#ifndef MYSQLI_USE_MYSQLND
 	MY_CHARSET_INFO			cs;
 #else
 	const MYSQLND_CHARSET	*cs;
 #endif
 
 	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O", &mysql_link, mysqli_link_class_entry) == FAILURE) {
-		return;
+		RETURN_THROWS();
 	}
 	MYSQLI_FETCH_RESOURCE_CONN(mysql, mysql_link, MYSQLI_STATUS_VALID);
 
 
-#if !defined(MYSQLI_USE_MYSQLND)
+#ifndef MYSQLI_USE_MYSQLND
 	mysql_get_character_set_info(mysql->mysql, &cs);
 	name = (char *)cs.csname;
 	collation = (char *)cs.name;
@@ -1103,9 +1112,8 @@ PHP_FUNCTION(mysqli_get_charset)
 	add_property_string(return_value, "comment", (comment) ? (char *)comment : "");
 }
 /* }}} */
-#endif
 
-#if !defined(MYSQLI_USE_MYSQLND)
+#ifndef MYSQLI_USE_MYSQLND
 extern char * mysqli_escape_string_for_tx_name_in_comment(const char * const name);
 
 /* {{{ proto bool mysqli_begin_transaction_libmysql */
@@ -1168,8 +1176,8 @@ PHP_FUNCTION(mysqli_begin_transaction)
 	size_t			name_len = -1;
 	zend_bool	err = FALSE;
 
-	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O|ls", &mysql_link, mysqli_link_class_entry, &flags, &name, &name_len) == FAILURE) {
-		return;
+	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O|ls!", &mysql_link, mysqli_link_class_entry, &flags, &name, &name_len) == FAILURE) {
+		RETURN_THROWS();
 	}
 	MYSQLI_FETCH_RESOURCE_CONN(mysql, mysql_link, MYSQLI_STATUS_VALID);
 	if (flags < 0) {
@@ -1184,7 +1192,7 @@ PHP_FUNCTION(mysqli_begin_transaction)
 		RETURN_FALSE;
 	}
 
-#if !defined(MYSQLI_USE_MYSQLND)
+#ifndef MYSQLI_USE_MYSQLND
 	if (mysqli_begin_transaction_libmysql(mysql->mysql, flags, name)) {
 		RETURN_FALSE;
 	}
@@ -1197,7 +1205,7 @@ PHP_FUNCTION(mysqli_begin_transaction)
 }
 /* }}} */
 
-#if !defined(MYSQLI_USE_MYSQLND)
+#ifndef MYSQLI_USE_MYSQLND
 /* {{{ proto bool mysqli_savepoint_libmysql */
 static int mysqli_savepoint_libmysql(MYSQL * conn, const char * const name, zend_bool release)
 {
@@ -1221,7 +1229,7 @@ PHP_FUNCTION(mysqli_savepoint)
 	size_t			name_len = -1;
 
 	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os", &mysql_link, mysqli_link_class_entry, &name, &name_len) == FAILURE) {
-		return;
+		RETURN_THROWS();
 	}
 	MYSQLI_FETCH_RESOURCE_CONN(mysql, mysql_link, MYSQLI_STATUS_VALID);
 	if (!name || !name_len) {
@@ -1229,7 +1237,7 @@ PHP_FUNCTION(mysqli_savepoint)
 		RETURN_FALSE;
 	}
 
-#if !defined(MYSQLI_USE_MYSQLND)
+#ifndef MYSQLI_USE_MYSQLND
 	if (mysqli_savepoint_libmysql(mysql->mysql, name, FALSE)) {
 #else
 	if (FAIL == mysqlnd_savepoint(mysql->mysql, name)) {
@@ -1250,14 +1258,14 @@ PHP_FUNCTION(mysqli_release_savepoint)
 	size_t			name_len = -1;
 
 	if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "Os", &mysql_link, mysqli_link_class_entry, &name, &name_len) == FAILURE) {
-		return;
+		RETURN_THROWS();
 	}
 	MYSQLI_FETCH_RESOURCE_CONN(mysql, mysql_link, MYSQLI_STATUS_VALID);
 	if (!name || !name_len) {
 		php_error_docref(NULL, E_WARNING, "Savepoint name cannot be empty");
 		RETURN_FALSE;
 	}
-#if !defined(MYSQLI_USE_MYSQLND)
+#ifndef MYSQLI_USE_MYSQLND
 	if (mysqli_savepoint_libmysql(mysql->mysql, name, TRUE)) {
 #else
 	if (FAIL == mysqlnd_savepoint(mysql->mysql, name)) {
@@ -1272,10 +1280,10 @@ PHP_FUNCTION(mysqli_release_savepoint)
    Returns information about open and cached links */
 PHP_FUNCTION(mysqli_get_links_stats)
 {
-	if (ZEND_NUM_ARGS()) {
-		php_error_docref(NULL, E_WARNING, "no parameters expected");
-		return;
+	if (zend_parse_parameters_none() == FAILURE) {
+		RETURN_THROWS();
 	}
+
 	array_init(return_value);
 	add_assoc_long_ex(return_value, "total", sizeof("total") - 1, MyG(num_links));
 	add_assoc_long_ex(return_value, "active_plinks", sizeof("active_plinks") - 1, MyG(num_active_persistent));

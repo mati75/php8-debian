@@ -13,23 +13,23 @@ $valid_floats = array(
                 1.0,
                 -1.0,
                 1.234,
- 	        -1.234,
+            -1.234,
                 1.2e3,
-	        -1.2e3,
-		10.0000000000000000005,
-		10.5e+5,
+            -1.2e3,
+        10.0000000000000000005,
+        10.5e+5,
                 1e5,
-	        -1e5,
+            -1e5,
                 1e-5,
-		-1e-1,
-		1e+5,
-		-1e+5,
-		1E5,
-		-1E5,
-		1E+5,
-		-1E+5,
-		.5e+7,
-		-.5e+7
+        -1e-1,
+        1e+5,
+        -1e+5,
+        1E5,
+        -1E5,
+        1E+5,
+        -1E+5,
+        .5e+7,
+        -.5e+7
 );
 
 /* loop to check that floatval() recognizes different
@@ -65,12 +65,12 @@ $not_float_types = array (
                    $dfp,
                    "0.0", // string
                    "1.0",
-	           "-1.3e3",
-		   "bob-1.3e3",
+               "-1.3e3",
+           "bob-1.3e3",
                    "10 Some dollars",
-	           "10.2 Some Dollars",
-	       	   "10.0 dollar" + 1,
-		   "10.0 dollar" + 1.0,
+               "10.2 Some Dollars",
+               "10.0 dollar" + 1,
+           "10.0 dollar" + 1.0,
                    "",
                    true,
                    NULL,
@@ -90,18 +90,6 @@ echo "\n*** Testing doubleval() on non floating types ***\n";
 foreach ($not_float_types as $type ) {
    var_dump( doubleval($type) );
 }
-
-
-
-
-echo "\n*** Testing error conditions ***\n";
-//Zero argument
-var_dump( floatval() );
-var_dump( doubleval() );
-
-//arguments more than expected
-var_dump( floatval(TRUE, FALSE) );
-var_dump( doubleval(TRUE, FALSE) );
 
 echo "\nDone\n";
 
@@ -193,19 +181,5 @@ float(0)
 float(1)
 float(0)
 float(0)
-
-*** Testing error conditions ***
-
-Warning: floatval() expects exactly 1 parameter, 0 given in %s on line %d
-NULL
-
-Warning: doubleval() expects exactly 1 parameter, 0 given in %s on line %d
-NULL
-
-Warning: floatval() expects exactly 1 parameter, 2 given in %s on line %d
-NULL
-
-Warning: doubleval() expects exactly 1 parameter, 2 given in %s on line %d
-NULL
 
 Done

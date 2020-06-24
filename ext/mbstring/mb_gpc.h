@@ -1,7 +1,5 @@
 /*
    +----------------------------------------------------------------------+
-   | PHP Version 7                                                        |
-   +----------------------------------------------------------------------+
    | Copyright (c) The PHP Group                                          |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
@@ -25,7 +23,7 @@
 #include "php.h"
 /* }}} */
 
-#if HAVE_MBSTRING
+#ifdef HAVE_MBSTRING
 /* {{{ typedefs */
 typedef struct _php_mb_encoding_handler_info_t {
 	const char *separator;

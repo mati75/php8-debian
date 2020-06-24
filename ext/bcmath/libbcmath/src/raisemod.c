@@ -67,7 +67,7 @@ bc_raisemod (bc_num base, bc_num expo, bc_num mod, bc_num *result, int scale)
 
   /* Check for correct numbers. */
   if (bc_is_zero(mod)) return -1;
-  if (bc_is_neg(expo)) return -1;
+  if (bc_is_neg(expo)) return -2;
 
   /* Set initial values.  */
   power = bc_copy_num (base);
@@ -79,21 +79,21 @@ bc_raisemod (bc_num base, bc_num expo, bc_num mod, bc_num *result, int scale)
   /* Check the base for scale digits. */
   if (power->n_scale != 0)
     {
-      php_error_docref (NULL, E_WARNING, "non-zero scale in base");
+      php_error_docref (NULL, E_WARNING, "Non-zero scale in base");
       _bc_truncate (&power);
     }
 
   /* Check the exponent for scale digits. */
   if (exponent->n_scale != 0)
     {
-      php_error_docref (NULL, E_WARNING, "non-zero scale in exponent");
+      php_error_docref (NULL, E_WARNING, "Non-zero scale in exponent");
       _bc_truncate (&exponent);
     }
 
   /* Check the modulus for scale digits. */
   if (modulus->n_scale != 0)
     {
-      php_error_docref (NULL, E_WARNING, "non-zero scale in modulus");
+      php_error_docref (NULL, E_WARNING, "Non-zero scale in modulus");
       _bc_truncate (&modulus);
     }
 

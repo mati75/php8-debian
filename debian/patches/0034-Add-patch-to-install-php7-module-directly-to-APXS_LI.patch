@@ -17,18 +17,18 @@ index 55c1617..1526bf7 100644
 -  if test -z `$APXS -q SYSCONFDIR`; then
 -    INSTALL_IT="\$(mkinstalldirs) '$APXS_LIBEXECDIR' && \
 -                 $APXS -S LIBEXECDIR='$APXS_LIBEXECDIR' \
--                       -i -n php7"
+-                       -i -n php"
 -  else
 -    APXS_SYSCONFDIR='$(INSTALL_ROOT)'`$APXS -q SYSCONFDIR`
 -    INSTALL_IT="\$(mkinstalldirs) '$APXS_LIBEXECDIR' && \
 -                \$(mkinstalldirs) '$APXS_SYSCONFDIR' && \
 -                 $APXS -S LIBEXECDIR='$APXS_LIBEXECDIR' \
 -                       -S SYSCONFDIR='$APXS_SYSCONFDIR' \
--                       -i -a -n php7"
+-                       -i -a -n php"
 -  fi
 +  INSTALL_IT="\$(mkinstalldirs) '$APXS_LIBEXECDIR' && \
 +               $APXS -S LIBEXECDIR='$APXS_LIBEXECDIR' \
-+                     -i -n php7"
++                     -i -n php8"
  
    case $host_alias in
    *aix*)

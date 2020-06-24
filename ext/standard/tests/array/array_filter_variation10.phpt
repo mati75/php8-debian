@@ -35,9 +35,9 @@ var_dump( array_filter($input, 'dump2', true) );
 echo "*** Testing array_filter() : usage variations - 'callback' expecting second argument ***\n";
 
 try {
-	var_dump( array_filter($small, 'dump', false) );
+    var_dump( array_filter($small, 'dump', false) );
 } catch (Throwable $e) {
-	echo "Exception: " . $e->getMessage() . "\n";
+    echo "Exception: " . $e->getMessage() . "\n";
 }
 
 echo "*** Testing array_filter() with various use types ***\n";
@@ -48,11 +48,15 @@ var_dump(array_filter($mixed, 'is_numeric', ARRAY_FILTER_USE_KEY));
 
 var_dump(array_filter($mixed, 'is_numeric', 0));
 
-var_dump(array_filter($mixed, 'is_numeric', ARRAY_FILTER_USE_BOTH));
+try {
+    var_dump(array_filter($mixed, 'is_numeric', ARRAY_FILTER_USE_BOTH));
+} catch (TypeError $e) {
+    echo $e->getMessage(), "\n";
+}
 
 echo "Done"
 ?>
---EXPECTF--
+--EXPECT--
 *** Testing array_filter() : usage variations - using array keys in 'callback' ***
 0 = 0
 1 = 1
@@ -88,14 +92,5 @@ array(2) {
   ["b"]=>
   int(2)
 }
-
-Warning: is_numeric() expects exactly 1 parameter, 2 given in %s on line 48
-
-Warning: is_numeric() expects exactly 1 parameter, 2 given in %s on line 48
-
-Warning: is_numeric() expects exactly 1 parameter, 2 given in %s on line 48
-
-Warning: is_numeric() expects exactly 1 parameter, 2 given in %s on line 48
-array(0) {
-}
+is_numeric() expects exactly 1 parameter, 2 given
 Done

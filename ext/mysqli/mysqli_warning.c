@@ -1,7 +1,5 @@
 /*
   +----------------------------------------------------------------------+
-  | PHP Version 7                                                        |
-  +----------------------------------------------------------------------+
   | Copyright (c) The PHP Group                                          |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
@@ -177,16 +175,14 @@ MYSQLI_WARNING * php_get_warnings(MYSQLND_CONN_DATA * mysql)
 PHP_METHOD(mysqli_warning, next)
 {
 	MYSQLI_WARNING 	*w;
-	zval  			*mysqli_warning;
-	mysqli_object *obj = Z_MYSQLI_P(getThis());
+	mysqli_object *obj = Z_MYSQLI_P(ZEND_THIS);
+
+	if (zend_parse_parameters_none() == FAILURE) {
+		RETURN_THROWS();
+	}
 
 	if (obj->ptr) {
-		if (zend_parse_method_parameters(ZEND_NUM_ARGS(), getThis(), "O",
-										 &mysqli_warning, mysqli_warning_class_entry) == FAILURE) {
-			return;
-		}
-
-		MYSQLI_FETCH_RESOURCE(w, MYSQLI_WARNING *, mysqli_warning, "mysqli_warning", MYSQLI_STATUS_VALID);
+		MYSQLI_FETCH_RESOURCE(w, MYSQLI_WARNING *, ZEND_THIS, "mysqli_warning", MYSQLI_STATUS_VALID);
 
 		if (w && w->next) {
 			w = w->next;
@@ -205,9 +201,8 @@ static int mysqli_warning_message(mysqli_object *obj, zval *retval, zend_bool qu
 
 	if (!obj->ptr || !((MYSQLI_RESOURCE *)(obj->ptr))->ptr) {
 		if (!quiet) {
-			php_error_docref(NULL, E_WARNING, "Couldn't fetch %s", ZSTR_VAL(obj->zo.ce->name));
+			zend_throw_error(NULL, "Couldn't fetch %s", ZSTR_VAL(obj->zo.ce->name));
 		}
-		ZVAL_NULL(retval);
 
 		return FAILURE;
 	}
@@ -226,9 +221,8 @@ static int mysqli_warning_sqlstate(mysqli_object *obj, zval *retval, zend_bool q
 
 	if (!obj->ptr || !((MYSQLI_RESOURCE *)(obj->ptr))->ptr) {
 		if (!quiet) {
-			php_error_docref(NULL, E_WARNING, "Couldn't fetch %s", ZSTR_VAL(obj->zo.ce->name));
+			zend_throw_error(NULL, "Couldn't fetch %s", ZSTR_VAL(obj->zo.ce->name));
 		}
-		ZVAL_NULL(retval);
 
 		return FAILURE;
 	}
@@ -247,9 +241,8 @@ static int mysqli_warning_errno(mysqli_object *obj, zval *retval, zend_bool quie
 
 	if (!obj->ptr || !((MYSQLI_RESOURCE *)(obj->ptr))->ptr) {
 		if (!quiet) {
-			php_error_docref(NULL, E_WARNING, "Couldn't fetch %s", ZSTR_VAL(obj->zo.ce->name));
+			zend_throw_error(NULL, "Couldn't fetch %s", ZSTR_VAL(obj->zo.ce->name));
 		}
-		ZVAL_NULL(retval);
 
 		return FAILURE;
 	}
@@ -273,7 +266,7 @@ PHP_METHOD(mysqli_warning, __construct)
 	MYSQLI_RESOURCE *mysqli_resource;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "o", &z) == FAILURE) {
-		return;
+		RETURN_THROWS();
 	}
 	obj = Z_MYSQLI_P(z);
 
@@ -306,7 +299,7 @@ PHP_METHOD(mysqli_warning, __construct)
 			RETURN_FALSE;
 		}
 	} else {
-		php_error_docref(NULL, E_WARNING, "invalid class argument");
+		php_error_docref(NULL, E_WARNING, "Invalid class argument");
 		RETURN_FALSE;
 	}
 
@@ -321,14 +314,6 @@ PHP_METHOD(mysqli_warning, __construct)
 	}
 
 }
-/* }}} */
-
-/* {{{ mysqli_warning_methods */
-const zend_function_entry mysqli_warning_methods[] = {
-	PHP_ME(mysqli_warning, __construct,		NULL, ZEND_ACC_PROTECTED)
-	PHP_ME(mysqli_warning, next, 			NULL, ZEND_ACC_PUBLIC)
-	PHP_FE_END
-};
 /* }}} */
 
 /* {{{ mysqli_warning_property_entries */

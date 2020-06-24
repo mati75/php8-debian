@@ -1,7 +1,5 @@
 /*
   +----------------------------------------------------------------------+
-  | PHP Version 7                                                        |
-  +----------------------------------------------------------------------+
   | Copyright (c) The PHP Group                                          |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
@@ -25,7 +23,7 @@
 
 #include "zend_multiply.h"
 
-#if HAVE_ARPA_INET_H
+#ifdef HAVE_ARPA_INET_H
 # include <arpa/inet.h>
 #endif
 
@@ -362,7 +360,7 @@ void php_filter_float(PHP_INPUT_FILTER_PARAM_DECL) /* {{{ */
 
 	if (decimal_set) {
 		if (decimal_len != 1) {
-			php_error_docref(NULL, E_WARNING, "decimal separator must be one char");
+			php_error_docref(NULL, E_WARNING, "Decimal separator must be one char");
 			RETURN_VALIDATION_FAILED
 		} else {
 			dec_sep = *decimal;
@@ -373,7 +371,7 @@ void php_filter_float(PHP_INPUT_FILTER_PARAM_DECL) /* {{{ */
 
 	if (thousand_set) {
 		if (thousand_len < 1) {
-			php_error_docref(NULL, E_WARNING, "thousand separator must be at least one char");
+			php_error_docref(NULL, E_WARNING, "Thousand separator must be at least one char");
 			RETURN_VALIDATION_FAILED
 		} else {
 			tsd_sep = thousand;
@@ -559,11 +557,6 @@ void php_filter_validate_url(PHP_INPUT_FILTER_PARAM_DECL) /* {{{ */
 {
 	php_url *url;
 	size_t old_len = Z_STRLEN_P(value);
-
-	if (flags & (FILTER_FLAG_SCHEME_REQUIRED | FILTER_FLAG_HOST_REQUIRED)) {
-		php_error_docref(NULL, E_DEPRECATED,
-			"explicit use of FILTER_FLAG_SCHEME_REQUIRED and FILTER_FLAG_HOST_REQUIRED is deprecated");
-	}
 
 	php_filter_url(value, flags, option_array, charset);
 

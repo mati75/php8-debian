@@ -79,17 +79,17 @@ diff --git a/ext/dba/dba.c b/ext/dba/dba.c
 index 9529935..0203917 100644
 --- a/ext/dba/dba.c
 +++ b/ext/dba/dba.c
-@@ -51,6 +51,10 @@
- #include "php_tcadb.h"
+@@ -50,6 +50,10 @@
  #include "php_lmdb.h"
+ #include "dba_arginfo.h"
  
 +#ifdef DB4_INCLUDE_FILE
 +#include DB4_INCLUDE_FILE
 +#endif
 +
- /* {{{ arginfo */
- ZEND_BEGIN_ARG_INFO_EX(arginfo_dba_popen, 0, 0, 2)
- 	ZEND_ARG_INFO(0, path)
+ PHP_MINIT_FUNCTION(dba);
+ PHP_MSHUTDOWN_FUNCTION(dba);
+ PHP_MINFO_FUNCTION(dba);
 @@ -558,6 +562,10 @@ PHP_MINFO_FUNCTION(dba)
  
  	php_info_print_table_start();

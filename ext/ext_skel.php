@@ -2,8 +2,6 @@
 <?php
 /*
    +----------------------------------------------------------------------+
-   | PHP Version 7                                                        |
-   +----------------------------------------------------------------------+
    | Copyright (c) The PHP Group                                          |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
@@ -146,7 +144,7 @@ function print_success() {
 
     printf('%1$sSuccess. The extension is now ready to be compiled. To do so, use the%s', PHP_EOL);
     printf('following steps:%1$s%1$s', PHP_EOL);
-    printf('cd /path/to/php-src/%s%s', $options['ext'], PHP_EOL);
+    printf('cd /path/to/php-src/ext/%s%s', $options['ext'], PHP_EOL);
     printf('phpize%s', PHP_EOL);
     printf('%sconfigure%s', $file_prefix, PHP_EOL);
     printf('%smake%2$s%2$s', $make_prefix, PHP_EOL);
@@ -264,8 +262,6 @@ function process_source_tags($file, $short_name) {
                 $header = <<<"HEADER"
 /*
    +----------------------------------------------------------------------+
-   | PHP Version 7                                                        |
-   +----------------------------------------------------------------------+
    | Copyright (c) The PHP Group                                          |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
@@ -334,7 +330,9 @@ function copy_sources() {
 
     $files = [
             'skeleton.c'		=> $options['ext'] . '.c',
-            'php_skeleton.h'	=> 'php_' . $options['ext'] . '.h'
+            'skeleton.stub.php'	=> $options['ext'] . '.stub.php',
+            'php_skeleton.h'	=> 'php_' . $options['ext'] . '.h',
+            'skeleton_arginfo.h' => $options['ext'] . '_arginfo.h'
             ];
 
     foreach ($files as $src_file => $dst_file) {

@@ -20,9 +20,9 @@ index ec9e4f1..39dedc7 100644
 +#include <sys/syscall.h>
 +#endif
 +
- #if HAVE_INTTYPES_H
- # include <inttypes.h>
- #else
+ #include <inttypes.h>
+ #include <sched.h>
+ 
 @@ -135,6 +141,34 @@ static inline atomic_uint_t atomic_cmp_set(atomic_t *lock, atomic_uint_t old, at
  #error Sparc v8 and predecessors are not and will not be supported (see bug report 53310)
  #endif /* #if (__sparcv9 || __sparcv9__) */

@@ -1,7 +1,5 @@
 /*
    +----------------------------------------------------------------------+
-   | PHP Version 7                                                        |
-   +----------------------------------------------------------------------+
    | Copyright (c) The PHP Group                                          |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
@@ -33,7 +31,7 @@
 #ifndef PHP_UNICODE_H
 #define PHP_UNICODE_H
 
-#if HAVE_MBSTRING
+#ifdef HAVE_MBSTRING
 
 #define UC_MN  0 /* Mark, Non-Spacing          */
 #define UC_MC  1 /* Mark, Spacing Combining    */

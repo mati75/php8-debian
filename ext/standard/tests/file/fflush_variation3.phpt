@@ -3,7 +3,7 @@ Test fflush() function: usage variations - hard links as resource
 --SKIPIF--
 <?php
 if( substr(PHP_OS, 0, 3) == 'WIN')
-  die("skip not for Windows");
+  die("skip Links not valid on Windows");
 ?>
 --FILE--
 <?php

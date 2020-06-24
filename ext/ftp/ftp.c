@@ -1,7 +1,5 @@
 /*
    +----------------------------------------------------------------------+
-   | PHP Version 7                                                        |
-   +----------------------------------------------------------------------+
    | Copyright (c) The PHP Group                                          |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
@@ -23,7 +21,7 @@
 
 #include "php.h"
 
-#if HAVE_FTP
+#ifdef HAVE_FTP
 
 #include <stdio.h>
 #include <ctype.h>
@@ -47,7 +45,7 @@
 #endif
 #include <errno.h>
 
-#if HAVE_SYS_TIME_H
+#ifdef HAVE_SYS_TIME_H
 #include <sys/time.h>
 #endif
 
@@ -274,7 +272,7 @@ ftp_login(ftpbuf_t *ftp, const char *user, const size_t user_len, const char *pa
 
 		ctx = SSL_CTX_new(SSLv23_client_method());
 		if (ctx == NULL) {
-			php_error_docref(NULL, E_WARNING, "failed to create the SSL context");
+			php_error_docref(NULL, E_WARNING, "Failed to create the SSL context");
 			return 0;
 		}
 
@@ -290,7 +288,7 @@ ftp_login(ftpbuf_t *ftp, const char *user, const size_t user_len, const char *pa
 		SSL_CTX_free(ctx);
 
 		if (ftp->ssl_handle == NULL) {
-			php_error_docref(NULL, E_WARNING, "failed to create the SSL handle");
+			php_error_docref(NULL, E_WARNING, "Failed to create the SSL handle");
 			return 0;
 		}
 
@@ -818,7 +816,7 @@ ftp_pasv(ftpbuf_t *ftp, int pasv)
 		return 0;
 	}
 
-#if HAVE_IPV6
+#ifdef HAVE_IPV6
 	if (sa->sa_family == AF_INET6) {
 		struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *) sa;
 		char *endptr, delimiter;
@@ -1724,7 +1722,7 @@ ftp_getdata(ftpbuf_t *ftp)
 
 	data->listener = fd;
 
-#if HAVE_IPV6 && HAVE_INET_NTOP
+#if defined(HAVE_IPV6) && defined(HAVE_INET_NTOP)
 	if (sa->sa_family == AF_INET6) {
 		/* need to use EPRT */
 		char eprtarg[INET6_ADDRSTRLEN + sizeof("|x||xxxxx|")];

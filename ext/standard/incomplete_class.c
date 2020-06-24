@@ -1,7 +1,5 @@
 /*
    +----------------------------------------------------------------------+
-   | PHP Version 7                                                        |
-   +----------------------------------------------------------------------+
    | Copyright (c) The PHP Group                                          |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
@@ -32,7 +30,7 @@ static zend_object_handlers php_incomplete_object_handlers;
 
 /* {{{ incomplete_class_message
  */
-static void incomplete_class_message(zval *object, int error_type)
+static void incomplete_class_message(zend_object *object, int error_type)
 {
 	zend_string *class_name;
 
@@ -47,7 +45,7 @@ static void incomplete_class_message(zval *object, int error_type)
 }
 /* }}} */
 
-static zval *incomplete_class_get_property(zval *object, zval *member, int type, void **cache_slot, zval *rv) /* {{{ */
+static zval *incomplete_class_get_property(zend_object *object, zend_string *member, int type, void **cache_slot, zval *rv) /* {{{ */
 {
 	incomplete_class_message(object, E_NOTICE);
 
@@ -60,27 +58,27 @@ static zval *incomplete_class_get_property(zval *object, zval *member, int type,
 }
 /* }}} */
 
-static zval *incomplete_class_write_property(zval *object, zval *member, zval *value, void **cache_slot) /* {{{ */
+static zval *incomplete_class_write_property(zend_object *object, zend_string *member, zval *value, void **cache_slot) /* {{{ */
 {
 	incomplete_class_message(object, E_NOTICE);
 	return value;
 }
 /* }}} */
 
-static zval *incomplete_class_get_property_ptr_ptr(zval *object, zval *member, int type, void **cache_slot) /* {{{ */
+static zval *incomplete_class_get_property_ptr_ptr(zend_object *object, zend_string *member, int type, void **cache_slot) /* {{{ */
 {
 	incomplete_class_message(object, E_NOTICE);
 	return &EG(error_zval);
 }
 /* }}} */
 
-static void incomplete_class_unset_property(zval *object, zval *member, void **cache_slot) /* {{{ */
+static void incomplete_class_unset_property(zend_object *object, zend_string *member, void **cache_slot) /* {{{ */
 {
 	incomplete_class_message(object, E_NOTICE);
 }
 /* }}} */
 
-static int incomplete_class_has_property(zval *object, zval *member, int check_empty, void **cache_slot) /* {{{ */
+static int incomplete_class_has_property(zend_object *object, zend_string *member, int check_empty, void **cache_slot) /* {{{ */
 {
 	incomplete_class_message(object, E_NOTICE);
 	return 0;
@@ -89,10 +87,7 @@ static int incomplete_class_has_property(zval *object, zval *member, int check_e
 
 static zend_function *incomplete_class_get_method(zend_object **object, zend_string *method, const zval *key) /* {{{ */
 {
-	zval zobject;
-
-	ZVAL_OBJ(&zobject, *object);
-	incomplete_class_message(&zobject, E_ERROR);
+	incomplete_class_message(*object, E_ERROR);
 	return NULL;
 }
 /* }}} */
@@ -113,9 +108,10 @@ static zend_object *php_create_incomplete_object(zend_class_entry *class_type)
 
 PHPAPI zend_class_entry *php_create_incomplete_class(void)
 {
-	zend_class_entry incomplete_class;
+	zend_class_entry incomplete_class, *incomplete_class_entry;
 
 	INIT_CLASS_ENTRY(incomplete_class, INCOMPLETE_CLASS, NULL);
+
 	incomplete_class.create_object = php_create_incomplete_object;
 
 	memcpy(&php_incomplete_object_handlers, &std_object_handlers, sizeof(zend_object_handlers));
@@ -126,21 +122,23 @@ PHPAPI zend_class_entry *php_create_incomplete_class(void)
 	php_incomplete_object_handlers.get_property_ptr_ptr = incomplete_class_get_property_ptr_ptr;
     php_incomplete_object_handlers.get_method = incomplete_class_get_method;
 
-	return zend_register_internal_class(&incomplete_class);
+	incomplete_class_entry = zend_register_internal_class(&incomplete_class);
+	incomplete_class_entry->ce_flags |= ZEND_ACC_FINAL;
+
+	return incomplete_class_entry;
 }
 /* }}} */
 
 /* {{{ php_lookup_class_name
  */
-PHPAPI zend_string *php_lookup_class_name(zval *object)
+PHPAPI zend_string *php_lookup_class_name(zend_object *object)
 {
-	zval *val;
-	HashTable *object_properties;
+	if (object->properties) {
+		zval *val = zend_hash_str_find(object->properties, MAGIC_MEMBER, sizeof(MAGIC_MEMBER)-1);
 
-	object_properties = Z_OBJPROP_P(object);
-
-	if ((val = zend_hash_str_find(object_properties, MAGIC_MEMBER, sizeof(MAGIC_MEMBER)-1)) != NULL && Z_TYPE_P(val) == IS_STRING) {
-		return zend_string_copy(Z_STR_P(val));
+		if (val != NULL && Z_TYPE_P(val) == IS_STRING) {
+			return zend_string_copy(Z_STR_P(val));
+		}
 	}
 
 	return NULL;

@@ -3,7 +3,7 @@ symlink() using a relative path, and symlink() to a symlink
 --SKIPIF--
 <?php
 if (substr(PHP_OS, 0, 3) == 'WIN') {
-    die('skip not for Windows');
+    die('skip no symlinks on Windows');
 }
 ?>
 --FILE--

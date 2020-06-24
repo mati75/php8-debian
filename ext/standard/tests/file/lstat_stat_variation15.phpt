@@ -3,9 +3,8 @@ Test lstat() and stat() functions: usage variations - effects changing permissio
 --SKIPIF--
 <?php
 if (getenv("SKIP_SLOW_TESTS")) die("skip slow test");
-if (PHP_OS_FAMILY === 'Windows') {
-    include_once __DIR__ . '/windows_links/common.inc';
-    skipIfSeCreateSymbolicLinkPrivilegeIsDisabled(__FILE__);
+if (substr(PHP_OS, 0, 3) == 'WIN') {
+    die('skip.. lstat() not available on Windows');
 }
 ?>
 --FILE--

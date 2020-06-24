@@ -1,4 +1,4 @@
-Source: php7.4
+Source: php8.0
 Section: php
 Priority: optional
 Maintainer: Debian PHP Maintainers <team+pkg-php@tracker.debian.org>
@@ -9,10 +9,11 @@ Build-Depends: apache2-dev (>= 2.4),
                automake,
                bison,
                chrpath,
-               debhelper (>= 9.20160709~),
+               debhelper (>= 9.20150101),
                default-libmysqlclient-dev | libmysqlclient-dev,
                default-mysql-server <!nocheck> | mysql-server <!nocheck> | virtual-mysql-server <!nocheck>,
                dh-apache2,
+               dh-systemd (>= 1.3) [linux-any],
                dpkg-dev (>= 1.16.1~),
                firebird-dev [!hurd-any !m68k !hppa !ppc64] | firebird2.5-dev [!hurd-any !m68k !hppa !ppc64] | firebird2.1-dev [!hurd-any !m68k !hppa !ppc64],
                flex,
@@ -75,19 +76,18 @@ Build-Depends: apache2-dev (>= 2.4),
 Build-Conflicts: bind-dev,
                  libxmlrpc-core-c3-dev
 Standards-Version: 4.5.0.0
-Vcs-Git: https://salsa.debian.org/php-team/php.git -b master-7.4
+Vcs-Git: https://salsa.debian.org/php-team/php.git -b master-8.0
 Vcs-Browser: https://salsa.debian.org/php-team/php
 Homepage: http://www.php.net/
 
-Package: libapache2-mod-php7.4
+Package: libapache2-mod-php8.0
 Section: httpd
 Architecture: any
 Depends: libmagic1,
          mime-support,
-         php7.4-cli,
-         php7.4-common (= ${binary:Version}),
-         php7.4-json,
-         php7.4-opcache,
+         php8.0-cli,
+         php8.0-common (= ${binary:Version}),
+         php8.0-opcache,
          tzdata,
          ucf,
          ${misc:Depends},
@@ -107,14 +107,13 @@ Description: server-side, HTML-embedded scripting language (Apache 2 module)
  open source general-purpose scripting language that is especially suited
  for web development and can be embedded into HTML.
 
-Package: libphp7.4-embed
+Package: libphp8.0-embed
 Architecture: any
 Depends: libmagic1,
          mime-support,
-         php7.4-cli,
-         php7.4-common (= ${binary:Version}),
-         php7.4-json,
-         php7.4-opcache,
+         php8.0-cli,
+         php8.0-common (= ${binary:Version}),
+         php8.0-opcache,
          tzdata,
          ucf,
          ${misc:Depends},
@@ -123,7 +122,7 @@ Provides: libphp-embed,
           ${php:Provides}
 Suggests: php-pear
 Description: HTML-embedded scripting language (Embedded SAPI library)
- This package provides the library /usr/lib/libphp7.4.so which can
+ This package provides the library /usr/lib/libphp8.0.so which can
  be used by application developers to embed PHP scripting functionality.
  .
  ${php:Extensions}
@@ -136,10 +135,10 @@ Description: HTML-embedded scripting language (Embedded SAPI library)
  the API/ABI will be kept compatible even between minor releases.  You
  have been warned.
 
-Package: php7.4
+Package: php8.0
 Architecture: all
-Depends: libapache2-mod-php7.4 | php7.4-fpm | php7.4-cgi,
-         php7.4-common,
+Depends: libapache2-mod-php8.0 | php8.0-fpm | php8.0-cgi,
+         php8.0-common,
          ${misc:Depends}
 Provides: php
 Description: server-side, HTML-embedded scripting language (metapackage)
@@ -152,14 +151,13 @@ Description: server-side, HTML-embedded scripting language (metapackage)
  open source general-purpose scripting language that is especially suited
  for web development and can be embedded into HTML.
 
-Package: php7.4-cgi
+Package: php8.0-cgi
 Architecture: any
 Depends: libmagic1,
          mime-support,
-         php7.4-cli,
-         php7.4-common (= ${binary:Version}),
-         php7.4-json,
-         php7.4-opcache,
+         php8.0-cli,
+         php8.0-common (= ${binary:Version}),
+         php8.0-opcache,
          tzdata,
          ucf,
          ${misc:Depends},
@@ -171,7 +169,7 @@ Description: server-side, HTML-embedded scripting language (CGI binary)
  This package provides the /usr/lib/cgi-bin/php CGI interpreter built
  for use in Apache 2 with mod_actions, or any other CGI httpd that
  supports a similar mechanism.  Note that MOST users probably
- want the php7.4-fpm package.
+ want the php8.0-fpm package.
  .
  ${php:Extensions}
  .
@@ -179,15 +177,14 @@ Description: server-side, HTML-embedded scripting language (CGI binary)
  open source general-purpose scripting language that is especially suited
  for web development and can be embedded into HTML.
 
-Package: php7.4-cli
+Package: php8.0-cli
 Architecture: any
 Depends: libedit2 (>= 2.11-20080614-4),
          libmagic1,
          mime-support,
-         php7.4-common (= ${binary:Version}),
-         php7.4-json,
-         php7.4-opcache,
-         php7.4-readline,
+         php8.0-common (= ${binary:Version}),
+         php8.0-opcache,
+         php8.0-readline,
          tzdata,
          ucf,
          ${misc:Depends},
@@ -196,7 +193,7 @@ Provides: php-cli,
           ${php:Provides}
 Suggests: php-pear
 Description: command-line interpreter for the PHP scripting language
- This package provides the /usr/bin/php7.4 command interpreter, useful for
+ This package provides the /usr/bin/php8.0 command interpreter, useful for
  testing PHP scripts from a shell or performing general shell scripting tasks.
  .
  ${php:Extensions}
@@ -205,13 +202,13 @@ Description: command-line interpreter for the PHP scripting language
  open source general-purpose scripting language that is especially suited
  for web development and can be embedded into HTML.
 
-Package: php7.4-dev
+Package: php8.0-dev
 Depends: autoconf (>= 2.63),
          automake (>= 1.11),
          libpcre2-dev (>= 10.30),
          libssl-dev,
-         php7.4-cli (>= ${binary:Version}),
-         php7.4-common (= ${binary:Version}),
+         php8.0-cli (>= ${binary:Version}),
+         php8.0-common (= ${binary:Version}),
          shtool,
          ${libtool:Depends},
          ${misc:Depends},
@@ -220,22 +217,21 @@ Conflicts: ${libtool:Conflicts}
 Architecture: any
 Recommends: pkg-php-tools
 Suggests: dh-php
-Description: Files for PHP7.4 module development
- This package provides the files from the PHP7.4 source needed for compiling
+Description: Files for PHP8.0 module development
+ This package provides the files from the PHP8.0 source needed for compiling
  additional modules.
  .
  PHP (recursive acronym for PHP: Hypertext Preprocessor) is a widely-used
  open source general-purpose scripting language that is especially suited
  for web development and can be embedded into HTML.
 
-Package: php7.4-fpm
+Package: php8.0-fpm
 Architecture: any
 Depends: libmagic1,
          mime-support,
-         php7.4-cli,
-         php7.4-common (= ${binary:Version}),
-         php7.4-json,
-         php7.4-opcache,
+         php8.0-cli,
+         php8.0-common (= ${binary:Version}),
+         php8.0-opcache,
          procps,
          systemd | systemd-tmpfiles,
          tzdata,
@@ -249,7 +245,7 @@ Pre-Depends: ${misc:Pre-Depends}
 Description: server-side, HTML-embedded scripting language (FPM-CGI binary)
  This package provides the Fast Process Manager interpreter that runs
  as a daemon and receives Fast/CGI requests.  Note that MOST Apache users
- probably want the libapache2-mod-php7.4 package.
+ probably want the libapache2-mod-php8.0 package.
  .
  ${php:Extensions}
  .
@@ -257,14 +253,13 @@ Description: server-side, HTML-embedded scripting language (FPM-CGI binary)
  open source general-purpose scripting language that is especially suited
  for web development and can be embedded into HTML.
 
-Package: php7.4-phpdbg
+Package: php8.0-phpdbg
 Architecture: any
 Depends: libmagic1,
          mime-support,
-         php7.4-cli,
-         php7.4-common (= ${binary:Version}),
-         php7.4-json,
-         php7.4-opcache,
+         php8.0-cli,
+         php8.0-common (= ${binary:Version}),
+         php8.0-opcache,
          tzdata,
          ucf,
          ${misc:Depends},
@@ -282,16 +277,16 @@ Description: server-side, HTML-embedded scripting language (PHPDBG binary)
  open source general-purpose scripting language that is especially suited
  for web development and can be embedded into HTML.
 
-Package: php7.4-xsl
+Package: php8.0-xsl
 Architecture: all
-Depends: php7.4-common,
-         php7.4-xml,
+Depends: php8.0-common,
+         php8.0-xml,
          ${misc:Depends}
 Description: XSL module for PHP (dummy)
  This package is a transitional dummy package and can be safely
  removed.
 
-Package: php7.4-bcmath
+Package: php8.0-bcmath
 Architecture: any
 Depends: php-common (>= 1:73),
          ucf,
@@ -314,7 +309,7 @@ Description: Bcmath module for PHP
  open source general-purpose scripting language that is especially suited
  for web development and can be embedded into HTML.
 
-Package: php7.4-bz2
+Package: php8.0-bz2
 Architecture: any
 Depends: php-common (>= 1:73),
          ucf,
@@ -337,7 +332,7 @@ Description: bzip2 module for PHP
  open source general-purpose scripting language that is especially suited
  for web development and can be embedded into HTML.
 
-Package: php7.4-common
+Package: php8.0-common
 Architecture: any
 Depends: php-common (>= 1:73),
          ucf,
@@ -360,7 +355,7 @@ Description: documentation, examples and common module for PHP
  open source general-purpose scripting language that is especially suited
  for web development and can be embedded into HTML.
 
-Package: php7.4-curl
+Package: php8.0-curl
 Architecture: any
 Depends: php-common (>= 1:73),
          ucf,
@@ -383,7 +378,7 @@ Description: CURL module for PHP
  open source general-purpose scripting language that is especially suited
  for web development and can be embedded into HTML.
 
-Package: php7.4-dba
+Package: php8.0-dba
 Architecture: any
 Depends: php-common (>= 1:73),
          ucf,
@@ -406,7 +401,7 @@ Description: DBA module for PHP
  open source general-purpose scripting language that is especially suited
  for web development and can be embedded into HTML.
 
-Package: php7.4-enchant
+Package: php8.0-enchant
 Architecture: any
 Depends: php-common (>= 1:73),
          ucf,
@@ -429,7 +424,7 @@ Description: Enchant module for PHP
  open source general-purpose scripting language that is especially suited
  for web development and can be embedded into HTML.
 
-Package: php7.4-gd
+Package: php8.0-gd
 Architecture: any
 Depends: php-common (>= 1:73),
          ucf,
@@ -452,7 +447,7 @@ Description: GD module for PHP
  open source general-purpose scripting language that is especially suited
  for web development and can be embedded into HTML.
 
-Package: php7.4-gmp
+Package: php8.0-gmp
 Architecture: any
 Depends: php-common (>= 1:73),
          ucf,
@@ -475,7 +470,7 @@ Description: GMP module for PHP
  open source general-purpose scripting language that is especially suited
  for web development and can be embedded into HTML.
 
-Package: php7.4-imap
+Package: php8.0-imap
 Architecture: any
 Depends: php-common (>= 1:73),
          ucf,
@@ -498,7 +493,7 @@ Description: IMAP module for PHP
  open source general-purpose scripting language that is especially suited
  for web development and can be embedded into HTML.
 
-Package: php7.4-interbase
+Package: php8.0-interbase
 Architecture: any
 Depends: php-common (>= 1:73),
          ucf,
@@ -521,7 +516,7 @@ Description: Interbase module for PHP
  open source general-purpose scripting language that is especially suited
  for web development and can be embedded into HTML.
 
-Package: php7.4-intl
+Package: php8.0-intl
 Architecture: any
 Depends: php-common (>= 1:73),
          ucf,
@@ -544,30 +539,7 @@ Description: Internationalisation module for PHP
  open source general-purpose scripting language that is especially suited
  for web development and can be embedded into HTML.
 
-Package: php7.4-json
-Architecture: any
-Depends: php-common (>= 1:73),
-         ucf,
-         ${misc:Depends},
-         ${php:Depends},
-	 ${php-json:Depends},
-         ${shlibs:Depends}
-Pre-Depends: ${misc:Pre-Depends},
-	     ${php-json:Pre-Depends}
-Built-Using: ${php:Built-Using}
-Replaces: ${php-json:Replaces}
-Breaks: ${php-json:Breaks}
-Conflicts: ${php-json:Conflicts}
-Provides: ${php-json:Provides}
-Recommends: ${php-json:Recommends}
-Description: JSON module for PHP
- This package provides the JSON module(s) for PHP.
- .
- PHP (recursive acronym for PHP: Hypertext Preprocessor) is a widely-used
- open source general-purpose scripting language that is especially suited
- for web development and can be embedded into HTML.
-
-Package: php7.4-ldap
+Package: php8.0-ldap
 Architecture: any
 Depends: php-common (>= 1:73),
          ucf,
@@ -590,7 +562,7 @@ Description: LDAP module for PHP
  open source general-purpose scripting language that is especially suited
  for web development and can be embedded into HTML.
 
-Package: php7.4-mbstring
+Package: php8.0-mbstring
 Architecture: any
 Depends: php-common (>= 1:73),
          ucf,
@@ -613,7 +585,7 @@ Description: MBSTRING module for PHP
  open source general-purpose scripting language that is especially suited
  for web development and can be embedded into HTML.
 
-Package: php7.4-mysql
+Package: php8.0-mysql
 Architecture: any
 Depends: php-common (>= 1:73),
          ucf,
@@ -636,7 +608,7 @@ Description: MySQL module for PHP
  open source general-purpose scripting language that is especially suited
  for web development and can be embedded into HTML.
 
-Package: php7.4-odbc
+Package: php8.0-odbc
 Architecture: any
 Depends: php-common (>= 1:73),
          ucf,
@@ -659,7 +631,7 @@ Description: ODBC module for PHP
  open source general-purpose scripting language that is especially suited
  for web development and can be embedded into HTML.
 
-Package: php7.4-opcache
+Package: php8.0-opcache
 Architecture: any
 Depends: php-common (>= 1:73),
          ucf,
@@ -682,7 +654,7 @@ Description: Zend OpCache module for PHP
  open source general-purpose scripting language that is especially suited
  for web development and can be embedded into HTML.
 
-Package: php7.4-pgsql
+Package: php8.0-pgsql
 Architecture: any
 Depends: php-common (>= 1:73),
          ucf,
@@ -705,7 +677,7 @@ Description: PostgreSQL module for PHP
  open source general-purpose scripting language that is especially suited
  for web development and can be embedded into HTML.
 
-Package: php7.4-pspell
+Package: php8.0-pspell
 Architecture: any
 Depends: php-common (>= 1:73),
          ucf,
@@ -728,7 +700,7 @@ Description: pspell module for PHP
  open source general-purpose scripting language that is especially suited
  for web development and can be embedded into HTML.
 
-Package: php7.4-readline
+Package: php8.0-readline
 Architecture: any
 Depends: php-common (>= 1:73),
          ucf,
@@ -751,7 +723,7 @@ Description: readline module for PHP
  open source general-purpose scripting language that is especially suited
  for web development and can be embedded into HTML.
 
-Package: php7.4-snmp
+Package: php8.0-snmp
 Architecture: any
 Depends: php-common (>= 1:73),
          ucf,
@@ -774,7 +746,7 @@ Description: SNMP module for PHP
  open source general-purpose scripting language that is especially suited
  for web development and can be embedded into HTML.
 
-Package: php7.4-soap
+Package: php8.0-soap
 Architecture: any
 Depends: php-common (>= 1:73),
          ucf,
@@ -797,7 +769,7 @@ Description: SOAP module for PHP
  open source general-purpose scripting language that is especially suited
  for web development and can be embedded into HTML.
 
-Package: php7.4-sqlite3
+Package: php8.0-sqlite3
 Architecture: any
 Depends: php-common (>= 1:73),
          ucf,
@@ -820,7 +792,7 @@ Description: SQLite3 module for PHP
  open source general-purpose scripting language that is especially suited
  for web development and can be embedded into HTML.
 
-Package: php7.4-sybase
+Package: php8.0-sybase
 Architecture: any
 Depends: php-common (>= 1:73),
          ucf,
@@ -843,7 +815,7 @@ Description: Sybase module for PHP
  open source general-purpose scripting language that is especially suited
  for web development and can be embedded into HTML.
 
-Package: php7.4-tidy
+Package: php8.0-tidy
 Architecture: any
 Depends: php-common (>= 1:73),
          ucf,
@@ -866,7 +838,7 @@ Description: tidy module for PHP
  open source general-purpose scripting language that is especially suited
  for web development and can be embedded into HTML.
 
-Package: php7.4-xml
+Package: php8.0-xml
 Architecture: any
 Depends: php-common (>= 1:73),
          ucf,
@@ -889,30 +861,7 @@ Description: DOM, SimpleXML, XML, and XSL module for PHP
  open source general-purpose scripting language that is especially suited
  for web development and can be embedded into HTML.
 
-Package: php7.4-xmlrpc
-Architecture: any
-Depends: php-common (>= 1:73),
-         ucf,
-         ${misc:Depends},
-         ${php:Depends},
-	 ${php-xmlrpc:Depends},
-         ${shlibs:Depends}
-Pre-Depends: ${misc:Pre-Depends},
-	     ${php-xmlrpc:Pre-Depends}
-Built-Using: ${php:Built-Using}
-Replaces: ${php-xmlrpc:Replaces}
-Breaks: ${php-xmlrpc:Breaks}
-Conflicts: ${php-xmlrpc:Conflicts}
-Provides: ${php-xmlrpc:Provides}
-Recommends: ${php-xmlrpc:Recommends}
-Description: XMLRPC-EPI module for PHP
- This package provides the XMLRPC-EPI module(s) for PHP.
- .
- PHP (recursive acronym for PHP: Hypertext Preprocessor) is a widely-used
- open source general-purpose scripting language that is especially suited
- for web development and can be embedded into HTML.
-
-Package: php7.4-zip
+Package: php8.0-zip
 Architecture: any
 Depends: php-common (>= 1:73),
          ucf,

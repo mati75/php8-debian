@@ -185,11 +185,11 @@ function extract_file_from_tarball($pkg, $filename, $dest_dir) /* {{{ */
             break;
         $checksum = 0;
         for ($i = 0; $i < 148; $i++)
-            $checksum += ord($hdr_data[$i]);
+            $checksum += ord($hdr_data{$i});
         for ($i = 148; $i < 156; $i++)
             $checksum += 32;
         for ($i = 156; $i < 512; $i++)
-            $checksum += ord($hdr_data[$i]);
+            $checksum += ord($hdr_data{$i});
 
         $hdr = unpack("a100filename/a8mode/a8uid/a8gid/a12size/a12mtime/a8checksum/a1typeflag/a100link/a6magic/a2version/a32uname/a32gname/a8devmajor/a8devminor", $hdr_data);
 
@@ -284,7 +284,7 @@ Build: $build_dir
 
 EOT
 );
-/* list build-in extensions */
+/* list built-in extensions */
 $exts = get_loaded_extensions();
 fprintf($fp, "\r\nBuilt-in Extensions\r\n");
 fwrite($fp, "===========================\r\n");
@@ -335,9 +335,13 @@ libenchant_ispell.dll
 $ENCHANT_DLLS = array(
     array('', 'glib-2.dll'),
     array('', 'gmodule-2.dll'),
-    array('lib/enchant', 'libenchant_myspell.dll'),
-    array('lib/enchant', 'libenchant_ispell.dll'),
 );
+if (file_exists("$php_build_dir/bin/libenchant2.dll")) {
+    $ENCHANT_DLLS[] = array('lib/enchant', 'libenchant2_hunspell.dll');
+} else {
+    $ENCHANT_DLLS[] = array('lib/enchant', 'libenchant_myspell.dll');
+    $ENCHANT_DLLS[] = array('lib/enchant', 'libenchant_ispell.dll');
+}
 foreach ($ENCHANT_DLLS as $dll) {
     $dest  = "$dist_dir/$dll[0]";
     $filename = $dll[1];
@@ -496,7 +500,7 @@ $dirs = array(
 foreach ($dirs as $dir) {
     copy_test_dir($dir, $test_dir);
 }
-copy('run-tests.php', $test_dir . '/run-test.php');
+copy('run-tests.php', $test_dir . '/run-tests.php');
 
 /* change this next line to true to use good-old
  * hand-assembled go-pear-bundle from the snapshot template */

@@ -1,7 +1,5 @@
 /*
    +----------------------------------------------------------------------+
-   | PHP Version 7                                                        |
-   +----------------------------------------------------------------------+
    | Copyright (c) The PHP Group                                          |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
@@ -59,7 +57,7 @@ static ZEND_COLD int php_info_print_html_esc(const char *str, size_t len) /* {{{
 	size_t written;
 	zend_string *new_str;
 
-	new_str = php_escape_html_entities((unsigned char *) str, len, 0, ENT_QUOTES, "utf-8");
+	new_str = php_escape_html_entities((const unsigned char *) str, len, 0, ENT_QUOTES, "utf-8");
 	written = php_output_write(ZSTR_VAL(new_str), ZSTR_LEN(new_str));
 	zend_string_free(new_str);
 	return written;
@@ -251,9 +249,9 @@ PHPAPI ZEND_COLD void ZEND_COLD php_info_print_style(void)
 
 /* {{{ php_info_html_esc
  */
-PHPAPI ZEND_COLD zend_string *php_info_html_esc(char *string)
+PHPAPI ZEND_COLD zend_string *php_info_html_esc(const char *string)
 {
-	return php_escape_html_entities((unsigned char *) string, strlen(string), 0, ENT_QUOTES, NULL);
+	return php_escape_html_entities((const unsigned char *) string, strlen(string), 0, ENT_QUOTES, NULL);
 }
 /* }}} */
 
@@ -746,11 +744,8 @@ PHPAPI ZEND_COLD void php_print_info_htmlhead(void)
 /* }}} */
 
 /* {{{ module_name_cmp */
-static int module_name_cmp(const void *a, const void *b)
+static int module_name_cmp(Bucket *f, Bucket *s)
 {
-	Bucket *f = (Bucket *) a;
-	Bucket *s = (Bucket *) b;
-
 	return strcasecmp(((zend_module_entry *)Z_PTR(f->val))->name,
 				  ((zend_module_entry *)Z_PTR(s->val))->name);
 }
@@ -770,7 +765,7 @@ PHPAPI ZEND_COLD void php_print_info(int flag)
 	}
 
 	if (flag & PHP_INFO_GENERAL) {
-		char *zend_version = get_zend_version();
+		const char *zend_version = get_zend_version();
 		char temp_api[10];
 
 		php_uname = php_get_uname('a');
@@ -1100,7 +1095,7 @@ PHPAPI ZEND_COLD void php_info_print_hr(void) /* {{{ */
 }
 /* }}} */
 
-PHPAPI ZEND_COLD void php_info_print_table_colspan_header(int num_cols, char *header) /* {{{ */
+PHPAPI ZEND_COLD void php_info_print_table_colspan_header(int num_cols, const char *header) /* {{{ */
 {
 	int spaces;
 
@@ -1245,7 +1240,7 @@ void register_phpinfo_constants(INIT_FUNC_ARGS)
 }
 /* }}} */
 
-/* {{{ proto void phpinfo([int what])
+/* {{{ proto bool phpinfo([int what])
    Output a page of useful information about PHP and the current request */
 PHP_FUNCTION(phpinfo)
 {
@@ -1266,7 +1261,7 @@ PHP_FUNCTION(phpinfo)
 
 /* }}} */
 
-/* {{{ proto string phpversion([string extension])
+/* {{{ proto string|false phpversion([string extension])
    Return the current PHP version */
 PHP_FUNCTION(phpversion)
 {
@@ -1291,7 +1286,7 @@ PHP_FUNCTION(phpversion)
 }
 /* }}} */
 
-/* {{{ proto void phpcredits([int flag])
+/* {{{ proto bool phpcredits([int flag])
    Prints the list of people who've contributed to the PHP project */
 PHP_FUNCTION(phpcredits)
 {
@@ -1307,13 +1302,11 @@ PHP_FUNCTION(phpcredits)
 }
 /* }}} */
 
-/* {{{ proto string php_sapi_name(void)
+/* {{{ proto string|false php_sapi_name(void)
    Return the current SAPI module name */
 PHP_FUNCTION(php_sapi_name)
 {
-	if (zend_parse_parameters_none() == FAILURE) {
-		return;
-	}
+	ZEND_PARSE_PARAMETERS_NONE();
 
 	if (sapi_module.name) {
 		RETURN_STRING(sapi_module.name);
@@ -1324,7 +1317,7 @@ PHP_FUNCTION(php_sapi_name)
 
 /* }}} */
 
-/* {{{ proto string php_uname(void)
+/* {{{ proto string php_uname([ string $mode = "a"])
    Return information about the system PHP was built on */
 PHP_FUNCTION(php_uname)
 {
@@ -1341,13 +1334,11 @@ PHP_FUNCTION(php_uname)
 
 /* }}} */
 
-/* {{{ proto string php_ini_scanned_files(void)
+/* {{{ proto string|false php_ini_scanned_files(void)
    Return comma-separated string of .ini files parsed from the additional ini dir */
 PHP_FUNCTION(php_ini_scanned_files)
 {
-	if (zend_parse_parameters_none() == FAILURE) {
-		return;
-	}
+	ZEND_PARSE_PARAMETERS_NONE();
 
 	if (php_ini_scanned_files) {
 		RETURN_STRING(php_ini_scanned_files);
@@ -1357,13 +1348,11 @@ PHP_FUNCTION(php_ini_scanned_files)
 }
 /* }}} */
 
-/* {{{ proto string php_ini_loaded_file(void)
+/* {{{ proto string|false php_ini_loaded_file(void)
    Return the actual loaded ini filename */
 PHP_FUNCTION(php_ini_loaded_file)
 {
-	if (zend_parse_parameters_none() == FAILURE) {
-		return;
-	}
+	ZEND_PARSE_PARAMETERS_NONE();
 
 	if (php_ini_opened_path) {
 		RETURN_STRING(php_ini_opened_path);

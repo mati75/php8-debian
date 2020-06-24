@@ -1,7 +1,5 @@
 /*
    +----------------------------------------------------------------------+
-   | PHP Version 7                                                        |
-   +----------------------------------------------------------------------+
    | Copyright (c) The PHP Group                                          |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
@@ -22,104 +20,19 @@
 
 #include "php.h"
 
-#if HAVE_LIBINTL
+#ifdef HAVE_LIBINTL
 
 #include <stdio.h>
 #include "ext/standard/info.h"
 #include "php_gettext.h"
-
-/* {{{ arginfo */
-ZEND_BEGIN_ARG_INFO(arginfo_textdomain, 0)
-	ZEND_ARG_INFO(0, domain)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO(arginfo_gettext, 0)
-	ZEND_ARG_INFO(0, msgid)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO(arginfo_dgettext, 0)
-	ZEND_ARG_INFO(0, domain_name)
-	ZEND_ARG_INFO(0, msgid)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO(arginfo_dcgettext, 0)
-	ZEND_ARG_INFO(0, domain_name)
-	ZEND_ARG_INFO(0, msgid)
-	ZEND_ARG_INFO(0, category)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO(arginfo_bindtextdomain, 0)
-	ZEND_ARG_INFO(0, domain_name)
-	ZEND_ARG_INFO(0, dir)
-ZEND_END_ARG_INFO()
-
-#if HAVE_NGETTEXT
-ZEND_BEGIN_ARG_INFO(arginfo_ngettext, 0)
-	ZEND_ARG_INFO(0, msgid1)
-	ZEND_ARG_INFO(0, msgid2)
-	ZEND_ARG_INFO(0, count)
-ZEND_END_ARG_INFO()
-#endif
-
-#if HAVE_DNGETTEXT
-ZEND_BEGIN_ARG_INFO(arginfo_dngettext, 0)
-	ZEND_ARG_INFO(0, domain)
-	ZEND_ARG_INFO(0, msgid1)
-	ZEND_ARG_INFO(0, msgid2)
-	ZEND_ARG_INFO(0, count)
-ZEND_END_ARG_INFO()
-#endif
-
-#if HAVE_DCNGETTEXT
-ZEND_BEGIN_ARG_INFO(arginfo_dcngettext, 0)
-	ZEND_ARG_INFO(0, domain)
-	ZEND_ARG_INFO(0, msgid1)
-	ZEND_ARG_INFO(0, msgid2)
-	ZEND_ARG_INFO(0, count)
-	ZEND_ARG_INFO(0, category)
-ZEND_END_ARG_INFO()
-#endif
-
-#if HAVE_BIND_TEXTDOMAIN_CODESET
-ZEND_BEGIN_ARG_INFO(arginfo_bind_textdomain_codeset, 0)
-	ZEND_ARG_INFO(0, domain)
-	ZEND_ARG_INFO(0, codeset)
-ZEND_END_ARG_INFO()
-#endif
-/* }}} */
-
-/* {{{ php_gettext_functions[]
- */
-static const zend_function_entry php_gettext_functions[] = {
-	PHP_NAMED_FE(textdomain,		zif_textdomain,		arginfo_textdomain)
-	PHP_NAMED_FE(gettext,			zif_gettext,		arginfo_gettext)
-	/* Alias for gettext() */
-	PHP_NAMED_FE(_,					zif_gettext,		arginfo_gettext)
-	PHP_NAMED_FE(dgettext,			zif_dgettext,		arginfo_dgettext)
-	PHP_NAMED_FE(dcgettext,			zif_dcgettext,		arginfo_dcgettext)
-	PHP_NAMED_FE(bindtextdomain,	zif_bindtextdomain,	arginfo_bindtextdomain)
-#if HAVE_NGETTEXT
-	PHP_NAMED_FE(ngettext,			zif_ngettext,		arginfo_ngettext)
-#endif
-#if HAVE_DNGETTEXT
-	PHP_NAMED_FE(dngettext,			zif_dngettext,		arginfo_dngettext)
-#endif
-#if HAVE_DCNGETTEXT
-	PHP_NAMED_FE(dcngettext,		zif_dcngettext,		arginfo_dcngettext)
-#endif
-#if HAVE_BIND_TEXTDOMAIN_CODESET
-	PHP_NAMED_FE(bind_textdomain_codeset,	zif_bind_textdomain_codeset,	arginfo_bind_textdomain_codeset)
-#endif
-    PHP_FE_END
-};
-/* }}} */
+#include "gettext_arginfo.h"
 
 #include <libintl.h>
 
 zend_module_entry php_gettext_module_entry = {
 	STANDARD_MODULE_HEADER,
 	"gettext",
-	php_gettext_functions,
+	ext_functions,
 	NULL,
 	NULL,
 	NULL,
@@ -138,7 +51,7 @@ ZEND_GET_MODULE(php_gettext)
 
 #define PHP_GETTEXT_DOMAIN_LENGTH_CHECK(domain_len) \
 	if (UNEXPECTED(domain_len > PHP_GETTEXT_MAX_DOMAIN_LENGTH)) { \
-		php_error_docref(NULL, E_WARNING, "domain passed too long"); \
+		php_error_docref(NULL, E_WARNING, "Domain passed too long"); \
 		RETURN_FALSE; \
 	}
 
@@ -157,13 +70,13 @@ PHP_MINFO_FUNCTION(php_gettext)
 
 /* {{{ proto string textdomain(string domain)
    Set the textdomain to "domain". Returns the current domain */
-PHP_NAMED_FUNCTION(zif_textdomain)
+PHP_FUNCTION(textdomain)
 {
 	char *domain = NULL, *domain_name, *retval;
 	size_t domain_len = 0;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "s!", &domain, &domain_len) == FAILURE) {
-		return;
+		RETURN_THROWS();
 	}
 
 	PHP_GETTEXT_DOMAIN_LENGTH_CHECK(domain_len)
@@ -182,7 +95,7 @@ PHP_NAMED_FUNCTION(zif_textdomain)
 
 /* {{{ proto string gettext(string msgid)
    Return the translation of msgid for the current domain, or msgid unaltered if a translation does not exist */
-PHP_NAMED_FUNCTION(zif_gettext)
+PHP_FUNCTION(gettext)
 {
 	char *msgstr;
 	zend_string *msgid;
@@ -204,13 +117,13 @@ PHP_NAMED_FUNCTION(zif_gettext)
 
 /* {{{ proto string dgettext(string domain_name, string msgid)
    Return the translation of msgid for domain_name, or msgid unaltered if a translation does not exist */
-PHP_NAMED_FUNCTION(zif_dgettext)
+PHP_FUNCTION(dgettext)
 {
 	char *msgstr;
 	zend_string *domain, *msgid;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "SS", &domain, &msgid) == FAILURE)	{
-		return;
+		RETURN_THROWS();
 	}
 
 	PHP_GETTEXT_DOMAIN_LENGTH_CHECK(ZSTR_LEN(domain))
@@ -228,14 +141,14 @@ PHP_NAMED_FUNCTION(zif_dgettext)
 
 /* {{{ proto string dcgettext(string domain_name, string msgid, int category)
    Return the translation of msgid for domain_name and category, or msgid unaltered if a translation does not exist */
-PHP_NAMED_FUNCTION(zif_dcgettext)
+PHP_FUNCTION(dcgettext)
 {
 	char *msgstr;
 	zend_string *domain, *msgid;
 	zend_long category;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "SSl", &domain, &msgid, &category) == FAILURE) {
-		return;
+		RETURN_THROWS();
 	}
 
 	PHP_GETTEXT_DOMAIN_LENGTH_CHECK(ZSTR_LEN(domain))
@@ -253,14 +166,14 @@ PHP_NAMED_FUNCTION(zif_dcgettext)
 
 /* {{{ proto string bindtextdomain(string domain_name, string dir)
    Bind to the text domain domain_name, looking for translations in dir. Returns the current domain */
-PHP_NAMED_FUNCTION(zif_bindtextdomain)
+PHP_FUNCTION(bindtextdomain)
 {
 	char *domain, *dir;
 	size_t domain_len, dir_len;
 	char *retval, dir_name[MAXPATHLEN];
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "ss", &domain, &domain_len, &dir, &dir_len) == FAILURE) {
-		return;
+		RETURN_THROWS();
 	}
 
 	PHP_GETTEXT_DOMAIN_LENGTH_CHECK(domain_len)
@@ -284,17 +197,17 @@ PHP_NAMED_FUNCTION(zif_bindtextdomain)
 }
 /* }}} */
 
-#if HAVE_NGETTEXT
+#ifdef HAVE_NGETTEXT
 /* {{{ proto string ngettext(string MSGID1, string MSGID2, int N)
    Plural version of gettext() */
-PHP_NAMED_FUNCTION(zif_ngettext)
+PHP_FUNCTION(ngettext)
 {
 	char *msgid1, *msgid2, *msgstr;
 	size_t msgid1_len, msgid2_len;
 	zend_long count;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "ssl", &msgid1, &msgid1_len, &msgid2, &msgid2_len, &count) == FAILURE) {
-		return;
+		RETURN_THROWS();
 	}
 
 	PHP_GETTEXT_LENGTH_CHECK("msgid1", msgid1_len)
@@ -308,10 +221,10 @@ PHP_NAMED_FUNCTION(zif_ngettext)
 /* }}} */
 #endif
 
-#if HAVE_DNGETTEXT
+#ifdef HAVE_DNGETTEXT
 /* {{{ proto string dngettext(string domain, string msgid1, string msgid2, int count)
    Plural version of dgettext() */
-PHP_NAMED_FUNCTION(zif_dngettext)
+PHP_FUNCTION(dngettext)
 {
 	char *domain, *msgid1, *msgid2, *msgstr = NULL;
 	size_t domain_len, msgid1_len, msgid2_len;
@@ -319,7 +232,7 @@ PHP_NAMED_FUNCTION(zif_dngettext)
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "sssl", &domain, &domain_len,
 		&msgid1, &msgid1_len, &msgid2, &msgid2_len, &count) == FAILURE) {
-		return;
+		RETURN_THROWS();
 	}
 
 	PHP_GETTEXT_DOMAIN_LENGTH_CHECK(domain_len)
@@ -334,10 +247,10 @@ PHP_NAMED_FUNCTION(zif_dngettext)
 /* }}} */
 #endif
 
-#if HAVE_DCNGETTEXT
+#ifdef HAVE_DCNGETTEXT
 /* {{{ proto string dcngettext(string domain, string msgid1, string msgid2, int n, int category)
    Plural version of dcgettext() */
-PHP_NAMED_FUNCTION(zif_dcngettext)
+PHP_FUNCTION(dcngettext)
 {
 	char *domain, *msgid1, *msgid2, *msgstr = NULL;
 	size_t domain_len, msgid1_len, msgid2_len;
@@ -347,7 +260,7 @@ PHP_NAMED_FUNCTION(zif_dcngettext)
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "sssll", &domain, &domain_len,
 		&msgid1, &msgid1_len, &msgid2, &msgid2_len, &count, &category) == FAILURE) {
-		return;
+		RETURN_THROWS();
 	}
 
 	PHP_GETTEXT_DOMAIN_LENGTH_CHECK(domain_len)
@@ -362,17 +275,17 @@ PHP_NAMED_FUNCTION(zif_dcngettext)
 /* }}} */
 #endif
 
-#if HAVE_BIND_TEXTDOMAIN_CODESET
+#ifdef HAVE_BIND_TEXTDOMAIN_CODESET
 
 /* {{{ proto string bind_textdomain_codeset(string domain, string codeset)
    Specify the character encoding in which the messages from the DOMAIN message catalog will be returned. */
-PHP_NAMED_FUNCTION(zif_bind_textdomain_codeset)
+PHP_FUNCTION(bind_textdomain_codeset)
 {
 	char *domain, *codeset, *retval = NULL;
 	size_t domain_len, codeset_len;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "ss", &domain, &domain_len, &codeset, &codeset_len) == FAILURE) {
-		return;
+		RETURN_THROWS();
 	}
 
 	PHP_GETTEXT_DOMAIN_LENGTH_CHECK(domain_len)

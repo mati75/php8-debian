@@ -1,7 +1,5 @@
 /*
   +----------------------------------------------------------------------+
-  | PHP Version 7                                                        |
-  +----------------------------------------------------------------------+
   | Copyright (c) The PHP Group                                          |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
@@ -536,14 +534,14 @@ static PHP_METHOD(SQLite, sqliteCreateFunction)
 		Z_PARAM_OPTIONAL
 		Z_PARAM_LONG(argc)
 		Z_PARAM_LONG(flags)
-	ZEND_PARSE_PARAMETERS_END_EX(RETURN_FALSE);
+	ZEND_PARSE_PARAMETERS_END();
 
 	dbh = Z_PDO_DBH_P(ZEND_THIS);
 	PDO_CONSTRUCT_CHECK;
 
 	if (!zend_is_callable(callback, 0, NULL)) {
 		zend_string *cbname = zend_get_callable_name(callback);
-		php_error_docref(NULL, E_WARNING, "function '%s' is not callable", ZSTR_VAL(cbname));
+		php_error_docref(NULL, E_WARNING, "Function '%s' is not callable", ZSTR_VAL(cbname));
 		zend_string_release_ex(cbname, 0);
 		RETURN_FALSE;
 	}
@@ -608,21 +606,21 @@ static PHP_METHOD(SQLite, sqliteCreateAggregate)
 		Z_PARAM_ZVAL(fini_callback)
 		Z_PARAM_OPTIONAL
 		Z_PARAM_LONG(argc)
-	ZEND_PARSE_PARAMETERS_END_EX(RETURN_FALSE);
+	ZEND_PARSE_PARAMETERS_END();
 
 	dbh = Z_PDO_DBH_P(ZEND_THIS);
 	PDO_CONSTRUCT_CHECK;
 
 	if (!zend_is_callable(step_callback, 0, NULL)) {
 		zend_string *cbname = zend_get_callable_name(step_callback);
-		php_error_docref(NULL, E_WARNING, "function '%s' is not callable", ZSTR_VAL(cbname));
+		php_error_docref(NULL, E_WARNING, "Function '%s' is not callable", ZSTR_VAL(cbname));
 		zend_string_release_ex(cbname, 0);
 		RETURN_FALSE;
 	}
 
 	if (!zend_is_callable(fini_callback, 0, NULL)) {
 		zend_string *cbname = zend_get_callable_name(fini_callback);
-		php_error_docref(NULL, E_WARNING, "function '%s' is not callable", ZSTR_VAL(cbname));
+		php_error_docref(NULL, E_WARNING, "Function '%s' is not callable", ZSTR_VAL(cbname));
 		zend_string_release_ex(cbname, 0);
 		RETURN_FALSE;
 	}
@@ -668,14 +666,14 @@ static PHP_METHOD(SQLite, sqliteCreateCollation)
 	ZEND_PARSE_PARAMETERS_START(2, 2)
 		Z_PARAM_STRING(collation_name, collation_name_len)
 		Z_PARAM_ZVAL(callback)
-	ZEND_PARSE_PARAMETERS_END_EX(RETURN_FALSE);
+	ZEND_PARSE_PARAMETERS_END();
 
 	dbh = Z_PDO_DBH_P(ZEND_THIS);
 	PDO_CONSTRUCT_CHECK;
 
 	if (!zend_is_callable(callback, 0, NULL)) {
 		zend_string *cbname = zend_get_callable_name(callback);
-		php_error_docref(NULL, E_WARNING, "function '%s' is not callable", ZSTR_VAL(cbname));
+		php_error_docref(NULL, E_WARNING, "Function '%s' is not callable", ZSTR_VAL(cbname));
 		zend_string_release_ex(cbname, 0);
 		RETURN_FALSE;
 	}

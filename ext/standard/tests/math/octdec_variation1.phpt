@@ -72,9 +72,13 @@ $inputs = array(
 // loop through each element of $inputs to check the behaviour of octdec()
 $iterator = 1;
 foreach($inputs as $input) {
-	echo "\n-- Iteration $iterator --\n";
-	var_dump(octdec($input));
-	$iterator++;
+    echo "\n-- Iteration $iterator --\n";
+    try {
+        var_dump(octdec($input));
+    } catch (TypeError $e) {
+        echo $e->getMessage(), "\n";
+    }
+    $iterator++;
 };
 fclose($fp);
 ?>
@@ -156,11 +160,7 @@ int(0)
 int(0)
 
 -- Iteration 20 --
-
-Notice: Array to string conversion in %s on line %d
-
-Deprecated: Invalid characters passed for attempted conversion, these have been ignored in %s on line %d
-int(0)
+octdec(): Argument #1 ($octal_string) must be of type string, array given
 
 -- Iteration 21 --
 
@@ -184,7 +184,5 @@ int(0)
 int(0)
 
 -- Iteration 26 --
-
-Deprecated: Invalid characters passed for attempted conversion, these have been ignored in %s on line %d
-int(5)
+octdec(): Argument #1 ($octal_string) must be of type string, resource given
 ---Done---

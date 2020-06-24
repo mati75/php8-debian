@@ -2,9 +2,8 @@
 Test symlink(), linkinfo(), link() and is_link() functions : usage variations - access/update file through softlink
 --SKIPIF--
 <?php
-if (PHP_OS_FAMILY === 'Windows') {
-    require_once __DIR__ . '/windows_links/common.inc';
-    skipIfSeCreateSymbolicLinkPrivilegeIsDisabled(__FILE__);
+if (substr(PHP_OS, 0, 3) == 'WIN') {
+    die('skip no symlinks on Windows');
 }
 ?>
 --FILE--

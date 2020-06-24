@@ -1,7 +1,5 @@
 /*
    +----------------------------------------------------------------------+
-   | PHP Version 7                                                        |
-   +----------------------------------------------------------------------+
    | Copyright (c) The PHP Group                                          |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
@@ -37,7 +35,7 @@
 #include "php.h"
 #include "php_ini.h"
 
-#if HAVE_MBSTRING
+#ifdef HAVE_MBSTRING
 
 /* include case folding data generated from the official UnicodeData.txt file */
 #include "mbstring.h"

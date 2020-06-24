@@ -1,7 +1,5 @@
 /*
    +----------------------------------------------------------------------+
-   | PHP Version 7                                                        |
-   +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
    | that is bundled with this package in the file LICENSE, and is        |
    | available through the world-wide-web at the following url:           |
@@ -71,7 +69,7 @@ static double collator_u_strtod(const UChar *nptr, UChar **endptr) /* {{{ */
 		char buf[64], *numbuf, *bufpos;
 		size_t length = u - nstart;
 		double value;
-		ALLOCA_FLAG(use_heap);
+		ALLOCA_FLAG(use_heap = 0);
 
 		if (length < sizeof(buf)) {
 			numbuf = buf;

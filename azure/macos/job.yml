@@ -40,7 +40,6 @@ jobs:
             --enable-xmlreader \
             --with-xsl \
             --with-tidy=/usr/local/opt/tidyp \
-            --with-xmlrpc \
             --with-libxml \
             --enable-sysvsem \
             --enable-sysvshm \
@@ -66,6 +65,7 @@ jobs:
             --enable-intl \
             --with-mhash \
             --with-sodium \
+            --enable-dba \
             --enable-werror \
             --with-config-file-path=/etc \
             --with-config-file-scan-dir=/etc/php.d
@@ -85,3 +85,8 @@ jobs:
         configurationName: ${{ parameters.configurationName }}
         runTestsName: 'OpCache'
         runTestsParameters: -d zend_extension=opcache.so -d opcache.enable_cli=1 -d opcache.protect_memory=1
+    - template: test.yml
+      parameters:
+        configurationName: ${{ parameters.configurationName }}
+        runTestsName: 'JIT'
+        runTestsParameters: -d zend_extension=opcache.so -d opcache.enable_cli=1 -d opcache.protect_memory=1 -d opcache.jit_buffer_size=16M
