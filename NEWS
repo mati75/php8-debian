@@ -1,5 +1,25 @@
 PHP                                                                        NEWS
 |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+11 Jun 2020, PHP 7.3.19
+
+- Core:
+  . Fixed bug #79566 (Private SHM is not private on Windows). (cmb)
+  . Fixed bug #79489 (.user.ini does not inherit). (cmb)
+
+- GD:
+  . Fixed bug #79615 (Wrong GIF header written in GD GIFEncode). (sageptr, cmb)
+
+- MySQLnd:
+  . Fixed bug #79596 (MySQL FLOAT truncates to int some locales). (cmb)
+
+- Opcache:
+  . Fixed bug #79535 (PHP crashes with specific opcache.optimization_level).
+    (Nikita)
+  . Fixed bug #79588 (Boolean opcache settings ignore on/off values). (cmb)
+
+- Standard:
+  . Fixed bug #79561 (dns_get_record() fails with DNS_ALL). (cmb)
+
 14 May 2020, PHP 7.3.18
 
 - Core:
