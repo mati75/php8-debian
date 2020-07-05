@@ -1,5 +1,64 @@
 PHP                                                                        NEWS
 |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+20 Feb 2020, PHP 7.3.15
+
+- Core:
+  . Fixed bug #71876 (Memory corruption htmlspecialchars(): charset `*' not
+    supported). (Nikita)
+  . Fixed bug ##79146 (cscript can fail to run on some systems). (clarodeus)
+  . Fixed bug #78323 (Code 0 is returned on invalid options). (Ivan Mikheykin)
+  . Fixed bug #76047 (Use-after-free when accessing already destructed
+    backtrace arguments). (Nikita)
+
+- CURL:
+  . Fixed bug #79078 (Hypothetical use-after-free in curl_multi_add_handle()).
+    (cmb)
+
+ -Intl:
+  . Fixed bug #79212 (NumberFormatter::format() may detect wrong type). (cmb)
+
+- Libxml:
+  . Fixed bug #79191 (Error in SoapClient ctor disables DOMDocument::save()).
+    (Nikita, cmb)
+
+- MBString:
+  . Fixed bug #79154 (mb_convert_encoding() can modify $from_encoding). (cmb)
+
+- MySQLnd:
+  . Fixed bug #79084 (mysqlnd may fetch wrong column indexes with MYSQLI_BOTH).
+    (cmb)
+
+- OpenSSL:
+  . Fixed bug #79145 (openssl memory leak). (cmb, Nikita)
+
+- Phar:
+  . Fixed bug #79082 (Files added to tar with Phar::buildFromIterator have
+    all-access permissions). (CVE-2020-7063) (stas)
+  . Fixed bug #79171 (heap-buffer-overflow in phar_extract_file).
+    (CVE-	2020-7061) (cmb)
+  . Fixed bug #76584 (PharFileInfo::decompress not working). (cmb)
+
+- Reflection:
+  . Fixed bug #79115 (ReflectionClass::isCloneable call reflected class
+    __destruct). (Nikita)
+
+- Session:
+  . Fixed bug #79221 (Null Pointer Dereference in PHP Session Upload Progress).
+    (CVE-2020-7062) (stas)
+
+- SPL:
+  . Fixed bug #79151 (heap use after free caused by
+    spl_dllist_it_helper_move_forward). (Nikita)
+
+- Standard:
+  . Fixed bug #78902 (Memory leak when using stream_filter_append). (liudaixiao)
+
+- Testing:
+  . Fixed bug #78090 (bug45161.phpt takes forever to finish). (cmb)
+
+- XSL:
+  . Fixed bug #70078 (XSL callbacks with nodes as parameter leak memory). (cmb)
+
 23 Jan 2020, PHP 7.3.14
 
 - Core

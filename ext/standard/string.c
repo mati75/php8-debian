@@ -5257,7 +5257,7 @@ state_2:
 				break;
 			}
 
-			if (!br && lc != '\"' && *(p-1) == '?') {
+			if (!br && p >= buf + 1 && lc != '\"' && *(p-1) == '?') {
 				in_q = state = 0;
 				tp = tbuf;
 				p++;
@@ -5266,7 +5266,7 @@ state_2:
 			break;
 		case '"':
 		case '\'':
-			if (*(p-1) != '\\') {
+			if (p >= buf + 1 && *(p-1) != '\\') {
 				if (lc == c) {
 					lc = '\0';
 				} else if (lc != '\\') {
