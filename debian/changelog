@@ -1,3 +1,30 @@
+php7.3 (7.3.19-1~deb10u1) buster-security; urgency=high
+
+  * New upstream version 7.3.15
+   + Fixed bug #79082 (Files added to tar with Phar::buildFromIterator
+     have all-access permissions). (CVE-2020-7063)
+   + Fixed bug #79171 (heap-buffer-overflow in phar_extract_file).
+     (CVE-2020-7061)
+   + Fixed bug #79221 (Null Pointer Dereference in PHP Session Upload Progress).
+     (CVE-2020-7062)
+  * New upstream version 7.3.16
+   + Fixed bug #79371 (mb_strtolower (UTF-32LE): stack-buffer-overflow at
+     php_unicode_tolower_full). (CVE-2020-7065)
+   + Fixed bug #79329 (get_headers() silently truncates after a null byte).
+     (CVE-2020-7066)
+  * New upstream version 7.3.17
+   + Fixed bug #79465 (OOB Read in urldecode()). (CVE-2020-7067)
+  * New upstream version 7.3.18
+   + Fixed bug #78875 (Long filenames cause OOM and temp files are not
+     cleaned). (CVE-2019-11048)
+   + Fixed bug #78876 (Long variables in multipart/form-data cause OOM and
+     temp files are not cleaned). (CVE-2019-11048)
+  * New upstream version 7.3.19
+  * php-fpm has to depend on procps due kill usage in systemd service file
+    (Closes: #861855)
+
+ -- Ondřej Surý <ondrej@debian.org>  Sun, 05 Jul 2020 08:46:45 +0200
+
 php7.3 (7.3.14-1~deb10u1) buster-security; urgency=medium
 
   * New upstream version 7.3.14
