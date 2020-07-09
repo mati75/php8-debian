@@ -122,7 +122,6 @@ static inline int phpdbg_call_register(phpdbg_param_t *stack) /* {{{ */
 			//???fci.symbol_table = zend_rebuild_symbol_table();
 			fci.object = NULL;
 			fci.retval = &fretval;
-			fci.no_separation = 1;
 
 			if (name->next) {
 				zval params;
@@ -1710,6 +1709,11 @@ void phpdbg_execute_ex(zend_execute_data *execute_data) /* {{{ */
 			zend_timeout();
 		}
 #endif
+
+		if (exception && zend_is_unwind_exit(exception)) {
+			/* Restore bailout based exit. */
+			zend_bailout();
+		}
 
 		if (PHPDBG_G(flags) & PHPDBG_PREVENT_INTERACTIVE) {
 			phpdbg_print_opline_ex(execute_data, 0);

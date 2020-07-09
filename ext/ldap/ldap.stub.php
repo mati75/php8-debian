@@ -227,6 +227,12 @@ function ldap_get_option($link_identifier, int $option, &$retval = null): bool {
 function ldap_set_option($link_identifier, int $option, $newval): bool {}
 
 /**
+ * @param resource $link_identifier
+ * @param resource $result_identifier
+ */
+function ldap_count_references($link_identifier, $result_identifier): int {}
+
+/**
  * @param resource $link
  * @param resource $result
  * @return resource|false
@@ -260,9 +266,8 @@ function ldap_parse_result($link, $result, &$errcode, &$matcheddn = null, &$errm
 #if defined(LDAP_API_FEATURE_X_OPENLDAP) && defined(HAVE_3ARG_SETREBINDPROC)
 /**
  * @param resource $link
- * @param callable $callback
  */
-function ldap_set_rebind_proc($link, $callback): bool {}
+function ldap_set_rebind_proc($link, ?callable $callback): bool {}
 #endif
 
 #ifdef HAVE_LDAP_START_TLS_S

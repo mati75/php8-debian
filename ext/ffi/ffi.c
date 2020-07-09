@@ -857,7 +857,6 @@ static void zend_ffi_callback_trampoline(ffi_cif* cif, void* ret, void** args, v
 	fci.retval = &retval;
 	fci.params = do_alloca(sizeof(zval) *callback_data->arg_count, use_heap);
 	fci.object = NULL;
-	fci.no_separation = 1;
 	fci.param_count = callback_data->arg_count;
 
 	if (callback_data->type->func.args) {
@@ -1095,6 +1094,9 @@ again:
 				return FAILURE;
 		}
 		convert_to_string(writeobj);
+		return SUCCESS;
+	} else if (type == _IS_BOOL) {
+		ZVAL_TRUE(writeobj);
 		return SUCCESS;
 	}
 
@@ -1871,7 +1873,8 @@ static const zend_object_iterator_funcs zend_ffi_cdata_it_funcs = {
 	zend_ffi_cdata_it_get_current_key,
 	zend_ffi_cdata_it_move_forward,
 	zend_ffi_cdata_it_rewind,
-	NULL
+	NULL,
+	NULL, /* get_gc */
 };
 
 static zend_object_iterator *zend_ffi_cdata_get_iterator(zend_class_entry *ce, zval *object, int by_ref) /* {{{ */
@@ -4642,7 +4645,13 @@ static HashTable *zend_fake_get_gc(zend_object *ob, zval **table, int *n) /* {{{
 
 static int zend_fake_cast_object(zend_object *obj, zval *result, int type)
 {
-	return FAILURE;
+	switch (type) {
+		case _IS_BOOL:
+			ZVAL_TRUE(result);
+			return SUCCESS;
+		default:
+			return FAILURE;
+	}
 }
 
 static ZEND_COLD zend_never_inline void zend_ffi_use_after_free(void) /* {{{ */
@@ -4851,8 +4860,7 @@ static int zend_ffi_preload(char *preload) /* {{{ */
 }
 /* }}} */
 
-/* {{{ ZEND_MINIT_FUNCTION
- */
+/* {{{ ZEND_MINIT_FUNCTION */
 ZEND_MINIT_FUNCTION(ffi)
 {
 	zend_class_entry ce;
@@ -5023,8 +5031,7 @@ ZEND_MINIT_FUNCTION(ffi)
 }
 /* }}} */
 
-/* {{{ ZEND_RSHUTDOWN_FUNCTION
- */
+/* {{{ ZEND_RSHUTDOWN_FUNCTION */
 ZEND_RSHUTDOWN_FUNCTION(ffi)
 {
 	if (FFI_G(callbacks)) {
@@ -5044,8 +5051,7 @@ ZEND_RSHUTDOWN_FUNCTION(ffi)
 }
 /* }}} */
 
-/* {{{ ZEND_MINFO_FUNCTION
- */
+/* {{{ ZEND_MINFO_FUNCTION */
 ZEND_MINFO_FUNCTION(ffi)
 {
 	php_info_print_table_start();
@@ -5120,8 +5126,7 @@ const struct {
 	{"__gnuc_va_list",    &zend_ffi_type_ptr},
 };
 
-/* {{{ ZEND_GINIT_FUNCTION
- */
+/* {{{ ZEND_GINIT_FUNCTION */
 static ZEND_GINIT_FUNCTION(ffi)
 {
 	size_t i;
@@ -5137,8 +5142,7 @@ static ZEND_GINIT_FUNCTION(ffi)
 }
 /* }}} */
 
-/* {{{ ZEND_GINIT_FUNCTION
- */
+/* {{{ ZEND_GINIT_FUNCTION */
 static ZEND_GSHUTDOWN_FUNCTION(ffi)
 {
 	if (ffi_globals->scopes) {
@@ -5149,8 +5153,7 @@ static ZEND_GSHUTDOWN_FUNCTION(ffi)
 }
 /* }}} */
 
-/* {{{ ffi_module_entry
- */
+/* {{{ ffi_module_entry */
 zend_module_entry ffi_module_entry = {
 	STANDARD_MODULE_HEADER,
 	"FFI",					/* Extension name */

@@ -1,10 +1,17 @@
-php8.0 (8.0.0~alpha1-0.1) experimental; urgency=medium
+php8.0 (8.0.0~alpha2-0.1) experimental; urgency=medium
+
+  * Non-maintainer upload.
+  * New upstream release.
+
+ -- Mateusz Łukasik <mati75@linuxmint.pl>  Thu, 09 Jul 2020 20:09:03 +0200
+
+php8.0 (8.0.0~alpha1-0.2) experimental; urgency=medium
 
   * New upstream release.
   * Drop xmlprc no longer included.
   * Json is now included as default.
 
- -- Mateusz Łukasik <mati75@linuxmint.pl>  Wed, 24 Jun 2020 13:58:13 +0200
+ -- Mateusz Łukasik <mati75@linuxmint.pl>  Wed, 24 Jun 2020 21:54:30 +0200
 
 php8.0 (8.0.0~alpha1~git20200515-0.1) experimental; urgency=medium
 

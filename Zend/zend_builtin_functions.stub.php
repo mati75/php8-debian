@@ -30,7 +30,7 @@ function get_class(object $object = UNKNOWN): string {}
 
 function get_called_class(): string {}
 
-function get_parent_class($object = UNKNOWN): string|false {}
+function get_parent_class(string|object $object = UNKNOWN): string|false {}
 
 function is_subclass_of($object, string $class_name, bool $allow_string = true): bool {}
 
@@ -42,7 +42,7 @@ function get_object_vars(object $obj): array {}
 
 function get_mangled_object_vars(object $obj): array {}
 
-function get_class_methods($class): ?array {}
+function get_class_methods(string|object $class): array {}
 
 function method_exists($object_or_class, string $method): bool {}
 

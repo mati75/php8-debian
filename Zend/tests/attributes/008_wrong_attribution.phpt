@@ -1,9 +1,9 @@
 --TEST--
-Attributes: Prevent PhpAttribute on non classes
+Attributes: Prevent Attribute on non classes
 --FILE--
 <?php
 
-<<PhpAttribute>>
+<<Attribute>>
 function foo() {}
 --EXPECTF--
-Fatal error: Only classes can be marked with <<PhpAttribute>> in %s
+Fatal error: Attribute "Attribute" cannot target function (allowed targets: class) in %s

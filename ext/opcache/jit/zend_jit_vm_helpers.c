@@ -153,7 +153,7 @@ void ZEND_FASTCALL zend_jit_copy_extra_args_helper(EXECUTE_DATA_D)
 	}
 }
 
-void ZEND_FASTCALL zend_jit_deprecated_helper(OPLINE_D)
+zend_bool ZEND_FASTCALL zend_jit_deprecated_helper(OPLINE_D)
 {
 	zend_execute_data *call = (zend_execute_data *) opline;
 	zend_function *fbc = call->func;
@@ -176,7 +176,9 @@ void ZEND_FASTCALL zend_jit_deprecated_helper(OPLINE_D)
 		}
 
 		zend_vm_stack_free_call_frame(call);
+		return 0;
 	}
+	return 1;
 }
 
 ZEND_OPCODE_HANDLER_RET ZEND_FASTCALL zend_jit_profile_helper(ZEND_OPCODE_HANDLER_ARGS)
@@ -481,7 +483,7 @@ static int zend_jit_trace_record_fake_init_call_ex(zend_execute_data *call, zend
 		 && (func->op_array.fn_flags & ZEND_ACC_CLOSURE)) {
 			jit_extension =
 				(zend_jit_op_array_trace_extension*)ZEND_FUNC_INFO(&func->op_array);
-			if (UNEXPECTED(!jit_extension)) {
+			if (UNEXPECTED(!jit_extension || (func->op_array.fn_flags & ZEND_ACC_FAKE_CLOSURE))) {
 				return -1;
 			}
 			func = (zend_function*)jit_extension->op_array;
@@ -711,6 +713,9 @@ zend_jit_trace_stop ZEND_FASTCALL zend_jit_trace_execute(zend_execute_data *ex, 
 			if (EX(call)->func->type == ZEND_INTERNAL_FUNCTION) {
 				TRACE_RECORD(ZEND_JIT_TRACE_DO_ICALL, 0, EX(call)->func);
 			}
+		} else if (opline->opcode == ZEND_INCLUDE_OR_EVAL) {
+			stop = ZEND_JIT_TRACE_STOP_INTERPRETER;
+			break;
 		}
 
 		handler = (zend_vm_opcode_handler_t)ZEND_OP_TRACE_INFO(opline, offset)->call_handler;
@@ -856,8 +861,8 @@ zend_jit_trace_stop ZEND_FASTCALL zend_jit_trace_execute(zend_execute_data *ex, 
 				 && (func->op_array.fn_flags & ZEND_ACC_CLOSURE)) {
 					jit_extension =
 						(zend_jit_op_array_trace_extension*)ZEND_FUNC_INFO(&func->op_array);
-					if (UNEXPECTED(!jit_extension)) {
-						stop = ZEND_JIT_TRACE_STOP_BAD_FUNC;
+					if (UNEXPECTED(!jit_extension) || (func->op_array.fn_flags & ZEND_ACC_FAKE_CLOSURE)) {
+						stop = ZEND_JIT_TRACE_STOP_INTERPRETER;
 						break;
 					}
 					func = (zend_function*)jit_extension->op_array;
@@ -973,7 +978,8 @@ zend_jit_trace_stop ZEND_FASTCALL zend_jit_trace_execute(zend_execute_data *ex, 
 	TRACE_END(ZEND_JIT_TRACE_END, stop, end_opline);
 
 #ifdef HAVE_GCC_GLOBAL_REGS
-	if (stop != ZEND_JIT_TRACE_STOP_HALT) {
+	if (stop != ZEND_JIT_TRACE_STOP_HALT
+	 && stop != ZEND_JIT_TRACE_STOP_RETURN_HALT) {
 		EX(opline) = opline;
 	}
 #endif

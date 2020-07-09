@@ -448,8 +448,7 @@ void *php_dom_export_node(zval *object) /* {{{ */
 }
 /* }}} */
 
-/* {{{ proto somNode dom_import_simplexml(sxeobject node)
-   Get a simplexml_element object from dom to allow for processing */
+/* {{{ Get a simplexml_element object from dom to allow for processing */
 PHP_FUNCTION(dom_import_simplexml)
 {
 	zval *node;
@@ -670,7 +669,7 @@ PHP_MINIT_FUNCTION(dom)
 	ce.create_object = dom_nnodemap_objects_new;
 	dom_nodelist_class_entry = zend_register_internal_class_ex(&ce, NULL);
 	dom_nodelist_class_entry->get_iterator = php_dom_get_iterator;
-	zend_class_implements(dom_nodelist_class_entry, 2, zend_ce_traversable, zend_ce_countable);
+	zend_class_implements(dom_nodelist_class_entry, 2, zend_ce_aggregate, zend_ce_countable);
 
 	zend_hash_init(&dom_nodelist_prop_handlers, 0, NULL, dom_dtor_prop_handler, 1);
 	dom_register_prop_handler(&dom_nodelist_prop_handlers, "length", sizeof("length")-1, dom_nodelist_length_read, NULL);
@@ -680,7 +679,7 @@ PHP_MINIT_FUNCTION(dom)
 	ce.create_object = dom_nnodemap_objects_new;
 	dom_namednodemap_class_entry = zend_register_internal_class_ex(&ce, NULL);
 	dom_namednodemap_class_entry->get_iterator = php_dom_get_iterator;
-	zend_class_implements(dom_namednodemap_class_entry, 2, zend_ce_traversable, zend_ce_countable);
+	zend_class_implements(dom_namednodemap_class_entry, 2, zend_ce_aggregate, zend_ce_countable);
 
 	zend_hash_init(&dom_namednodemap_prop_handlers, 0, NULL, dom_dtor_prop_handler, 1);
 	dom_register_prop_handler(&dom_namednodemap_prop_handlers, "length", sizeof("length")-1, dom_namednodemap_length_read, NULL);

@@ -128,7 +128,7 @@ ZEND_OPCODE_HANDLER_RET ZEND_FASTCALL zend_jit_func_counter_helper(ZEND_OPCODE_H
 ZEND_OPCODE_HANDLER_RET ZEND_FASTCALL zend_jit_loop_counter_helper(ZEND_OPCODE_HANDLER_ARGS);
 
 void ZEND_FASTCALL zend_jit_copy_extra_args_helper(EXECUTE_DATA_D);
-void ZEND_FASTCALL zend_jit_deprecated_helper(OPLINE_D);
+zend_bool ZEND_FASTCALL zend_jit_deprecated_helper(OPLINE_D);
 
 void ZEND_FASTCALL zend_jit_get_constant(const zval *key, uint32_t flags);
 int  ZEND_FASTCALL zend_jit_check_constant(const zval *key);
@@ -207,7 +207,7 @@ typedef enum _zend_jit_trace_stop {
 #define ZEND_JIT_EXIT_BLACKLISTED   (1<<1)
 #define ZEND_JIT_EXIT_TO_VM         (1<<2) /* exit to VM without attempt to create a side trace */
 #define ZEND_JIT_EXIT_RESTORE_CALL  (1<<3) /* deoptimizer should restore EX(call) chain */
-#define ZEND_JIT_EXIT_POLYMORPHISM  (1<<4) /* exit becaus of polymorphic call */
+#define ZEND_JIT_EXIT_POLYMORPHISM  (1<<4) /* exit because of polymorphic call */
 
 typedef union _zend_op_trace_info {
 	zend_op dummy; /* the size of this structure must be the same as zend_op */

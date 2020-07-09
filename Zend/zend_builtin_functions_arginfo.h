@@ -1,4 +1,5 @@
-/* This is a generated file, edit the .stub.php file instead. */
+/* This is a generated file, edit the .stub.php file instead.
+ * Stub hash: f81f2b4cf552c4ee8406b91c437797feb1164be0 */
 
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_zend_version, 0, 0, IS_STRING, 0)
 ZEND_END_ARG_INFO()
@@ -53,7 +54,7 @@ ZEND_END_ARG_INFO()
 #define arginfo_get_called_class arginfo_zend_version
 
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_MASK_EX(arginfo_get_parent_class, 0, 0, MAY_BE_STRING|MAY_BE_FALSE)
-	ZEND_ARG_INFO(0, object)
+	ZEND_ARG_TYPE_MASK(0, object, MAY_BE_STRING|MAY_BE_OBJECT, NULL)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_is_subclass_of, 0, 2, _IS_BOOL, 0)
@@ -78,8 +79,8 @@ ZEND_END_ARG_INFO()
 
 #define arginfo_get_mangled_object_vars arginfo_get_object_vars
 
-ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_get_class_methods, 0, 1, IS_ARRAY, 1)
-	ZEND_ARG_INFO(0, class)
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_get_class_methods, 0, 1, IS_ARRAY, 0)
+	ZEND_ARG_TYPE_MASK(0, class, MAY_BE_STRING|MAY_BE_OBJECT, NULL)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_method_exists, 0, 2, _IS_BOOL, 0)

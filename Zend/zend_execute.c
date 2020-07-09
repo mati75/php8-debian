@@ -1417,9 +1417,21 @@ static zend_never_inline ZEND_COLD void zend_wrong_string_offset(EXECUTE_DATA_D)
 			while (opline < end) {
 				if (opline->op1_type == IS_VAR && opline->op1.var == var) {
 					switch (opline->opcode) {
+						case ZEND_FETCH_OBJ_W:
+						case ZEND_FETCH_OBJ_RW:
+						case ZEND_FETCH_OBJ_FUNC_ARG:
+						case ZEND_FETCH_OBJ_UNSET:
+						case ZEND_ASSIGN_OBJ:
 						case ZEND_ASSIGN_OBJ_OP:
+						case ZEND_ASSIGN_OBJ_REF:
 							msg = "Cannot use string offset as an object";
 							break;
+						case ZEND_FETCH_DIM_W:
+						case ZEND_FETCH_DIM_RW:
+						case ZEND_FETCH_DIM_FUNC_ARG:
+						case ZEND_FETCH_DIM_UNSET:
+						case ZEND_FETCH_LIST_W:
+						case ZEND_ASSIGN_DIM:
 						case ZEND_ASSIGN_DIM_OP:
 							msg = "Cannot use string offset as an array";
 							break;
@@ -1436,21 +1448,6 @@ static zend_never_inline ZEND_COLD void zend_wrong_string_offset(EXECUTE_DATA_D)
 						case ZEND_POST_INC:
 						case ZEND_POST_DEC:
 							msg = "Cannot increment/decrement string offsets";
-							break;
-						case ZEND_FETCH_DIM_W:
-						case ZEND_FETCH_DIM_RW:
-						case ZEND_FETCH_DIM_FUNC_ARG:
-						case ZEND_FETCH_DIM_UNSET:
-						case ZEND_FETCH_LIST_W:
-						case ZEND_ASSIGN_DIM:
-							msg = "Cannot use string offset as an array";
-							break;
-						case ZEND_FETCH_OBJ_W:
-						case ZEND_FETCH_OBJ_RW:
-						case ZEND_FETCH_OBJ_FUNC_ARG:
-						case ZEND_FETCH_OBJ_UNSET:
-						case ZEND_ASSIGN_OBJ:
-							msg = "Cannot use string offset as an object";
 							break;
 						case ZEND_ASSIGN_REF:
 						case ZEND_ADD_ARRAY_ELEMENT:
@@ -1912,6 +1909,44 @@ static zend_never_inline ZEND_COLD void ZEND_FASTCALL zend_undefined_index(const
 	zend_error(E_NOTICE, "Undefined index: %s", ZSTR_VAL(offset));
 }
 
+static zend_never_inline ZEND_COLD int ZEND_FASTCALL zend_undefined_offset_write(
+		HashTable *ht, zend_long lval)
+{
+	/* The array may be destroyed while throwing the notice.
+	 * Temporarily increase the refcount to detect this situation. */
+	if (!(GC_FLAGS(ht) & IS_ARRAY_IMMUTABLE)) {
+		GC_ADDREF(ht);
+	}
+	zend_undefined_offset(lval);
+	if (!(GC_FLAGS(ht) & IS_ARRAY_IMMUTABLE) && !GC_DELREF(ht)) {
+		zend_array_destroy(ht);
+		return FAILURE;
+	}
+	if (EG(exception)) {
+		return FAILURE;
+	}
+	return SUCCESS;
+}
+
+static zend_never_inline ZEND_COLD int ZEND_FASTCALL zend_undefined_index_write(
+		HashTable *ht, zend_string *offset)
+{
+	/* The array may be destroyed while throwing the notice.
+	 * Temporarily increase the refcount to detect this situation. */
+	if (!(GC_FLAGS(ht) & IS_ARRAY_IMMUTABLE)) {
+		GC_ADDREF(ht);
+	}
+	zend_undefined_index(offset);
+	if (!(GC_FLAGS(ht) & IS_ARRAY_IMMUTABLE) && !GC_DELREF(ht)) {
+		zend_array_destroy(ht);
+		return FAILURE;
+	}
+	if (EG(exception)) {
+		return FAILURE;
+	}
+	return SUCCESS;
+}
+
 static zend_never_inline ZEND_COLD void ZEND_FASTCALL zend_undefined_method(const zend_class_entry *ce, const zend_string *method)
 {
 	zend_throw_error(NULL, "Call to undefined method %s::%s()", ZSTR_VAL(ce->name), ZSTR_VAL(method));
@@ -1931,7 +1966,7 @@ static zend_never_inline ZEND_COLD void ZEND_FASTCALL zend_non_static_method_cal
 		ZSTR_VAL(fbc->common.scope->name), ZSTR_VAL(fbc->common.function_name));
 }
 
-static zend_never_inline ZEND_COLD void ZEND_FASTCALL zend_param_must_be_ref(const zend_function *func, uint32_t arg_num)
+ZEND_COLD void ZEND_FASTCALL zend_param_must_be_ref(const zend_function *func, uint32_t arg_num)
 {
 	const char *arg_name = get_function_arg_name(func, arg_num);
 
@@ -2031,9 +2066,10 @@ num_undef:
 				retval = &EG(uninitialized_zval);
 				break;
 			case BP_VAR_RW:
-				zend_undefined_offset(hval);
-				retval = zend_hash_index_update(ht, hval, &EG(uninitialized_zval));
-				break;
+				if (UNEXPECTED(zend_undefined_offset_write(ht, hval) == FAILURE)) {
+					return NULL;
+				}
+				/* break missing intentionally */
 			case BP_VAR_W:
 				retval = zend_hash_index_add_new(ht, hval, &EG(uninitialized_zval));
 				break;
@@ -2061,7 +2097,9 @@ str_index:
 							retval = &EG(uninitialized_zval);
 							break;
 						case BP_VAR_RW:
-							zend_undefined_index(offset_key);
+							if (UNEXPECTED(zend_undefined_index_write(ht, offset_key))) {
+								return NULL;
+							}
 							/* break missing intentionally */
 						case BP_VAR_W:
 							ZVAL_NULL(retval);
@@ -2079,9 +2117,10 @@ str_index:
 					retval = &EG(uninitialized_zval);
 					break;
 				case BP_VAR_RW:
-					zend_undefined_index(offset_key);
-					retval = zend_hash_update(ht, offset_key, &EG(uninitialized_zval));
-					break;
+					if (UNEXPECTED(zend_undefined_index_write(ht, offset_key) == FAILURE)) {
+						return NULL;
+					}
+					/* break missing intentionally */
 				case BP_VAR_W:
 					retval = zend_hash_add_new(ht, offset_key, &EG(uninitialized_zval));
 					break;
@@ -2146,7 +2185,9 @@ fetch_from_array:
 		} else {
 			retval = zend_fetch_dimension_address_inner(Z_ARRVAL_P(container), dim, dim_type, type EXECUTE_DATA_CC);
 			if (UNEXPECTED(!retval)) {
-				ZVAL_UNDEF(result);
+				/* This may fail without throwing if the array was modified while throwing an
+				 * undefined index error. */
+				ZVAL_NULL(result);
 				return;
 			}
 		}
@@ -4322,6 +4363,7 @@ static zend_always_inline zend_execute_data *_zend_vm_stack_push_call_frame(uint
 	if (check_exception) { \
 		OPLINE = EX(opline) + (skip); \
 	} else { \
+		ZEND_ASSERT(!EG(exception)); \
 		OPLINE = opline + (skip); \
 	} \
 	ZEND_VM_CONTINUE()

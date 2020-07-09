@@ -513,8 +513,7 @@ PHP_MINFO_FUNCTION(soap)
 }
 
 
-/* {{{ proto object SoapParam::__construct(mixed data, string name)
-   SoapParam constructor */
+/* {{{ SoapParam constructor */
 PHP_METHOD(SoapParam, __construct)
 {
 	zval *data;
@@ -537,8 +536,7 @@ PHP_METHOD(SoapParam, __construct)
 /* }}} */
 
 
-/* {{{ proto object SoapHeader::__construct(string namespace, string name [, mixed data [, bool mustUnderstand [, mixed actor]]])
-   SoapHeader constructor */
+/* {{{ SoapHeader constructor */
 PHP_METHOD(SoapHeader, __construct)
 {
 	zval *data = NULL, *actor = NULL;
@@ -580,8 +578,7 @@ PHP_METHOD(SoapHeader, __construct)
 }
 /* }}} */
 
-/* {{{ proto object SoapFault::__construct(string faultcode, string faultstring [, string faultactor [, mixed detail [, string faultname [, mixed headerfault]]]])
-   SoapFault constructor */
+/* {{{ SoapFault constructor */
 PHP_METHOD(SoapFault, __construct)
 {
 	char *fault_string = NULL, *fault_code = NULL, *fault_actor = NULL, *name = NULL, *fault_code_ns = NULL;
@@ -631,8 +628,7 @@ PHP_METHOD(SoapFault, __construct)
 }
 /* }}} */
 
-/* {{{ proto object SoapFault::SoapFault(string faultcode, string faultstring [, string faultactor [, mixed detail [, string faultname [, mixed headerfault]]]])
-   SoapFault constructor */
+/* {{{ SoapFault constructor */
 PHP_METHOD(SoapFault, __toString)
 {
 	zval *faultcode, *faultstring, *file, *line, trace, rv1, rv2, rv3, rv4;
@@ -658,7 +654,6 @@ PHP_METHOD(SoapFault, __toString)
 	fci.retval = &trace;
 	fci.param_count = 0;
 	fci.params = NULL;
-	fci.no_separation = 1;
 
 	zend_call_function(&fci, NULL);
 
@@ -683,8 +678,7 @@ PHP_METHOD(SoapFault, __toString)
 }
 /* }}} */
 
-/* {{{ proto object SoapVar::__construct(mixed data, int encoding [, string type_name [, string type_namespace [, string node_name [, string node_namespace]]]])
-   SoapVar constructor */
+/* {{{ SoapVar constructor */
 PHP_METHOD(SoapVar, __construct)
 {
 	zval *data, *type, *this_ptr;
@@ -830,8 +824,7 @@ static HashTable* soap_create_typemap(sdlPtr sdl, HashTable *ht) /* {{{ */
 }
 /* }}} */
 
-/* {{{ proto object SoapServer::__construct(mixed wsdl [, array options])
-   SoapServer constructor */
+/* {{{ SoapServer constructor */
 PHP_METHOD(SoapServer, __construct)
 {
 	soapServicePtr service;
@@ -958,8 +951,7 @@ PHP_METHOD(SoapServer, __construct)
 /* }}} */
 
 
-/* {{{ proto object SoapServer::setPersistence(int mode )
-   Sets persistence mode of SoapServer */
+/* {{{ Sets persistence mode of SoapServer */
 PHP_METHOD(SoapServer, setPersistence)
 {
 	soapServicePtr service;
@@ -989,8 +981,7 @@ PHP_METHOD(SoapServer, setPersistence)
 /* }}} */
 
 
-/* {{{ proto void SoapServer::setClass(string class_name [, mixed args])
-   Sets class which will handle SOAP requests */
+/* {{{ Sets class which will handle SOAP requests */
 PHP_METHOD(SoapServer, setClass)
 {
 	soapServicePtr service;
@@ -1032,8 +1023,7 @@ PHP_METHOD(SoapServer, setClass)
 /* }}} */
 
 
-/* {{{ proto void SoapServer::setObject(object obj)
-   Sets object which will handle SOAP requests */
+/* {{{ Sets object which will handle SOAP requests */
 PHP_METHOD(SoapServer, setObject)
 {
 	soapServicePtr service;
@@ -1056,8 +1046,7 @@ PHP_METHOD(SoapServer, setObject)
 /* }}} */
 
 
-/* {{{ proto array SoapServer::getFunctions(void)
-   Returns list of defined functions */
+/* {{{ Returns list of defined functions */
 PHP_METHOD(SoapServer, getFunctions)
 {
 	soapServicePtr  service;
@@ -1100,8 +1089,7 @@ PHP_METHOD(SoapServer, getFunctions)
 /* }}} */
 
 
-/* {{{ proto void SoapServer::addFunction(mixed functions)
-   Adds one or several functions those will handle SOAP requests */
+/* {{{ Adds one or several functions those will handle SOAP requests */
 PHP_METHOD(SoapServer, addFunction)
 {
 	soapServicePtr service;
@@ -1205,8 +1193,7 @@ static void _soap_server_exception(soapServicePtr service, sdlFunctionPtr functi
 }
 /* }}} */
 
-/* {{{ proto void SoapServer::handle([string soap_request])
-   Handles a SOAP request */
+/* {{{ Handles a SOAP request */
 PHP_METHOD(SoapServer, handle)
 {
 	int soap_version, old_soap_version;
@@ -1382,8 +1369,10 @@ PHP_METHOD(SoapServer, handle)
 	xmlFreeDoc(doc_request);
 
 	if (EG(exception)) {
-		php_output_discard();
-		_soap_server_exception(service, function, ZEND_THIS);
+		if (!zend_is_unwind_exit(EG(exception))) {
+			php_output_discard();
+			_soap_server_exception(service, function, ZEND_THIS);
+		}
 		goto fail;
 	}
 
@@ -1576,15 +1565,17 @@ PHP_METHOD(SoapServer, handle)
 	efree(fn_name);
 
 	if (EG(exception)) {
-		php_output_discard();
-		_soap_server_exception(service, function, ZEND_THIS);
-		if (service->type == SOAP_CLASS) {
+		if (!zend_is_unwind_exit(EG(exception))) {
+			php_output_discard();
+			_soap_server_exception(service, function, ZEND_THIS);
+			if (service->type == SOAP_CLASS) {
 #if defined(HAVE_PHP_SESSION) && !defined(COMPILE_DL_SESSION)
-			if (soap_obj && service->soap_class.persistence != SOAP_PERSISTENCE_SESSION) {
+				if (soap_obj && service->soap_class.persistence != SOAP_PERSISTENCE_SESSION) {
 #else
-			if (soap_obj) {
+				if (soap_obj) {
 #endif
-				zval_ptr_dtor(soap_obj);
+					zval_ptr_dtor(soap_obj);
+				}
 			}
 		}
 		goto fail;
@@ -1704,8 +1695,7 @@ fail:
 }
 /* }}} */
 
-/* {{{ proto SoapServer::fault ( staring code, string string [, string actor [, mixed details [, string name]]] )
-   Issue SoapFault indicating an error */
+/* {{{ Issue SoapFault indicating an error */
 PHP_METHOD(SoapServer, fault)
 {
 	char *code, *string, *actor=NULL, *name=NULL;
@@ -1732,7 +1722,7 @@ PHP_METHOD(SoapServer, fault)
 }
 /* }}} */
 
-/* {{{ proto SoapServer::addSoapHeader(SoapHeader $object) */
+/* {{{ */
 PHP_METHOD(SoapServer, addSoapHeader)
 {
 	soapServicePtr service;
@@ -1948,7 +1938,7 @@ static void soap_error_handler(int error_num, const char *error_filename, const 
 }
 /* }}} */
 
-/* {{{ proto use_soap_error_handler([bool $handler = TRUE]) */
+/* {{{ */
 PHP_FUNCTION(use_soap_error_handler)
 {
 	zend_bool handler = 1;
@@ -1960,7 +1950,7 @@ PHP_FUNCTION(use_soap_error_handler)
 }
 /* }}} */
 
-/* {{{ proto is_soap_fault(mixed $object) */
+/* {{{ */
 PHP_FUNCTION(is_soap_fault)
 {
 	zval *fault;
@@ -1976,8 +1966,7 @@ PHP_FUNCTION(is_soap_fault)
 
 /* SoapClient functions */
 
-/* {{{ proto object SoapClient::__construct(mixed wsdl [, array options])
-   SoapClient constructor */
+/* {{{ SoapClient constructor */
 PHP_METHOD(SoapClient, __construct)
 {
 
@@ -2520,8 +2509,7 @@ static void verify_soap_headers_array(HashTable *ht) /* {{{ */
 }
 /* }}} */
 
-/* {{{ proto mixed SoapClient::__call(string function_name, array arguments [, array options [, array input_headers [, array &output_headers]]])
-   Calls a SOAP function */
+/* {{{ Calls a SOAP function */
 PHP_METHOD(SoapClient, __call)
 {
 	char *function, *location=NULL, *soap_action = NULL, *uri = NULL;
@@ -2631,8 +2619,7 @@ cleanup:
 /* }}} */
 
 
-/* {{{ proto array SoapClient::__getFunctions(void)
-   Returns list of SOAP functions */
+/* {{{ Returns list of SOAP functions */
 PHP_METHOD(SoapClient, __getFunctions)
 {
 	sdlPtr sdl;
@@ -2658,8 +2645,7 @@ PHP_METHOD(SoapClient, __getFunctions)
 /* }}} */
 
 
-/* {{{ proto array SoapClient::__getTypes(void)
-   Returns list of SOAP types */
+/* {{{ Returns list of SOAP types */
 PHP_METHOD(SoapClient, __getTypes)
 {
 	sdlPtr sdl;
@@ -2687,8 +2673,7 @@ PHP_METHOD(SoapClient, __getTypes)
 /* }}} */
 
 
-/* {{{ proto string SoapClient::__getLastRequest(void)
-   Returns last SOAP request */
+/* {{{ Returns last SOAP request */
 PHP_METHOD(SoapClient, __getLastRequest)
 {
 	zval *tmp;
@@ -2706,8 +2691,7 @@ PHP_METHOD(SoapClient, __getLastRequest)
 /* }}} */
 
 
-/* {{{ proto object SoapClient::__getLastResponse(void)
-   Returns last SOAP response */
+/* {{{ Returns last SOAP response */
 PHP_METHOD(SoapClient, __getLastResponse)
 {
 	zval *tmp;
@@ -2725,8 +2709,7 @@ PHP_METHOD(SoapClient, __getLastResponse)
 /* }}} */
 
 
-/* {{{ proto string SoapClient::__getLastRequestHeaders(void)
-   Returns last SOAP request headers */
+/* {{{ Returns last SOAP request headers */
 PHP_METHOD(SoapClient, __getLastRequestHeaders)
 {
 	zval *tmp;
@@ -2744,8 +2727,7 @@ PHP_METHOD(SoapClient, __getLastRequestHeaders)
 /* }}} */
 
 
-/* {{{ proto string SoapClient::__getLastResponseHeaders(void)
-   Returns last SOAP response headers */
+/* {{{ Returns last SOAP response headers */
 PHP_METHOD(SoapClient, __getLastResponseHeaders)
 {
 	zval *tmp;
@@ -2763,8 +2745,7 @@ PHP_METHOD(SoapClient, __getLastResponseHeaders)
 /* }}} */
 
 
-/* {{{ proto string SoapClient::__doRequest()
-   SoapClient::__doRequest() */
+/* {{{ SoapClient::__doRequest() */
 PHP_METHOD(SoapClient, __doRequest)
 {
 	zend_string *buf;
@@ -2796,8 +2777,7 @@ PHP_METHOD(SoapClient, __doRequest)
 }
 /* }}} */
 
-/* {{{ proto void SoapClient::__setCookie(string name [, strung value])
-   Sets cookie thet will sent with SOAP request.
+/* {{{ Sets cookie thet will sent with SOAP request.
    The call to this function will effect all following calls of SOAP methods.
    If value is not specified cookie is removed. */
 PHP_METHOD(SoapClient, __setCookie)
@@ -2835,8 +2815,7 @@ PHP_METHOD(SoapClient, __setCookie)
 }
 /* }}} */
 
-/* {{{ proto array SoapClient::__getCookies(void)
-   Returns list of cookies */
+/* {{{ Returns list of cookies */
 PHP_METHOD(SoapClient, __getCookies)
 {
 	zval *cookies;
@@ -2855,8 +2834,7 @@ PHP_METHOD(SoapClient, __getCookies)
 }
 /* }}} */
 
-/* {{{ proto void SoapClient::__setSoapHeaders(array SoapHeaders)
-   Sets SOAP headers for subsequent calls (replaces any previous
+/* {{{ Sets SOAP headers for subsequent calls (replaces any previous
    values).
    If no value is specified, all of the headers are removed. */
 PHP_METHOD(SoapClient, __setSoapHeaders)
@@ -2889,8 +2867,7 @@ PHP_METHOD(SoapClient, __setSoapHeaders)
 }
 /* }}} */
 
-/* {{{ proto string SoapClient::__setLocation([string new_location])
-   Sets the location option (the endpoint URL that will be touched by the
+/* {{{ Sets the location option (the endpoint URL that will be touched by the
    following SOAP requests).
    If new_location is not specified or null then SoapClient will use endpoint
    from WSDL file.

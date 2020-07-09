@@ -17,7 +17,7 @@ dnl Basic autoconf initialization, generation of config.nice.
 dnl ----------------------------------------------------------------------------
 
 AC_PREREQ([2.68])
-AC_INIT([PHP],[8.0.0alpha1],[https://bugs.php.net],[php],[https://www.php.net])
+AC_INIT([PHP],[8.0.0alpha2],[https://www.php.net])
 AC_CONFIG_SRCDIR([main/php_version.h])
 AC_CONFIG_AUX_DIR([build])
 AC_PRESERVE_HELP_ORDER
@@ -51,10 +51,6 @@ AH_BOTTOM([
 
 #ifdef HAVE_SYS_SELECT_H
 #include <sys/select.h>
-#endif
-
-#ifdef HAVE_IEEEFP_H
-# include <ieeefp.h>
 #endif
 
 #include <string.h>
@@ -491,6 +487,20 @@ PHP_CHECK_BUILTIN_CPU_INIT
 dnl Check __builtin_cpu_supports
 PHP_CHECK_BUILTIN_CPU_SUPPORTS
 
+dnl Check for __alignof__ support in the compiler
+AC_CACHE_CHECK(whether the compiler supports __alignof__, ac_cv_alignof_exists,[
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+]],[[
+  int align = __alignof__(int);
+]])],[
+  ac_cv_alignof_exists=yes
+],[
+  ac_cv_alignof_exists=no
+])])
+if test "$ac_cv_alignof_exists" = "yes"; then
+  AC_DEFINE([HAVE_ALIGNOF], 1, [whether the compiler supports __alignof__])
+fi
+
 dnl Check for structure members.
 AC_CHECK_MEMBERS([struct tm.tm_gmtoff],,,[#include <time.h>])
 AC_CHECK_MEMBERS([struct stat.st_blksize, struct stat.st_rdev])
@@ -531,7 +541,6 @@ alphasort \
 asctime_r \
 chroot \
 ctime_r \
-crypt \
 explicit_memset \
 flock \
 ftok \
@@ -648,11 +657,6 @@ AC_FUNC_ALLOCA
 PHP_TIME_R_TYPE
 PHP_CHECK_IN_ADDR_T
 
-AC_CHECK_FUNCS(crypt_r, [ php_crypt_r="1" ], [ php_crypt_r="0" ])
-if test "x$php_crypt_r" = "x1"; then
-  PHP_CRYPT_R_STYLE
-fi
-
 AC_CACHE_CHECK([for aarch64 CRC32 API], ac_cv_func___crc32d,
 [AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <arm_acle.h>]],[[__crc32d(0, 0);]])],[ac_cv_func___crc32d=yes],[ac_cv_func___crc32d="no"])])
 if test "$ac_cv_func___crc32d" = "yes"; then
@@ -698,8 +702,8 @@ if test "$PHP_VALGRIND" != "no"; then
   fi
 fi
 
-dnl Check for openpty. It may require linking against libutil.
-PHP_CHECK_FUNC(openpty, util)
+dnl Check for openpty. It may require linking against libutil or libbsd.
+PHP_CHECK_FUNC(openpty, util, bsd)
 
 dnl General settings.
 dnl ----------------------------------------------------------------------------
@@ -1269,6 +1273,11 @@ PHP_UNAME=${PHP_UNAME:-$UNAME}
 AC_DEFINE_UNQUOTED(PHP_UNAME,"$PHP_UNAME",[uname -a output])
 PHP_OS=`uname | xargs`
 AC_DEFINE_UNQUOTED(PHP_OS,"$PHP_OS",[uname output])
+PHP_BUILD_SYSTEM=${PHP_BUILD_SYSTEM:-$PHP_UNAME}
+AC_DEFINE_UNQUOTED(PHP_BUILD_SYSTEM,"$PHP_BUILD_SYSTEM",[builder uname output])
+if test -n "${PHP_BUILD_PROVIDER}"; then
+  AC_DEFINE_UNQUOTED(PHP_BUILD_PROVIDER,"$PHP_BUILD_PROVIDER",[build provider])
+fi
 
 PHP_SUBST_OLD(PHP_INSTALLED_SAPIS)
 

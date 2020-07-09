@@ -266,10 +266,6 @@ static void zend_generator_free_storage(zend_object *object) /* {{{ */
 	}
 
 	zend_object_std_dtor(&generator->std);
-
-	if (generator->iterator) {
-		zend_iterator_dtor(generator->iterator);
-	}
 }
 /* }}} */
 
@@ -742,9 +738,11 @@ try_again:
 	{
 		/* Backup executor globals */
 		zend_execute_data *original_execute_data = EG(current_execute_data);
+		uint32_t original_jit_trace_num = EG(jit_trace_num);
 
 		/* Set executor globals */
 		EG(current_execute_data) = generator->execute_data;
+		EG(jit_trace_num) = 0;
 
 		/* We want the backtrace to look as if the generator function was
 		 * called from whatever method we are current running (e.g. next()).
@@ -777,6 +775,7 @@ try_again:
 
 		/* Restore executor globals */
 		EG(current_execute_data) = original_execute_data;
+		EG(jit_trace_num) = original_jit_trace_num;
 
 		/* If an exception was thrown in the generator we have to internally
 		 * rethrow it in the parent scope.
@@ -829,8 +828,7 @@ static inline void zend_generator_rewind(zend_generator *generator) /* {{{ */
 }
 /* }}} */
 
-/* {{{ proto void Generator::rewind()
- * Rewind the generator */
+/* {{{ Rewind the generator */
 ZEND_METHOD(Generator, rewind)
 {
 	zend_generator *generator;
@@ -843,8 +841,7 @@ ZEND_METHOD(Generator, rewind)
 }
 /* }}} */
 
-/* {{{ proto bool Generator::valid()
- * Check whether the generator is valid */
+/* {{{ Check whether the generator is valid */
 ZEND_METHOD(Generator, valid)
 {
 	zend_generator *generator;
@@ -861,8 +858,7 @@ ZEND_METHOD(Generator, valid)
 }
 /* }}} */
 
-/* {{{ proto mixed Generator::current()
- * Get the current value */
+/* {{{ Get the current value */
 ZEND_METHOD(Generator, current)
 {
 	zend_generator *generator, *root;
@@ -882,8 +878,7 @@ ZEND_METHOD(Generator, current)
 }
 /* }}} */
 
-/* {{{ proto mixed Generator::key()
- * Get the current key */
+/* {{{ Get the current key */
 ZEND_METHOD(Generator, key)
 {
 	zend_generator *generator, *root;
@@ -903,8 +898,7 @@ ZEND_METHOD(Generator, key)
 }
 /* }}} */
 
-/* {{{ proto void Generator::next()
- * Advances the generator */
+/* {{{ Advances the generator */
 ZEND_METHOD(Generator, next)
 {
 	zend_generator *generator;
@@ -919,8 +913,7 @@ ZEND_METHOD(Generator, next)
 }
 /* }}} */
 
-/* {{{ proto mixed Generator::send(mixed value)
- * Sends a value to the generator */
+/* {{{ Sends a value to the generator */
 ZEND_METHOD(Generator, send)
 {
 	zval *value;
@@ -956,8 +949,7 @@ ZEND_METHOD(Generator, send)
 }
 /* }}} */
 
-/* {{{ proto mixed Generator::throw(Exception exception)
- * Throws an exception into the generator */
+/* {{{ Throws an exception into the generator */
 ZEND_METHOD(Generator, throw)
 {
 	zval *exception;
@@ -994,8 +986,7 @@ ZEND_METHOD(Generator, throw)
 }
 /* }}} */
 
-/* {{{ proto mixed Generator::getReturn()
- * Retrieves the return value of the generator */
+/* {{{ Retrieves the return value of the generator */
 ZEND_METHOD(Generator, getReturn)
 {
 	zend_generator *generator;
@@ -1024,8 +1015,6 @@ ZEND_METHOD(Generator, getReturn)
 
 static void zend_generator_iterator_dtor(zend_object_iterator *iterator) /* {{{ */
 {
-	zend_generator *generator = (zend_generator*)Z_OBJ(iterator->data);
-	generator->iterator = NULL;
 	zval_ptr_dtor(&iterator->data);
 }
 /* }}} */
@@ -1090,6 +1079,14 @@ static void zend_generator_iterator_rewind(zend_object_iterator *iterator) /* {{
 }
 /* }}} */
 
+static HashTable *zend_generator_iterator_get_gc(
+		zend_object_iterator *iterator, zval **table, int *n)
+{
+	*table = &iterator->data;
+	*n = 1;
+	return NULL;
+}
+
 static const zend_object_iterator_funcs zend_generator_iterator_functions = {
 	zend_generator_iterator_dtor,
 	zend_generator_iterator_valid,
@@ -1097,7 +1094,8 @@ static const zend_object_iterator_funcs zend_generator_iterator_functions = {
 	zend_generator_iterator_get_key,
 	zend_generator_iterator_move_forward,
 	zend_generator_iterator_rewind,
-	NULL
+	NULL,
+	zend_generator_iterator_get_gc,
 };
 
 zend_object_iterator *zend_generator_get_iterator(zend_class_entry *ce, zval *object, int by_ref) /* {{{ */
@@ -1115,8 +1113,7 @@ zend_object_iterator *zend_generator_get_iterator(zend_class_entry *ce, zval *ob
 		return NULL;
 	}
 
-	iterator = generator->iterator = emalloc(sizeof(zend_object_iterator));
-
+	iterator = emalloc(sizeof(zend_object_iterator));
 	zend_iterator_init(iterator);
 
 	iterator->funcs = &zend_generator_iterator_functions;

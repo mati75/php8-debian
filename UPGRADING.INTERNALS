@@ -14,10 +14,12 @@ PHP 8.0 INTERNALS UPGRADE NOTES
   k. The 'I' length modifier
   l. Some VM instructions switched to IS_TMP_VAR result instead of IS_VAR
   m. All internal functions must have arginfo
-  n. zend_hash_sort compare function signature change
+  n. zend_hash_sort compare function and zend_hash_sort signature change
   o. cast_object() object handler is now required
   p. ARG_COUNT() macro removed
   q. GC_COLLECTABLE flag
+  r. Cannot implement Traversable only
+  s. zend_fcall_info no_separation flag removed
 
 2. Build system changes
   a. Abstract
@@ -112,6 +114,8 @@ PHP 8.0 INTERNALS UPGRADE NOTES
          typedef int (*bucket_compare_func_t)(Bucket *a, Bucket *b);
 
      Previously compare_func_t was used, which accepted void pointers.
+     Furthermore, the return type of zend_hash_sort and zend_ts_hash_sort has
+     been changed from int to void; these functions always succeed.
 
   o. The cast_object() handler is now required, i.e. must be non-null. You can
      indicate that casting is not supported by always returning FAILURE.
@@ -122,16 +126,42 @@ PHP 8.0 INTERNALS UPGRADE NOTES
      Assignments to GC_TYPE_INFO() might need to be changed to properly
      set the value of the GC_NOT_COLLECTABLE flag.
 
+  r. Just for for userland classes, it is no longer allowed to implement only
+     the Traversable interface. Instead, it is necessary to implement either
+     Iterator or IteratorAggregate. You can do the latter by implementing
+     zend_ce_aggregate and providing the following method implementation:
+
+         ZEND_METHOD(MyClass, getIterator) {
+             ZEND_PARSE_PARAMETERS_NONE();
+             zend_create_internal_iterator_zval(return_value, ZEND_THIS);
+         }
+
+   s. The zend_fcall_info no_separation flag has been removed, and separation is
+      never allowed. If you wish to pass (or allow passing) arguments by
+      reference, explicitly create those arguments as references using
+      ZEND_MAKE_REF.
+
 ========================
 2. Build system changes
 ========================
 
   a. Abstract
-    - Symbol HAVE_HASH_EXT is removed and is no longer defined. It should be
-      considered to have hash extension always available since PHP 7.4.
-    - Symbol HAVE_PCRE is removed and is no longer defined. It should be
-      considered to have pcre extension always available since PHP 7.4.
-    - Symbol HAVE_LOCALE_H has been removed and is no longer defined.
+    1.  Symbol HAVE_HASH_EXT is removed and is no longer defined. It should be
+        considered to have hash extension always available since PHP 7.4.
+
+    2.  Symbol HAVE_PCRE is removed and is no longer defined. It should be
+        considered to have pcre extension always available since PHP 7.4.
+
+    3.  Symbol HAVE_LOCALE_H has been removed and is no longer defined.
+
+    4.  --disable-inline-optimization (which actually disabled all compiler
+        optimizations) has been removed. If you wish to build PHP on a host
+        with extremely constrained memory, and compilation fails with an "out
+        of memory" message, add "-O0" to CFLAGS.
+
+    5.  build system and provider are displayed in phpinfo from enviroment:
+        - PHP_BUILD_SYSTEM (default is same as PHP_UNAME)
+        - PHP_BUILD_PROVIDER (no default)
 
   b. Unix build system changes
 
