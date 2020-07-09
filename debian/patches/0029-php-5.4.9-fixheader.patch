@@ -8,15 +8,15 @@ Make generated php_config.h constant across rebuilds.
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/configure.ac b/configure.ac
-index aa4becc..706b91d 100644
+index 3d12dc7..df7f378 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -1331,7 +1331,7 @@ PHP_BUILD_DATE=`date -u +%Y-%m-%d`
  fi
  AC_DEFINE_UNQUOTED(PHP_BUILD_DATE,"$PHP_BUILD_DATE",[PHP build date])
  
--PHP_UNAME=`uname -a | xargs`
-+PHP_UNAME=`uname | xargs`
+-UNAME=`uname -a | xargs`
++UNAME=`uname | xargs`
+ PHP_UNAME=${PHP_UNAME:-$UNAME}
  AC_DEFINE_UNQUOTED(PHP_UNAME,"$PHP_UNAME",[uname -a output])
  PHP_OS=`uname | xargs`
- AC_DEFINE_UNQUOTED(PHP_OS,"$PHP_OS",[uname output])
