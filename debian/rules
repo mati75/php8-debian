@@ -481,12 +481,6 @@ override_dh_install-arch: remove-files-stamp prepare-fpm-pools
 	mv -u debian/tmp/usr/lib/apache2/modules/libphp$(PHP_MAJOR_VERSION).so debian/tmp/usr/lib/apache2/modules/libphp$(PHP_NAME_VERSION).so
 # Rename embed SAPI
 	mv -u debian/tmp/usr/lib/php/libphp$(PHP_MAJOR_VERSION).so debian/tmp/usr/lib/libphp$(PHP_NAME_VERSION).so
-# Rename phar binaries
-	mv -u debian/tmp/usr/bin/phar.phar debian/tmp/usr/bin/phar.phar$(PHP_NAME_VERSION)
-	rm debian/tmp/usr/bin/phar
-	ln -s phar.phar$(PHP_NAME_VERSION) debian/tmp/usr/bin/phar$(PHP_NAME_VERSION)
-	mv -u debian/tmp/usr/share/man/man1/phar.phar.1 debian/tmp/usr/share/man/man1/phar.phar$(PHP_NAME_VERSION).1
-	mv -u debian/tmp/usr/share/man/man1/phar.1 debian/tmp/usr/share/man/man1/phar$(PHP_NAME_VERSION).1
 # Install extra CGI-BIN
 	install -d -m 755 debian/tmp/usr/lib/cgi-bin/
 	ln debian/tmp/usr/bin/php-cgi$(PHP_NAME_VERSION) debian/tmp/usr/lib/cgi-bin/php$(PHP_NAME_VERSION)
