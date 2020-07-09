@@ -1,5 +1,40 @@
 PHP                                                                        NEWS
 |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+09 Jul 2020, PHP 7.3.20
+
+- Core:
+  . Fixed bug #79650 (php-win.exe 100% cpu lockup). (cmb)
+  . Fixed bug #79668 (get_defined_functions(true) may miss functions). (cmb,
+    Nikita)
+  . Fixed possibly unsupported timercmp() usage. (cmb)
+
+- Exif:
+  . Fixed bug #79687 (Sony picture - PHP Warning - Make, Model, MakerNotes). 
+    (cmb)
+
+- Filter:
+  . Fixed bug #73527 (Invalid memory access in php_filter_strip). (cmb)
+
+- GD:
+  . Fixed bug #79676 (imagescale adds black border with IMG_BICUBIC). (cmb)
+
+- OpenSSL:
+  . Fixed bug #62890 (default_socket_timeout=-1 causes connection to timeout).
+    (cmb)
+
+- PDO SQLite:
+  . Fixed bug #79664 (PDOStatement::getColumnMeta fails on empty result set).
+    (cmb)
+
+- SPL:
+  . Fixed bug #79710 (Reproducible segfault in error_handler during GC
+    involved an SplFileObject). (Nikita)
+
+- Standard:
+  . Fixed bug #74267 (segfault with streams and invalid data). (cmb)
+  . Fixed bug #79579 (ZTS build of PHP 7.3.17 doesn't handle ERANGE for
+    posix_getgrgid and others). (Böszörményi Zoltán)
+
 11 Jun 2020, PHP 7.3.19
 
 - Core:
