@@ -2,8 +2,9 @@ php7.4 (7.4.8-1) unstable; urgency=medium
 
   * Finish updating the packaging to dh compat level 10
   * New upstream version 7.4.8
+  * Adjust for upstream phar.phar -> phar7.4.phar binary rename
 
- -- Ondřej Surý <ondrej@debian.org>  Thu, 09 Jul 2020 18:25:24 +0200
+ -- Ondřej Surý <ondrej@debian.org>  Mon, 13 Jul 2020 18:35:53 +0200
 
 php7.4 (7.4.7-1) unstable; urgency=medium
 
