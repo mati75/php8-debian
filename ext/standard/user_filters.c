@@ -39,8 +39,22 @@ static int le_bucket;
 
 /* define the base filter class */
 
-PHP_FUNCTION(user_filter_nop)
+PHP_METHOD(php_user_filter, filter)
 {
+	zval *in, *out, *consumed, *closing;
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "zzzz", &in, &out, &consumed, &closing) == FAILURE) {
+		RETURN_THROWS();
+	}
+}
+
+PHP_METHOD(php_user_filter, onCreate)
+{
+	ZEND_PARSE_PARAMETERS_NONE();
+}
+
+PHP_METHOD(php_user_filter, onClose)
+{
+	ZEND_PARSE_PARAMETERS_NONE();
 }
 
 static zend_class_entry user_filter_class_entry;
@@ -415,7 +429,7 @@ static void php_stream_bucket_attach(int append, INTERNAL_FUNCTION_PARAMETERS)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (NULL == (pzbucket = zend_hash_str_find(Z_OBJPROP_P(zobject), "bucket", sizeof("bucket")-1))) {
-		zend_argument_value_error(2, "must be an object that has a 'bucket' property");
+		zend_argument_value_error(2, "must be an object that has a \"bucket\" property");
 		RETURN_THROWS();
 	}
 

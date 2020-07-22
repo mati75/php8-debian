@@ -17,7 +17,7 @@ dnl Basic autoconf initialization, generation of config.nice.
 dnl ----------------------------------------------------------------------------
 
 AC_PREREQ([2.68])
-AC_INIT([PHP],[8.0.0alpha2],[https://www.php.net])
+AC_INIT([PHP],[8.0.0alpha3],[https://bugs.php.net],[php],[https://www.php.net])
 AC_CONFIG_SRCDIR([main/php_version.h])
 AC_CONFIG_AUX_DIR([build])
 AC_PRESERVE_HELP_ORDER
@@ -1277,6 +1277,12 @@ PHP_BUILD_SYSTEM=${PHP_BUILD_SYSTEM:-$PHP_UNAME}
 AC_DEFINE_UNQUOTED(PHP_BUILD_SYSTEM,"$PHP_BUILD_SYSTEM",[builder uname output])
 if test -n "${PHP_BUILD_PROVIDER}"; then
   AC_DEFINE_UNQUOTED(PHP_BUILD_PROVIDER,"$PHP_BUILD_PROVIDER",[build provider])
+fi
+if test -n "${PHP_BUILD_COMPILER}"; then
+  AC_DEFINE_UNQUOTED(COMPILER,"$PHP_BUILD_COMPILER",[used compiler for build])
+fi
+if test -n "${PHP_BUILD_ARCH}"; then
+  AC_DEFINE_UNQUOTED(ARCHITECTURE,"$PHP_BUILD_ARCH",[build architecture])
 fi
 
 PHP_SUBST_OLD(PHP_INSTALLED_SAPIS)

@@ -257,7 +257,7 @@ static ZEND_COLD zend_never_inline void zend_bad_property_access(zend_property_i
 
 static ZEND_COLD zend_never_inline void zend_bad_property_name(void) /* {{{ */
 {
-	zend_throw_error(NULL, "Cannot access property started with '\\0'");
+	zend_throw_error(NULL, "Cannot access property starting with \"\\0\"");
 }
 /* }}} */
 
@@ -310,7 +310,11 @@ dynamic:
 			if (flags & ZEND_ACC_CHANGED) {
 				zend_property_info *p = zend_get_parent_private_property(scope, ce, member);
 
-				if (p) {
+				/* If there is a public/protected instance property on ce, don't try to use a
+				 * private static property on scope. If both are static, prefer the static
+				 * property on scope. This will throw a static property notice, rather than
+				 * a visibility error. */
+				if (p && (!(p->flags & ZEND_ACC_STATIC) || (flags & ZEND_ACC_STATIC))) {
 					property_info = p;
 					flags = property_info->flags;
 					goto found;
@@ -1157,7 +1161,11 @@ static zend_always_inline zend_function *zend_get_user_call_function(zend_class_
 
 static ZEND_COLD zend_never_inline void zend_bad_method_call(zend_function *fbc, zend_string *method_name, zend_class_entry *scope) /* {{{ */
 {
-	zend_throw_error(NULL, "Call to %s method %s::%s() from context '%s'", zend_visibility_string(fbc->common.fn_flags), ZEND_FN_SCOPE_NAME(fbc), ZSTR_VAL(method_name), scope ? ZSTR_VAL(scope->name) : "");
+	zend_throw_error(NULL, "Call to %s method %s::%s() from %s%s",
+		zend_visibility_string(fbc->common.fn_flags), ZEND_FN_SCOPE_NAME(fbc), ZSTR_VAL(method_name),
+		scope ? "scope " : "global scope",
+		scope ? ZSTR_VAL(scope->name) : ""
+	);
 }
 /* }}} */
 
@@ -1295,7 +1303,7 @@ ZEND_API zend_function *zend_std_get_static_method(zend_class_entry *ce, zend_st
 	/* right now this function is used for non static method lookup too */
 	/* Is the function static */
 	if (UNEXPECTED(!(fbc->common.fn_flags & ZEND_ACC_STATIC))) {
-		zend_error_noreturn(E_ERROR, "Cannot call non static method %s::%s() without object", ZEND_FN_SCOPE_NAME(fbc), ZSTR_VAL(fbc->common.function_name));
+		zend_error_noreturn(E_ERROR, "Cannot call non-static method %s::%s() without object", ZEND_FN_SCOPE_NAME(fbc), ZSTR_VAL(fbc->common.function_name));
 	}
 #endif
 	if (!(fbc->op_array.fn_flags & ZEND_ACC_PUBLIC)) {
@@ -1395,7 +1403,7 @@ ZEND_API zval *zend_std_get_static_property_with_info(zend_class_entry *ce, zend
 		} else {
 undeclared_property:
 			if (type != BP_VAR_IS) {
-				zend_throw_error(NULL, "Access to undeclared static property: %s::$%s", ZSTR_VAL(ce->name), ZSTR_VAL(property_name));
+				zend_throw_error(NULL, "Access to undeclared static property %s::$%s", ZSTR_VAL(ce->name), ZSTR_VAL(property_name));
 			}
 			return NULL;
 		}
@@ -1432,9 +1440,12 @@ ZEND_API ZEND_COLD zend_bool zend_std_unset_static_property(zend_class_entry *ce
 static ZEND_COLD zend_never_inline void zend_bad_constructor_call(zend_function *constructor, zend_class_entry *scope) /* {{{ */
 {
 	if (scope) {
-		zend_throw_error(NULL, "Call to %s %s::%s() from context '%s'", zend_visibility_string(constructor->common.fn_flags), ZSTR_VAL(constructor->common.scope->name), ZSTR_VAL(constructor->common.function_name), ZSTR_VAL(scope->name));
+		zend_throw_error(NULL, "Call to %s %s::%s() from scope %s",
+			zend_visibility_string(constructor->common.fn_flags), ZSTR_VAL(constructor->common.scope->name),
+			ZSTR_VAL(constructor->common.function_name), ZSTR_VAL(scope->name)
+		);
 	} else {
-		zend_throw_error(NULL, "Call to %s %s::%s() from invalid context", zend_visibility_string(constructor->common.fn_flags), ZSTR_VAL(constructor->common.scope->name), ZSTR_VAL(constructor->common.function_name));
+		zend_throw_error(NULL, "Call to %s %s::%s() from global scope", zend_visibility_string(constructor->common.fn_flags), ZSTR_VAL(constructor->common.scope->name), ZSTR_VAL(constructor->common.function_name));
 	}
 }
 /* }}} */

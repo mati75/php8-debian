@@ -40,6 +40,7 @@ ZEND_API zend_class_entry *zend_ce_argument_count_error;
 ZEND_API zend_class_entry *zend_ce_value_error;
 ZEND_API zend_class_entry *zend_ce_arithmetic_error;
 ZEND_API zend_class_entry *zend_ce_division_by_zero_error;
+ZEND_API zend_class_entry *zend_ce_unhandled_match_error;
 
 /* Internal pseudo-exception that is not exposed to userland. */
 static zend_class_entry zend_ce_unwind_exit;
@@ -315,6 +316,8 @@ ZEND_METHOD(Exception, __construct)
 
 ZEND_METHOD(Exception, __wakeup)
 {
+	ZEND_PARSE_PARAMETERS_NONE();
+
 	zval value, *pvalue;
 	zval *object = ZEND_THIS;
 	CHECK_EXC_TYPE(ZEND_STR_MESSAGE,  IS_STRING);
@@ -800,6 +803,10 @@ void zend_register_default_exception(void) /* {{{ */
 	zend_ce_division_by_zero_error->create_object = zend_default_exception_new;
 
 	INIT_CLASS_ENTRY(zend_ce_unwind_exit, "UnwindExit", NULL);
+
+	INIT_CLASS_ENTRY(ce, "UnhandledMatchError", NULL);
+	zend_ce_unhandled_match_error = zend_register_internal_class_ex(&ce, zend_ce_error);
+	zend_ce_unhandled_match_error->create_object = zend_default_exception_new;
 }
 /* }}} */
 
@@ -888,6 +895,7 @@ static void zend_error_va(int type, const char *file, uint32_t lineno, const cha
 	va_list args;
 	va_start(args, format);
 	zend_string *message = zend_vstrpprintf(0, format, args);
+	zend_error_notify_all_callbacks(type, file, lineno, message);
 	zend_error_cb(type, file, lineno, message);
 	zend_string_release(message);
 	va_end(args);
@@ -908,10 +916,10 @@ ZEND_API ZEND_COLD int zend_exception_error(zend_object *ex, int severity) /* {{
 		zend_string *message = zval_get_string(GET_PROPERTY(&exception, ZEND_STR_MESSAGE));
 		zend_string *file = zval_get_string(GET_PROPERTY_SILENT(&exception, ZEND_STR_FILE));
 		zend_long line = zval_get_long(GET_PROPERTY_SILENT(&exception, ZEND_STR_LINE));
+		int type = (ce_exception == zend_ce_parse_error ? E_PARSE : E_COMPILE_ERROR) | E_DONT_BAIL;
 
-		zend_error_cb(
-			(ce_exception == zend_ce_parse_error ? E_PARSE : E_COMPILE_ERROR) | E_DONT_BAIL,
-			ZSTR_VAL(file), line, message);
+		zend_error_notify_all_callbacks(type, ZSTR_VAL(file), line, message);
+		zend_error_cb(type, ZSTR_VAL(file), line, message);
 
 		zend_string_release_ex(file, 0);
 		zend_string_release_ex(message, 0);
@@ -941,7 +949,7 @@ ZEND_API ZEND_COLD int zend_exception_error(zend_object *ex, int severity) /* {{
 			}
 
 			zend_error_va(E_WARNING, (file && ZSTR_LEN(file) > 0) ? ZSTR_VAL(file) : NULL, line,
-				"Uncaught %s in exception handling during call to %s::__tostring()",
+				"Uncaught %s in exception handling during call to %s::__toString()",
 				ZSTR_VAL(Z_OBJCE(zv)->name), ZSTR_VAL(ce_exception->name));
 
 			if (file) {
@@ -963,7 +971,7 @@ ZEND_API ZEND_COLD int zend_exception_error(zend_object *ex, int severity) /* {{
 		/* We successfully unwound, nothing more to do */
 		result = SUCCESS;
 	} else {
-		zend_error(severity, "Uncaught exception '%s'", ZSTR_VAL(ce_exception->name));
+		zend_error(severity, "Uncaught exception %s", ZSTR_VAL(ce_exception->name));
 	}
 
 	OBJ_RELEASE(ex);

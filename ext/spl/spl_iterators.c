@@ -862,7 +862,8 @@ static zend_function *spl_recursive_it_get_method(zend_object **zobject, zend_st
 	zval                    *zobj;
 
 	if (!object->iterators) {
-		php_error_docref(NULL, E_ERROR, "The %s instance wasn't initialized properly", ZSTR_VAL((*zobject)->ce->name));
+		zend_throw_error(NULL, "The %s instance wasn't initialized properly", ZSTR_VAL((*zobject)->ce->name));
+		return NULL;
 	}
 	zobj = &object->iterators[level].zobject;
 
@@ -1289,7 +1290,6 @@ static spl_dual_it_object* spl_dual_it_construct(INTERNAL_FUNCTION_PARAMETERS, z
 		return NULL;
 	}
 
-	intern->dit_type = dit_type;
 	switch (dit_type) {
 		case DIT_LimitIterator: {
 			intern->u.limit.offset = 0; /* start at beginning */
@@ -1363,6 +1363,7 @@ static spl_dual_it_object* spl_dual_it_construct(INTERNAL_FUNCTION_PARAMETERS, z
 			if (zend_parse_parameters_none() == FAILURE) {
 				return NULL;
 			}
+			intern->dit_type = DIT_AppendIterator;
 			zend_replace_error_handling(EH_THROW, spl_ce_InvalidArgumentException, &error_handling);
 			spl_instantiate(spl_ce_ArrayIterator, &intern->u.append.zarrayit);
 			zend_call_method_with_0_params(Z_OBJ(intern->u.append.zarrayit), spl_ce_ArrayIterator, &spl_ce_ArrayIterator->constructor, "__construct", NULL);
@@ -1384,8 +1385,6 @@ static spl_dual_it_object* spl_dual_it_construct(INTERNAL_FUNCTION_PARAMETERS, z
 				zend_throw_exception_ex(spl_ce_InvalidArgumentException, 0, "Illegal mode " ZEND_LONG_FMT, mode);
 				return NULL;
 			}
-			intern->u.regex.mode = mode;
-			intern->u.regex.regex = zend_string_copy(regex);
 
 			zend_replace_error_handling(EH_THROW, spl_ce_InvalidArgumentException, &error_handling);
 			intern->u.regex.pce = pcre_get_compiled_regex_cache(regex);
@@ -1395,6 +1394,8 @@ static spl_dual_it_object* spl_dual_it_construct(INTERNAL_FUNCTION_PARAMETERS, z
 				/* pcre_get_compiled_regex_cache has already sent error */
 				return NULL;
 			}
+			intern->u.regex.mode = mode;
+			intern->u.regex.regex = zend_string_copy(regex);
 			php_pcre_pce_incref(intern->u.regex.pce);
 			break;
 		}
@@ -1419,6 +1420,7 @@ static spl_dual_it_object* spl_dual_it_construct(INTERNAL_FUNCTION_PARAMETERS, z
 			break;
 	}
 
+	intern->dit_type = dit_type;
 	if (inc_refcount) {
 		Z_ADDREF_P(zobject);
 	}
@@ -2484,7 +2486,7 @@ PHP_METHOD(CachingIterator, offsetGet)
 	}
 
 	if ((value = zend_symtable_find(Z_ARRVAL(intern->u.caching.zcache), key)) == NULL) {
-		zend_error(E_NOTICE, "Undefined index: %s", ZSTR_VAL(key));
+		zend_error(E_NOTICE, "Undefined array key \"%s\"", ZSTR_VAL(key));
 		return;
 	}
 

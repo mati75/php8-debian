@@ -257,6 +257,11 @@ static void detect_is_seekable(php_stdio_stream_data *self) {
 
 		self->is_seekable = !(file_type == FILE_TYPE_PIPE || file_type == FILE_TYPE_CHAR);
 		self->is_pipe = file_type == FILE_TYPE_PIPE;
+
+		/* Additional check needed to distinguish between pipes and sockets. */
+		if (self->is_pipe && !GetNamedPipeInfo((HANDLE) handle, NULL, NULL, NULL, NULL)) {
+			self->is_pipe = 0;
+		}
 	}
 #endif
 }
@@ -1030,7 +1035,7 @@ PHPAPI php_stream *_php_stream_fopen(const char *filename, const char *mode, zen
 
 	if (FAILURE == php_stream_parse_fopen_modes(mode, &open_flags)) {
 		if (options & REPORT_ERRORS) {
-			zend_value_error("`%s' is not a valid mode for fopen", mode);
+			zend_value_error("\"%s\" is not a valid mode for fopen", mode);
 		}
 		return NULL;
 	}

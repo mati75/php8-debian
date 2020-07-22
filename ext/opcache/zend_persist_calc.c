@@ -174,22 +174,21 @@ static void zend_persist_attributes_calc(HashTable *attributes)
 static void zend_persist_type_calc(zend_type *type)
 {
 	if (ZEND_TYPE_HAS_LIST(*type)) {
-		zend_type *list_type;
 		if (ZEND_TYPE_USES_ARENA(*type) && !ZCG(is_immutable_class)) {
 			ADD_ARENA_SIZE(ZEND_TYPE_LIST_SIZE(ZEND_TYPE_LIST(*type)->num_types));
 		} else {
 			ADD_SIZE(ZEND_TYPE_LIST_SIZE(ZEND_TYPE_LIST(*type)->num_types));
 		}
-		ZEND_TYPE_LIST_FOREACH(ZEND_TYPE_LIST(*type), list_type) {
-			zend_string *type_name = ZEND_TYPE_NAME(*list_type);
-			ADD_INTERNED_STRING(type_name);
-			ZEND_TYPE_SET_PTR(*list_type, type_name);
-		} ZEND_TYPE_LIST_FOREACH_END();
-	} else if (ZEND_TYPE_HAS_NAME(*type)) {
-		zend_string *type_name = ZEND_TYPE_NAME(*type);
-		ADD_INTERNED_STRING(type_name);
-		ZEND_TYPE_SET_PTR(*type, type_name);
 	}
+
+	zend_type *single_type;
+	ZEND_TYPE_FOREACH(*type, single_type) {
+		if (ZEND_TYPE_HAS_NAME(*single_type)) {
+			zend_string *type_name = ZEND_TYPE_NAME(*single_type);
+			ADD_INTERNED_STRING(type_name);
+			ZEND_TYPE_SET_PTR(*single_type, type_name);
+		}
+	} ZEND_TYPE_FOREACH_END();
 }
 
 static void zend_persist_op_array_calc_ex(zend_op_array *op_array)
@@ -340,21 +339,16 @@ static void zend_persist_class_method_calc(zval *zv)
 	}
 }
 
-static void zend_persist_property_info_calc(zval *zv)
+static void zend_persist_property_info_calc(zend_property_info *prop)
 {
-	zend_property_info *prop = Z_PTR_P(zv);
-
-	if (!zend_shared_alloc_get_xlat_entry(prop)) {
-		zend_shared_alloc_register_xlat_entry(prop, prop);
-		ADD_SIZE_EX(sizeof(zend_property_info));
-		ADD_INTERNED_STRING(prop->name);
-		zend_persist_type_calc(&prop->type);
-		if (ZCG(accel_directives).save_comments && prop->doc_comment) {
-			ADD_STRING(prop->doc_comment);
-		}
-		if (prop->attributes) {
-			zend_persist_attributes_calc(prop->attributes);
-		}
+	ADD_SIZE_EX(sizeof(zend_property_info));
+	ADD_INTERNED_STRING(prop->name);
+	zend_persist_type_calc(&prop->type);
+	if (ZCG(accel_directives).save_comments && prop->doc_comment) {
+		ADD_STRING(prop->doc_comment);
+	}
+	if (prop->attributes) {
+		zend_persist_attributes_calc(prop->attributes);
 	}
 }
 
@@ -463,9 +457,12 @@ static void zend_persist_class_entry_calc(zval *zv)
 
 		zend_hash_persist_calc(&ce->properties_info);
 		ZEND_HASH_FOREACH_BUCKET(&ce->properties_info, p) {
+			zend_property_info *prop = Z_PTR(p->val);
 			ZEND_ASSERT(p->key != NULL);
 			ADD_INTERNED_STRING(p->key);
-			zend_persist_property_info_calc(&p->val);
+			if (prop->ce == ce) {
+				zend_persist_property_info_calc(prop);
+			}
 		} ZEND_HASH_FOREACH_END();
 
 		if (ce->properties_info_table) {

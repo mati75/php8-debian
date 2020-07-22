@@ -123,6 +123,8 @@ void ZEND_FASTCALL zend_jit_copy_extra_args_helper(EXECUTE_DATA_D)
 			/* Skip useless ZEND_RECV and ZEND_RECV_INIT opcodes */
 #ifdef HAVE_GCC_GLOBAL_REGS
 			opline += first_extra_arg;
+#else
+			EX(opline) += first_extra_arg;
 #endif
 		}
 
@@ -255,7 +257,7 @@ static zend_always_inline int _zend_quick_get_constant(
 
 	if (!c) {
 		if (!check_defined_only) {
-			zend_throw_error(NULL, "Undefined constant '%s'", Z_STRVAL_P(RT_CONSTANT(opline, opline->op2)));
+			zend_throw_error(NULL, "Undefined constant \"%s\"", Z_STRVAL_P(RT_CONSTANT(opline, opline->op2)));
 			ZVAL_UNDEF(EX_VAR(opline->result.var));
 		}
 		CACHE_PTR(opline->extended_value, ENCODE_SPECIAL_CACHE_NUM(zend_hash_num_elements(EG(zend_constants))));
@@ -475,7 +477,7 @@ static int zend_jit_trace_record_fake_init_call_ex(zend_execute_data *call, zend
 		}
 
 		func = call->func;
-		if (func->common.fn_flags & ZEND_ACC_CALL_VIA_TRAMPOLINE) {
+		if (func->common.fn_flags & (ZEND_ACC_CALL_VIA_TRAMPOLINE|ZEND_ACC_NEVER_CACHE)) {
 			/* TODO: Can we continue recording ??? */
 			return -1;
 		}
@@ -590,6 +592,10 @@ zend_jit_trace_stop ZEND_FASTCALL zend_jit_trace_execute(zend_execute_data *ex, 
 
 	if (UNEXPECTED(opline->opcode == ZEND_HANDLE_EXCEPTION)) {
 		/* Abort trace because of exception */
+#ifdef HAVE_GCC_GLOBAL_REGS
+		execute_data = save_execute_data;
+		opline = save_opline;
+#endif
 		return ZEND_JIT_TRACE_STOP_EXCEPTION;
 	}
 
@@ -609,6 +615,10 @@ zend_jit_trace_stop ZEND_FASTCALL zend_jit_trace_execute(zend_execute_data *ex, 
 	if (prev_call) {
 		int ret = zend_jit_trace_record_fake_init_call(prev_call, trace_buffer, idx, is_megamorphic, &megamorphic, ret_level + level);
 		if (ret < 0) {
+#ifdef HAVE_GCC_GLOBAL_REGS
+			execute_data = save_execute_data;
+			opline = save_opline;
+#endif
 			return ZEND_JIT_TRACE_STOP_BAD_FUNC;
 		}
 		idx = ret;
@@ -732,6 +742,9 @@ zend_jit_trace_stop ZEND_FASTCALL zend_jit_trace_execute(zend_execute_data *ex, 
 			if (rc < 0) {
 				stop = ZEND_JIT_TRACE_STOP_RETURN_HALT;
 				break;
+			} else if (execute_data == EG(current_execute_data)) {
+				/* return after interrupt handler */
+				rc = 0;
 			}
 			execute_data = EG(current_execute_data);
 			opline = EX(opline);
@@ -753,7 +766,9 @@ zend_jit_trace_stop ZEND_FASTCALL zend_jit_trace_execute(zend_execute_data *ex, 
 #ifdef HAVE_GCC_GLOBAL_REGS
 			if (execute_data->prev_execute_data == prev_execute_data) {
 #else
-			if (rc == 1) {
+			if (rc == 0) {
+				/* pass */
+			} else if (rc == 1) {
 #endif
 				/* Enter into function */
 				prev_call = NULL;
@@ -854,6 +869,10 @@ zend_jit_trace_stop ZEND_FASTCALL zend_jit_trace_execute(zend_execute_data *ex, 
 				if (EX(call)->func->common.fn_flags & ZEND_ACC_CALL_VIA_TRAMPOLINE) {
 					/* TODO: Can we continue recording ??? */
 					stop = ZEND_JIT_TRACE_STOP_TRAMPOLINE;
+					break;
+				} else if (EX(call)->func->common.fn_flags & ZEND_ACC_NEVER_CACHE) {
+					/* TODO: Can we continue recording ??? */
+					stop = ZEND_JIT_TRACE_STOP_BAD_FUNC;
 					break;
 				}
 				func = EX(call)->func;

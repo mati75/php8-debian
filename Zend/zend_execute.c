@@ -162,9 +162,6 @@ ZEND_API const zend_internal_function zend_pass_function = {
 		zval_ptr_dtor_nogc(EX_VAR(var)); \
 	}
 
-#define FREE_UNFETCHED_OP(type, var) \
-	FREE_OP(type, var)
-
 #define FREE_OP_VAR_PTR(type, var) \
 	FREE_OP(type, var)
 
@@ -367,8 +364,8 @@ static zend_always_inline zval *_get_zval_ptr_cv_BP_VAR_RW(uint32_t var EXECUTE_
 	zval *ret = EX_VAR(var);
 
 	if (UNEXPECTED(Z_TYPE_P(ret) == IS_UNDEF)) {
-		ZVAL_NULL(ret);
 		zval_undefined_cv(var EXECUTE_DATA_CC);
+		ZVAL_NULL(ret);
 		return ret;
 	}
 	return ret;
@@ -622,7 +619,7 @@ static zend_never_inline ZEND_COLD void ZEND_FASTCALL zend_throw_non_object_erro
 	 || opline->opcode == ZEND_POST_INC_OBJ
 	 || opline->opcode == ZEND_POST_DEC_OBJ) {
 		zend_throw_error(NULL,
-			"Attempt to increment/decrement property '%s' on %s",
+			"Attempt to increment/decrement property \"%s\" on %s",
 			ZSTR_VAL(property_name), zend_zval_type_name(object)
 		);
 	} else if (opline->opcode == ZEND_FETCH_OBJ_W
@@ -630,12 +627,12 @@ static zend_never_inline ZEND_COLD void ZEND_FASTCALL zend_throw_non_object_erro
 			|| opline->opcode == ZEND_FETCH_OBJ_FUNC_ARG
 			|| opline->opcode == ZEND_ASSIGN_OBJ_REF) {
 		zend_throw_error(NULL,
-			"Attempt to modify property '%s' on %s",
+			"Attempt to modify property \"%s\" on %s",
 			ZSTR_VAL(property_name), zend_zval_type_name(object)
 		);
 	} else {
 		zend_throw_error(NULL,
-			"Attempt to assign property '%s' on %s",
+			"Attempt to assign property \"%s\" on %s",
 			ZSTR_VAL(property_name), zend_zval_type_name(object)
 		);
 	}
@@ -1359,7 +1356,7 @@ try_again:
 					break;
 				}
 				if (type != BP_VAR_UNSET) {
-					zend_error(E_WARNING, "Illegal string offset '%s'", Z_STRVAL_P(dim));
+					zend_error(E_WARNING, "Illegal string offset \"%s\"", Z_STRVAL_P(dim));
 				}
 				break;
 			case IS_UNDEF:
@@ -1495,7 +1492,7 @@ static zend_never_inline ZEND_COLD void ZEND_FASTCALL zend_wrong_property_read(z
 {
 	zend_string *tmp_property_name;
 	zend_string *property_name = zval_get_tmp_string(property, &tmp_property_name);
-	zend_error(E_WARNING, "Attempt to read property '%s' on %s", ZSTR_VAL(property_name), zend_zval_type_name(object));
+	zend_error(E_WARNING, "Attempt to read property \"%s\" on %s", ZSTR_VAL(property_name), zend_zval_type_name(object));
 	zend_tmp_string_release(tmp_property_name);
 }
 
@@ -1520,7 +1517,7 @@ static zend_never_inline void zend_assign_to_string_offset(zval *str, zval *dim,
 	offset = zend_check_string_offset(dim, BP_VAR_W EXECUTE_DATA_CC);
 	if (offset < -(zend_long)Z_STRLEN_P(str)) {
 		/* Error on negative offset */
-		zend_error(E_WARNING, "Illegal string offset:  " ZEND_LONG_FMT, offset);
+		zend_error(E_WARNING, "Illegal string offset " ZEND_LONG_FMT, offset);
 		if (UNEXPECTED(RETURN_VALUE_USED(opline))) {
 			ZVAL_NULL(EX_VAR(opline->result.var));
 		}
@@ -1901,16 +1898,15 @@ static zend_always_inline HashTable *zend_get_target_symbol_table(int fetch_type
 
 static zend_never_inline ZEND_COLD void ZEND_FASTCALL zend_undefined_offset(zend_long lval)
 {
-	zend_error(E_NOTICE, "Undefined offset: " ZEND_LONG_FMT, lval);
+	zend_error(E_NOTICE, "Undefined array key " ZEND_LONG_FMT, lval);
 }
 
 static zend_never_inline ZEND_COLD void ZEND_FASTCALL zend_undefined_index(const zend_string *offset)
 {
-	zend_error(E_NOTICE, "Undefined index: %s", ZSTR_VAL(offset));
+	zend_error(E_NOTICE, "Undefined array key \"%s\"", ZSTR_VAL(offset));
 }
 
-static zend_never_inline ZEND_COLD int ZEND_FASTCALL zend_undefined_offset_write(
-		HashTable *ht, zend_long lval)
+ZEND_API ZEND_COLD int ZEND_FASTCALL zend_undefined_offset_write(HashTable *ht, zend_long lval)
 {
 	/* The array may be destroyed while throwing the notice.
 	 * Temporarily increase the refcount to detect this situation. */
@@ -1928,8 +1924,7 @@ static zend_never_inline ZEND_COLD int ZEND_FASTCALL zend_undefined_offset_write
 	return SUCCESS;
 }
 
-static zend_never_inline ZEND_COLD int ZEND_FASTCALL zend_undefined_index_write(
-		HashTable *ht, zend_string *offset)
+ZEND_API ZEND_COLD int ZEND_FASTCALL zend_undefined_index_write(HashTable *ht, zend_string *offset)
 {
 	/* The array may be destroyed while throwing the notice.
 	 * Temporarily increase the refcount to detect this situation. */
@@ -2016,12 +2011,25 @@ static ZEND_COLD void zend_binary_assign_op_dim_slow(zval *container, zval *dim 
 	FREE_OP((opline+1)->op1_type, (opline+1)->op1.var);
 }
 
-static zend_never_inline zend_uchar slow_index_convert(const zval *dim, zend_value *value EXECUTE_DATA_DC)
+static zend_never_inline zend_uchar slow_index_convert(HashTable *ht, const zval *dim, zend_value *value EXECUTE_DATA_DC)
 {
 	switch (Z_TYPE_P(dim)) {
-		case IS_UNDEF:
+		case IS_UNDEF: {
+			/* The array may be destroyed while throwing the notice.
+			 * Temporarily increase the refcount to detect this situation. */
+			if (!(GC_FLAGS(ht) & IS_ARRAY_IMMUTABLE)) {
+				GC_ADDREF(ht);
+			}
 			ZVAL_UNDEFINED_OP2();
+			if (!(GC_FLAGS(ht) & IS_ARRAY_IMMUTABLE) && !GC_DELREF(ht)) {
+				zend_array_destroy(ht);
+				return IS_NULL;
+			}
+			if (EG(exception)) {
+				return IS_NULL;
+			}
 			/* break missing intentionally */
+		}
 		case IS_NULL:
 			value->str = ZSTR_EMPTY_ALLOC();
 			return IS_STRING;
@@ -2117,10 +2125,15 @@ str_index:
 					retval = &EG(uninitialized_zval);
 					break;
 				case BP_VAR_RW:
+					/* Key may be released while throwing the undefined index warning. */
+					zend_string_addref(offset_key);
 					if (UNEXPECTED(zend_undefined_index_write(ht, offset_key) == FAILURE)) {
+						zend_string_release(offset_key);
 						return NULL;
 					}
-					/* break missing intentionally */
+					retval = zend_hash_add_new(ht, offset_key, &EG(uninitialized_zval));
+					zend_string_release(offset_key);
+					break;
 				case BP_VAR_W:
 					retval = zend_hash_add_new(ht, offset_key, &EG(uninitialized_zval));
 					break;
@@ -2131,7 +2144,7 @@ str_index:
 		goto try_again;
 	} else {
 		zend_value val;
-		zend_uchar t = slow_index_convert(dim, &val EXECUTE_DATA_CC);
+		zend_uchar t = slow_index_convert(ht, dim, &val EXECUTE_DATA_CC);
 
 		if (t == IS_STRING) {
 			offset_key = val.str;
@@ -2333,7 +2346,7 @@ try_string_offset:
 						ZVAL_NULL(result);
 						return;
 					}
-					zend_error(E_WARNING, "Illegal string offset '%s'", Z_STRVAL_P(dim));
+					zend_error(E_WARNING, "Illegal string offset \"%s\"", Z_STRVAL_P(dim));
 					break;
 				case IS_UNDEF:
 					ZVAL_UNDEFINED_OP2();
@@ -2360,7 +2373,7 @@ try_string_offset:
 
 		if (UNEXPECTED(Z_STRLEN_P(container) < ((offset < 0) ? -(size_t)offset : ((size_t)offset + 1)))) {
 			if (type != BP_VAR_IS) {
-				zend_error(E_WARNING, "Uninitialized string offset: " ZEND_LONG_FMT, offset);
+				zend_error(E_WARNING, "Uninitialized string offset " ZEND_LONG_FMT, offset);
 				ZVAL_EMPTY_STRING(result);
 			} else {
 				ZVAL_NULL(result);
@@ -2586,7 +2599,7 @@ num_key:
 		str = ZSTR_EMPTY_ALLOC();
 		goto str_key;
 	} else {
-		zend_type_error("Illegal offset type");
+		zend_illegal_offset();
 		return 0;
 	}
 }
@@ -2887,7 +2900,7 @@ static zend_never_inline int zend_fetch_static_property_address_ex(zval **retval
 		if (EXPECTED((ce = CACHED_PTR(cache_slot)) == NULL)) {
 			ce = zend_fetch_class_by_name(Z_STR_P(class_name), Z_STR_P(class_name + 1), ZEND_FETCH_CLASS_DEFAULT | ZEND_FETCH_CLASS_EXCEPTION);
 			if (UNEXPECTED(ce == NULL)) {
-				FREE_UNFETCHED_OP(op1_type, opline->op1.var);
+				FREE_OP(op1_type, opline->op1.var);
 				return FAILURE;
 			}
 			if (UNEXPECTED(op1_type != IS_CONST)) {
@@ -2898,7 +2911,7 @@ static zend_never_inline int zend_fetch_static_property_address_ex(zval **retval
 		if (EXPECTED(op2_type == IS_UNUSED)) {
 			ce = zend_fetch_class(NULL, opline->op2.num);
 			if (UNEXPECTED(ce == NULL)) {
-				FREE_UNFETCHED_OP(op1_type, opline->op1.var);
+				FREE_OP(op1_type, opline->op1.var);
 				return FAILURE;
 			}
 		} else {
@@ -3314,7 +3327,11 @@ static zend_never_inline void zend_fetch_this_var(int type OPLINE_DC EXECUTE_DAT
 
 static zend_never_inline ZEND_COLD void ZEND_FASTCALL zend_wrong_clone_call(zend_function *clone, zend_class_entry *scope)
 {
-	zend_throw_error(NULL, "Call to %s %s::__clone() from context '%s'", zend_visibility_string(clone->common.fn_flags), ZSTR_VAL(clone->common.scope->name), scope ? ZSTR_VAL(scope->name) : "");
+	zend_throw_error(NULL, "Call to %s %s::__clone() from %s%s",
+		zend_visibility_string(clone->common.fn_flags), ZSTR_VAL(clone->common.scope->name),
+		scope ? "scope " : "global scope",
+		scope ? ZSTR_VAL(scope->name) : ""
+	);
 }
 
 #if ZEND_INTENSIVE_DEBUGGING
@@ -4286,7 +4303,7 @@ static zend_always_inline int _zend_quick_get_constant(
 
 	if (!c) {
 		if (!check_defined_only) {
-			zend_throw_error(NULL, "Undefined constant '%s'", Z_STRVAL_P(RT_CONSTANT(opline, opline->op2)));
+			zend_throw_error(NULL, "Undefined constant \"%s\"", Z_STRVAL_P(RT_CONSTANT(opline, opline->op2)));
 			ZVAL_UNDEF(EX_VAR(opline->result.var));
 		}
 		return FAILURE;
@@ -4534,7 +4551,7 @@ ZEND_API user_opcode_handler_t zend_get_user_opcode_handler(zend_uchar opcode)
 	return zend_user_opcode_handlers[opcode];
 }
 
-ZEND_API zval *zend_get_zval_ptr(const zend_op *opline, int op_type, const znode_op *node, const zend_execute_data *execute_data, int type)
+ZEND_API zval *zend_get_zval_ptr(const zend_op *opline, int op_type, const znode_op *node, const zend_execute_data *execute_data)
 {
 	zval *ret;
 
