@@ -482,8 +482,8 @@ static void _build_trace_args(zval *arg, smart_str *str) /* {{{ */
 			break;
 		case IS_STRING:
 			smart_str_appendc(str, '\'');
-			smart_str_append_escaped(str, Z_STRVAL_P(arg), MIN(Z_STRLEN_P(arg), 15));
-			if (Z_STRLEN_P(arg) > 15) {
+			smart_str_append_escaped(str, Z_STRVAL_P(arg), MIN(Z_STRLEN_P(arg), EG(exception_string_param_max_len)));
+			if (Z_STRLEN_P(arg) > EG(exception_string_param_max_len)) {
 				smart_str_appends(str, "...', ");
 			} else {
 				smart_str_appends(str, "', ");
@@ -566,9 +566,14 @@ static void _build_trace_string(smart_str *str, HashTable *ht, uint32_t num) /* 
 	if (tmp) {
 		if (Z_TYPE_P(tmp) == IS_ARRAY) {
 			size_t last_len = ZSTR_LEN(str->s);
+			zend_string *name;
 			zval *arg;
 
-			ZEND_HASH_FOREACH_VAL(Z_ARRVAL_P(tmp), arg) {
+			ZEND_HASH_FOREACH_STR_KEY_VAL(Z_ARRVAL_P(tmp), name, arg) {
+				if (name) {
+					smart_str_append(str, name);
+					smart_str_appends(str, ": ");
+				}
 				_build_trace_args(arg, str);
 			} ZEND_HASH_FOREACH_END();
 
@@ -662,6 +667,7 @@ ZEND_METHOD(Exception, __toString)
 		fci.retval = &trace;
 		fci.param_count = 0;
 		fci.params = NULL;
+		fci.named_params = NULL;
 
 		zend_call_function(&fci, NULL);
 
@@ -998,7 +1004,7 @@ ZEND_API ZEND_COLD void zend_throw_exception_object(zval *exception) /* {{{ */
 }
 /* }}} */
 
-ZEND_API ZEND_COLD void zend_throw_unwind_exit()
+ZEND_API ZEND_COLD void zend_throw_unwind_exit(void)
 {
 	ZEND_ASSERT(!EG(exception));
 	EG(exception) = zend_objects_new(&zend_ce_unwind_exit);

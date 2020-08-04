@@ -304,28 +304,8 @@ if test "$PHP_RPATH" = "no"; then
 fi
 ])
 
-dnl
-dnl PHP_CHECK_GCC_ARG(arg, action-if-found, action-if-not-found)
-dnl
 AC_DEFUN([PHP_CHECK_GCC_ARG],[
-  gcc_arg_name=[ac_cv_gcc_arg]translit($1,A-Z-,a-z_)
-  AC_CACHE_CHECK([whether $CC supports $1], [ac_cv_gcc_arg]translit($1,A-Z-,a-z_), [
-  echo 'void somefunc() { };' > conftest.c
-  cmd='$CC $1 -c conftest.c'
-  if eval $cmd 2>&1 | $EGREP -e $1 >/dev/null ; then
-    ac_result=no
-  else
-    ac_result=yes
-  fi
-  eval $gcc_arg_name=$ac_result
-  rm -f conftest.*
-  ])
-  if eval test "\$$gcc_arg_name" = "yes"; then
-    $2
-  else
-    :
-    $3
-  fi
+  AC_MSG_ERROR([Use AX_CHECK_COMPILE_FLAG instead])
 ])
 
 dnl
@@ -2034,7 +2014,7 @@ dnl
 dnl Common setup macro for libxml.
 dnl
 AC_DEFUN([PHP_SETUP_LIBXML], [
-  PKG_CHECK_MODULES([LIBXML], [libxml-2.0 >= 2.7.6])
+  PKG_CHECK_MODULES([LIBXML], [libxml-2.0 >= 2.9.0])
 
   PHP_EVAL_INCLINE($LIBXML_CFLAGS)
   PHP_EVAL_LIBLINE($LIBXML_LIBS, $1)
@@ -2425,7 +2405,9 @@ AC_DEFUN([PHP_CHECK_STDINT_TYPES], [
   AC_CHECK_SIZEOF([long long])
   AC_CHECK_SIZEOF([size_t])
   AC_CHECK_SIZEOF([off_t])
-  AC_CHECK_TYPES([int8, int16, int32, int64, int8_t, int16_t, int32_t, int64_t, uint8, uint16, uint32, uint64, uint8_t, uint16_t, uint32_t, uint64_t, u_int8_t, u_int16_t, u_int32_t, u_int64_t], [], [], [
+  AC_CHECK_TYPES([int8_t, int16_t, int32_t, int64_t, uint8_t, uint16_t, uint32_t, uint64_t], [], [
+    AC_MSG_ERROR([One of the intN_t or uintN_t types is not available])
+  ], [
 #include <stdint.h>
 #if HAVE_SYS_TYPES_H
 # include <sys/types.h>

@@ -415,7 +415,8 @@ static void zend_file_cache_serialize_attribute(zval                     *zv,
 	SERIALIZE_STR(attr->lcname);
 
 	for (i = 0; i < attr->argc; i++) {
-		zend_file_cache_serialize_zval(&attr->argv[i], script, info, buf);
+		SERIALIZE_STR(attr->args[i].name);
+		zend_file_cache_serialize_zval(&attr->args[i].value, script, info, buf);
 	}
 }
 
@@ -536,6 +537,7 @@ static void zend_file_cache_serialize_op_array(zend_op_array            *op_arra
 				case ZEND_FE_RESET_R:
 				case ZEND_FE_RESET_RW:
 				case ZEND_ASSERT_CHECK:
+				case ZEND_JMP_NULL:
 					SERIALIZE_PTR(opline->op2.jmp_addr);
 					break;
 				case ZEND_CATCH:
@@ -1179,7 +1181,8 @@ static void zend_file_cache_unserialize_attribute(zval *zv, zend_persistent_scri
 	UNSERIALIZE_STR(attr->lcname);
 
 	for (i = 0; i < attr->argc; i++) {
-		zend_file_cache_unserialize_zval(&attr->argv[i], script, buf);
+		UNSERIALIZE_STR(attr->args[i].name);
+		zend_file_cache_unserialize_zval(&attr->args[i].value, script, buf);
 	}
 }
 
@@ -1288,6 +1291,7 @@ static void zend_file_cache_unserialize_op_array(zend_op_array           *op_arr
 				case ZEND_FE_RESET_R:
 				case ZEND_FE_RESET_RW:
 				case ZEND_ASSERT_CHECK:
+				case ZEND_JMP_NULL:
 					UNSERIALIZE_PTR(opline->op2.jmp_addr);
 					break;
 				case ZEND_CATCH:
