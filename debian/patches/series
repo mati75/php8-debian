@@ -132,3 +132,5 @@
 0132-Fix-78876-Long-variables-cause-OOM-and-temp-files-ar.patch
 0133-Update-NEWS.patch
 0134-Allow-numeric-UG-ID-in-FPM-listen.-owner-group.patch
+0135-Fix-79797-Use-of-freed-hash-key-in-the-phar_parse_zi.patch
+0136-Fix-79877-getimagesize-function-silently-truncates-a.patch
