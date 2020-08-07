@@ -1,3 +1,17 @@
+php7.1 (7.1.33-17) unstable; urgency=medium
+
+  * Update branch names
+  * Finish updating the packaging to dh compat level 10
+  * Backported from 7.2.33
+   - Core:
+    . Fixed bug #79877 (getimagesize function silently truncates after a
+      null byte)
+   - Phar:
+    . Fixed bug #79797 (Use of freed hash key in the phar_parse_zipfile
+      function). (CVE-2020-7068)
+
+ -- Ondřej Surý <ondrej@debian.org>  Fri, 07 Aug 2020 16:37:23 +0200
+
 php7.1 (7.1.33-16) unstable; urgency=medium
 
   * Add upstream patch to fix bug #76895
