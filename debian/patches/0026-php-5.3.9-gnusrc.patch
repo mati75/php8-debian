@@ -29,7 +29,7 @@ index d7a51f0..160073f 100644
  /*
     +----------------------------------------------------------------------+
 diff --git a/configure.ac b/configure.ac
-index a4fb41e..aa00a77 100644
+index c80159f..fbd960a 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -124,6 +124,8 @@ AC_DEFUN([PHP_EXT_DIR],[$config_m4_dir])dnl
@@ -66,7 +66,7 @@ index 6b77e31..ce852ba 100644
  #include "php.h"
  #include "zend_exceptions.h"
 diff --git a/ext/standard/file.c b/ext/standard/file.c
-index b2c9ca0..51b5744 100644
+index dca9cf4..3a60b07 100644
 --- a/ext/standard/file.c
 +++ b/ext/standard/file.c
 @@ -105,9 +105,6 @@ php_file_globals file_globals;
