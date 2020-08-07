@@ -146,3 +146,6 @@
 0146-Fix-Bug-79296-ZipArchive-open-fails-on-empty-file.patch
 0147-Backports-from-7.2.31.patch
 0148-Allow-numeric-UG-ID-in-FPM-listen.-owner-group.patch
+0149-Fix-79797-Use-of-freed-hash-key-in-the-phar_parse_zi.patch
+0150-Fix-79877-getimagesize-function-silently-truncates-a.patch
+0151-ZTS-fix.patch
