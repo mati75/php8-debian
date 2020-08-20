@@ -1215,6 +1215,7 @@ ZEND_VM_C_LABEL(assign_dim_op_new_array):
 		} else {
 			zend_binary_assign_op_dim_slow(container, dim OPLINE_CC EXECUTE_DATA_CC);
 ZEND_VM_C_LABEL(assign_dim_op_ret_null):
+			FREE_OP_DATA();
 			if (UNEXPECTED(RETURN_VALUE_USED(opline))) {
 				ZVAL_NULL(EX_VAR(opline->result.var));
 			}
@@ -7324,6 +7325,9 @@ ZEND_VM_HOT_NOCONST_HANDLER(198, ZEND_JMP_NULL, CONST|TMPVARCV, JMP_ADDR)
 	zval *val;
 
 	val = GET_OP1_ZVAL_PTR_UNDEF(BP_VAR_R);
+	if (OP1_TYPE != IS_CONST) {
+		ZVAL_DEREF(val);
+	}
 
 	if (Z_TYPE_INFO_P(val) > IS_NULL) {
 		ZEND_VM_NEXT_OPCODE();

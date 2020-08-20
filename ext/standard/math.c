@@ -795,18 +795,18 @@ PHPAPI void _php_math_basetozval(zend_string *str, int base, zval *ret)
  * Convert a long to a string containing a base(2-36) representation of
  * the number.
  */
-PHPAPI zend_string * _php_math_longtobase(zval *arg, int base)
+PHPAPI zend_string * _php_math_longtobase(zend_long arg, int base)
 {
 	static char digits[] = "0123456789abcdefghijklmnopqrstuvwxyz";
 	char buf[(sizeof(zend_ulong) << 3) + 1];
 	char *ptr, *end;
 	zend_ulong value;
 
-	if (Z_TYPE_P(arg) != IS_LONG || base < 2 || base > 36) {
+	if (base < 2 || base > 36) {
 		return ZSTR_EMPTY_ALLOC();
 	}
 
-	value = Z_LVAL_P(arg);
+	value = arg;
 
 	end = ptr = buf + sizeof(buf) - 1;
 	*ptr = '\0';
@@ -856,7 +856,7 @@ PHPAPI zend_string * _php_math_zvaltobase(zval *arg, int base)
 		return zend_string_init(ptr, end - ptr, 0);
 	}
 
-	return _php_math_longtobase(arg, base);
+	return _php_math_longtobase(Z_LVAL_P(arg), base);
 }
 /* }}} */
 
@@ -902,67 +902,55 @@ PHP_FUNCTION(octdec)
 /* {{{ Returns a string containing a binary representation of the number */
 PHP_FUNCTION(decbin)
 {
-	zval *arg;
-	zend_string *result;
+	zend_long arg;
 
 	ZEND_PARSE_PARAMETERS_START(1, 1)
-		Z_PARAM_ZVAL(arg)
+		Z_PARAM_LONG(arg)
 	ZEND_PARSE_PARAMETERS_END();
 
-	convert_to_long_ex(arg);
-	result = _php_math_longtobase(arg, 2);
-	RETURN_STR(result);
+	RETURN_STR(_php_math_longtobase(arg, 2));
 }
 /* }}} */
 
 /* {{{ Returns a string containing an octal representation of the given number */
 PHP_FUNCTION(decoct)
 {
-	zval *arg;
-	zend_string *result;
+	zend_long arg;
 
 	ZEND_PARSE_PARAMETERS_START(1, 1)
-		Z_PARAM_ZVAL(arg)
+		Z_PARAM_LONG(arg)
 	ZEND_PARSE_PARAMETERS_END();
 
-	convert_to_long_ex(arg);
-	result = _php_math_longtobase(arg, 8);
-	RETURN_STR(result);
+	RETURN_STR(_php_math_longtobase(arg, 8));
 }
 /* }}} */
 
 /* {{{ Returns a string containing a hexadecimal representation of the given number */
 PHP_FUNCTION(dechex)
 {
-	zval *arg;
-	zend_string *result;
+	zend_long arg;
 
 	ZEND_PARSE_PARAMETERS_START(1, 1)
-		Z_PARAM_ZVAL(arg)
+		Z_PARAM_LONG(arg)
 	ZEND_PARSE_PARAMETERS_END();
 
-	convert_to_long_ex(arg);
-	result = _php_math_longtobase(arg, 16);
-	RETURN_STR(result);
+	RETURN_STR(_php_math_longtobase(arg, 16));
 }
 /* }}} */
 
 /* {{{ Converts a number in a string from any base <= 36 to any base <= 36 */
 PHP_FUNCTION(base_convert)
 {
-	zval *number, temp;
+	zval temp;
+	zend_string *number;
 	zend_long frombase, tobase;
 	zend_string *result;
 
 	ZEND_PARSE_PARAMETERS_START(3, 3)
-		Z_PARAM_ZVAL(number)
+		Z_PARAM_STR(number)
 		Z_PARAM_LONG(frombase)
 		Z_PARAM_LONG(tobase)
 	ZEND_PARSE_PARAMETERS_END();
-
-	if (!try_convert_to_string(number)) {
-		RETURN_THROWS();
-	}
 
 	if (frombase < 2 || frombase > 36) {
 		zend_argument_value_error(2, "must be between 2 and 36 (inclusive)");
@@ -973,7 +961,7 @@ PHP_FUNCTION(base_convert)
 		RETURN_THROWS();
 	}
 
-	_php_math_basetozval(Z_STR_P(number), (int)frombase, &temp);
+	_php_math_basetozval(number, (int)frombase, &temp);
 	result = _php_math_zvaltobase(&temp, (int)tobase);
 	RETVAL_STR(result);
 }
@@ -1109,7 +1097,6 @@ PHP_FUNCTION(number_format)
 	double num;
 	zend_long dec = 0;
 	char *thousand_sep = NULL, *dec_point = NULL;
-	char thousand_sep_chr = ',', dec_point_chr = '.';
 	size_t thousand_sep_len = 0, dec_point_len = 0;
 
 	ZEND_PARSE_PARAMETERS_START(1, 4)
@@ -1120,30 +1107,16 @@ PHP_FUNCTION(number_format)
 		Z_PARAM_STRING_OR_NULL(thousand_sep, thousand_sep_len)
 	ZEND_PARSE_PARAMETERS_END();
 
-	switch(ZEND_NUM_ARGS()) {
-	case 1:
-		RETURN_STR(_php_math_number_format(num, 0, dec_point_chr, thousand_sep_chr));
-		break;
-	case 2:
-		RETURN_STR(_php_math_number_format(num, (int)dec, dec_point_chr, thousand_sep_chr));
-		break;
-	case 4:
-		if (dec_point == NULL) {
-			dec_point = &dec_point_chr;
-			dec_point_len = 1;
-		}
-
-		if (thousand_sep == NULL) {
-			thousand_sep = &thousand_sep_chr;
-			thousand_sep_len = 1;
-		}
-
-		RETVAL_STR(_php_math_number_format_ex(num, (int)dec,
-				dec_point, dec_point_len, thousand_sep, thousand_sep_len));
-		break;
-	default:
-		WRONG_PARAM_COUNT;
+	if (dec_point == NULL) {
+		dec_point = ".";
+		dec_point_len = 1;
 	}
+	if (thousand_sep == NULL) {
+		thousand_sep = ",";
+		thousand_sep_len = 1;
+	}
+
+	RETURN_STR(_php_math_number_format_ex(num, (int)dec, dec_point, dec_point_len, thousand_sep, thousand_sep_len));
 }
 /* }}} */
 

@@ -4375,6 +4375,9 @@ static ZEND_VM_COLD ZEND_OPCODE_HANDLER_RET ZEND_FASTCALL ZEND_JMP_NULL_SPEC_CON
 	zval *val;
 
 	val = RT_CONSTANT(opline, opline->op1);
+	if (IS_CONST != IS_CONST) {
+		ZVAL_DEREF(val);
+	}
 
 	if (Z_TYPE_INFO_P(val) > IS_NULL) {
 		ZEND_VM_NEXT_OPCODE();
@@ -11095,6 +11098,9 @@ static ZEND_VM_HOT ZEND_OPCODE_HANDLER_RET ZEND_FASTCALL ZEND_JMP_NULL_SPEC_TMPV
 	zval *val;
 
 	val = EX_VAR(opline->op1.var);
+	if ((IS_TMP_VAR|IS_VAR|IS_CV) != IS_CONST) {
+		ZVAL_DEREF(val);
+	}
 
 	if (Z_TYPE_INFO_P(val) > IS_NULL) {
 		ZEND_VM_NEXT_OPCODE();
@@ -21431,6 +21437,7 @@ assign_dim_op_new_array:
 		} else {
 			zend_binary_assign_op_dim_slow(container, dim OPLINE_CC EXECUTE_DATA_CC);
 assign_dim_op_ret_null:
+			FREE_OP((opline+1)->op1_type, (opline+1)->op1.var);
 			if (UNEXPECTED(RETURN_VALUE_USED(opline))) {
 				ZVAL_NULL(EX_VAR(opline->result.var));
 			}
@@ -23976,6 +23983,7 @@ assign_dim_op_new_array:
 		} else {
 			zend_binary_assign_op_dim_slow(container, dim OPLINE_CC EXECUTE_DATA_CC);
 assign_dim_op_ret_null:
+			FREE_OP((opline+1)->op1_type, (opline+1)->op1.var);
 			if (UNEXPECTED(RETURN_VALUE_USED(opline))) {
 				ZVAL_NULL(EX_VAR(opline->result.var));
 			}
@@ -26201,6 +26209,7 @@ assign_dim_op_new_array:
 		} else {
 			zend_binary_assign_op_dim_slow(container, dim OPLINE_CC EXECUTE_DATA_CC);
 assign_dim_op_ret_null:
+			FREE_OP((opline+1)->op1_type, (opline+1)->op1.var);
 			if (UNEXPECTED(RETURN_VALUE_USED(opline))) {
 				ZVAL_NULL(EX_VAR(opline->result.var));
 			}
@@ -27911,6 +27920,7 @@ assign_dim_op_new_array:
 		} else {
 			zend_binary_assign_op_dim_slow(container, dim OPLINE_CC EXECUTE_DATA_CC);
 assign_dim_op_ret_null:
+			FREE_OP((opline+1)->op1_type, (opline+1)->op1.var);
 			if (UNEXPECTED(RETURN_VALUE_USED(opline))) {
 				ZVAL_NULL(EX_VAR(opline->result.var));
 			}
@@ -38602,6 +38612,7 @@ assign_dim_op_new_array:
 		} else {
 			zend_binary_assign_op_dim_slow(container, dim OPLINE_CC EXECUTE_DATA_CC);
 assign_dim_op_ret_null:
+			FREE_OP((opline+1)->op1_type, (opline+1)->op1.var);
 			if (UNEXPECTED(RETURN_VALUE_USED(opline))) {
 				ZVAL_NULL(EX_VAR(opline->result.var));
 			}
@@ -42214,6 +42225,7 @@ assign_dim_op_new_array:
 		} else {
 			zend_binary_assign_op_dim_slow(container, dim OPLINE_CC EXECUTE_DATA_CC);
 assign_dim_op_ret_null:
+			FREE_OP((opline+1)->op1_type, (opline+1)->op1.var);
 			if (UNEXPECTED(RETURN_VALUE_USED(opline))) {
 				ZVAL_NULL(EX_VAR(opline->result.var));
 			}
@@ -45003,6 +45015,7 @@ assign_dim_op_new_array:
 		} else {
 			zend_binary_assign_op_dim_slow(container, dim OPLINE_CC EXECUTE_DATA_CC);
 assign_dim_op_ret_null:
+			FREE_OP((opline+1)->op1_type, (opline+1)->op1.var);
 			if (UNEXPECTED(RETURN_VALUE_USED(opline))) {
 				ZVAL_NULL(EX_VAR(opline->result.var));
 			}
@@ -47251,6 +47264,7 @@ assign_dim_op_new_array:
 		} else {
 			zend_binary_assign_op_dim_slow(container, dim OPLINE_CC EXECUTE_DATA_CC);
 assign_dim_op_ret_null:
+			FREE_OP((opline+1)->op1_type, (opline+1)->op1.var);
 			if (UNEXPECTED(RETURN_VALUE_USED(opline))) {
 				ZVAL_NULL(EX_VAR(opline->result.var));
 			}
@@ -49846,6 +49860,7 @@ static ZEND_OPCODE_HANDLER_RET ZEND_FASTCALL ZEND_NULL_HANDLER(ZEND_OPCODE_HANDL
 {
 	USE_OPLINE
 
+	SAVE_OPLINE();
 	zend_error_noreturn(E_ERROR, "Invalid opcode %d/%d/%d.", OPLINE->opcode, OPLINE->op1_type, OPLINE->op2_type);
 	ZEND_VM_NEXT_OPCODE(); /* Never reached */
 }

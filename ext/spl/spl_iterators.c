@@ -1863,7 +1863,7 @@ PHP_METHOD(RegexIterator, accept)
 			break;
 
 		case REGIT_MODE_REPLACE: {
-			zval *replacement = zend_read_property(intern->std.ce, ZEND_THIS, "replacement", sizeof("replacement")-1, 1, &rv);
+			zval *replacement = zend_read_property(intern->std.ce, Z_OBJ_P(ZEND_THIS), "replacement", sizeof("replacement")-1, 1, &rv);
 			zend_string *replacement_str = zval_try_get_string(replacement);
 			if (UNEXPECTED(!replacement_str)) {
 				return;
@@ -1898,6 +1898,8 @@ PHP_METHOD(RegexIterator, getRegex)
 	if (zend_parse_parameters_none() == FAILURE) {
 		RETURN_THROWS();
 	}
+
+	SPL_FETCH_AND_CHECK_DUAL_IT(intern, ZEND_THIS);
 
 	RETURN_STR_COPY(intern->u.regex.regex);
 } /* }}} */

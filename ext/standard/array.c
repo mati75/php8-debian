@@ -3658,7 +3658,7 @@ PHPAPI int php_array_merge_recursive(HashTable *dest, HashTable *src) /* {{{ */
 						return 0;
 					}
 				} else {
-					Z_TRY_ADDREF_P(src_entry);
+					Z_TRY_ADDREF_P(src_zval);
 					zend_hash_next_index_insert(Z_ARRVAL_P(dest_zval), src_zval);
 				}
 				zval_ptr_dtor(&tmp);
@@ -5811,7 +5811,7 @@ PHP_FUNCTION(array_rand)
 	}
 
 	if (num_req <= 0 || num_req > num_avail) {
-		zend_argument_value_error(2, "must be between 1 and the number of elements in argument #1 ($arg)");
+		zend_argument_value_error(2, "must be between 1 and the number of elements in argument #1 ($array)");
 		RETURN_THROWS();
 	}
 

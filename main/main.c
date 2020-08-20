@@ -697,7 +697,7 @@ PHP_INI_BEGIN()
 	STD_PHP_INI_BOOLEAN("ignore_repeated_errors",	"0",	PHP_INI_ALL,		OnUpdateBool,			ignore_repeated_errors,	php_core_globals,	core_globals)
 	STD_PHP_INI_BOOLEAN("ignore_repeated_source",	"0",	PHP_INI_ALL,		OnUpdateBool,			ignore_repeated_source,	php_core_globals,	core_globals)
 	STD_PHP_INI_BOOLEAN("report_memleaks",		"1",		PHP_INI_ALL,		OnUpdateBool,			report_memleaks,		php_core_globals,	core_globals)
-	STD_PHP_INI_BOOLEAN("report_zend_debug",	"1",		PHP_INI_ALL,		OnUpdateBool,			report_zend_debug,		php_core_globals,	core_globals)
+	STD_PHP_INI_BOOLEAN("report_zend_debug",	"0",		PHP_INI_ALL,		OnUpdateBool,			report_zend_debug,		php_core_globals,	core_globals)
 	STD_PHP_INI_ENTRY("output_buffering",		"0",		PHP_INI_PERDIR|PHP_INI_SYSTEM,	OnUpdateLong,	output_buffering,		php_core_globals,	core_globals)
 	STD_PHP_INI_ENTRY("output_handler",			NULL,		PHP_INI_PERDIR|PHP_INI_SYSTEM,	OnUpdateString,	output_handler,		php_core_globals,	core_globals)
 	STD_PHP_INI_BOOLEAN("register_argc_argv",	"1",		PHP_INI_PERDIR|PHP_INI_SYSTEM,	OnUpdateBool,	register_argc_argv,		php_core_globals,	core_globals)
@@ -1312,7 +1312,8 @@ static ZEND_COLD void php_error_cb(int orig_type, const char *error_filename, co
 				break;
 		}
 
-		if (!module_initialized || PG(log_errors)) {
+		if (PG(log_errors)
+				|| (!module_initialized && (!PG(display_startup_errors) || !PG(display_errors)))) {
 			char *log_buffer;
 #ifdef PHP_WIN32
 			if (type == E_CORE_ERROR || type == E_CORE_WARNING) {
@@ -2470,7 +2471,6 @@ PHPAPI int php_execute_script(zend_file_handle *primary_file)
 #endif
 	int retval = 0;
 
-	EG(exit_status) = 0;
 #ifndef HAVE_BROKEN_GETCWD
 # define OLD_CWD_SIZE 4096
 	old_cwd = do_alloca(OLD_CWD_SIZE, use_heap);
@@ -2532,20 +2532,7 @@ PHPAPI int php_execute_script(zend_file_handle *primary_file)
 			zend_set_timeout(INI_INT("max_execution_time"), 0);
 		}
 
-		/*
-		   If cli primary file has shebang line and there is a prepend file,
-		   the `skip_shebang` will be used by prepend file but not primary file,
-		   save it and restore after prepend file been executed.
-		 */
-		if (CG(skip_shebang) && prepend_file_p) {
-			CG(skip_shebang) = 0;
-			if (zend_execute_scripts(ZEND_REQUIRE, NULL, 1, prepend_file_p) == SUCCESS) {
-				CG(skip_shebang) = 1;
-				retval = (zend_execute_scripts(ZEND_REQUIRE, NULL, 2, primary_file, append_file_p) == SUCCESS);
-			}
-		} else {
-			retval = (zend_execute_scripts(ZEND_REQUIRE, NULL, 3, prepend_file_p, primary_file, append_file_p) == SUCCESS);
-		}
+		retval = (zend_execute_scripts(ZEND_REQUIRE, NULL, 3, prepend_file_p, primary_file, append_file_p) == SUCCESS);
 	} zend_end_try();
 
 	if (EG(exception)) {

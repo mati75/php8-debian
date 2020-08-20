@@ -576,7 +576,6 @@ ZEND_API int open_file_for_scanning(zend_file_handle *file_handle)
 	}
 
 	if (CG(skip_shebang)) {
-		CG(skip_shebang) = 0;
 		BEGIN(SHEBANG);
 	} else {
 		BEGIN(INITIAL);
@@ -656,7 +655,6 @@ ZEND_API zend_op_array *compile_file(zend_file_handle *file_handle, int type)
 		if (!EG(exception)) {
 			if (type==ZEND_REQUIRE) {
 				zend_message_dispatcher(ZMSG_FAILED_REQUIRE_FOPEN, file_handle->filename);
-				zend_bailout();
 			} else {
 				zend_message_dispatcher(ZMSG_FAILED_INCLUDE_FOPEN, file_handle->filename);
 			}
@@ -1170,6 +1168,7 @@ static const char *next_newline(const char *str, const char *end, size_t *newlin
 	for (; str < end; str++) {
 		if (*str == '\r') {
 			*newline_len = str + 1 < end && *(str + 1) == '\n' ? 2 : 1;
+			return str;
 		} else if (*str == '\n') {
 			*newline_len = 1;
 			return str;
@@ -2258,11 +2257,17 @@ inline_char_handler:
 }
 
 
-/* Make sure a label character follows "->", otherwise there is no property
- * and "->" will be taken literally
+/* Make sure a label character follows "->" or "?->", otherwise there is no property
+ * and "->"/"?->" will be taken literally
  */
 <ST_DOUBLE_QUOTES,ST_HEREDOC,ST_BACKQUOTE>"$"{LABEL}"->"[a-zA-Z_\x80-\xff] {
 	yyless(yyleng - 3);
+	yy_push_state(ST_LOOKING_FOR_PROPERTY);
+	RETURN_TOKEN_WITH_STR(T_VARIABLE, 1);
+}
+
+<ST_DOUBLE_QUOTES,ST_HEREDOC,ST_BACKQUOTE>"$"{LABEL}"?->"[a-zA-Z_\x80-\xff] {
+	yyless(yyleng - 4);
 	yy_push_state(ST_LOOKING_FOR_PROPERTY);
 	RETURN_TOKEN_WITH_STR(T_VARIABLE, 1);
 }

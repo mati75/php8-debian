@@ -51,11 +51,7 @@ static inline long long php_date_llabs( long long i ) { return i >= 0 ? i : -i; 
 		int st = snprintf(s, len, "%lld", i); \
 		s[st] = '\0'; \
 	} while (0);
-#ifdef HAVE_ATOLL
-# define DATE_A64I(i, s) i = atoll(s)
-#else
-# define DATE_A64I(i, s) i = strtoll(s, NULL, 10)
-#endif
+#define DATE_A64I(i, s) i = strtoll(s, NULL, 10)
 #endif
 
 PHPAPI time_t php_time(void)
@@ -4193,6 +4189,7 @@ PHP_METHOD(DatePeriod, getStartDate)
 	ZEND_PARSE_PARAMETERS_NONE();
 
 	dpobj = Z_PHPPERIOD_P(ZEND_THIS);
+	DATE_CHECK_INITIALIZED(dpobj->start, DatePeriod);
 
 	php_date_instantiate(dpobj->start_ce, return_value);
 	dateobj = Z_PHPDATE_P(return_value);
@@ -4243,6 +4240,7 @@ PHP_METHOD(DatePeriod, getDateInterval)
 	ZEND_PARSE_PARAMETERS_NONE();
 
 	dpobj = Z_PHPPERIOD_P(ZEND_THIS);
+	DATE_CHECK_INITIALIZED(dpobj->interval, DatePeriod);
 
 	php_date_instantiate(date_ce_interval, return_value);
 	diobj = Z_PHPINTERVAL_P(return_value);
