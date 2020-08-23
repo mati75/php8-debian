@@ -3,8 +3,12 @@ Bug #68825 (Exception in DirectoryIterator::getLinkTarget())
 --SKIPIF--
 <?php
 if (PHP_OS_FAMILY === 'Windows') {
-    include_once __DIR__ . '/../../standard/tests/file/windows_links/common.inc';
-    skipIfSeCreateSymbolicLinkPrivilegeIsDisabled(__FILE__);
+    $fn = "bug68825.lnk";
+    $ret = exec("mklink $fn " . __FILE__ .' 2>&1', $out);
+    @unlink($fn);
+    if (strpos($ret, 'privilege')) {
+        die('skip. SeCreateSymbolicLinkPrivilege not enable for this user.');
+    }
 }
 ?>
 --FILE--
@@ -24,10 +28,8 @@ foreach ($di as $entry) {
     }
 }
 ?>
-===DONE===
 --EXPECTF--
 string(%d) "%s%eext%espl%etests%ebug68825.php"
-===DONE===
 --CLEAN--
 <?php
 $dir = __DIR__ . '/bug68825';

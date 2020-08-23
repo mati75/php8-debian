@@ -8,9 +8,9 @@ ob_start(): non-static method as static callbacks.
 */
 
 Class C {
-	function h($string) {
-		return $string;
-	}
+    function h($string) {
+        return $string;
+    }
 }
 
 function checkAndClean() {
@@ -25,9 +25,10 @@ checkAndClean();
 
 ?>
 --EXPECTF--
-Warning: ob_start(): non-static method C::h() should not be called statically in %s on line 20
-bool(true)
+Warning: ob_start(): non-static method C::h() cannot be called statically in %s on line %d
+
+Notice: ob_start(): Failed to create buffer in %s on line %d
+bool(false)
 Array
 (
-    [0] => C::h
 )

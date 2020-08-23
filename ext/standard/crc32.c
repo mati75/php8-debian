@@ -1,7 +1,5 @@
 /*
    +----------------------------------------------------------------------+
-   | PHP Version 7                                                        |
-   +----------------------------------------------------------------------+
    | Copyright (c) The PHP Group                                          |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
@@ -72,7 +70,7 @@ static uint32_t crc32_aarch64(uint32_t crc, char *p, size_t nr) {
 
 /* {{{ proto string crc32(string str)
    Calculate the crc32 polynomial of a string */
-PHP_NAMED_FUNCTION(php_if_crc32)
+PHP_FUNCTION(crc32)
 {
 	char *p;
 	size_t nr;

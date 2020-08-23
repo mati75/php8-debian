@@ -13,8 +13,6 @@ if (PHP_OS_FAMILY == 'Windows') die('skip Preloading is not supported on Windows
 --FILE--
 Unreachable
 --EXPECTF--
-Warning: Use of undefined constant UNDEF - assumed 'UNDEF' (this will throw an Error in a future version of PHP) in Unknown on line 0
-
-Fatal error: Class 'Foo' not found in Unknown on line 0
+Fatal error: Undefined constant 'UNDEF' in Unknown on line 0
 
 Fatal error: Failed to resolve initializers of class Test during preloading in Unknown on line 0

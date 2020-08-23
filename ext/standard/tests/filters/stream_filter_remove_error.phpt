@@ -20,28 +20,25 @@ $filter = stream_filter_append( $fp, "string.rot13", STREAM_FILTER_WRITE );
 
 echo "*** Testing stream_filter_remove() : error conditions ***\n";
 
-echo "\n-- Testing stream_filter_remove() function with Zero arguments --\n";
-var_dump( stream_filter_remove() );
-
-echo "\n-- Testing stream_filter_remove() function with more than expected no. of arguments --\n";
-$arg = 'bogus arg';
-var_dump( stream_filter_remove( $filter, $arg ) );
-
-echo "\n-- Testing stream_filter_remove() function with unexisting stream filter --\n";
-var_dump( stream_filter_remove( "fakefilter" ) );
-
 echo "\n-- Testing stream_filter_remove() function with bad resource --\n";
-var_dump( stream_filter_remove( $fp ) );
+try {
+    stream_filter_remove($fp);
+} catch (TypeError $exception) {
+    echo $exception->getMessage() . "\n";
+}
 
 echo "\n-- Testing stream_filter_remove() function with an already removed filter --\n";
 // Double remove it
-var_dump( stream_filter_remove( $filter ) );
-var_dump( stream_filter_remove( $filter ) );
+var_dump(stream_filter_remove( $filter ));
+try {
+    stream_filter_remove($filter);
+} catch (TypeError $exception) {
+    echo $exception->getMessage() . "\n";
+}
 
 fclose( $fp );
 
 ?>
-===DONE===
 --CLEAN--
 <?php
 
@@ -49,32 +46,12 @@ $file = __DIR__ . DIRECTORY_SEPARATOR . 'streamfilterTest.txt';
 unlink( $file );
 
 ?>
---EXPECTF--
+--EXPECT--
 *** Testing stream_filter_remove() : error conditions ***
 
--- Testing stream_filter_remove() function with Zero arguments --
-
-Warning: stream_filter_remove() expects exactly 1 parameter, 0 given in %s on line %d
-bool(false)
-
--- Testing stream_filter_remove() function with more than expected no. of arguments --
-
-Warning: stream_filter_remove() expects exactly 1 parameter, 2 given in %s on line %d
-bool(false)
-
--- Testing stream_filter_remove() function with unexisting stream filter --
-
-Warning: stream_filter_remove() expects parameter 1 to be resource, string given in %s on line %d
-bool(false)
-
 -- Testing stream_filter_remove() function with bad resource --
-
-Warning: stream_filter_remove(): Invalid resource given, not a stream filter in %s on line %d
-bool(false)
+stream_filter_remove(): supplied resource is not a valid stream filter resource
 
 -- Testing stream_filter_remove() function with an already removed filter --
 bool(true)
-
-Warning: stream_filter_remove(): Invalid resource given, not a stream filter in %s on line %d
-bool(false)
-===DONE===
+stream_filter_remove(): supplied resource is not a valid stream filter resource

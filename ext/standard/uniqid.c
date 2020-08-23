@@ -1,7 +1,5 @@
 /*
    +----------------------------------------------------------------------+
-   | PHP Version 7                                                        |
-   +----------------------------------------------------------------------+
    | Copyright (c) The PHP Group                                          |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
@@ -34,7 +32,6 @@
 #endif
 
 #include "php_lcg.h"
-#include "uniqid.h"
 
 #ifdef HAVE_GETTIMEOFDAY
 ZEND_TLS struct timeval prev_tv = { 0, 0 };

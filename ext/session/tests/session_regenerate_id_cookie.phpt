@@ -32,16 +32,16 @@ file_put_contents($file, '<?php
 ob_start();
 
 function find_cookie_header() {
-	$headers = headers_list();
-	$target  = "Set-Cookie: PHPSESSID=";
-	foreach ($headers as $h) {
-		if (strstr($h, $target) !== FALSE) {
-			echo $h."\n";
-			return TRUE;
-		}
-	}
-	var_dump($headers);
-	return FALSE;
+    $headers = headers_list();
+    $target  = "Set-Cookie: PHPSESSID=";
+    foreach ($headers as $h) {
+        if (strstr($h, $target) !== FALSE) {
+            echo $h."\n";
+            return TRUE;
+        }
+    }
+    var_dump($headers);
+    return FALSE;
 }
 
 var_dump(session_start());
@@ -64,7 +64,7 @@ echo "Done";
 ?>
 --EXPECTF--
 *** Testing session_regenerate_id() : basic functionality for cookie ***
-string(%d) "X-Powered-By: PHP/7.%s
+string(%d) "X-Powered-By: PHP/%d.%d.%s
 Expires: %s
 Cache-Control: no-store, no-cache, must-revalidate
 Pragma: no-cache

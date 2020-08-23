@@ -1,7 +1,5 @@
 /*
   +----------------------------------------------------------------------+
-  | PHP Version 7                                                        |
-  +----------------------------------------------------------------------+
   | Copyright (c) The PHP Group                                          |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
@@ -28,13 +26,6 @@
 #include "php_mysqli_structs.h"
 #include "mysqli_priv.h"
 #include "zend_exceptions.h"
-
-/* {{{ mysqli_exception_methods[]
- */
-const zend_function_entry mysqli_exception_methods[] = {
-	PHP_FE_END
-};
-/* }}} */
 
 void php_mysqli_throw_sql_exception(char *sqlstate, int errorno, char *format, ...)
 {

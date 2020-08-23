@@ -1,7 +1,5 @@
 /*
    +----------------------------------------------------------------------+
-   | PHP Version 7                                                        |
-   +----------------------------------------------------------------------+
    | Copyright (c) The PHP Group                                          |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
@@ -780,7 +778,7 @@ void php_ini_register_extensions(void)
 
 /* {{{ php_parse_user_ini_file
  */
-PHPAPI int php_parse_user_ini_file(const char *dirname, char *ini_filename, HashTable *target_hash)
+PHPAPI int php_parse_user_ini_file(const char *dirname, const char *ini_filename, HashTable *target_hash)
 {
 	zend_stat_t sb;
 	char ini_file[MAXPATHLEN];

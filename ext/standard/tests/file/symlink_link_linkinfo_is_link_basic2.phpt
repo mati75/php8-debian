@@ -2,9 +2,8 @@
 Test symlink(), linkinfo(), link() and is_link() functions: basic functionality - link to dirs
 --SKIPIF--
 <?php
-if (PHP_OS_FAMILY === 'Windows') {
-    require_once __DIR__ . '/windows_links/common.inc';
-    skipIfSeCreateSymbolicLinkPrivilegeIsDisabled(__FILE__);
+if (substr(PHP_OS, 0, 3) == 'WIN') {
+    die('skip no symlinks on Windows');
 }
 ?>
 --FILE--
@@ -45,8 +44,7 @@ echo "\n-- Testing on soft links --\n";
 // creating soft link to $dirname
 var_dump( symlink("$file_path/$dirname", $sym_linkname) ); // this works, expected true
 // gets information about soft link created to directory; expected: true
-$linkinfo = linkinfo($sym_linkname);
-var_dump( is_int($linkinfo) && $linkinfo !== -1 );
+var_dump( linkinfo($sym_linkname) );
 // checks if link created is soft link; expected: true
 var_dump( is_link($sym_linkname) );
 // clear the cache
@@ -62,11 +60,7 @@ var_dump( is_link($linkname) ); // link doesn't exists as not created, expected 
 clearstatcache();
 
 // deleting the links
-if (PHP_OS_FAMILY === 'Windows') {
-   rmdir($sym_linkname);
-} else {
-   unlink($sym_linkname);
-}
+unlink($sym_linkname);
 
 echo "Done\n";
 ?>
@@ -82,7 +76,7 @@ rmdir($dirname);
 
 -- Testing on soft links --
 bool(true)
-bool(true)
+int(%d)
 bool(true)
 
 -- Testing on hard links --

@@ -36,26 +36,30 @@ class in_array_check {
 
 $in_array_obj = new in_array_check();  //creating new object
 //error: as wrong datatype for second argument
-var_dump( in_array("array_var", $in_array_obj) );
+try {
+    var_dump( in_array("array_var", $in_array_obj) );
+} catch (TypeError $e) {
+    echo $e->getMessage(), "\n";
+}
 //error: as wrong datatype for second argument
-var_dump( in_array("foo", $in_array_obj) );
+try {
+    var_dump( in_array("foo", $in_array_obj) );
+} catch (TypeError $e) {
+    echo $e->getMessage(), "\n";
+}
 //element found as "one" exists in array $array_var
 var_dump( in_array("one", $in_array_obj->array_var) );
 
 echo "Done\n";
 ?>
---EXPECTF--
+--EXPECT--
 *** Testing sub-arrays with in_array() ***
 bool(true)
 bool(true)
 bool(true)
 
 *** Testing objects with in_array() ***
-
-Warning: in_array() expects parameter 2 to be array, object given in %s on line %d
-NULL
-
-Warning: in_array() expects parameter 2 to be array, object given in %s on line %d
-NULL
+in_array(): Argument #2 ($haystack) must be of type array, in_array_check given
+in_array(): Argument #2 ($haystack) must be of type array, in_array_check given
 bool(true)
 Done

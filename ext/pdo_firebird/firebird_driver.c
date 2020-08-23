@@ -1,7 +1,5 @@
 /*
   +----------------------------------------------------------------------+
-  | PHP Version 7                                                        |
-  +----------------------------------------------------------------------+
   | Copyright (c) The PHP Group                                          |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
@@ -275,7 +273,7 @@ static int firebird_handle_begin(pdo_dbh_t *dbh) /* {{{ */
 {
 	pdo_firebird_db_handle *H = (pdo_firebird_db_handle *)dbh->driver_data;
 	char tpb[8] = { isc_tpb_version3 }, *ptpb = tpb+1;
-#if abies_0
+#ifdef abies_0
 	if (dbh->transaction_flags & PDO_TRANS_ISOLATION_LEVEL) {
 		if (dbh->transaction_flags & PDO_TRANS_READ_UNCOMMITTED) {
 			/* this is a poor fit, but it's all we have */

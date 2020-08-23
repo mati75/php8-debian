@@ -3,6 +3,9 @@ Test lstat() and stat() functions: usage variations - effects of is_dir()
 --SKIPIF--
 <?php
 if (getenv("SKIP_SLOW_TESTS")) die("skip slow test");
+if (substr(PHP_OS, 0, 3) == 'WIN') {
+    die('skip.. Not valid for Windows');
+}
 ?>
 --FILE--
 <?php
@@ -28,7 +31,7 @@ echo "*** Testing stat() on directory after using is_dir() on it ***\n";
 $old_stat = stat($dirname);
 // clear the cache
 clearstatcache();
-sleep(2);
+sleep(1);
 var_dump( is_dir($dirname) );
 $new_stat = stat($dirname);
 

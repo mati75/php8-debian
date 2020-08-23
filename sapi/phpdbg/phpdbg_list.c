@@ -1,7 +1,5 @@
 /*
    +----------------------------------------------------------------------+
-   | PHP Version 7                                                        |
-   +----------------------------------------------------------------------+
    | Copyright (c) The PHP Group                                          |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
@@ -319,7 +317,7 @@ zend_op_array *phpdbg_init_compile_file(zend_file_handle *file, int type) {
 	return op_array;
 }
 
-zend_op_array *phpdbg_compile_string(zval *source_string, char *filename) {
+zend_op_array *phpdbg_compile_string(zval *source_string, const char *filename) {
 	zend_string *fake_name;
 	zend_op_array *op_array;
 	phpdbg_file_source *dataptr;

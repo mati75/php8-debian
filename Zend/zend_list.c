@@ -51,13 +51,10 @@ ZEND_API int ZEND_FASTCALL zend_list_delete(zend_resource *res)
 	}
 }
 
-ZEND_API int ZEND_FASTCALL zend_list_free(zend_resource *res)
+ZEND_API void ZEND_FASTCALL zend_list_free(zend_resource *res)
 {
-	if (GC_REFCOUNT(res) <= 0) {
-		return zend_hash_index_del(&EG(regular_list), res->handle);
-	} else {
-		return SUCCESS;
-	}
+	ZEND_ASSERT(GC_REFCOUNT(res) == 0);
+	zend_hash_index_del(&EG(regular_list), res->handle);
 }
 
 static void zend_resource_dtor(zend_resource *res)
@@ -82,7 +79,7 @@ static void zend_resource_dtor(zend_resource *res)
 ZEND_API int ZEND_FASTCALL zend_list_close(zend_resource *res)
 {
 	if (GC_REFCOUNT(res) <= 0) {
-		return zend_list_free(res);
+		zend_list_free(res);
 	} else if (res->type >= 0) {
 		zend_resource_dtor(res);
 	}
@@ -113,7 +110,7 @@ ZEND_API void *zend_fetch_resource2(zend_resource *res, const char *resource_typ
 	if (resource_type_name) {
 		const char *space;
 		const char *class_name = get_active_class_name(&space);
-		zend_error(E_WARNING, "%s%s%s(): supplied resource is not a valid %s resource", class_name, space, get_active_function_name(), resource_type_name);
+		zend_type_error("%s%s%s(): supplied resource is not a valid %s resource", class_name, space, get_active_function_name(), resource_type_name);
 	}
 
 	return NULL;
@@ -128,7 +125,7 @@ ZEND_API void *zend_fetch_resource(zend_resource *res, const char *resource_type
 	if (resource_type_name) {
 		const char *space;
 		const char *class_name = get_active_class_name(&space);
-		zend_error(E_WARNING, "%s%s%s(): supplied resource is not a valid %s resource", class_name, space, get_active_function_name(), resource_type_name);
+		zend_type_error("%s%s%s(): supplied resource is not a valid %s resource", class_name, space, get_active_function_name(), resource_type_name);
 	}
 
 	return NULL;
@@ -140,14 +137,14 @@ ZEND_API void *zend_fetch_resource_ex(zval *res, const char *resource_type_name,
 	if (res == NULL) {
 		if (resource_type_name) {
 			class_name = get_active_class_name(&space);
-			zend_error(E_WARNING, "%s%s%s(): no %s resource supplied", class_name, space, get_active_function_name(), resource_type_name);
+			zend_type_error("%s%s%s(): no %s resource supplied", class_name, space, get_active_function_name(), resource_type_name);
 		}
 		return NULL;
 	}
 	if (Z_TYPE_P(res) != IS_RESOURCE) {
 		if (resource_type_name) {
 			class_name = get_active_class_name(&space);
-			zend_error(E_WARNING, "%s%s%s(): supplied argument is not a valid %s resource", class_name, space, get_active_function_name(), resource_type_name);
+			zend_type_error("%s%s%s(): supplied argument is not a valid %s resource", class_name, space, get_active_function_name(), resource_type_name);
 		}
 		return NULL;
 	}
@@ -161,14 +158,14 @@ ZEND_API void *zend_fetch_resource2_ex(zval *res, const char *resource_type_name
 	if (res == NULL) {
 		if (resource_type_name) {
 			class_name = get_active_class_name(&space);
-			zend_error(E_WARNING, "%s%s%s(): no %s resource supplied", class_name, space, get_active_function_name(), resource_type_name);
+			zend_type_error("%s%s%s(): no %s resource supplied", class_name, space, get_active_function_name(), resource_type_name);
 		}
 		return NULL;
 	}
 	if (Z_TYPE_P(res) != IS_RESOURCE) {
 		if (resource_type_name) {
 			class_name = get_active_class_name(&space);
-			zend_error(E_WARNING, "%s%s%s(): supplied argument is not a valid %s resource", class_name, space, get_active_function_name(), resource_type_name);
+			zend_type_error("%s%s%s(): supplied argument is not a valid %s resource", class_name, space, get_active_function_name(), resource_type_name);
 		}
 		return NULL;
 	}
@@ -209,6 +206,7 @@ void plist_entry_destructor(zval *zv)
 ZEND_API int zend_init_rsrc_list(void)
 {
 	zend_hash_init(&EG(regular_list), 8, NULL, list_entry_destructor, 0);
+	EG(regular_list).nNextFreeElement = 0;
 	return SUCCESS;
 }
 

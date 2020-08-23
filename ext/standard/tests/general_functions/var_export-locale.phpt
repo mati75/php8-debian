@@ -58,12 +58,12 @@ $counter++;
 echo "*** Testing var_export() with valid boolean values ***\n";
 // different valid  boolean values
 $valid_bool = array(
-		    1,
-		    TRUE,
+            1,
+            TRUE,
                 true,
                 0,
-		    FALSE,
-		    false
+            FALSE,
+            false
                );
 $counter = 1;
 /* Loop to check for above boolean values with var_export() */
@@ -303,18 +303,11 @@ echo "\n";
 $counter++;
 }
 
-echo "\n*** Testing error conditions ***\n";
-//Zero argument
-var_export( var_export() );
-
-//arguments more than expected
-var_export( var_export(TRUE, FALSE, TRUE) );
-
-echo "\n\nDone";
+echo "\nDone";
 
 
 ?>
---EXPECTF--
+--EXPECT--
 *** Testing var_export() with integer values ***
 
 *** Output for integer values ***
@@ -1137,12 +1130,5 @@ NULL
 NULL
 string(4) "NULL"
 
-
-*** Testing error conditions ***
-
-Warning: var_export() expects at least 1 parameter, 0 given in %s on line %d
-NULL
-Warning: var_export() expects at most 2 parameters, 3 given in %s on line %d
-NULL
 
 Done

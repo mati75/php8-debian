@@ -98,19 +98,12 @@ foreach ($varient_arrays as $type ) {
   var_dump( is_array ($type) );
 }
 
-echo "\n*** Testing error conditions ***\n";
-//Zero argument
-var_dump( is_array() );
-
-//arguments more than expected
-var_dump( is_array ($fp, $fp) );
-
 echo "Done\n";
 /* close resources */
 fclose($fp);
 closedir($dfp);
 ?>
---EXPECTF--
+--EXPECT--
 *** Testing is_array() on different type of arrays ***
 -- Iteration 1 --
 bool(true)
@@ -201,13 +194,5 @@ bool(false)
 -- Iteration 28 --
 bool(false)
 -- Iteration 29 --
-bool(false)
-
-*** Testing error conditions ***
-
-Warning: is_array() expects exactly 1 parameter, 0 given in %s on line %d
-bool(false)
-
-Warning: is_array() expects exactly 1 parameter, 2 given in %s on line %d
 bool(false)
 Done

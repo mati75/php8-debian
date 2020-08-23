@@ -3,6 +3,9 @@ Test lstat() and stat() functions: usage variations - effects of touch() on file
 --SKIPIF--
 <?php
 if (getenv("SKIP_SLOW_TESTS")) die("skip slow test");
+if (substr(PHP_OS, 0, 3) == 'WIN') {
+    die('skip.. Not valid for Windows');
+}
 ?>
 --FILE--
 <?php
@@ -30,7 +33,7 @@ echo "*** Testing stat() for file after using touch() on the file ***\n";
 $old_stat = stat($file_name);
 // clear the cache
 clearstatcache();
-sleep(2);
+sleep(1);
 var_dump( touch($file_name) );
 $new_stat = stat($file_name);
 

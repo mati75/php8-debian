@@ -1,7 +1,5 @@
 /*
    +----------------------------------------------------------------------+
-   | PHP Version 7                                                        |
-   +----------------------------------------------------------------------+
    | Copyright (c) The PHP Group                                          |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
@@ -60,7 +58,7 @@ PHPAPI int php_flock(int fd, int operation)
 
 	ret = fcntl(fd, operation & LOCK_NB ? F_SETLK : F_SETLKW, &flck);
 
-	if (operation & LOCK_NB && ret == -1 &&
+	if ((operation & LOCK_NB) && ret == -1 &&
 			(errno == EACCES || errno == EAGAIN))
 		errno = EWOULDBLOCK;
 

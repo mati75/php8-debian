@@ -99,12 +99,12 @@
 ;   Production Value: Off
 
 ; display_startup_errors
-;   Default Value: Off
+;   Default Value: On
 ;   Development Value: On
 ;   Production Value: Off
 
 ; error_reporting
-;   Default Value: E_ALL & ~E_NOTICE & ~E_STRICT & ~E_DEPRECATED
+;   Default Value: E_ALL
 ;   Development Value: E_ALL
 ;   Production Value: E_ALL & ~E_DEPRECATED & ~E_STRICT
 
@@ -456,7 +456,7 @@ memory_limit = 128M
 ;   E_ALL & ~E_NOTICE  (Show all errors, except for notices)
 ;   E_ALL & ~E_NOTICE & ~E_STRICT  (Show all errors, except for notices and coding standards warnings.)
 ;   E_COMPILE_ERROR|E_RECOVERABLE_ERROR|E_ERROR|E_CORE_ERROR  (Show only errors)
-; Default Value: E_ALL & ~E_NOTICE & ~E_STRICT & ~E_DEPRECATED
+; Default Value: E_ALL
 ; Development Value: E_ALL
 ; Production Value: E_ALL & ~E_DEPRECATED & ~E_STRICT
 ; http://php.net/error-reporting
@@ -480,11 +480,9 @@ error_reporting = E_ALL
 display_errors = On
 
 ; The display of errors which occur during PHP's startup sequence are handled
-; separately from display_errors. PHP's default behavior is to suppress those
-; errors from clients. Turning the display of startup errors on can be useful in
-; debugging configuration problems. We strongly recommend you
-; set this to 'off' for production servers.
-; Default Value: Off
+; separately from display_errors. We strongly recommend you set this to 'off'
+; for production servers to avoid leaking configuration details.
+; Default Value: On
 ; Development Value: On
 ; Production Value: Off
 ; http://php.net/display-startup-errors
@@ -524,14 +522,6 @@ report_memleaks = On
 
 ; This setting is on by default.
 ;report_zend_debug = 0
-
-; Store the last error/warning message in $php_errormsg (boolean).
-; This directive is DEPRECATED.
-; Default Value: Off
-; Development Value: Off
-; Production Value: Off
-; http://php.net/track-errors
-;track_errors = Off
 
 ; Turn off normal error reporting and emit XML-RPC error XML
 ; http://php.net/xmlrpc-errors
@@ -941,8 +931,9 @@ default_socket_timeout = 60
 ;extension=sodium
 ;extension=sqlite3
 ;extension=tidy
-;extension=xmlrpc
 ;extension=xsl
+
+;zend_extension=opcache
 
 ;;;;;;;;;;;;;;;;;;;
 ; Module Settings ;
@@ -964,10 +955,10 @@ cli_server.color = On
 ;date.default_longitude = 35.2333
 
 ; http://php.net/date.sunrise-zenith
-;date.sunrise_zenith = 90.583333
+;date.sunrise_zenith = 90.833333
 
 ; http://php.net/date.sunset-zenith
-;date.sunset_zenith = 90.583333
+;date.sunset_zenith = 90.833333
 
 [filter]
 ; http://php.net/filter.default
@@ -1043,8 +1034,6 @@ cli_server.color = On
 ; Whether to pool ODBC connections. Can be one of "strict", "relaxed" or "off"
 ; http://php.net/pdo-odbc.connection-pooling
 ;pdo_odbc.connection_pooling=strict
-
-;pdo_odbc.db2_instance_name
 
 [Pdo_mysql]
 ; Default socket name for local MySQL connects.  If empty, uses the built-in
@@ -1581,13 +1570,6 @@ zend.assertions = 1
 ; http://php.net/assert.callback
 ;assert.callback = 0
 
-; Eval the expression with current error_reporting().  Set to true if you want
-; error_reporting(0) around the eval().
-; http://php.net/assert.quiet-eval
-;assert.quiet_eval = 0
-
-
-
 [COM]
 ; path to a file containing GUIDs, IIDs or filenames of files with TypeLibs
 ; http://php.net/com.typelib-file
@@ -1661,17 +1643,6 @@ zend.assertions = 1
 ; one from another
 ; http://php.net/mbstring.substitute-character
 ;mbstring.substitute_character = none
-
-; overload(replace) single byte functions by mbstring functions.
-; mail(), ereg(), etc are overloaded by mb_send_mail(), mb_ereg(),
-; etc. Possible values are 0,1,2,4 or combination of them.
-; For example, 7 for overload everything.
-; 0: No overload
-; 1: Overload mail() function
-; 2: Overload str*() functions
-; 4: Overload ereg*() functions
-; http://php.net/mbstring.func-overload
-;mbstring.func_overload = 0
 
 ; enable strict encoding detection.
 ; Default: Off
@@ -1803,6 +1774,11 @@ ldap.max_links = -1
 ; If disabled, all PHPDoc comments are dropped from the code to reduce the
 ; size of the optimized code.
 ;opcache.save_comments=1
+
+; If enabled, compilation warnings (including notices and deprecations) will
+; be recorded and replayed each time a file is included. Otherwise, compilation
+; warnings will only be emitted when the file is first cached.
+;opcache.record_warnings=0
 
 ; Allow file existence override (file_exists, etc.) performance feature.
 ;opcache.enable_file_override=0

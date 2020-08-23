@@ -8,7 +8,7 @@ jobs:
   - job: ${{ parameters.configurationName }}
     timeoutInMinutes: ${{ parameters.timeoutInMinutes }}
     pool:
-      vmImage: 'ubuntu-18.04'
+      vmImage: 'ubuntu-20.04'
     steps:
     - template: apt.yml
     - template: configure.yml
@@ -29,3 +29,11 @@ jobs:
         runTestsParameters: >-
           ${{ parameters.runTestsParameters }}
           -d zend_extension=opcache.so
+    - template: test.yml
+      parameters:
+        configurationName: ${{ parameters.configurationName }}
+        runTestsName: 'JIT'
+        runTestsParameters: >-
+          ${{ parameters.runTestsParameters }}
+          -d zend_extension=opcache.so
+          -d opcache.jit_buffer_size=16M

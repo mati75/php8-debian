@@ -3,9 +3,8 @@ Test lstat() and stat() functions: usage variations - effects of is_link()
 --SKIPIF--
 <?php
 if (getenv("SKIP_SLOW_TESTS")) die("skip slow test");
-if (PHP_OS_FAMILY === 'Windows') {
-    include_once __DIR__ . '/windows_links/common.inc';
-    skipIfSeCreateSymbolicLinkPrivilegeIsDisabled(__FILE__);
+if (substr(PHP_OS, 0, 3) == 'WIN') {
+   die('skip.. lstat() not available on Windows');
 }
 ?>
 --FILE--
@@ -37,7 +36,7 @@ $linkname = "$file_path/lstat_stat_variation12_link.tmp";
 $old_stat = lstat($linkname);
 // clear the stat
 clearstatcache();
-sleep(2);
+sleep(1);
 var_dump( is_link($linkname) );
 $new_stat = lstat($linkname);
 // compare self stats

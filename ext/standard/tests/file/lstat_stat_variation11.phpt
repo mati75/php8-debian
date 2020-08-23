@@ -3,6 +3,9 @@ Test lstat() and stat() functions: usage variations - effect of is_file()
 --SKIPIF--
 <?php
 if (getenv("SKIP_SLOW_TESTS")) die("skip slow test");
+if (substr(PHP_OS, 0, 3) == 'WIN') {
+    die('skip.. Not valid for Windows');
+}
 ?>
 --FILE--
 <?php
@@ -28,7 +31,7 @@ echo "*** Testing stat() on a file after using is_file() on it ***\n";
 $old_stat = stat($filename);
 // clear the stat
 clearstatcache();
-sleep(2);
+sleep(1);
 var_dump( is_file($filename) );
 $new_stat = stat($filename);
 // compare self stats

@@ -32,6 +32,7 @@ extern ZEND_API zend_class_entry *zend_ce_compile_error;
 extern ZEND_API zend_class_entry *zend_ce_parse_error;
 extern ZEND_API zend_class_entry *zend_ce_type_error;
 extern ZEND_API zend_class_entry *zend_ce_argument_count_error;
+extern ZEND_API zend_class_entry *zend_ce_value_error;
 extern ZEND_API zend_class_entry *zend_ce_arithmetic_error;
 extern ZEND_API zend_class_entry *zend_ce_division_by_zero_error;
 
@@ -60,7 +61,7 @@ ZEND_API ZEND_COLD zend_object *zend_throw_exception_ex(zend_class_entry *except
 ZEND_API ZEND_COLD void zend_throw_exception_object(zval *exception);
 ZEND_API void zend_clear_exception(void);
 
-ZEND_API zend_object *zend_throw_error_exception(zend_class_entry *exception_ce, const char *message, zend_long code, int severity);
+ZEND_API zend_object *zend_throw_error_exception(zend_class_entry *exception_ce, zend_string *message, zend_long code, int severity);
 
 extern ZEND_API void (*zend_throw_exception_hook)(zval *ex);
 

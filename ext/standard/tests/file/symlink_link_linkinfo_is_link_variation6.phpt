@@ -2,6 +2,9 @@
 Test symlink(), linkinfo(), link() and is_link() functions : usage variations - link & dir perms.
 --SKIPIF--
 <?php
+if ( substr(PHP_OS, 0, 3) == 'WIN' ) {
+    die('skip no symlinks on Windows');
+}
 require __DIR__ . '/../skipif_root.inc';
 ?>
 --FILE--

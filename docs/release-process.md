@@ -202,6 +202,8 @@
     ssh lists.php.net
     sudo -u ezmlm ezmlm-sub ~ezmlm/primary-qa-tester/mod moderator-email-address
     ```
+ 6. For RCs, post tweet with release announcement (and link to news article on
+    php.net) ([@official_php](https://twitter.com/official_php))  
 
 ## Rolling a stable release
 
@@ -290,8 +292,15 @@
     Usually we use the same content as for point 6, but included in php template
     instead of the release xml.
 
+    Optionally use `phpweb/bin/createReleaseEntry -v x.y.z -r` to create
+    a standard announcement template for this and step 6.
+
+    Edit the generated files to expand on the base message if needed.
+
  4. Update `php-qa/include/release-qa.php` and add the next version as an
-    QARELEASE (prepare for next RC).
+    QARELEASE (prepare for next RC). Keep `active => true` until there will be
+    no more QA releases. Setting the release number to 0 is sufficient to
+    remove the old QA release from the available QA releases list.
 
  5. Update the ChangeLog file for the given major version
 
@@ -318,9 +327,8 @@
     highlight the major important things (security fixes) and when it is
     important to upgrade.
 
-    * Call `php bin/createNewsEntry` in your local phpweb checkout.
-    * Use the "frontpage" and "releases" category.
-    * Add the content for the news entry.
+    * Call `php bin/createReleaseEntry -v <version> [ --security ]` in your
+      local phpweb checkout.
 
  7. Commit and push all the changes to their respective git repos
 
@@ -339,6 +347,9 @@
     php-announce@ is its own completely separate email. This is to make sure
     that replies to the announcement on php-general@ or internals@ will not
     accidentally hit the php-announce@ mailinglist.
+    
+11. Post tweet with release announcement and link to news article on php.net 
+    ([@official_php](https://twitter.com/official_php))  
 
 ## Re-releasing the same version (or -pl)
 
@@ -357,8 +368,8 @@
     highlight the major important things (security fixes) and when it is
     important to upgrade.
 
-    * Call `php bin/createNewsEntry` in your local phpweb checkout.
-    * Add the content for the news entry.
+    * Call `php bin/createReleaseEntry -v <version> [ --security ]` in your
+      local phpweb checkout.
 
  4. Commit all the changes (`include/version.inc`, `archive/archive.xml`,
     `archive/entries/YYYY-MM-DD-N.xml`).
@@ -418,7 +429,14 @@
  2. Timely get used to the differences in preparing and announcing a stable
     release.
 
+ 3. Before releasing X.Y.0, merge the NEWS entries of the pre-releases, so that
+    there is only a single section about PHP X.Y.0, instead of individual
+    sections for each pre-release.
+
 ## Prime the selection of the Release Managers of the next version
+
+This should be done by one of the release managers of the latest release
+branch:
 
  1. About three months before the scheduled release of the first alpha of the
     next minor or major release, issue a call for volunteers on
@@ -440,6 +458,8 @@
     `gpg --fingerprint "$USER@php.net"`. Let one or more of the previous RMs
     sign your key. Publish your public key to pgp.mit.edu with:
     `gpg --keyserver pgp.mit.edu --send-keys $KEYID`
+    Add new keys in the php-keyring.gpg in distribution repository using:
+    `gpg2 --export --export-options export-minimal --armor <all RM keys>`
 
  3. Request karma to edit `main/php_version.h` and `Zend/zend.h`. Possibly karma
     for other restricted parts of php-src might come in question. To edit

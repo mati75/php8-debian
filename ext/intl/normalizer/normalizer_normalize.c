@@ -1,7 +1,5 @@
 /*
    +----------------------------------------------------------------------+
-   | PHP Version 7														  |
-   +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,	  |
    | that is bundled with this package in the file LICENSE, and is		  |
    | available through the world-wide-web at the following url:			  |
@@ -26,7 +24,6 @@
 #endif
 #include "normalizer.h"
 #include "normalizer_class.h"
-#include "normalizer_normalize.h"
 #include "intl_convert.h"
 #include <unicode/utf8.h>
 
@@ -59,26 +56,8 @@ static const UNormalizer2 *intl_get_normalizer(zend_long form, UErrorCode *err)
 
 static int32_t intl_normalize(zend_long form, const UChar *src, int32_t src_len, UChar *dst, int32_t dst_len, UErrorCode *err)
 {/*{{{*/
-	const UNormalizer2 *norm;
-
-	/* Mimic the behavior of ICU < 56. */
-	if (UNEXPECTED(NORMALIZER_NONE == form)) {
-		/* FIXME This is a noop which should be removed somewhen after PHP 7.3.*/
-		zend_error(E_DEPRECATED, "Normalizer::NONE is obsolete with ICU 56 and above and will be removed in later PHP versions");
-
-		if (dst_len >= src_len) {
-			memmove(dst, src, sizeof(UChar) * src_len);
-			dst[src_len] = '\0';
-			*err = U_ZERO_ERROR;
-			return src_len;
-		}
-
-		*err = U_BUFFER_OVERFLOW_ERROR;
-		return -1;
-	}
-
-	norm = intl_get_normalizer(form, err);
-	if(U_FAILURE(*err)) {
+	const UNormalizer2 *norm = intl_get_normalizer(form, err);
+	if (U_FAILURE(*err)) {
 		return -1;
 	}
 
@@ -127,17 +106,12 @@ PHP_FUNCTION( normalizer_normalize )
 	if( zend_parse_method_parameters( ZEND_NUM_ARGS(), getThis(), "s|l",
 				&input, &input_len, &form ) == FAILURE )
 	{
-		intl_error_set( NULL, U_ILLEGAL_ARGUMENT_ERROR,
-						 "normalizer_normalize: unable to parse input params", 0 );
-
-		RETURN_FALSE;
+		RETURN_THROWS();
 	}
 
 	expansion_factor = 1;
 
 	switch(form) {
-		case NORMALIZER_NONE:
-			break;
 		case NORMALIZER_FORM_D:
 			expansion_factor = 3;
 			break;
@@ -269,15 +243,10 @@ PHP_FUNCTION( normalizer_is_normalized )
 	if( zend_parse_method_parameters( ZEND_NUM_ARGS(), getThis(), "s|l",
 				&input, &input_len, &form) == FAILURE )
 	{
-		intl_error_set( NULL, U_ILLEGAL_ARGUMENT_ERROR,
-				"normalizer_is_normalized: unable to parse input params", 0 );
-
-		RETURN_FALSE;
+		RETURN_THROWS();
 	}
 
 	switch(form) {
-		/* case NORMALIZER_NONE: not allowed - doesn't make sense */
-
 		case NORMALIZER_FORM_D:
 		case NORMALIZER_FORM_KD:
 		case NORMALIZER_FORM_C:
@@ -361,7 +330,7 @@ PHP_FUNCTION( normalizer_get_raw_decomposition )
 	intl_error_reset(NULL);
 
 	if ((zend_parse_parameters(ZEND_NUM_ARGS(), "s|l", &input, &input_length, &form) == FAILURE)) {
-		return;
+		RETURN_THROWS();
 	}
 
 	norm = intl_get_normalizer(form, &status);

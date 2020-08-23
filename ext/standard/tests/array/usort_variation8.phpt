@@ -30,17 +30,8 @@ $temp_array2 = $array_arg;
 var_dump( usort($temp_array2, 'strcmp') );
 var_dump($temp_array2);
 
-// Testing with language construct as comparison function
-echo "\n-- Testing usort() with language construct as 'cmp_function' --\n";
-$temp_array3 = $array_arg;
-var_dump( usort($temp_array3, 'echo') );
-
-echo "\n-- Testing usort() with language construct as 'cmp_function' --\n";
-$temp_array4 = $array_arg;
-var_dump( usort($temp_array4, 'exit') );
 ?>
-===DONE===
---EXPECTF--
+--EXPECT--
 *** Testing usort() : usage variation ***
 
 -- Testing usort() with built-in 'cmp_function': strcasecmp() --
@@ -72,14 +63,3 @@ array(5) {
   [4]=>
   string(6) "orange"
 }
-
--- Testing usort() with language construct as 'cmp_function' --
-
-Warning: usort() expects parameter 2 to be a valid callback, function 'echo' not found or invalid function name in %s on line %d
-NULL
-
--- Testing usort() with language construct as 'cmp_function' --
-
-Warning: usort() expects parameter 2 to be a valid callback, function 'exit' not found or invalid function name in %s on line %d
-NULL
-===DONE===

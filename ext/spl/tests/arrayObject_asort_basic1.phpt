@@ -15,12 +15,15 @@ $ao1 = new ArrayObject(array(4,2,3));
 $ao2 = new ArrayObject(array('a'=>4,'b'=>2,'c'=>3));
 var_dump($ao1->asort());
 var_dump($ao1);
-var_dump($ao2->asort('blah'));
+try {
+    var_dump($ao2->asort('blah'));
+} catch (TypeError $e) {
+    echo $e->getMessage(), "\n";
+}
 var_dump($ao2);
 var_dump($ao2->asort(SORT_NUMERIC));
 var_dump($ao2);
 ?>
-===DONE===
 --EXPECTF--
 *** Testing ArrayObject::asort() : basic functionality ***
 bool(true)
@@ -35,9 +38,7 @@ object(ArrayObject)#%d (1) {
     int(4)
   }
 }
-
-Warning: asort() expects parameter 2 to be int, string given in %sarrayObject_asort_basic1.php on line %d
-bool(false)
+asort(): Argument #2 ($sort_flags) must be of type int, string given
 object(ArrayObject)#%d (1) {
   ["storage":"ArrayObject":private]=>
   array(3) {
@@ -61,4 +62,3 @@ object(ArrayObject)#%d (1) {
     int(4)
   }
 }
-===DONE===

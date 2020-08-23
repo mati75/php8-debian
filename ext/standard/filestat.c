@@ -1,7 +1,5 @@
 /*
    +----------------------------------------------------------------------+
-   | PHP Version 7                                                        |
-   +----------------------------------------------------------------------+
    | Copyright (c) The PHP Group                                          |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
@@ -178,7 +176,7 @@ static int php_disk_total_space(char *path, double *space) /* {{{ */
 /* }}} */
 /* }}} */
 
-/* {{{ proto float disk_total_space(string path)
+/* {{{ proto float|false disk_total_space(string path)
    Get total disk space for filesystem that path is on */
 PHP_FUNCTION(disk_total_space)
 {
@@ -217,8 +215,7 @@ static int php_disk_free_space(char *path, double *space) /* {{{ */
 		return FAILURE;
 	}
 
-	/* i know - this is ugly, but i works <thies@thieso.net> */
-	*space = FreeBytesAvailableToCaller.HighPart * (double) (((zend_ulong)1) << 31) * 2.0 + FreeBytesAvailableToCaller.LowPart;
+	*space = FreeBytesAvailableToCaller.HighPart * (double) (1ULL << 32)  + FreeBytesAvailableToCaller.LowPart;
 
 	PHP_WIN32_IOUTIL_CLEANUP_W()
 
@@ -273,7 +270,7 @@ static int php_disk_free_space(char *path, double *space) /* {{{ */
 /* }}} */
 /* }}} */
 
-/* {{{ proto float disk_free_space(string path)
+/* {{{ proto float|false disk_free_space(string path)
    Get free disk space for filesystem that path is on */
 PHP_FUNCTION(disk_free_space)
 {
@@ -342,7 +339,7 @@ static void php_do_chgrp(INTERNAL_FUNCTION_PARAMETERS, int do_lchgrp) /* {{{ */
 	ZEND_PARSE_PARAMETERS_START(2, 2)
 		Z_PARAM_PATH(filename, filename_len)
 		Z_PARAM_ZVAL(group)
-	ZEND_PARSE_PARAMETERS_END_EX(RETURN_FALSE);
+	ZEND_PARSE_PARAMETERS_END();
 
 	wrapper = php_stream_locate_url_wrapper(filename, NULL, 0);
 	if(wrapper != &php_plain_files_wrapper || strncasecmp("file://", filename, 7) == 0) {
@@ -356,8 +353,8 @@ static void php_do_chgrp(INTERNAL_FUNCTION_PARAMETERS, int do_lchgrp) /* {{{ */
 				option = PHP_STREAM_META_GROUP_NAME;
 				value = Z_STRVAL_P(group);
 			} else {
-				php_error_docref(NULL, E_WARNING, "parameter 2 should be string or int, %s given", zend_zval_type_name(group));
-				RETURN_FALSE;
+				zend_argument_type_error(2, "must be of type string|int, %s given", zend_zval_type_name(group));
+				RETURN_THROWS();
 			}
 			if(wrapper->wops->stream_metadata(wrapper, filename, option, value, NULL)) {
 				RETURN_TRUE;
@@ -385,8 +382,8 @@ static void php_do_chgrp(INTERNAL_FUNCTION_PARAMETERS, int do_lchgrp) /* {{{ */
 			RETURN_FALSE;
 		}
 	} else {
-		php_error_docref(NULL, E_WARNING, "parameter 2 should be string or int, %s given", zend_zval_type_name(group));
-		RETURN_FALSE;
+		zend_argument_type_error(2, "must be of type string|int, %s given", zend_zval_type_name(group));
+		RETURN_THROWS();
 	}
 
 	/* Check the basedir */
@@ -492,7 +489,7 @@ static void php_do_chown(INTERNAL_FUNCTION_PARAMETERS, int do_lchown) /* {{{ */
 				option = PHP_STREAM_META_OWNER_NAME;
 				value = Z_STRVAL_P(user);
 			} else {
-				php_error_docref(NULL, E_WARNING, "parameter 2 should be string or int, %s given", zend_zval_type_name(user));
+				php_error_docref(NULL, E_WARNING, "Parameter 2 should be string or int, %s given", zend_zval_type_name(user));
 				RETURN_FALSE;
 			}
 			if(wrapper->wops->stream_metadata(wrapper, filename, option, value, NULL)) {
@@ -522,7 +519,7 @@ static void php_do_chown(INTERNAL_FUNCTION_PARAMETERS, int do_lchown) /* {{{ */
 			RETURN_FALSE;
 		}
 	} else {
-		php_error_docref(NULL, E_WARNING, "parameter 2 should be string or int, %s given", zend_zval_type_name(user));
+		php_error_docref(NULL, E_WARNING, "Parameter 2 should be string or int, %s given", zend_zval_type_name(user));
 		RETURN_FALSE;
 	}
 
@@ -759,15 +756,9 @@ PHP_FUNCTION(clearstatcache)
  */
 PHPAPI void php_stat(const char *filename, size_t filename_length, int type, zval *return_value)
 {
-	zval stat_dev, stat_ino, stat_mode, stat_nlink, stat_uid, stat_gid, stat_rdev,
-		 stat_size, stat_atime, stat_mtime, stat_ctime, stat_blksize, stat_blocks;
 	zend_stat_t *stat_sb;
 	php_stream_statbuf ssb;
 	int flags = 0, rmask=S_IROTH, wmask=S_IWOTH, xmask=S_IXOTH; /* access rights defaults to other */
-	char *stat_sb_names[13] = {
-		"dev", "ino", "mode", "nlink", "uid", "gid", "rdev",
-		"size", "atime", "mtime", "ctime", "blksize", "blocks"
-	};
 	const char *local;
 	php_stream_wrapper *wrapper;
 
@@ -914,7 +905,19 @@ PHPAPI void php_stat(const char *filename, size_t filename_length, int type, zva
 		RETURN_TRUE; /* the false case was done earlier */
 	case FS_LSTAT:
 		/* FALLTHROUGH */
-	case FS_STAT:
+	case FS_STAT: {
+		char *stat_sb_names[] = {
+			"dev", "ino", "mode", "nlink", "uid", "gid", "rdev",
+			"size", "atime", "mtime", "ctime", "blksize", "blocks"
+		};
+		zval stat_dev, stat_ino, stat_mode, stat_nlink, stat_uid, stat_gid, stat_rdev,
+			stat_size, stat_atime, stat_mtime, stat_ctime, stat_blksize, stat_blocks;
+		zval *stat_sb_addresses[] = {
+			&stat_dev, &stat_ino, &stat_mode, &stat_nlink, &stat_uid, &stat_gid, &stat_rdev,
+			&stat_size, &stat_atime, &stat_mtime, &stat_ctime, &stat_blksize, &stat_blocks
+		};
+		size_t i, size_stat_sb = sizeof(stat_sb_addresses) / sizeof(*stat_sb_addresses);
+
 		array_init(return_value);
 
 		ZVAL_LONG(&stat_dev, stat_sb->st_dev);
@@ -942,38 +945,18 @@ PHPAPI void php_stat(const char *filename, size_t filename_length, int type, zva
 #else
 		ZVAL_LONG(&stat_blocks,-1);
 #endif
-		/* Store numeric indexes in proper order */
-		zend_hash_next_index_insert(Z_ARRVAL_P(return_value), &stat_dev);
-		zend_hash_next_index_insert(Z_ARRVAL_P(return_value), &stat_ino);
-		zend_hash_next_index_insert(Z_ARRVAL_P(return_value), &stat_mode);
-		zend_hash_next_index_insert(Z_ARRVAL_P(return_value), &stat_nlink);
-		zend_hash_next_index_insert(Z_ARRVAL_P(return_value), &stat_uid);
-		zend_hash_next_index_insert(Z_ARRVAL_P(return_value), &stat_gid);
+		for (i = 0; i < size_stat_sb; i++) {
+			/* Store numeric indexes in proper order */
+			zend_hash_next_index_insert(Z_ARRVAL_P(return_value), stat_sb_addresses[i]);
+		}
 
-		zend_hash_next_index_insert(Z_ARRVAL_P(return_value), &stat_rdev);
-		zend_hash_next_index_insert(Z_ARRVAL_P(return_value), &stat_size);
-		zend_hash_next_index_insert(Z_ARRVAL_P(return_value), &stat_atime);
-		zend_hash_next_index_insert(Z_ARRVAL_P(return_value), &stat_mtime);
-		zend_hash_next_index_insert(Z_ARRVAL_P(return_value), &stat_ctime);
-		zend_hash_next_index_insert(Z_ARRVAL_P(return_value), &stat_blksize);
-		zend_hash_next_index_insert(Z_ARRVAL_P(return_value), &stat_blocks);
-
-		/* Store string indexes referencing the same zval*/
-		zend_hash_str_add_new(Z_ARRVAL_P(return_value), stat_sb_names[0], strlen(stat_sb_names[0]), &stat_dev);
-		zend_hash_str_add_new(Z_ARRVAL_P(return_value), stat_sb_names[1], strlen(stat_sb_names[1]), &stat_ino);
-		zend_hash_str_add_new(Z_ARRVAL_P(return_value), stat_sb_names[2], strlen(stat_sb_names[2]), &stat_mode);
-		zend_hash_str_add_new(Z_ARRVAL_P(return_value), stat_sb_names[3], strlen(stat_sb_names[3]), &stat_nlink);
-		zend_hash_str_add_new(Z_ARRVAL_P(return_value), stat_sb_names[4], strlen(stat_sb_names[4]), &stat_uid);
-		zend_hash_str_add_new(Z_ARRVAL_P(return_value), stat_sb_names[5], strlen(stat_sb_names[5]), &stat_gid);
-		zend_hash_str_add_new(Z_ARRVAL_P(return_value), stat_sb_names[6], strlen(stat_sb_names[6]), &stat_rdev);
-		zend_hash_str_add_new(Z_ARRVAL_P(return_value), stat_sb_names[7], strlen(stat_sb_names[7]), &stat_size);
-		zend_hash_str_add_new(Z_ARRVAL_P(return_value), stat_sb_names[8], strlen(stat_sb_names[8]), &stat_atime);
-		zend_hash_str_add_new(Z_ARRVAL_P(return_value), stat_sb_names[9], strlen(stat_sb_names[9]), &stat_mtime);
-		zend_hash_str_add_new(Z_ARRVAL_P(return_value), stat_sb_names[10], strlen(stat_sb_names[10]), &stat_ctime);
-		zend_hash_str_add_new(Z_ARRVAL_P(return_value), stat_sb_names[11], strlen(stat_sb_names[11]), &stat_blksize);
-		zend_hash_str_add_new(Z_ARRVAL_P(return_value), stat_sb_names[12], strlen(stat_sb_names[12]), &stat_blocks);
+		for (i = 0; i < size_stat_sb; i++) {
+			/* Store string indexes referencing the same zval */
+			zend_hash_str_add_new(Z_ARRVAL_P(return_value), stat_sb_names[i], strlen(stat_sb_names[i]), stat_sb_addresses[i]);
+		}
 
 		return;
+	    }
 	}
 	php_error_docref(NULL, E_WARNING, "Didn't understand stat call");
 	RETURN_FALSE;
@@ -1077,21 +1060,20 @@ FileFunction(PHP_FN(file_exists), FS_EXISTS)
 
 /* {{{ proto array lstat(string filename)
    Give information about a file or symbolic link */
-FileFunction(php_if_lstat, FS_LSTAT)
+FileFunction(PHP_FN(lstat), FS_LSTAT)
 /* }}} */
 
 /* {{{ proto array stat(string filename)
    Give information about a file */
-FileFunction(php_if_stat, FS_STAT)
+FileFunction(PHP_FN(stat), FS_STAT)
 /* }}} */
 
 /* {{{ proto bool realpath_cache_size()
    Get current size of realpath cache */
 PHP_FUNCTION(realpath_cache_size)
 {
-	if (zend_parse_parameters_none() == FAILURE) {
-		return;
-	}
+	ZEND_PARSE_PARAMETERS_NONE();
+
 	RETURN_LONG(realpath_cache_size());
 }
 
@@ -1101,9 +1083,7 @@ PHP_FUNCTION(realpath_cache_get)
 {
 	realpath_cache_bucket **buckets = realpath_cache_get_buckets(), **end = buckets + realpath_cache_max_buckets();
 
-	if (zend_parse_parameters_none() == FAILURE) {
-		return;
-	}
+	ZEND_PARSE_PARAMETERS_NONE();
 
 	array_init(return_value);
 	while(buckets < end) {

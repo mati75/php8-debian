@@ -1,7 +1,5 @@
 /*
    +----------------------------------------------------------------------+
-   | PHP Version 7                                                        |
-   +----------------------------------------------------------------------+
    | Copyright (c) The PHP Group                                          |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
@@ -26,7 +24,7 @@
 #include "php_network.h"
 #include "php_open_temporary_file.h"
 #include "ext/standard/file.h"
-#include "ext/standard/basic_functions.h" /* for BG(mmap_file) (not strictly required) */
+#include "ext/standard/basic_functions.h" /* for BG(CurrentStatFile) */
 #include "ext/standard/php_string.h" /* for php_memnstr, used by php_stream_get_record() */
 #include <stddef.h>
 #include <fcntl.h>
@@ -247,7 +245,7 @@ PHPAPI void php_stream_wrapper_log_error(const php_stream_wrapper *wrapper, int 
 	vspprintf(&buffer, 0, fmt, args);
 	va_end(args);
 
-	if (options & REPORT_ERRORS || wrapper == NULL) {
+	if ((options & REPORT_ERRORS) || wrapper == NULL) {
 		php_error_docref(NULL, E_WARNING, "%s", buffer);
 		efree(buffer);
 	} else {
@@ -705,7 +703,7 @@ PHPAPI ssize_t _php_stream_read(php_stream *stream, char *buf, size_t size)
 			break;
 		}
 
-		if (!stream->readfilters.head && (stream->flags & PHP_STREAM_FLAG_NO_BUFFER || stream->chunk_size == 1)) {
+		if (!stream->readfilters.head && ((stream->flags & PHP_STREAM_FLAG_NO_BUFFER) || stream->chunk_size == 1)) {
 			toread = stream->ops->read(stream, buf, size);
 			if (toread < 0) {
 				/* Report an error if the read failed and we did not read any data
@@ -1120,7 +1118,7 @@ PHPAPI zend_string *php_stream_get_record(php_stream *stream, size_t maxlen, con
 /* Writes a buffer directly to a stream, using multiple of the chunk size */
 static ssize_t _php_stream_write_buffer(php_stream *stream, const char *buf, size_t count)
 {
-	ssize_t didwrite = 0, justwrote;
+	ssize_t didwrite = 0;
 
  	/* if we have a seekable stream we need to ensure that data is written at the
  	 * current stream->position. This means invalidating the read buffer and then
@@ -1131,13 +1129,8 @@ static ssize_t _php_stream_write_buffer(php_stream *stream, const char *buf, siz
 		stream->ops->seek(stream, stream->position, SEEK_SET, &stream->position);
 	}
 
-
 	while (count > 0) {
-		size_t towrite = count;
-		if (towrite > stream->chunk_size)
-			towrite = stream->chunk_size;
-
-		justwrote = stream->ops->write(stream, buf, towrite);
+		ssize_t justwrote = stream->ops->write(stream, buf, count);
 		if (justwrote <= 0) {
 			/* If we already successfully wrote some bytes and a write error occurred
 			 * later, report the successfully written bytes. */
@@ -1373,7 +1366,7 @@ PHPAPI int _php_stream_seek(php_stream *stream, zend_off_t offset, int whence)
 		return 0;
 	}
 
-	php_error_docref(NULL, E_WARNING, "stream does not support seeking");
+	php_error_docref(NULL, E_WARNING, "Stream does not support seeking");
 
 	return -1;
 }
@@ -1862,7 +1855,7 @@ PHPAPI php_stream_wrapper *php_stream_locate_url_wrapper(const char *path, const
 			if (localhost == 0 && path[n+3] != '\0' && path[n+3] != '/') {
 #endif
 				if (options & REPORT_ERRORS) {
-					php_error_docref(NULL, E_WARNING, "remote host file access not supported, %s", path);
+					php_error_docref(NULL, E_WARNING, "Remote host file access not supported, %s", path);
 				}
 				return NULL;
 			}
@@ -2039,7 +2032,7 @@ PHPAPI php_stream *_php_stream_opendir(const char *path, int options,
 		php_stream_wrapper_log_error(wrapper, options ^ REPORT_ERRORS, "not implemented");
 	}
 	if (stream == NULL && (options & REPORT_ERRORS)) {
-		php_stream_display_wrapper_errors(wrapper, path, "failed to open dir");
+		php_stream_display_wrapper_errors(wrapper, path, "Failed to open directory");
 	}
 	php_stream_tidy_wrapper_error_log(wrapper);
 
@@ -2095,7 +2088,7 @@ PHPAPI php_stream *_php_stream_open_wrapper_ex(const char *path, const char *mod
 	path_to_open = path;
 
 	wrapper = php_stream_locate_url_wrapper(path, &path_to_open, options);
-	if (options & STREAM_USE_URL && (!wrapper || !wrapper->is_url)) {
+	if ((options & STREAM_USE_URL) && (!wrapper || !wrapper->is_url)) {
 		php_error_docref(NULL, E_WARNING, "This function may only be used against URLs");
 		if (resolved_path) {
 			zend_string_release_ex(resolved_path, 0);
@@ -2188,7 +2181,7 @@ PHPAPI php_stream *_php_stream_open_wrapper_ex(const char *path, const char *mod
 	}
 
 	if (stream == NULL && (options & REPORT_ERRORS)) {
-		php_stream_display_wrapper_errors(wrapper, path, "failed to open stream");
+		php_stream_display_wrapper_errors(wrapper, path, "Failed to open stream");
 		if (opened_path && *opened_path) {
 			zend_string_release_ex(*opened_path, 0);
 			*opened_path = NULL;

@@ -1,5 +1,11 @@
 --TEST--
 Test lstat() and stat() functions: usage variations - dir/file names in array
+--SKIPIF--
+<?php
+if (substr(PHP_OS, 0, 3) == 'WIN') {
+    die('skip.. Not valid for Windows');
+}
+?>
 --FILE--
 <?php
 /* Prototype: array lstat ( string $filename );
@@ -58,7 +64,7 @@ rmdir("$file_path/lstat_stat_variation19");
 -- Testing stat() on filename stored inside an array --
 array(26) {
   [0]=>
-  int(%i)
+  int(%d)
   [1]=>
   int(%d)
   [2]=>
@@ -80,11 +86,11 @@ array(26) {
   [10]=>
   int(%d)
   [11]=>
-  int(%i)
+  int(%d)
   [12]=>
-  int(%i)
+  int(%d)
   ["dev"]=>
-  int(%i)
+  int(%d)
   ["ino"]=>
   int(%d)
   ["mode"]=>
@@ -106,13 +112,13 @@ array(26) {
   ["ctime"]=>
   int(%d)
   ["blksize"]=>
-  int(%i)
+  int(%d)
   ["blocks"]=>
-  int(%i)
+  int(%d)
 }
 array(26) {
   [0]=>
-  int(%i)
+  int(%d)
   [1]=>
   int(%d)
   [2]=>
@@ -134,11 +140,11 @@ array(26) {
   [10]=>
   int(%d)
   [11]=>
-  int(%i)
+  int(%d)
   [12]=>
-  int(%i)
+  int(%d)
   ["dev"]=>
-  int(%i)
+  int(%d)
   ["ino"]=>
   int(%d)
   ["mode"]=>
@@ -160,15 +166,15 @@ array(26) {
   ["ctime"]=>
   int(%d)
   ["blksize"]=>
-  int(%i)
+  int(%d)
   ["blocks"]=>
-  int(%i)
+  int(%d)
 }
 
 -- Testing stat() on dir name stored inside an array --
 array(26) {
   [0]=>
-  int(%i)
+  int(%d)
   [1]=>
   int(%d)
   [2]=>
@@ -190,11 +196,11 @@ array(26) {
   [10]=>
   int(%d)
   [11]=>
-  int(%i)
+  int(%d)
   [12]=>
-  int(%i)
+  int(%d)
   ["dev"]=>
-  int(%i)
+  int(%d)
   ["ino"]=>
   int(%d)
   ["mode"]=>
@@ -216,13 +222,13 @@ array(26) {
   ["ctime"]=>
   int(%d)
   ["blksize"]=>
-  int(%i)
+  int(%d)
   ["blocks"]=>
-  int(%i)
+  int(%d)
 }
 array(26) {
   [0]=>
-  int(%i)
+  int(%d)
   [1]=>
   int(%d)
   [2]=>
@@ -244,11 +250,11 @@ array(26) {
   [10]=>
   int(%d)
   [11]=>
-  int(%i)
+  int(%d)
   [12]=>
-  int(%i)
+  int(%d)
   ["dev"]=>
-  int(%i)
+  int(%d)
   ["ino"]=>
   int(%d)
   ["mode"]=>
@@ -270,9 +276,9 @@ array(26) {
   ["ctime"]=>
   int(%d)
   ["blksize"]=>
-  int(%i)
+  int(%d)
   ["blocks"]=>
-  int(%i)
+  int(%d)
 }
 
 --- Done ---

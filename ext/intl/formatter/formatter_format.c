@@ -1,7 +1,5 @@
 /*
    +----------------------------------------------------------------------+
-   | PHP Version 7                                                        |
-   +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
    | that is bundled with this package in the file LICENSE, and is        |
    | available through the world-wide-web at the following url:           |
@@ -41,23 +39,14 @@ PHP_FUNCTION( numfmt_format )
 	FORMATTER_METHOD_INIT_VARS;
 
 	/* Parse parameters. */
-	if( zend_parse_method_parameters( ZEND_NUM_ARGS(), getThis(), "Oz|l",
+	if( zend_parse_method_parameters( ZEND_NUM_ARGS(), getThis(), "On|l",
 		&object, NumberFormatter_ce_ptr,  &number, &type ) == FAILURE )
 	{
-		intl_error_set( NULL, U_ILLEGAL_ARGUMENT_ERROR,
-			"numfmt_format: unable to parse input params", 0 );
-
-		RETURN_FALSE;
+		RETURN_THROWS();
 	}
 
 	/* Fetch the object. */
 	FORMATTER_METHOD_FETCH_OBJECT;
-
-	if(Z_TYPE_P(number) != IS_ARRAY) {
-		convert_scalar_to_number_ex(number);
-	} else {
-		convert_to_long(number);
-	}
 
 	if(type == FORMAT_TYPE_DEFAULT) {
 		switch(Z_TYPE_P(number)) {
@@ -150,10 +139,7 @@ PHP_FUNCTION( numfmt_format_currency )
 	if( zend_parse_method_parameters( ZEND_NUM_ARGS(), getThis(), "Ods",
 		&object, NumberFormatter_ce_ptr,  &number, &currency, &currency_len ) == FAILURE )
 	{
-		intl_error_set( NULL, U_ILLEGAL_ARGUMENT_ERROR,
-			"numfmt_format_currency: unable to parse input params", 0 );
-
-		RETURN_FALSE;
+		RETURN_THROWS();
 	}
 
 	/* Fetch the object. */

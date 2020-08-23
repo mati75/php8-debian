@@ -1,7 +1,5 @@
 /*
    +----------------------------------------------------------------------+
-   | PHP Version 7                                                        |
-   +----------------------------------------------------------------------+
    | Copyright (c) The PHP Group                                          |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
@@ -23,13 +21,6 @@
 #include "zend_smart_str_public.h"
 
 PHP_MINIT_FUNCTION(var);
-PHP_FUNCTION(var_dump);
-PHP_FUNCTION(var_export);
-PHP_FUNCTION(debug_zval_dump);
-PHP_FUNCTION(serialize);
-PHP_FUNCTION(unserialize);
-PHP_FUNCTION(memory_get_usage);
-PHP_FUNCTION(memory_get_peak_usage);
 
 PHPAPI void php_var_dump(zval *struc, int level);
 PHPAPI void php_var_export(zval *struc, int level);

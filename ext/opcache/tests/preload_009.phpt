@@ -16,6 +16,6 @@ var_dump(trait_exists('T'));
 var_dump(class_exists('Foo'));
 ?>
 --EXPECTF--
-Warning: Use of undefined constant UNDEF - assumed 'UNDEF' (this will throw an Error in a future version of PHP) in Unknown on line 0
-bool(true)
-bool(true)
+Fatal error: Undefined constant 'UNDEF' in Unknown on line 0
+
+Fatal error: Failed to resolve initializers of class Foo during preloading in Unknown on line 0

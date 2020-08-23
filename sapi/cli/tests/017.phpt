@@ -52,9 +52,9 @@ a_function_w	);
 EOT;
 
 foreach ($codes as $key => $code) {
-	echo "\n--------------\nSnippet no. $key:\n--------------\n";
-	$code = escapeshellarg($code);
-	echo `echo $code | "$php" -a`, "\n";
+    echo "\n--------------\nSnippet no. $key:\n--------------\n";
+    $code = escapeshellarg($code);
+    echo `echo $code | "$php" -a`, "\n";
 }
 
 echo "\nDone\n";
@@ -103,7 +103,7 @@ Snippet no. 5:
 Interactive shell
 
 
-Parse error: syntax error, unexpected ')' in php shell code on line 1
+Parse error: Unmatched ')' in php shell code on line 1
 
 
 Done

@@ -1,7 +1,5 @@
 /*
    +----------------------------------------------------------------------+
-   | PHP Version 7                                                        |
-   +----------------------------------------------------------------------+
    | Copyright (c) The PHP Group                                          |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
@@ -96,6 +94,7 @@ bogus:
 
 PHP_COM_DOTNET_API void php_com_variant_from_zval(VARIANT *v, zval *z, int codepage)
 {
+	OLECHAR *olestring;
 	php_com_dotnet_object *obj;
 	zend_uchar ztype = IS_NULL;
 
@@ -163,7 +162,13 @@ PHP_COM_DOTNET_API void php_com_variant_from_zval(VARIANT *v, zval *z, int codep
 
 		case IS_STRING:
 			V_VT(v) = VT_BSTR;
-			V_BSTR(v) = php_com_string_to_bstr(Z_STR_P(z), codepage);
+			olestring = php_com_string_to_olestring(Z_STRVAL_P(z), Z_STRLEN_P(z), codepage);
+			if (CP_UTF8 == codepage) {
+				V_BSTR(v) = SysAllocStringByteLen((char*)olestring, (UINT)(wcslen(olestring) * sizeof(OLECHAR)));
+			} else {
+				V_BSTR(v) = SysAllocStringByteLen((char*)olestring, (UINT)(Z_STRLEN_P(z) * sizeof(OLECHAR)));
+			}
+			efree(olestring);
 			break;
 
 		case IS_RESOURCE:
@@ -229,8 +234,12 @@ PHP_COM_DOTNET_API int php_com_zval_from_variant(zval *z, VARIANT *v, int codepa
 		case VT_BSTR:
 			olestring = V_BSTR(v);
 			if (olestring) {
-				zend_string *str = php_com_bstr_to_string(olestring, codepage);
-				ZVAL_STR(z, str);
+				size_t len;
+				char *str = php_com_olestring_to_string(olestring,
+					&len, codepage);
+				ZVAL_STRINGL(z, str, len);
+				// TODO: avoid reallocation???
+				efree(str);
 				olestring = NULL;
 			}
 			break;
@@ -416,14 +425,14 @@ PHP_COM_DOTNET_API int php_com_copy_variant(VARIANT *dstvar, VARIANT *srcvar)
 		return php_com_copy_variant(V_VARIANTREF(dstvar), srcvar);
 
 	default:
-		php_error_docref(NULL, E_WARNING, "variant->variant: failed to copy from 0x%x to 0x%x", V_VT(dstvar), V_VT(srcvar));
+		php_error_docref(NULL, E_WARNING, "variant->__construct: failed to copy from 0x%x to 0x%x", V_VT(dstvar), V_VT(srcvar));
 		ret = FAILURE;
 	}
 	return ret;
 }
 
 /* {{{ com_variant_create_instance - ctor for new VARIANT() */
-PHP_FUNCTION(com_variant_create_instance)
+PHP_METHOD(variant, __construct)
 {
 	/* VARTYPE == unsigned short */ zend_long vt = VT_EMPTY;
 	zend_long codepage = CP_ACP;
@@ -437,15 +446,14 @@ PHP_FUNCTION(com_variant_create_instance)
 		return;
 	}
 
-	obj = CDNO_FETCH(object);
-
 	if (FAILURE == zend_parse_parameters(ZEND_NUM_ARGS(),
 		"z!|ll", &zvalue, &vt, &codepage)) {
-			php_com_throw_exception(E_INVALIDARG, "Invalid arguments");
-			return;
+			RETURN_THROWS();
 	}
 
 	php_com_initialize();
+	obj = CDNO_FETCH(object);
+
 	if (ZEND_NUM_ARGS() == 3) {
 		obj->code_page = (int)codepage;
 	}
@@ -503,7 +511,7 @@ PHP_FUNCTION(variant_set)
 
 	if (FAILURE == zend_parse_parameters(ZEND_NUM_ARGS(),
 			"Oz!", &zobj, php_com_variant_class_entry, &zvalue)) {
-		return;
+		RETURN_THROWS();
 	}
 
 	obj = CDNO_FETCH(zobj);
@@ -581,7 +589,7 @@ static void variant_binary_operation(enum variant_binary_opcode op, INTERNAL_FUN
 		php_com_variant_from_zval(vright, zright, codepage);
 
 	} else {
-		return;
+		RETURN_THROWS();
 	}
 
 	switch (op) {
@@ -767,7 +775,7 @@ static void variant_unary_operation(enum variant_unary_opcode op, INTERNAL_FUNCT
 		vleft = &left_val;
 		php_com_variant_from_zval(vleft, zleft, codepage);
 	} else {
-		return;
+		RETURN_THROWS();
 	}
 
 	switch (op) {
@@ -865,7 +873,7 @@ PHP_FUNCTION(variant_round)
 		vleft = &left_val;
 		php_com_variant_from_zval(vleft, zleft, codepage);
 	} else {
-		return;
+		RETURN_THROWS();
 	}
 
 	if (SUCCEEDED(VarRound(vleft, (int)decimals, &vres))) {
@@ -925,7 +933,7 @@ PHP_FUNCTION(variant_cmp)
 		php_com_variant_from_zval(vright, zright, codepage);
 
 	} else {
-		return;
+		RETURN_THROWS();
 	}
 
 	ZVAL_LONG(return_value, VarCmp(vleft, vright, (LCID)lcid, (ULONG)flags));
@@ -947,7 +955,7 @@ PHP_FUNCTION(variant_date_to_timestamp)
 
 	if (FAILURE == zend_parse_parameters(ZEND_NUM_ARGS(),
 		"O", &zleft, php_com_variant_class_entry)) {
-		return;
+		RETURN_THROWS();
 	}
 	obj = CDNO_FETCH(zleft);
 
@@ -986,7 +994,7 @@ PHP_FUNCTION(variant_date_from_timestamp)
 
 	if (FAILURE == zend_parse_parameters(ZEND_NUM_ARGS(), "l",
 			&timestamp)) {
-		return;
+		RETURN_THROWS();
 	}
 
 	if (timestamp < 0) {
@@ -1032,7 +1040,7 @@ PHP_FUNCTION(variant_get_type)
 
 	if (FAILURE == zend_parse_parameters(ZEND_NUM_ARGS(),
 		"O", &zobj, php_com_variant_class_entry)) {
-		return;
+		RETURN_THROWS();
 	}
 	obj = CDNO_FETCH(zobj);
 
@@ -1051,7 +1059,7 @@ PHP_FUNCTION(variant_set_type)
 
 	if (FAILURE == zend_parse_parameters(ZEND_NUM_ARGS(),
 		"Ol", &zobj, php_com_variant_class_entry, &vt)) {
-		return;
+		RETURN_THROWS();
 	}
 	obj = CDNO_FETCH(zobj);
 
@@ -1087,7 +1095,7 @@ PHP_FUNCTION(variant_cast)
 
 	if (FAILURE == zend_parse_parameters(ZEND_NUM_ARGS(),
 		"Ol", &zobj, php_com_variant_class_entry, &vt)) {
-		return;
+		RETURN_THROWS();
 	}
 	obj = CDNO_FETCH(zobj);
 
