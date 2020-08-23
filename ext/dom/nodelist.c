@@ -22,6 +22,7 @@
 #include "php.h"
 #if defined(HAVE_LIBXML) && defined(HAVE_DOM)
 #include "php_dom.h"
+#include "zend_interfaces.h"
 
 /*
 * class DOMNodeList
@@ -81,8 +82,7 @@ int dom_nodelist_length_read(dom_object *obj, zval *retval)
 }
 
 
-/* {{{ proto int|bool dom_nodelist_count();
-*/
+/* {{{ */
 PHP_METHOD(DOMNodeList, count)
 {
 	zval *id;
@@ -102,8 +102,7 @@ PHP_METHOD(DOMNodeList, count)
 
 /* }}} */
 
-/* {{{ proto DOMNode dom_nodelist_item(int index);
-URL: http://www.w3.org/TR/2003/WD-DOM-Level-3-Core-20030226/DOM3-Core.html#ID-844377136
+/* {{{ URL: http://www.w3.org/TR/2003/WD-DOM-Level-3-Core-20030226/DOM3-Core.html#ID-844377136
 Since:
 */
 PHP_METHOD(DOMNodeList, item)
@@ -175,5 +174,13 @@ PHP_METHOD(DOMNodeList, item)
 }
 /* }}} end dom_nodelist_item */
 
+ZEND_METHOD(DOMNodeList, getIterator)
+{
+	if (zend_parse_parameters_none() == FAILURE) {
+		return;
+	}
+
+	zend_create_internal_iterator_zval(return_value, ZEND_THIS);
+}
 
 #endif

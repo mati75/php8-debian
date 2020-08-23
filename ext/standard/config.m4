@@ -51,14 +51,10 @@ if test "$ac_cv_flush_io" = "yes"; then
   AC_DEFINE(HAVE_FLUSHIO, 1, [Define if flush should be called explicitly after a buffered io.])
 fi
 
-dnl
-dnl Check for crypt() capabilities
-dnl
-if test "$ac_cv_func_crypt" = "no"; then
-  AC_CHECK_LIB(crypt, crypt, [
-    LIBS="-lcrypt $LIBS -lcrypt"
-    AC_DEFINE(HAVE_CRYPT, 1, [ ])
-  ])
+PHP_CHECK_FUNC(crypt, crypt)
+PHP_CHECK_FUNC(crypt_r, crypt)
+if test "$ac_cv_func_crypt_r" = "yes"; then
+  PHP_CRYPT_R_STYLE
 fi
 
 AC_CACHE_CHECK(for standard DES crypt, ac_cv_crypt_des,[
@@ -262,24 +258,8 @@ int main() {
 dnl
 dnl If one of them is missing, use our own implementation, portable code is then possible
 dnl
-if test "$ac_cv_crypt_blowfish" = "no" || test "$ac_cv_crypt_des" = "no" || test "$ac_cv_crypt_ext_des" = "no" || test "$ac_cv_crypt_md5" = "no" || test "$ac_cv_crypt_sha512" = "no" || test "$ac_cv_crypt_sha256" = "no" || test "x$php_crypt_r" = "x0"; then
-
-  dnl
-  dnl Check for __alignof__ support in the compiler
-  dnl
-  AC_CACHE_CHECK(whether the compiler supports __alignof__, ac_cv_alignof_exists,[
-  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
-  ]],[[
-    int align = __alignof__(int);
-  ]])],[
-    ac_cv_alignof_exists=yes
-  ],[
-    ac_cv_alignof_exists=no
-  ])])
-  if test "$ac_cv_alignof_exists" = "yes"; then
-    AC_DEFINE([HAVE_ALIGNOF], 1, [whether the compiler supports __alignof__])
-  fi
-
+dnl TODO This is currently always enabled
+if test "$ac_cv_crypt_blowfish" = "no" || test "$ac_cv_crypt_des" = "no" || test "$ac_cv_crypt_ext_des" = "no" || test "$ac_cv_crypt_md5" = "no" || test "$ac_cv_crypt_sha512" = "no" || test "$ac_cv_crypt_sha256" = "no" || test "$ac_cv_func_crypt_r" != "yes" || true; then
   AC_DEFINE_UNQUOTED(PHP_USE_PHP_CRYPT_R, 1, [Whether PHP has to use its own crypt_r for blowfish, des, ext des and md5])
 
   PHP_ADD_SOURCES(PHP_EXT_DIR(standard), crypt_freesec.c crypt_blowfish.c crypt_sha512.c crypt_sha256.c php_crypt_r.c)

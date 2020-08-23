@@ -2791,7 +2791,7 @@ static int zend_jit(const zend_op_array *op_array, zend_ssa *ssa, const zend_op 
 							}
 						}
 						if (!zend_jit_fetch_obj(&dasm_state, opline, op_array,
-								op1_info, op1_addr, 0, ce, ce_is_instanceof,
+								op1_info, op1_addr, 0, ce, ce_is_instanceof, 0,
 								zend_may_throw(opline, ssa_op, op_array, ssa))) {
 							goto jit_failure;
 						}
@@ -2844,7 +2844,7 @@ static int zend_jit(const zend_op_array *op_array, zend_ssa *ssa, const zend_op 
 						}
 						goto done;
 					case ZEND_FETCH_THIS:
-						if (!zend_jit_fetch_this(&dasm_state, opline, op_array)) {
+						if (!zend_jit_fetch_this(&dasm_state, opline, op_array, 0)) {
 							goto jit_failure;
 						}
 						goto done;
@@ -3543,7 +3543,10 @@ ZEND_EXT_API void zend_jit_unprotect(void)
 		DWORD old;
 
 		if (!VirtualProtect(dasm_buf, dasm_size, PAGE_READWRITE, &old)) {
-			fprintf(stderr, "VirtualProtect() failed\n");
+			DWORD err = GetLastError();
+			char *msg = php_win32_error_to_msg(err);
+			fprintf(stderr, "VirtualProtect() failed [%u] %s\n", err, msg);
+			php_win32_error_msg_free(msg);
 		}
 	}
 #endif
@@ -3562,7 +3565,10 @@ ZEND_EXT_API void zend_jit_protect(void)
 		DWORD old;
 
 		if (!VirtualProtect(dasm_buf, dasm_size, PAGE_EXECUTE_READ, &old)) {
-			fprintf(stderr, "VirtualProtect() failed\n");
+			DWORD err = GetLastError();
+			char *msg = php_win32_error_to_msg(err);
+			fprintf(stderr, "VirtualProtect() failed [%u] %s\n", err, msg);
+			php_win32_error_msg_free(msg);
 		}
 	}
 #endif
@@ -3775,13 +3781,19 @@ ZEND_EXT_API int zend_jit_startup(void *buf, size_t size, zend_bool reattached)
 		DWORD old;
 
 		if (!VirtualProtect(dasm_buf, dasm_size, PAGE_EXECUTE_READWRITE, &old)) {
-			fprintf(stderr, "VirtualProtect() failed\n");
+			DWORD err = GetLastError();
+			char *msg = php_win32_error_to_msg(err);
+			fprintf(stderr, "VirtualProtect() failed [%u] %s\n", err, msg);
+			php_win32_error_msg_free(msg);
 		}
 	} else {
 		DWORD old;
 
 		if (!VirtualProtect(dasm_buf, dasm_size, PAGE_EXECUTE_READ, &old)) {
-			fprintf(stderr, "VirtualProtect() failed\n");
+			DWORD err = GetLastError();
+			char *msg = php_win32_error_to_msg(err);
+			fprintf(stderr, "VirtualProtect() failed [%u] %s\n", err, msg);
+			php_win32_error_msg_free(msg);
 		}
 	}
 #endif

@@ -31,9 +31,11 @@
 #include "simplexml_arginfo.h"
 #include "zend_exceptions.h"
 #include "zend_interfaces.h"
-#include "sxe.h"
+#include "ext/spl/spl_iterators.h"
 
 zend_class_entry *sxe_class_entry = NULL;
+PHP_SXE_API zend_class_entry *ce_SimpleXMLIterator;
+PHP_SXE_API zend_class_entry *ce_SimpleXMLElement;
 
 PHP_SXE_API zend_class_entry *sxe_get_element_class_entry(void) /* {{{ */
 {
@@ -57,8 +59,7 @@ static void php_sxe_iterator_move_forward(zend_object_iterator *iter);
 static void php_sxe_iterator_rewind(zend_object_iterator *iter);
 static int sxe_object_cast_ex(zend_object *readobj, zval *writeobj, int type);
 
-/* {{{ _node_as_zval()
- */
+/* {{{ _node_as_zval() */
 static void _node_as_zval(php_sxe_object *sxe, xmlNodePtr node, zval *value, SXE_ITER itertype, char *name, const xmlChar *nsprefix, int isprefix)
 {
 	php_sxe_object *subnode;
@@ -225,8 +226,7 @@ next_iter:
 }
 /* }}} */
 
-/* {{{ sxe_prop_dim_read()
- */
+/* {{{ sxe_prop_dim_read() */
 static zval *sxe_prop_dim_read(zend_object *object, zval *member, zend_bool elements, zend_bool attribs, int type, zval *rv)
 {
 	php_sxe_object *sxe;
@@ -366,8 +366,7 @@ long_dim:
 }
 /* }}} */
 
-/* {{{ sxe_property_read()
- */
+/* {{{ sxe_property_read() */
 static zval *sxe_property_read(zend_object *object, zend_string *name, int type, void **cache_slot, zval *rv)
 {
 	zval member;
@@ -376,16 +375,14 @@ static zval *sxe_property_read(zend_object *object, zend_string *name, int type,
 }
 /* }}} */
 
-/* {{{ sxe_dimension_read()
- */
+/* {{{ sxe_dimension_read() */
 static zval *sxe_dimension_read(zend_object *object, zval *offset, int type, zval *rv)
 {
 	return sxe_prop_dim_read(object, offset, 0, 1, type, rv);
 }
 /* }}} */
 
-/* {{{ change_node_zval()
- */
+/* {{{ change_node_zval() */
 static void change_node_zval(xmlNodePtr node, zval *value)
 {
 	xmlChar *buffer;
@@ -418,8 +415,7 @@ static void change_node_zval(xmlNodePtr node, zval *value)
 }
 /* }}} */
 
-/* {{{ sxe_property_write()
- */
+/* {{{ sxe_property_write() */
 static zval *sxe_prop_dim_write(zend_object *object, zval *member, zval *value, zend_bool elements, zend_bool attribs, xmlNodePtr *pnewnode)
 {
 	php_sxe_object *sxe;
@@ -660,8 +656,7 @@ next_iter:
 }
 /* }}} */
 
-/* {{{ sxe_property_write()
- */
+/* {{{ sxe_property_write() */
 static zval *sxe_property_write(zend_object *object, zend_string *name, zval *value, void **cache_slot)
 {
 	zval member;
@@ -671,8 +666,7 @@ static zval *sxe_property_write(zend_object *object, zend_string *name, zval *va
 }
 /* }}} */
 
-/* {{{ sxe_dimension_write()
- */
+/* {{{ sxe_dimension_write() */
 static void sxe_dimension_write(zend_object *object, zval *offset, zval *value)
 {
 	sxe_prop_dim_write(object, offset, value, 0, 1, NULL);
@@ -714,8 +708,7 @@ static zval *sxe_property_get_adr(zend_object *object, zend_string *zname, int f
 }
 /* }}} */
 
-/* {{{ sxe_prop_dim_exists()
- */
+/* {{{ sxe_prop_dim_exists() */
 static int sxe_prop_dim_exists(zend_object *object, zval *member, int check_empty, zend_bool elements, zend_bool attribs)
 {
 	php_sxe_object *sxe;
@@ -820,8 +813,7 @@ static int sxe_prop_dim_exists(zend_object *object, zval *member, int check_empt
 }
 /* }}} */
 
-/* {{{ sxe_property_exists()
- */
+/* {{{ sxe_property_exists() */
 static int sxe_property_exists(zend_object *object, zend_string *name, int check_empty, void **cache_slot)
 {
 	zval member;
@@ -830,16 +822,14 @@ static int sxe_property_exists(zend_object *object, zend_string *name, int check
 }
 /* }}} */
 
-/* {{{ sxe_dimension_exists()
- */
+/* {{{ sxe_dimension_exists() */
 static int sxe_dimension_exists(zend_object *object, zval *member, int check_empty)
 {
 	return sxe_prop_dim_exists(object, member, check_empty, 0, 1);
 }
 /* }}} */
 
-/* {{{ sxe_prop_dim_delete()
- */
+/* {{{ sxe_prop_dim_delete() */
 static void sxe_prop_dim_delete(zend_object *object, zval *member, zend_bool elements, zend_bool attribs)
 {
 	php_sxe_object *sxe;
@@ -949,8 +939,7 @@ next_iter:
 }
 /* }}} */
 
-/* {{{ sxe_property_delete()
- */
+/* {{{ sxe_property_delete() */
 static void sxe_property_delete(zend_object *object, zend_string *name, void **cache_slot)
 {
 	zval member;
@@ -959,8 +948,7 @@ static void sxe_property_delete(zend_object *object, zend_string *name, void **c
 }
 /* }}} */
 
-/* {{{ sxe_dimension_unset()
- */
+/* {{{ sxe_dimension_unset() */
 static void sxe_dimension_delete(zend_object *object, zval *offset)
 {
 	sxe_prop_dim_delete(object, offset, 0, 1);
@@ -983,8 +971,7 @@ static inline zend_string *sxe_xmlNodeListGetString(xmlDocPtr doc, xmlNodePtr li
 }
 /* }}} */
 
-/* {{{ _get_base_node_value()
- */
+/* {{{ _get_base_node_value() */
 static void _get_base_node_value(php_sxe_object *sxe_ref, xmlNodePtr node, zval *value, xmlChar *nsprefix, int isprefix)
 {
 	php_sxe_object *subnode;
@@ -1312,8 +1299,7 @@ static int sxe_objects_compare(zval *object1, zval *object2) /* {{{ */
 }
 /* }}} */
 
-/* {{{ proto array SimpleXMLElement::xpath(string path)
-   Runs XPath query on the XML data */
+/* {{{ Runs XPath query on the XML data */
 SXE_METHOD(xpath)
 {
 	php_sxe_object    *sxe;
@@ -1404,8 +1390,7 @@ SXE_METHOD(xpath)
 }
 /* }}} */
 
-/* {{{ proto bool SimpleXMLElement::registerXPathNamespace(string prefix, string ns)
-   Creates a prefix/ns context for the next XPath query */
+/* {{{ Creates a prefix/ns context for the next XPath query */
 SXE_METHOD(registerXPathNamespace)
 {
 	php_sxe_object    *sxe;
@@ -1429,8 +1414,7 @@ SXE_METHOD(registerXPathNamespace)
 
 /* }}} */
 
-/* {{{ proto string SimpleXMLElement::asXML([string filename])
-   Return a well-formed XML string based on SimpleXML element */
+/* {{{ Return a well-formed XML string based on SimpleXML element */
 SXE_METHOD(asXML)
 {
 	php_sxe_object     *sxe;
@@ -1555,8 +1539,7 @@ static void sxe_add_namespaces(php_sxe_object *sxe, xmlNodePtr node, zend_bool r
 	}
 } /* }}} */
 
-/* {{{ proto string SimpleXMLElement::getNamespaces([bool recursve])
-   Return all namespaces in use */
+/* {{{ Return all namespaces in use */
 SXE_METHOD(getNamespaces)
 {
 	zend_bool           recursive = 0;
@@ -1604,8 +1587,7 @@ static void sxe_add_registered_namespaces(php_sxe_object *sxe, xmlNodePtr node, 
 }
 /* }}} */
 
-/* {{{ proto string SimpleXMLElement::getDocNamespaces([bool recursive [, bool from_root])
-   Return all namespaces registered with document */
+/* {{{ Return all namespaces registered with document */
 SXE_METHOD(getDocNamespaces)
 {
 	zend_bool           recursive = 0, from_root = 1;
@@ -1632,8 +1614,7 @@ SXE_METHOD(getDocNamespaces)
 }
 /* }}} */
 
-/* {{{ proto object SimpleXMLElement::children([string ns [, bool is_prefix]])
-   Finds children of given node */
+/* {{{ Finds children of given node */
 SXE_METHOD(children)
 {
 	php_sxe_object *sxe;
@@ -1660,8 +1641,7 @@ SXE_METHOD(children)
 }
 /* }}} */
 
-/* {{{ proto object SimpleXMLElement::getName()
-   Finds children of given node */
+/* {{{ Finds children of given node */
 SXE_METHOD(getName)
 {
 	php_sxe_object *sxe;
@@ -1685,8 +1665,7 @@ SXE_METHOD(getName)
 }
 /* }}} */
 
-/* {{{ proto array SimpleXMLElement::attributes([string ns [, bool is_prefix]])
-   Identifies an element's attributes */
+/* {{{ Identifies an element's attributes */
 SXE_METHOD(attributes)
 {
 	php_sxe_object *sxe;
@@ -1712,8 +1691,7 @@ SXE_METHOD(attributes)
 }
 /* }}} */
 
-/* {{{ proto void SimpleXMLElement::addChild(string qName [, string value [, string ns]])
-   Add Element with optional namespace information */
+/* {{{ Add Element with optional namespace information */
 SXE_METHOD(addChild)
 {
 	php_sxe_object *sxe;
@@ -1777,8 +1755,7 @@ SXE_METHOD(addChild)
 }
 /* }}} */
 
-/* {{{ proto void SimpleXMLElement::addAttribute(string qName, string value [,string ns])
-   Add Attribute with optional namespace information */
+/* {{{ Add Attribute with optional namespace information */
 SXE_METHOD(addAttribute)
 {
 	php_sxe_object *sxe;
@@ -1851,8 +1828,7 @@ SXE_METHOD(addAttribute)
 }
 /* }}} */
 
-/* {{{ cast_object()
- */
+/* {{{ cast_object() */
 static int cast_object(zval *object, int type, char *contents)
 {
 	if (contents) {
@@ -1884,8 +1860,7 @@ static int cast_object(zval *object, int type, char *contents)
 }
 /* }}} */
 
-/* {{{ sxe_object_cast()
- */
+/* {{{ sxe_object_cast() */
 static int sxe_object_cast_ex(zend_object *readobj, zval *writeobj, int type)
 {
 	php_sxe_object *sxe;
@@ -1947,8 +1922,7 @@ static int sxe_object_cast(zend_object *readobj, zval *writeobj, int type)
 }
 /* }}} */
 
-/* {{{ proto object SimpleXMLElement::__toString()
-   Returns the string content */
+/* {{{ Returns the string content */
 SXE_METHOD(__toString)
 {
 	if (zend_parse_parameters_none() == FAILURE) {
@@ -2007,8 +1981,7 @@ static int sxe_count_elements(zend_object *object, zend_long *count) /* {{{ */
 }
 /* }}} */
 
-/* {{{ proto int SimpleXMLElement::count()
- Get number of child elements */
+/* {{{ Get number of child elements */
 SXE_METHOD(count)
 {
 	zend_long count = 0;
@@ -2024,10 +1997,134 @@ SXE_METHOD(count)
 }
 /* }}} */
 
+
+/* {{{ Rewind to first element */
+SXE_METHOD(rewind)
+{
+	if (zend_parse_parameters_none() == FAILURE) {
+		RETURN_THROWS();
+	}
+
+	php_sxe_rewind_iterator(Z_SXEOBJ_P(ZEND_THIS));
+}
+/* }}} */
+
+/* {{{ Check whether iteration is valid */
+SXE_METHOD(valid)
+{
+	php_sxe_object *sxe = Z_SXEOBJ_P(ZEND_THIS);
+
+	if (zend_parse_parameters_none() == FAILURE) {
+		RETURN_THROWS();
+	}
+
+	RETURN_BOOL(!Z_ISUNDEF(sxe->iter.data));
+}
+/* }}} */
+
+/* {{{ Get current element */
+SXE_METHOD(current)
+{
+	php_sxe_object *sxe = Z_SXEOBJ_P(ZEND_THIS);
+	zval *data;
+
+	if (zend_parse_parameters_none() == FAILURE) {
+		RETURN_THROWS();
+	}
+
+	if (Z_ISUNDEF(sxe->iter.data)) {
+		return; /* return NULL */
+	}
+
+	data = &sxe->iter.data;
+	ZVAL_COPY_DEREF(return_value, data);
+}
+/* }}} */
+
+/* {{{ Get name of current child element */
+SXE_METHOD(key)
+{
+	xmlNodePtr curnode;
+	php_sxe_object *intern;
+	php_sxe_object *sxe = Z_SXEOBJ_P(ZEND_THIS);
+
+	if (zend_parse_parameters_none() == FAILURE) {
+		RETURN_THROWS();
+	}
+
+	if (Z_ISUNDEF(sxe->iter.data)) {
+		RETURN_FALSE;
+	}
+
+	intern = Z_SXEOBJ_P(&sxe->iter.data);
+	if (intern != NULL && intern->node != NULL) {
+		curnode = (xmlNodePtr)((php_libxml_node_ptr *)intern->node)->node;
+		RETURN_STRINGL((char*)curnode->name, xmlStrlen(curnode->name));
+	}
+
+	RETURN_FALSE;
+}
+/* }}} */
+
+/* {{{ Move to next element */
+SXE_METHOD(next)
+{
+	if (zend_parse_parameters_none() == FAILURE) {
+		RETURN_THROWS();
+	}
+
+	php_sxe_move_forward_iterator(Z_SXEOBJ_P(ZEND_THIS));
+}
+/* }}} */
+
+/* {{{ Check whether element has children (elements) */
+SXE_METHOD(hasChildren)
+{
+	php_sxe_object *sxe = Z_SXEOBJ_P(ZEND_THIS);
+	php_sxe_object *child;
+	xmlNodePtr      node;
+
+	if (zend_parse_parameters_none() == FAILURE) {
+		RETURN_THROWS();
+	}
+
+	if (Z_ISUNDEF(sxe->iter.data) || sxe->iter.type == SXE_ITER_ATTRLIST) {
+		RETURN_FALSE;
+	}
+	child = Z_SXEOBJ_P(&sxe->iter.data);
+
+	GET_NODE(child, node);
+	if (node) {
+		node = node->children;
+	}
+	while (node && node->type != XML_ELEMENT_NODE) {
+		node = node->next;
+	}
+	RETURN_BOOL(node ? 1 : 0);
+}
+/* }}} */
+
+/* {{{ Get child element iterator */
+SXE_METHOD(getChildren)
+{
+	php_sxe_object *sxe = Z_SXEOBJ_P(ZEND_THIS);
+	zval *data;
+
+	if (zend_parse_parameters_none() == FAILURE) {
+		RETURN_THROWS();
+	}
+
+	if (Z_ISUNDEF(sxe->iter.data) || sxe->iter.type == SXE_ITER_ATTRLIST) {
+		return; /* return NULL */
+	}
+
+	data = &sxe->iter.data;
+	ZVAL_COPY_DEREF(return_value, data);
+}
+
 static zend_object_handlers sxe_object_handlers;
 
-/* {{{ sxe_object_clone()
- */
+/* {{{ sxe_object_clone() */
 static zend_object *
 sxe_object_clone(zend_object *object)
 {
@@ -2074,8 +2171,7 @@ sxe_object_clone(zend_object *object)
 }
 /* }}} */
 
-/* {{{ sxe_object_dtor()
- */
+/* {{{ sxe_object_dtor() */
 static void sxe_object_dtor(zend_object *object)
 {
 	/* dtor required to cleanup iterator related data properly */
@@ -2103,8 +2199,7 @@ static void sxe_object_dtor(zend_object *object)
 }
 /* }}} */
 
-/* {{{ sxe_object_free_storage()
- */
+/* {{{ sxe_object_free_storage() */
 static void sxe_object_free_storage(zend_object *object)
 {
 	php_sxe_object *sxe;
@@ -2126,8 +2221,7 @@ static void sxe_object_free_storage(zend_object *object)
 }
 /* }}} */
 
-/* {{{ php_sxe_find_fptr_count()
- */
+/* {{{ php_sxe_find_fptr_count() */
 static zend_function* php_sxe_find_fptr_count(zend_class_entry *ce)
 {
 	zend_function *fptr_count = NULL;
@@ -2153,8 +2247,7 @@ static zend_function* php_sxe_find_fptr_count(zend_class_entry *ce)
 }
 /* }}} */
 
-/* {{{ php_sxe_object_new()
- */
+/* {{{ php_sxe_object_new() */
 static php_sxe_object* php_sxe_object_new(zend_class_entry *ce, zend_function *fptr_count)
 {
 	php_sxe_object *intern;
@@ -2174,8 +2267,7 @@ static php_sxe_object* php_sxe_object_new(zend_class_entry *ce, zend_function *f
 }
 /* }}} */
 
-/* {{{ sxe_object_new()
- */
+/* {{{ sxe_object_new() */
 PHP_SXE_API zend_object *
 sxe_object_new(zend_class_entry *ce)
 {
@@ -2186,8 +2278,7 @@ sxe_object_new(zend_class_entry *ce)
 }
 /* }}} */
 
-/* {{{ proto simplemxml_element simplexml_load_file(string filename [, string class_name [, int options [, string ns [, bool is_prefix]]]])
-   Load a filename and return a simplexml_element object to allow for processing */
+/* {{{ Load a filename and return a simplexml_element object to allow for processing */
 PHP_FUNCTION(simplexml_load_file)
 {
 	php_sxe_object *sxe;
@@ -2232,8 +2323,7 @@ PHP_FUNCTION(simplexml_load_file)
 }
 /* }}} */
 
-/* {{{ proto simplemxml_element simplexml_load_string(string data [, string class_name [, int options [, string ns [, bool is_prefix]]]])
-   Load a string and return a simplexml_element object to allow for processing */
+/* {{{ Load a string and return a simplexml_element object to allow for processing */
 PHP_FUNCTION(simplexml_load_string)
 {
 	php_sxe_object *sxe;
@@ -2286,8 +2376,7 @@ PHP_FUNCTION(simplexml_load_string)
 }
 /* }}} */
 
-/* {{{ proto SimpleXMLElement::__construct(string data [, int options [, bool data_is_url [, string ns [, bool is_prefix]]]])
-   SimpleXMLElement constructor */
+/* {{{ SimpleXMLElement constructor */
 SXE_METHOD(__construct)
 {
 	php_sxe_object *sxe = Z_SXEOBJ_P(ZEND_THIS);
@@ -2336,7 +2425,8 @@ static const zend_object_iterator_funcs php_sxe_iterator_funcs = { /* {{{ */
 	php_sxe_iterator_current_key,
 	php_sxe_iterator_move_forward,
 	php_sxe_iterator_rewind,
-	NULL
+	NULL,
+	NULL, /* get_gc */
 };
 /* }}} */
 
@@ -2538,8 +2628,7 @@ void *simplexml_export_node(zval *object) /* {{{ */
 }
 /* }}} */
 
-/* {{{ proto simplemxml_element simplexml_import_dom(domNode node [, string class_name])
-   Get a simplexml_element object from dom to allow for processing */
+/* {{{ Get a simplexml_element object from dom to allow for processing */
 PHP_FUNCTION(simplexml_import_dom)
 {
 	php_sxe_object *sxe;
@@ -2613,17 +2702,17 @@ zend_module_entry simplexml_module_entry = { /* {{{ */
 ZEND_GET_MODULE(simplexml)
 #endif
 
-/* {{{ PHP_MINIT_FUNCTION(simplexml)
- */
+/* {{{ PHP_MINIT_FUNCTION(simplexml) */
 PHP_MINIT_FUNCTION(simplexml)
 {
-	zend_class_entry sxe;
+	zend_class_entry ce;
 
-	INIT_CLASS_ENTRY(sxe, "SimpleXMLElement", class_SimpleXMLElement_methods);
-	sxe.create_object = sxe_object_new;
-	sxe_class_entry = zend_register_internal_class(&sxe);
+	INIT_CLASS_ENTRY(ce, "SimpleXMLElement", class_SimpleXMLElement_methods);
+	sxe_class_entry = zend_register_internal_class(&ce);
+	sxe_class_entry->create_object = sxe_object_new;
 	sxe_class_entry->get_iterator = php_sxe_get_iterator;
-	zend_class_implements(sxe_class_entry, 3, zend_ce_traversable, zend_ce_countable, zend_ce_stringable);
+	zend_class_implements(sxe_class_entry, 3,
+		zend_ce_countable, zend_ce_stringable, spl_ce_RecursiveIterator);
 
 	memcpy(&sxe_object_handlers, &std_object_handlers, sizeof(zend_object_handlers));
 	sxe_object_handlers.offset = XtOffsetOf(php_sxe_object, zo);
@@ -2650,16 +2739,19 @@ PHP_MINIT_FUNCTION(simplexml)
 	sxe_class_entry->serialize = zend_class_serialize_deny;
 	sxe_class_entry->unserialize = zend_class_unserialize_deny;
 
-	php_libxml_register_export(sxe_class_entry, simplexml_export_node);
+	/* TODO: Why do we have two variables for this? */
+	ce_SimpleXMLElement = sxe_class_entry;
 
-	PHP_MINIT(sxe)(INIT_FUNC_ARGS_PASSTHRU);
+	INIT_CLASS_ENTRY(ce, "SimpleXMLIterator", NULL);
+	ce_SimpleXMLIterator = zend_register_internal_class_ex(&ce, ce_SimpleXMLElement);
+
+	php_libxml_register_export(sxe_class_entry, simplexml_export_node);
 
 	return SUCCESS;
 }
 /* }}} */
 
-/* {{{ PHP_MSHUTDOWN_FUNCTION(simplexml)
- */
+/* {{{ PHP_MSHUTDOWN_FUNCTION(simplexml) */
 PHP_MSHUTDOWN_FUNCTION(simplexml)
 {
 	sxe_class_entry = NULL;
@@ -2667,8 +2759,7 @@ PHP_MSHUTDOWN_FUNCTION(simplexml)
 }
 /* }}} */
 
-/* {{{ PHP_MINFO_FUNCTION(simplexml)
- */
+/* {{{ PHP_MINFO_FUNCTION(simplexml) */
 PHP_MINFO_FUNCTION(simplexml)
 {
 	php_info_print_table_start();

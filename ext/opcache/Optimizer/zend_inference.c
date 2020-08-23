@@ -1972,15 +1972,15 @@ uint32_t zend_array_element_type(uint32_t t1, int write, int insert)
 			if (tmp & MAY_BE_ARRAY) {
 				tmp |= MAY_BE_ARRAY_KEY_ANY | MAY_BE_ARRAY_OF_ANY | MAY_BE_ARRAY_OF_REF;
 			}
-			if (t1 & MAY_BE_ARRAY_OF_REF) {
+			if (tmp & (MAY_BE_STRING|MAY_BE_ARRAY|MAY_BE_OBJECT|MAY_BE_RESOURCE)) {
 				if (!write) {
 					/* can't be REF  because of ZVAL_COPY_DEREF() usage */
-					tmp |= MAY_BE_RC1 | MAY_BE_RCN;
-				} else {
+					tmp |= MAY_BE_RCN;
+				} else if (t1 & MAY_BE_ARRAY_OF_REF) {
 					tmp |= MAY_BE_REF | MAY_BE_RC1 | MAY_BE_RCN;
+				} else {
+					tmp |= MAY_BE_RC1 | MAY_BE_RCN;
 				}
-			} else if (tmp & (MAY_BE_STRING|MAY_BE_ARRAY|MAY_BE_OBJECT|MAY_BE_RESOURCE)) {
-				tmp |= MAY_BE_RC1 | MAY_BE_RCN;
 			}
 		}
 		if (write) {
@@ -3398,10 +3398,26 @@ static zend_always_inline int _zend_update_type_info(
 		case ZEND_FETCH_OBJ_UNSET:
 		case ZEND_FETCH_OBJ_FUNC_ARG:
 			if (ssa_op->result_def >= 0) {
-				tmp = zend_fetch_prop_type(script,
-					zend_fetch_prop_info(op_array, ssa, opline, ssa_op), &ce);
+				zend_property_info *prop_info = zend_fetch_prop_info(op_array, ssa, opline, ssa_op);
+
+				tmp = zend_fetch_prop_type(script, prop_info, &ce);
 				if (opline->result_type != IS_TMP_VAR) {
 					tmp |= MAY_BE_REF | MAY_BE_INDIRECT;
+				} else if (prop_info) {
+					/* FETCH_OBJ_R/IS for plain property increments reference counter,
+					   so it can't be 1 */
+					tmp &= ~MAY_BE_RC1;
+				} else {
+					zend_class_entry *ce = NULL;
+
+					if (opline->op1_type == IS_UNUSED) {
+						ce = op_array->scope;
+					} else if (ssa_op->op1_use >= 0 && !ssa->var_info[ssa_op->op1_use].is_instanceof) {
+						ce = ssa->var_info[ssa_op->op1_use].ce;
+					}
+					if (ce && !ce->create_object && !ce->__get) {
+						tmp &= ~MAY_BE_RC1;
+					}
 				}
 				UPDATE_SSA_TYPE(tmp, ssa_op->result_def);
 				if (ce) {
@@ -3419,6 +3435,8 @@ static zend_always_inline int _zend_update_type_info(
 				zend_fetch_static_prop_info(script, op_array, ssa, opline), &ce);
 			if (opline->result_type != IS_TMP_VAR) {
 				tmp |= MAY_BE_REF | MAY_BE_INDIRECT;
+			} else {
+				tmp &= ~MAY_BE_RC1;
 			}
 			UPDATE_SSA_TYPE(tmp, ssa_op->result_def);
 			if (ce) {
@@ -3511,7 +3529,6 @@ static zend_always_inline int _zend_update_type_info(
 			}
 			break;
 		case ZEND_CATCH:
-		case ZEND_INCLUDE_OR_EVAL:
 			/* Forbidden opcodes */
 			ZEND_UNREACHABLE();
 			break;
@@ -3524,7 +3541,11 @@ unknown_opcode:
 			if (ssa_op->result_def >= 0) {
 				tmp = MAY_BE_ANY | MAY_BE_ARRAY_KEY_ANY | MAY_BE_ARRAY_OF_ANY | MAY_BE_ARRAY_OF_REF;
 				if (opline->result_type == IS_TMP_VAR) {
-					tmp |= MAY_BE_RC1 | MAY_BE_RCN;
+					if (opline->opcode == ZEND_FETCH_R || opline->opcode == ZEND_FETCH_IS) {
+						tmp |= MAY_BE_RCN;
+					} else {
+						tmp |= MAY_BE_RC1 | MAY_BE_RCN;
+					}
 				} else {
 					tmp |= MAY_BE_REF | MAY_BE_RC1 | MAY_BE_RCN;
 					switch (opline->opcode) {
@@ -4256,11 +4277,8 @@ void zend_inference_check_recursive_dependencies(zend_op_array *op_array)
 	free_alloca(worklist, use_heap);
 }
 
-int zend_may_throw(const zend_op *opline, const zend_ssa_op *ssa_op, const zend_op_array *op_array, zend_ssa *ssa)
+int zend_may_throw_ex(const zend_op *opline, const zend_ssa_op *ssa_op, const zend_op_array *op_array, zend_ssa *ssa, uint32_t t1, uint32_t t2)
 {
-	uint32_t t1 = OP1_INFO();
-	uint32_t t2 = OP2_INFO();
-
 	if (opline->op1_type == IS_CV) {
 		if (t1 & MAY_BE_UNDEF) {
 			switch (opline->opcode) {
@@ -4594,4 +4612,9 @@ int zend_may_throw(const zend_op *opline, const zend_ssa_op *ssa_op, const zend_
 		default:
 			return 1;
 	}
+}
+
+int zend_may_throw(const zend_op *opline, const zend_ssa_op *ssa_op, const zend_op_array *op_array, zend_ssa *ssa)
+{
+	return zend_may_throw_ex(opline, ssa_op, op_array, ssa, OP1_INFO(), OP2_INFO());
 }

@@ -147,7 +147,7 @@ static zval* ZEND_FASTCALL zend_jit_hash_index_lookup_w(HashTable *ht, zend_long
 
 static zval* ZEND_FASTCALL zend_jit_hash_lookup_rw(HashTable *ht, zend_string *str)
 {
-	zval *retval = zend_hash_find(ht, str);
+	zval *retval = zend_hash_find_ex(ht, str, 1);
 
 	if (retval) {
 		if (UNEXPECTED(Z_TYPE_P(retval) == IS_INDIRECT)) {
@@ -166,7 +166,7 @@ static zval* ZEND_FASTCALL zend_jit_hash_lookup_rw(HashTable *ht, zend_string *s
 
 static zval* ZEND_FASTCALL zend_jit_hash_lookup_w(HashTable *ht, zend_string *str)
 {
-	zval *retval = zend_hash_find(ht, str);
+	zval *retval = zend_hash_find_ex(ht, str, 1);
 
 	if (retval) {
 		if (UNEXPECTED(Z_TYPE_P(retval) == IS_INDIRECT)) {
@@ -185,6 +185,7 @@ static zval* ZEND_FASTCALL zend_jit_symtable_lookup_rw(HashTable *ht, zend_strin
 {
 	zend_ulong idx;
 	register const char *tmp = str->val;
+	zval *retval;
 
 	do {
 		if (*tmp > '9') {
@@ -199,8 +200,7 @@ static zval* ZEND_FASTCALL zend_jit_symtable_lookup_rw(HashTable *ht, zend_strin
 			}
 		}
 		if (_zend_handle_numeric_str_ex(str->val, str->len, &idx)) {
-			zval *retval = zend_hash_index_find(ht, idx);
-
+			retval = zend_hash_index_find(ht, idx);
 			if (!retval) {
 				zend_error(E_NOTICE,"Undefined index: %s", ZSTR_VAL(str));
 				retval = zend_hash_index_update(ht, idx, &EG(uninitialized_zval));
@@ -209,13 +209,27 @@ static zval* ZEND_FASTCALL zend_jit_symtable_lookup_rw(HashTable *ht, zend_strin
 		}
 	} while (0);
 
-	return zend_jit_hash_lookup_rw(ht, str);
+	retval = zend_hash_find(ht, str);
+	if (retval) {
+		if (UNEXPECTED(Z_TYPE_P(retval) == IS_INDIRECT)) {
+			retval = Z_INDIRECT_P(retval);
+			if (UNEXPECTED(Z_TYPE_P(retval) == IS_UNDEF)) {
+				zend_error(E_NOTICE,"Undefined index: %s", ZSTR_VAL(str));
+				ZVAL_NULL(retval);
+			}
+		}
+	} else {
+		zend_error(E_NOTICE,"Undefined index: %s", ZSTR_VAL(str));
+		retval = zend_hash_update(ht, str, &EG(uninitialized_zval));
+	}
+	return retval;
 }
 
 static zval* ZEND_FASTCALL zend_jit_symtable_lookup_w(HashTable *ht, zend_string *str)
 {
 	zend_ulong idx;
 	register const char *tmp = str->val;
+	zval *retval;
 
 	do {
 		if (*tmp > '9') {
@@ -230,8 +244,7 @@ static zval* ZEND_FASTCALL zend_jit_symtable_lookup_w(HashTable *ht, zend_string
 			}
 		}
 		if (_zend_handle_numeric_str_ex(str->val, str->len, &idx)) {
-			zval *retval = zend_hash_index_find(ht, idx);
-
+			retval = zend_hash_index_find(ht, idx);
 			if (!retval) {
 				retval = zend_hash_index_add_new(ht, idx, &EG(uninitialized_zval));
 			}
@@ -239,7 +252,18 @@ static zval* ZEND_FASTCALL zend_jit_symtable_lookup_w(HashTable *ht, zend_string
 		}
 	} while (0);
 
-	return zend_jit_hash_lookup_w(ht, str);
+	retval = zend_hash_find(ht, str);
+	if (retval) {
+		if (UNEXPECTED(Z_TYPE_P(retval) == IS_INDIRECT)) {
+			retval = Z_INDIRECT_P(retval);
+			if (UNEXPECTED(Z_TYPE_P(retval) == IS_UNDEF)) {
+				ZVAL_NULL(retval);
+			}
+		}
+	} else {
+		retval = zend_hash_add_new(ht, str, &EG(uninitialized_zval));
+	}
+	return retval;
 }
 
 static void ZEND_FASTCALL zend_jit_undefined_op_helper(uint32_t var)
@@ -1169,7 +1193,7 @@ check_indirect:
 	return ref;
 }
 
-static zend_always_inline zend_bool zend_jit_verify_type_common(zval *arg, const zend_op_array *op_array, zend_arg_info *arg_info, void **cache_slot)
+static zend_always_inline zend_bool zend_jit_verify_type_common(zval *arg, zend_arg_info *arg_info, void **cache_slot)
 {
 	uint32_t type_mask;
 
@@ -1227,16 +1251,24 @@ builtin_types:
 	return 0;
 }
 
-static void ZEND_FASTCALL zend_jit_verify_arg_slow(zval *arg, const zend_op_array *op_array, uint32_t arg_num, zend_arg_info *arg_info, void **cache_slot)
+static zend_bool ZEND_FASTCALL zend_jit_verify_arg_slow(zval *arg, zend_arg_info *arg_info)
 {
-	if (UNEXPECTED(!zend_jit_verify_type_common(arg, op_array, arg_info, cache_slot))) {
-		zend_verify_arg_error((zend_function*)op_array, arg_info, arg_num, cache_slot, arg);
+	zend_execute_data *execute_data = EG(current_execute_data);
+	const zend_op *opline = EX(opline);
+	void **cache_slot = CACHE_ADDR(opline->extended_value);
+	zend_bool ret;
+
+	ret = zend_jit_verify_type_common(arg, arg_info, cache_slot);
+	if (UNEXPECTED(!ret)) {
+		zend_verify_arg_error(EX(func), arg_info, opline->op1.num, cache_slot, arg);
+		return 0;
 	}
+	return ret;
 }
 
 static void ZEND_FASTCALL zend_jit_verify_return_slow(zval *arg, const zend_op_array *op_array, zend_arg_info *arg_info, void **cache_slot)
 {
-	if (UNEXPECTED(!zend_jit_verify_type_common(arg, op_array, arg_info, cache_slot))) {
+	if (UNEXPECTED(!zend_jit_verify_type_common(arg, arg_info, cache_slot))) {
 		zend_verify_return_error((zend_function*)op_array, cache_slot, arg);
 	}
 }
@@ -1504,10 +1536,10 @@ static void ZEND_FASTCALL zend_jit_check_array_promotion(zval *val, zend_propert
 	const zend_op *opline = execute_data->opline;
 	zval *result = EX_VAR(opline->result.var);
 
-	if (((Z_TYPE_P(val) <= IS_FALSE
-	  || (Z_ISREF_P(val) && Z_TYPE_P(Z_REFVAL_P(val)) <= IS_FALSE))
-	 &&	ZEND_TYPE_IS_SET(prop->type)
-	 && ZEND_TYPE_FULL_MASK(prop->type) & (MAY_BE_ITERABLE|MAY_BE_ARRAY)) == 0) {
+	if ((Z_TYPE_P(val) <= IS_FALSE
+		|| (Z_ISREF_P(val) && Z_TYPE_P(Z_REFVAL_P(val)) <= IS_FALSE))
+		&& ZEND_TYPE_IS_SET(prop->type)
+		&& (ZEND_TYPE_FULL_MASK(prop->type) & (MAY_BE_ITERABLE|MAY_BE_ARRAY)) == 0) {
 		zend_string *type_str = zend_type_to_string(prop->type);
 		zend_type_error(
 			"Cannot auto-initialize an array inside property %s::$%s of type %s",

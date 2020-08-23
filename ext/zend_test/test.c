@@ -99,8 +99,7 @@ ZEND_FUNCTION(zend_terminate_string)
 	ZSTR_VAL(str)[ZSTR_LEN(str)] = '\0';
 }
 
-/* {{{ proto void zend_leak_bytes([int num_bytes])
-   Cause an intentional memory leak, for testing/debugging purposes */
+/* {{{ Cause an intentional memory leak, for testing/debugging purposes */
 ZEND_FUNCTION(zend_leak_bytes)
 {
 	zend_long leakbytes = 3;
@@ -113,8 +112,7 @@ ZEND_FUNCTION(zend_leak_bytes)
 }
 /* }}} */
 
-/* {{{ proto void zend_leak_variable(mixed variable)
-   Leak a refcounted variable */
+/* {{{ Leak a refcounted variable */
 ZEND_FUNCTION(zend_leak_variable)
 {
 	zval *zv;
@@ -129,6 +127,82 @@ ZEND_FUNCTION(zend_leak_variable)
 	}
 
 	Z_ADDREF_P(zv);
+}
+/* }}} */
+
+/* Tests Z_PARAM_STR_OR_OBJ */
+ZEND_FUNCTION(zend_string_or_object)
+{
+	zend_string *str;
+	zend_object *object;
+
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_STR_OR_OBJ(str, object)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (str) {
+		RETURN_STR_COPY(str);
+	} else {
+		RETURN_OBJ_COPY(object);
+	}
+}
+/* }}} */
+
+/* Tests Z_PARAM_STR_OR_OBJ_OR_NULL */
+ZEND_FUNCTION(zend_string_or_object_or_null)
+{
+	zend_string *str;
+	zend_object *object;
+
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_STR_OR_OBJ_OR_NULL(str, object)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (str) {
+		RETURN_STR_COPY(str);
+	} else if (object) {
+		RETURN_OBJ_COPY(object);
+	} else {
+		RETURN_NULL();
+	}
+}
+/* }}} */
+
+/* Tests Z_PARAM_STR_OR_OBJ_OF_CLASS */
+ZEND_FUNCTION(zend_string_or_stdclass)
+{
+	zend_string *str;
+	zend_object *object;
+
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_STR_OR_OBJ_OF_CLASS(str, object, zend_standard_class_def)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (str) {
+		RETURN_STR_COPY(str);
+	} else {
+		RETURN_OBJ_COPY(object);
+	}
+}
+/* }}} */
+
+/* Tests Z_PARAM_STR_OR_OBJ_OF_CLASS_OR_NULL */
+ZEND_FUNCTION(zend_string_or_stdclass_or_null)
+{
+	zend_string *str;
+	zend_object *object;
+
+	ZEND_PARSE_PARAMETERS_START(1, 1)
+		Z_PARAM_STR_OR_OBJ_OF_CLASS_OR_NULL(str, object, zend_standard_class_def)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if (str) {
+		RETURN_STR_COPY(str);
+	} else if (object) {
+		RETURN_OBJ_COPY(object);
+	} else {
+		RETURN_NULL();
+	}
 }
 /* }}} */
 
@@ -183,7 +257,7 @@ static zend_function *zend_test_class_static_method_get(zend_class_entry *ce, ze
 }
 /* }}} */
 
-void zend_attribute_validate_zendtestattribute(zend_attribute *attr, int target)
+void zend_attribute_validate_zendtestattribute(zend_attribute *attr, uint32_t target, zend_class_entry *scope)
 {
 	if (target != ZEND_ATTRIBUTE_TARGET_CLASS) {
 		zend_error(E_COMPILE_ERROR, "Only classes can be marked with <<ZendTestAttribute>>");
@@ -286,7 +360,11 @@ PHP_MINIT_FUNCTION(zend_test)
 	zend_test_attribute = zend_register_internal_class(&class_entry);
 	zend_test_attribute->ce_flags |= ZEND_ACC_FINAL;
 
-	zend_compiler_attribute_register(zend_test_attribute, zend_attribute_validate_zendtestattribute);
+	{
+		zend_internal_attribute *attr = zend_internal_attribute_register(zend_test_attribute, ZEND_ATTRIBUTE_TARGET_ALL);
+		attr->validator = zend_attribute_validate_zendtestattribute;
+	}
+
 	return SUCCESS;
 }
 

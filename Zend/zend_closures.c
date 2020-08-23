@@ -109,8 +109,7 @@ static zend_bool zend_valid_closure_binding(
 }
 /* }}} */
 
-/* {{{ proto mixed Closure::call(object to [, mixed parameter] [, mixed ...] )
-   Call closure, binding to a given object with its class as the scope */
+/* {{{ Call closure, binding to a given object with its class as the scope */
 ZEND_METHOD(Closure, call)
 {
 	zval *newthis, closure_result;
@@ -168,7 +167,6 @@ ZEND_METHOD(Closure, call)
 	fci.size = sizeof(fci);
 	ZVAL_OBJ(&fci.function_name, &closure->std);
 	fci.retval = &closure_result;
-	fci.no_separation = 1;
 
 	if (zend_call_function(&fci, &fci_cache) == SUCCESS && Z_TYPE(closure_result) != IS_UNDEF) {
 		if (Z_ISREF(closure_result)) {
@@ -187,8 +185,7 @@ ZEND_METHOD(Closure, call)
 }
 /* }}} */
 
-/* {{{ proto Closure Closure::bind(callable old, object to [, mixed scope])
-   Create a closure from another one and bind to another object and scope */
+/* {{{ Create a closure from another one and bind to another object and scope */
 ZEND_METHOD(Closure, bind)
 {
 	zval *newthis, *zclosure, *scope_arg = NULL;
@@ -323,8 +320,7 @@ static int zend_create_closure_from_callable(zval *return_value, zval *callable,
 }
 /* }}} */
 
-/* {{{ proto Closure Closure::fromCallable(callable callable)
-   Create a closure from a callable using the current scope. */
+/* {{{ Create a closure from a callable using the current scope. */
 ZEND_METHOD(Closure, fromCallable)
 {
 	zval *callable;
@@ -528,10 +524,17 @@ static HashTable *zend_closure_get_debug_info(zend_object *object, int *is_temp)
 	debug_info = zend_new_array(8);
 
 	if (closure->func.type == ZEND_USER_FUNCTION && closure->func.op_array.static_variables) {
+		zval *var;
 		HashTable *static_variables =
 			ZEND_MAP_PTR_GET(closure->func.op_array.static_variables_ptr);
 		ZVAL_ARR(&val, zend_array_dup(static_variables));
 		zend_hash_update(debug_info, ZSTR_KNOWN(ZEND_STR_STATIC), &val);
+		ZEND_HASH_FOREACH_VAL(Z_ARRVAL(val), var) {
+			if (Z_TYPE_P(var) == IS_CONSTANT_AST) {
+				zval_ptr_dtor(var);
+				ZVAL_STRING(var, "<constant ast>");
+			}
+		} ZEND_HASH_FOREACH_END();
 	}
 
 	if (Z_TYPE(closure->this_ptr) != IS_UNDEF) {
@@ -591,8 +594,7 @@ static HashTable *zend_closure_get_gc(zend_object *obj, zval **table, int *n) /*
 }
 /* }}} */
 
-/* {{{ proto Closure::__construct()
-   Private constructor preventing instantiation */
+/* {{{ Private constructor preventing instantiation */
 ZEND_COLD ZEND_METHOD(Closure, __construct)
 {
 	zend_throw_error(NULL, "Instantiation of 'Closure' is not allowed");

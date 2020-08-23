@@ -507,13 +507,10 @@ ZEND_API const char *get_function_arg_name(const zend_function *func, uint32_t a
 		return NULL;
 	}
 
-	switch (func->type) {
-		case ZEND_USER_FUNCTION:
-			return ZSTR_VAL(func->common.arg_info[arg_num - 1].name);
-		case ZEND_INTERNAL_FUNCTION:
-			return ((zend_internal_arg_info*) func->common.arg_info)[arg_num - 1].name;
-		default:
-			return NULL;
+	if (func->type == ZEND_USER_FUNCTION || (func->common.fn_flags & ZEND_ACC_USER_ARG_INFO)) {
+		return ZSTR_VAL(func->common.arg_info[arg_num - 1].name);
+	} else {
+		return ((zend_internal_arg_info*) func->common.arg_info)[arg_num - 1].name;
 	}
 }
 /* }}} */
@@ -622,7 +619,7 @@ ZEND_API int zval_update_constant(zval *pp) /* {{{ */
 }
 /* }}} */
 
-int _call_user_function_ex(zval *object, zval *function_name, zval *retval_ptr, uint32_t param_count, zval params[], int no_separation) /* {{{ */
+int _call_user_function_ex(zval *object, zval *function_name, zval *retval_ptr, uint32_t param_count, zval params[]) /* {{{ */
 {
 	zend_fcall_info fci;
 
@@ -632,7 +629,6 @@ int _call_user_function_ex(zval *object, zval *function_name, zval *retval_ptr, 
 	fci.retval = retval_ptr;
 	fci.param_count = param_count;
 	fci.params = params;
-	fci.no_separation = (zend_bool) no_separation;
 
 	return zend_call_function(&fci, NULL);
 }
@@ -740,24 +736,10 @@ int zend_call_function(zend_fcall_info *fci, zend_fcall_info_cache *fci_cache) /
 
 		if (ARG_SHOULD_BE_SENT_BY_REF(func, i + 1)) {
 			if (UNEXPECTED(!Z_ISREF_P(arg))) {
-				if (!fci->no_separation) {
-					/* Separation is enabled -- create a ref */
-					ZVAL_NEW_REF(arg, arg);
-				} else if (!ARG_MAY_BE_SENT_BY_REF(func, i + 1)) {
+				if (!ARG_MAY_BE_SENT_BY_REF(func, i + 1)) {
 					/* By-value send is not allowed -- emit a warning,
 					 * but still perform the call with a by-value send. */
-					const char *arg_name = get_function_arg_name(func, i + 1);
-
-					zend_error(E_WARNING,
-						"%s%s%s(): Argument #%d%s%s%s must be passed by reference, value given",
-						func->common.scope ? ZSTR_VAL(func->common.scope->name) : "",
-						func->common.scope ? "::" : "",
-						ZSTR_VAL(func->common.function_name),
-						i+1,
-						arg_name ? " ($" : "",
-						arg_name ? arg_name : "",
-						arg_name ? ")" : ""
-					);
+					zend_param_must_be_ref(func, i + 1);
 					if (UNEXPECTED(EG(exception))) {
 						ZEND_CALL_NUM_ARGS(call) = i;
 						zend_vm_stack_free_args(call);
@@ -880,7 +862,6 @@ ZEND_API void zend_call_known_function(
 	fci.retval = retval_ptr ? retval_ptr : &retval;
 	fci.param_count = param_count;
 	fci.params = params;
-	fci.no_separation = 1;
 	ZVAL_UNDEF(&fci.function_name); /* Unused */
 
 	fcic.function_handler = fn;
@@ -1141,8 +1122,7 @@ ZEND_API int zend_eval_stringl_ex(const char *str, size_t str_len, zval *retval_
 
 	result = zend_eval_stringl(str, str_len, retval_ptr, string_name);
 	if (handle_exceptions && EG(exception)) {
-		zend_exception_error(EG(exception), E_ERROR);
-		result = FAILURE;
+		result = zend_exception_error(EG(exception), E_ERROR);
 	}
 	return result;
 }
