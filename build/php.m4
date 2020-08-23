@@ -305,7 +305,7 @@ fi
 ])
 
 AC_DEFUN([PHP_CHECK_GCC_ARG],[
-  AC_MSG_ERROR([Use AX_CHECK_COMPILE_FLAG instead])
+  AC_MSG_ERROR([[Use AX_CHECK_COMPILE_FLAG instead]])
 ])
 
 dnl
@@ -1445,16 +1445,16 @@ AC_RUN_IFELSE([AC_LANG_SOURCE([[
 #include <stdlib.h>
 
 struct cookiedata {
-  __off64_t pos;
+  off64_t pos;
 };
 
-__ssize_t reader(void *cookie, char *buffer, size_t size)
+ssize_t reader(void *cookie, char *buffer, size_t size)
 { return size; }
-__ssize_t writer(void *cookie, const char *buffer, size_t size)
+ssize_t writer(void *cookie, const char *buffer, size_t size)
 { return size; }
 int closer(void *cookie)
 { return 0; }
-int seeker(void *cookie, __off64_t *position, int whence)
+int seeker(void *cookie, off64_t *position, int whence)
 { ((struct cookiedata*)cookie)->pos = *position; return 0; }
 
 cookie_io_functions_t funcs = {reader, writer, seeker, closer};
@@ -1924,19 +1924,6 @@ AC_DEFUN([PHP_SETUP_ICONV], [
   found_iconv=no
   unset ICONV_DIR
 
-  dnl Create the directories for a VPATH build.
-  $php_shtool mkdir -p ext/iconv
-
-  echo > ext/iconv/php_have_bsd_iconv.h
-  echo > ext/iconv/php_have_ibm_iconv.h
-  echo > ext/iconv/php_have_glibc_iconv.h
-  echo > ext/iconv/php_have_libiconv.h
-  echo > ext/iconv/php_have_iconv.h
-  echo > ext/iconv/php_php_iconv_impl.h
-  echo > ext/iconv/php_iconv_aliased_libiconv.h
-  echo > ext/iconv/php_php_iconv_h_path.h
-  echo > ext/iconv/php_iconv_supports_errno.h
-
   dnl Check libc first if no path is provided in --with-iconv.
   if test "$PHP_ICONV" = "yes"; then
     dnl Reset LIBS temporarily as it may have already been included -liconv in.
@@ -1946,7 +1933,6 @@ AC_DEFUN([PHP_SETUP_ICONV], [
       found_iconv=yes
     ],[
       AC_CHECK_FUNC(libiconv,[
-        PHP_DEFINE(HAVE_LIBICONV,1,[ext/iconv])
         AC_DEFINE(HAVE_LIBICONV, 1, [ ])
         found_iconv=yes
       ])
@@ -1958,13 +1944,14 @@ AC_DEFUN([PHP_SETUP_ICONV], [
   if test "$found_iconv" = "no"; then
 
     for i in $PHP_ICONV /usr/local /usr; do
-      if test -r $i/include/giconv.h; then
-        AC_DEFINE(HAVE_GICONV_H, 1, [ ])
+      if test -r $i/include/gnu-libiconv/iconv.h; then
         ICONV_DIR=$i
-        iconv_lib_name=giconv
+        ICONV_INCLUDE_DIR=$i/include/gnu-libiconv
+        iconv_lib_name=iconv
         break
       elif test -r $i/include/iconv.h; then
         ICONV_DIR=$i
+        ICONV_INCLUDE_DIR=$i/include
         iconv_lib_name=iconv
         break
       fi
@@ -1980,9 +1967,7 @@ AC_DEFUN([PHP_SETUP_ICONV], [
     then
       PHP_CHECK_LIBRARY($iconv_lib_name, libiconv, [
         found_iconv=yes
-        PHP_DEFINE(HAVE_LIBICONV,1,[ext/iconv])
         AC_DEFINE(HAVE_LIBICONV,1,[ ])
-        PHP_DEFINE([ICONV_ALIASED_LIBICONV],1,[ext/iconv])
         AC_DEFINE([ICONV_ALIASED_LIBICONV],1,[iconv() is aliased to libiconv() in -liconv])
       ], [
         PHP_CHECK_LIBRARY($iconv_lib_name, iconv, [
@@ -1997,11 +1982,10 @@ AC_DEFUN([PHP_SETUP_ICONV], [
   fi
 
   if test "$found_iconv" = "yes"; then
-    PHP_DEFINE(HAVE_ICONV,1,[ext/iconv])
     AC_DEFINE(HAVE_ICONV,1,[ ])
     if test -n "$ICONV_DIR"; then
       PHP_ADD_LIBRARY_WITH_PATH($iconv_lib_name, $ICONV_DIR/$PHP_LIBDIR, $1)
-      PHP_ADD_INCLUDE($ICONV_DIR/include)
+      PHP_ADD_INCLUDE($ICONV_INCLUDE_DIR)
     fi
     $2
 ifelse([$3],[],,[else $3])
@@ -2236,6 +2220,17 @@ crypt_r("passwd", "hash", &buffer);
 struct crypt_data buffer;
 crypt_r("passwd", "hash", &buffer);
 ]])],[php_cv_crypt_r_style=struct_crypt_data_gnu_source],[])
+    fi
+    ])
+
+    if test "$php_cv_crypt_r_style" = "none"; then
+      AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+#include <stdlib.h>
+#include <unistd.h>
+]],[[
+struct crypt_data buffer;
+crypt_r("passwd", "hash", &buffer);
+]])],[php_cv_crypt_r_style=struct_crypt_data],[])
     fi
     ])
 

@@ -380,16 +380,16 @@ ZEND_API void zend_declare_class_constant_string(zend_class_entry *ce, const cha
 
 ZEND_API int zend_update_class_constants(zend_class_entry *class_type);
 
-ZEND_API void zend_update_property_ex(zend_class_entry *scope, zval *object, zend_string *name, zval *value);
-ZEND_API void zend_update_property(zend_class_entry *scope, zval *object, const char *name, size_t name_length, zval *value);
-ZEND_API void zend_update_property_null(zend_class_entry *scope, zval *object, const char *name, size_t name_length);
-ZEND_API void zend_update_property_bool(zend_class_entry *scope, zval *object, const char *name, size_t name_length, zend_long value);
-ZEND_API void zend_update_property_long(zend_class_entry *scope, zval *object, const char *name, size_t name_length, zend_long value);
-ZEND_API void zend_update_property_double(zend_class_entry *scope, zval *object, const char *name, size_t name_length, double value);
-ZEND_API void zend_update_property_str(zend_class_entry *scope, zval *object, const char *name, size_t name_length, zend_string *value);
-ZEND_API void zend_update_property_string(zend_class_entry *scope, zval *object, const char *name, size_t name_length, const char *value);
-ZEND_API void zend_update_property_stringl(zend_class_entry *scope, zval *object, const char *name, size_t name_length, const char *value, size_t value_length);
-ZEND_API void zend_unset_property(zend_class_entry *scope, zval *object, const char *name, size_t name_length);
+ZEND_API void zend_update_property_ex(zend_class_entry *scope, zend_object *object, zend_string *name, zval *value);
+ZEND_API void zend_update_property(zend_class_entry *scope, zend_object *object, const char *name, size_t name_length, zval *value);
+ZEND_API void zend_update_property_null(zend_class_entry *scope, zend_object *object, const char *name, size_t name_length);
+ZEND_API void zend_update_property_bool(zend_class_entry *scope, zend_object *object, const char *name, size_t name_length, zend_long value);
+ZEND_API void zend_update_property_long(zend_class_entry *scope, zend_object *object, const char *name, size_t name_length, zend_long value);
+ZEND_API void zend_update_property_double(zend_class_entry *scope, zend_object *object, const char *name, size_t name_length, double value);
+ZEND_API void zend_update_property_str(zend_class_entry *scope, zend_object *object, const char *name, size_t name_length, zend_string *value);
+ZEND_API void zend_update_property_string(zend_class_entry *scope, zend_object *object, const char *name, size_t name_length, const char *value);
+ZEND_API void zend_update_property_stringl(zend_class_entry *scope, zend_object *object, const char *name, size_t name_length, const char *value, size_t value_length);
+ZEND_API void zend_unset_property(zend_class_entry *scope, zend_object *object, const char *name, size_t name_length);
 
 ZEND_API int zend_update_static_property_ex(zend_class_entry *scope, zend_string *name, zval *value);
 ZEND_API int zend_update_static_property(zend_class_entry *scope, const char *name, size_t name_length, zval *value);
@@ -400,8 +400,8 @@ ZEND_API int zend_update_static_property_double(zend_class_entry *scope, const c
 ZEND_API int zend_update_static_property_string(zend_class_entry *scope, const char *name, size_t name_length, const char *value);
 ZEND_API int zend_update_static_property_stringl(zend_class_entry *scope, const char *name, size_t name_length, const char *value, size_t value_length);
 
-ZEND_API zval *zend_read_property_ex(zend_class_entry *scope, zval *object, zend_string *name, zend_bool silent, zval *rv);
-ZEND_API zval *zend_read_property(zend_class_entry *scope, zval *object, const char *name, size_t name_length, zend_bool silent, zval *rv);
+ZEND_API zval *zend_read_property_ex(zend_class_entry *scope, zend_object *object, zend_string *name, zend_bool silent, zval *rv);
+ZEND_API zval *zend_read_property(zend_class_entry *scope, zend_object *object, const char *name, size_t name_length, zend_bool silent, zval *rv);
 
 ZEND_API zval *zend_read_static_property_ex(zend_class_entry *scope, zend_string *name, zend_bool silent);
 ZEND_API zval *zend_read_static_property(zend_class_entry *scope, const char *name, size_t name_length, zend_bool silent);
@@ -1404,6 +1404,9 @@ ZEND_API ZEND_COLD void ZEND_FASTCALL zend_argument_value_error(uint32_t arg_num
 
 #define Z_PARAM_CLASS(dest) \
 	Z_PARAM_CLASS_EX(dest, 0, 0)
+
+#define Z_PARAM_CLASS_OR_NULL(dest) \
+	Z_PARAM_CLASS_EX(dest, 1, 0)
 
 #define Z_PARAM_CLASS_NAME_OR_OBJ_EX(dest, allow_null) \
 	Z_PARAM_PROLOGUE(0, 0); \
