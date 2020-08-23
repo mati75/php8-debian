@@ -20,6 +20,8 @@ PHP 8.0 INTERNALS UPGRADE NOTES
   q. GC_COLLECTABLE flag
   r. Cannot implement Traversable only
   s. zend_fcall_info no_separation flag removed
+  t. Signature changes
+  u. Error Notification callbacks to replace zend_error_cb overwrite use-cases
 
 2. Build system changes
   a. Abstract
@@ -70,13 +72,13 @@ PHP 8.0 INTERNALS UPGRADE NOTES
      Instead type checks should be performed using the zend_parse_parameters()
      or ZEND_PARSE_PARAMETERS_*() APIs.
 
-  g. zend_free_op type and "should_free" argument of zend_get_zval_ptr() were
-     removed. It's possible to get the old "should_free" value using the
-     following code.
+  g. The zend_free_op type and the "should_free" and "type" arguments of
+     zend_get_zval_ptr() were removed. It's possible to get the old
+     "should_free" value using the following code:
 
-     zval *ret = zend_get_zval_ptr(opline, opline->op1_type, &opline->op1,
-         execute_data, BP_VAR_R);
-     zval *should_free = (op_type & (IS_TMP_VAR|IS_VAR)) ? ret : NULL;
+         zval *ret = zend_get_zval_ptr(
+             opline, opline->op1_type, &opline->op1, execute_data);
+         zval *should_free = (op_type & (IS_TMP_VAR|IS_VAR)) ? ret : NULL;
 
   h. Added the zend_value_error() function, which is intended to be used
      to raise ValueError when inappropriate argument values are passed
@@ -89,7 +91,7 @@ PHP 8.0 INTERNALS UPGRADE NOTES
   j. compare_objects() handler was removed. Extensions should use compare() object
      handler instead and check if both arguments are objects and have the same
      compare handler, using ZEND_COMPARE_OBJECTS_FALLBACK() macro.
-     
+
   k. The 'I' length modifier, used to denote 32 and 64bit integer from the custom
      snprintf and spprintf implementations has been removed.
      Use the ZEND_LONG_FMT, ZEND_ULONG_FMT and ZEND_XLONG_FMT macros defined in
@@ -136,10 +138,56 @@ PHP 8.0 INTERNALS UPGRADE NOTES
              zend_create_internal_iterator_zval(return_value, ZEND_THIS);
          }
 
-   s. The zend_fcall_info no_separation flag has been removed, and separation is
+  s. The zend_fcall_info no_separation flag has been removed, and separation is
       never allowed. If you wish to pass (or allow passing) arguments by
       reference, explicitly create those arguments as references using
-      ZEND_MAKE_REF.
+      ZEND_MAKE_REF. This removal also affects call_user_function_ex(), which
+      should be replaced by call_user_function().
+
+  t. The following ZEND_API function have changed signature:
+     1. Void in Zend Engine 4.0:
+        - add_assoc_*()
+        - add_index_*()
+        - add_property_*()
+        - object_init()
+        - zend_declare_class_constant*()
+        - zend_declare_property*()
+        - zend_startup_modules()
+        - zend_wrong_parameters_none_error()
+        - zend_fcall_info_argp()
+        - zend_fcall_info_argv()
+        - zend_fcall_info_argn()
+     2. Argument int to uint32_t in Zend Engine 4.0:
+        - _zend_get_parameters_array_ex()
+        - zend_copy_parameters_array()
+        - zend_fcall_info_args_save()
+        - zend_fcall_info_args_restore()
+        - zend_fcall_info_argp()
+        - zend_fcall_info_argv()
+        - zend_fcall_info_argn()
+        - zend_wrong_parameter*()
+        - zend_wrong_callback_error()
+        - zend_parse_arg_class()
+     3. Argument int to zend_bool in Zend Engine 4.0:
+        - add_next_index_bool()
+     4. Argument int to size_t in Zend Engine 4.0:
+        - zend_set_hash_symbol()
+
+  u. Instead of overwriting zend_error_cb extensions with debugging, monitoring
+     use-cases catching Errors/Exceptions are strongly encouraged to use
+	 the new error notification API instead.
+
+	 Error notification callbacks are guaranteed to be called regardless of
+	 the users error_reporting setting or userland error handler return values.
+
+     Register notification callbacks during MINIT of an extension:
+
+		void my_error_notify_cb(int type,
+			const char *error_filename,
+			uint32_t error_lineno,
+			zend_string *message) {
+		}
+		zend_register_error_notify_callback(my_error_notify_cb);
 
 ========================
 2. Build system changes

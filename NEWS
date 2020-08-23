@@ -1,10 +1,23 @@
 PHP                                                                        NEWS
 |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
-09 Jul 2020, PHP 8.0.0alpha2
+23 Jul 2020, PHP 8.0.0alpha3
 
 - Core:
   . Fixed bug #79790 ("Illegal offset type" exception during AST evaluation
     not handled properly). (Nikita)
+  . Fixed bug #79791 (Assertion failure when unsetting variable during binary
+    op). (Nikita)
+  . Fixed bug #79841 (Syntax error in configure / unescaped "[]" in php.m4).
+    (Nikita)
+  . Fixed bug #79828 (Segfault when trying to access non-existing variable).
+    (Nikita)
+  . Fixed bug #79852 (count(DOMNodeList) doesn't match
+    count(IteratorIterator(DOMNodeList))). (Nikita)
+  . Fixed bug #79867 (Promoted untyped properties should get null default
+    value). (Nikita)
+
+- Standard:
+  . Fixed bug #79868 (Sorting with array_unique gives unwanted result). (Nikita)
 
 09 Jul 2020, PHP 8.0.0alpha2
 
@@ -113,6 +126,10 @@ PHP                                                                        NEWS
 
 - mysqlnd:
   . Fixed #60594 (mysqlnd exposes 160 lines of stats in phpinfo). (PeeHaa)
+
+- OCI8:
+  . Deprecated old OCI8 function aliases. (Jens de Nies)
+  . Removed obsolete no-op function oci_internal_debug(). (Jens de Nies)
 
 - OpCache:
   . Fixed bug #78654 (Incorrectly computed opcache checksum on files with

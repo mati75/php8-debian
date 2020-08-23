@@ -508,7 +508,7 @@ function get_html_translation_table(int $table = HTML_SPECIALCHARS, int $quote_s
 /** @param mixed $assertion */
 function assert($assertion, $description = null): bool {}
 
-function assert_options(int $what, $value = UNKNOWN): array|object|int|string|bool|null {}
+function assert_options(int $what, $value = UNKNOWN): array|object|int|string|null {}
 
 /* string.c */
 
@@ -955,7 +955,7 @@ function http_build_query(array|object $data, string $numeric_prefix = "", $arg_
 
 function image_type_to_mime_type(int $image_type): string {}
 
-function image_type_to_extension(int $image_type): string|false {}
+function image_type_to_extension(int $image_type, bool $include_dot = true): string|false {}
 
 function getimagesize(string $image_path, &$image_info = null): array|false {}
 
@@ -1314,7 +1314,7 @@ function stream_isatty($stream): bool {}
 
 #ifdef PHP_WIN32
 /** @param resource $stream */
-function sapi_windows_vt100_support($stream, bool $enable = UNKNOWN): bool {}
+function sapi_windows_vt100_support($stream, ?bool $enable = null): bool {}
 #endif
 
 /** @param resource $stream */

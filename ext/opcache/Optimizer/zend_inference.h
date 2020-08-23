@@ -26,6 +26,8 @@
 /* Bitmask for type inference (zend_ssa_var_info.type) */
 #include "zend_type_info.h"
 
+#define AVOID_REFCOUNTING           (1<<26) /* avoid reference counting */
+#define MAY_BE_CLASS_GUARD          (1<<27) /* needs class guard */
 #define MAY_BE_GUARD                (1<<28) /* needs type guard */
 #define MAY_BE_IN_REG               (1<<29) /* value allocated in CPU register */
 
@@ -249,7 +251,7 @@ int zend_ssa_find_false_dependencies(const zend_op_array *op_array, zend_ssa *ss
 int zend_ssa_find_sccs(const zend_op_array *op_array, zend_ssa *ssa);
 int zend_ssa_inference(zend_arena **raena, const zend_op_array *op_array, const zend_script *script, zend_ssa *ssa, zend_long optimization_level);
 
-uint32_t zend_array_element_type(uint32_t t1, int write, int insert);
+uint32_t zend_array_element_type(uint32_t t1, zend_uchar op_type, int write, int insert);
 
 int  zend_inference_calc_range(const zend_op_array *op_array, zend_ssa *ssa, int var, int widening, int narrowing, zend_ssa_range *tmp);
 void zend_inference_init_range(const zend_op_array *op_array, zend_ssa *ssa, int var, zend_bool underflow, zend_long min, zend_long max, zend_bool overflow);

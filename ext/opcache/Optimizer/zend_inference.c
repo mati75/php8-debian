@@ -1952,7 +1952,7 @@ static void emit_type_narrowing_warning(const zend_op_array *op_array, zend_ssa 
 	zend_error(E_WARNING, "Narrowing occurred during type inference of %s. Please file a bug report on bugs.php.net", def_op_name);
 }
 
-uint32_t zend_array_element_type(uint32_t t1, int write, int insert)
+uint32_t zend_array_element_type(uint32_t t1, zend_uchar op_type, int write, int insert)
 {
 	uint32_t tmp = 0;
 
@@ -1976,6 +1976,9 @@ uint32_t zend_array_element_type(uint32_t t1, int write, int insert)
 				if (!write) {
 					/* can't be REF  because of ZVAL_COPY_DEREF() usage */
 					tmp |= MAY_BE_RCN;
+					if ((op_type & (IS_VAR|IS_TMP_VAR)) && (t1 & MAY_BE_RC1)) {
+						tmp |= MAY_BE_RC1;
+					}
 				} else if (t1 & MAY_BE_ARRAY_OF_REF) {
 					tmp |= MAY_BE_REF | MAY_BE_RC1 | MAY_BE_RCN;
 				} else {
@@ -2410,6 +2413,7 @@ static zend_always_inline int _zend_update_type_info(
 		case ZEND_JMPZ_EX:
 		case ZEND_JMPNZ_EX:
 		case ZEND_CASE:
+		case ZEND_CASE_STRICT:
 		case ZEND_BOOL:
 		case ZEND_ISSET_ISEMPTY_CV:
 		case ZEND_ISSET_ISEMPTY_VAR:
@@ -2513,7 +2517,7 @@ static zend_always_inline int _zend_update_type_info(
 			        tmp |= MAY_BE_REF;
 				}
 				orig = t1;
-				t1 = zend_array_element_type(t1, 1, 0);
+				t1 = zend_array_element_type(t1, opline->op1_type, 1, 0);
 				t2 = OP1_DATA_INFO();
 			} else if (opline->opcode == ZEND_ASSIGN_STATIC_PROP_OP) {
 				prop_info = zend_fetch_static_prop_info(script, op_array, ssa, opline);
@@ -3380,6 +3384,7 @@ static zend_always_inline int _zend_update_type_info(
 			/* FETCH_LIST on a string behaves like FETCH_R on null */
 			tmp = zend_array_element_type(
 				opline->opcode != ZEND_FETCH_LIST_R ? t1 : ((t1 & ~MAY_BE_STRING) | MAY_BE_NULL),
+				opline->op1_type,
 				opline->result_type == IS_VAR,
 				opline->op2_type == IS_UNUSED);
 			if (opline->opcode == ZEND_FETCH_DIM_IS && (t1 & MAY_BE_STRING)) {
@@ -3389,7 +3394,7 @@ static zend_always_inline int _zend_update_type_info(
 			break;
 		case ZEND_FETCH_THIS:
 			UPDATE_SSA_OBJ_TYPE(op_array->scope, 1, ssa_op->result_def);
-			UPDATE_SSA_TYPE(MAY_BE_RC1|MAY_BE_RCN|MAY_BE_OBJECT, ssa_op->result_def);
+			UPDATE_SSA_TYPE(MAY_BE_RCN|MAY_BE_OBJECT, ssa_op->result_def);
 			break;
 		case ZEND_FETCH_OBJ_R:
 		case ZEND_FETCH_OBJ_IS:
@@ -3403,20 +3408,22 @@ static zend_always_inline int _zend_update_type_info(
 				tmp = zend_fetch_prop_type(script, prop_info, &ce);
 				if (opline->result_type != IS_TMP_VAR) {
 					tmp |= MAY_BE_REF | MAY_BE_INDIRECT;
-				} else if (prop_info) {
-					/* FETCH_OBJ_R/IS for plain property increments reference counter,
-					   so it can't be 1 */
-					tmp &= ~MAY_BE_RC1;
-				} else {
-					zend_class_entry *ce = NULL;
-
-					if (opline->op1_type == IS_UNUSED) {
-						ce = op_array->scope;
-					} else if (ssa_op->op1_use >= 0 && !ssa->var_info[ssa_op->op1_use].is_instanceof) {
-						ce = ssa->var_info[ssa_op->op1_use].ce;
-					}
-					if (ce && !ce->create_object && !ce->__get) {
+				} else if (!(opline->op1_type & (IS_VAR|IS_TMP_VAR)) || !(t1 & MAY_BE_RC1)) {
+					if (prop_info) {
+						/* FETCH_OBJ_R/IS for plain property increments reference counter,
+						   so it can't be 1 */
 						tmp &= ~MAY_BE_RC1;
+					} else {
+						zend_class_entry *ce = NULL;
+
+						if (opline->op1_type == IS_UNUSED) {
+							ce = op_array->scope;
+						} else if (ssa_op->op1_use >= 0 && !ssa->var_info[ssa_op->op1_use].is_instanceof) {
+							ce = ssa->var_info[ssa_op->op1_use].ce;
+						}
+						if (ce && !ce->create_object && !ce->__get) {
+							tmp &= ~MAY_BE_RC1;
+						}
 					}
 				}
 				UPDATE_SSA_TYPE(tmp, ssa_op->result_def);
@@ -4305,9 +4312,11 @@ int zend_may_throw_ex(const zend_op *opline, const zend_ssa_op *ssa_op, const ze
 			}
 		}
 	} else if (opline->op1_type & (IS_TMP_VAR|IS_VAR)) {
-		if (t1 & (MAY_BE_OBJECT|MAY_BE_RESOURCE|MAY_BE_ARRAY_OF_OBJECT|MAY_BE_ARRAY_OF_RESOURCE|MAY_BE_ARRAY_OF_ARRAY)) {
+		if ((t1 & MAY_BE_RC1)
+		 && (t1 & (MAY_BE_OBJECT|MAY_BE_RESOURCE|MAY_BE_ARRAY_OF_OBJECT|MAY_BE_ARRAY_OF_RESOURCE|MAY_BE_ARRAY_OF_ARRAY))) {
 			switch (opline->opcode) {
 				case ZEND_CASE:
+				case ZEND_CASE_STRICT:
 				case ZEND_FE_FETCH_R:
 				case ZEND_FE_FETCH_RW:
 				case ZEND_FETCH_LIST_R:
@@ -4342,7 +4351,8 @@ int zend_may_throw_ex(const zend_op *opline, const zend_ssa_op *ssa_op, const ze
 			}
 		}
 	} else if (opline->op2_type & (IS_TMP_VAR|IS_VAR)) {
-		if (t2 & (MAY_BE_OBJECT|MAY_BE_RESOURCE|MAY_BE_ARRAY_OF_OBJECT|MAY_BE_ARRAY_OF_RESOURCE|MAY_BE_ARRAY_OF_ARRAY)) {
+		if ((t2 & MAY_BE_RC1)
+		 && (t2 & (MAY_BE_OBJECT|MAY_BE_RESOURCE|MAY_BE_ARRAY_OF_OBJECT|MAY_BE_ARRAY_OF_RESOURCE|MAY_BE_ARRAY_OF_ARRAY))) {
 			switch (opline->opcode) {
 				case ZEND_ASSIGN:
 					break;
@@ -4376,12 +4386,14 @@ int zend_may_throw_ex(const zend_op *opline, const zend_ssa_op *ssa_op, const ze
 		case ZEND_COALESCE:
 		case ZEND_SWITCH_LONG:
 		case ZEND_SWITCH_STRING:
+		case ZEND_MATCH:
 		case ZEND_ISSET_ISEMPTY_VAR:
 		case ZEND_ISSET_ISEMPTY_CV:
 		case ZEND_FUNC_NUM_ARGS:
 		case ZEND_FUNC_GET_ARGS:
 		case ZEND_COPY_TMP:
 		case ZEND_CHECK_FUNC_ARG:
+		case ZEND_CASE_STRICT:
 			return 0;
 		case ZEND_INIT_FCALL:
 			/* can't throw, because call is resolved at compile time */

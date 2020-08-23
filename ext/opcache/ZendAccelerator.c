@@ -429,7 +429,6 @@ static void accel_interned_strings_save_state(void)
 
 static zend_always_inline zend_string *accel_find_interned_string(zend_string *str)
 {
-/* for now interned strings are supported only for non-ZTS build */
 	zend_ulong   h;
 	uint32_t     pos;
 	zend_string *s;
@@ -1416,11 +1415,6 @@ static zend_persistent_script *cache_script_in_file_cache(zend_persistent_script
 {
 	uint32_t orig_compiler_options;
 
-	/* Check if script may be stored in shared memory */
-	if (!zend_accel_script_persistable(new_persistent_script)) {
-		return new_persistent_script;
-	}
-
 	orig_compiler_options = CG(compiler_options);
 	CG(compiler_options) |= ZEND_COMPILE_WITH_FILE_CACHE;
 	if (!zend_optimize_script(&new_persistent_script->script, ZCG(accel_directives).optimization_level, ZCG(accel_directives).opt_debug_level)) {
@@ -1438,11 +1432,6 @@ static zend_persistent_script *cache_script_in_shared_memory(zend_persistent_scr
 	zend_accel_hash_entry *bucket;
 	uint32_t memory_used;
 	uint32_t orig_compiler_options;
-
-	/* Check if script may be stored in shared memory */
-	if (!zend_accel_script_persistable(new_persistent_script)) {
-		return new_persistent_script;
-	}
 
 	orig_compiler_options = CG(compiler_options);
 	if (ZCG(accel_directives).file_cache) {
@@ -2506,6 +2495,11 @@ int accel_activate(INIT_FUNC_ARGS)
 				if (ZCSG(preload_script)) {
 					preload_restart();
 				}
+
+#ifdef HAVE_JIT
+				zend_jit_restart();
+#endif
+
 				ZCSG(accelerator_enabled) = ZCSG(cache_status_before_restart);
 				if (ZCSG(last_restart_time) < ZCG(request_time)) {
 					ZCSG(last_restart_time) = ZCG(request_time);
@@ -2967,7 +2961,7 @@ static int accel_startup(zend_extension *extension)
 	orig_post_startup_cb = zend_post_startup_cb;
 	zend_post_startup_cb = accel_post_startup;
 
-	/* Prevent unloadig */
+	/* Prevent unloading */
 	extension->handle = 0;
 
 	return SUCCESS;
@@ -3668,12 +3662,15 @@ static zend_bool preload_try_resolve_property_types(zend_class_entry *ce)
 		ZEND_HASH_FOREACH_PTR(&ce->properties_info, prop) {
 			zend_type *single_type;
 			ZEND_TYPE_FOREACH(prop->type, single_type) {
-				zend_class_entry *p = preload_fetch_resolved_ce(ZEND_TYPE_NAME(*single_type), ce);
-				if (!p) {
-					ok = 0;
-					continue;
+				if (ZEND_TYPE_HAS_NAME(*single_type)) {
+					zend_class_entry *p =
+						preload_fetch_resolved_ce(ZEND_TYPE_NAME(*single_type), ce);
+					if (!p) {
+						ok = 0;
+						continue;
+					}
+					ZEND_TYPE_SET_CE(*single_type, p);
 				}
-				ZEND_TYPE_SET_CE(*single_type, p);
 			} ZEND_TYPE_FOREACH_END();
 		} ZEND_HASH_FOREACH_END();
 	}
@@ -3897,7 +3894,7 @@ static void preload_link(void)
 		} ZEND_HASH_FOREACH_END();
 	} while (changed);
 
-	/* Move unlinked clases (and with unresilved constants) back to scripts */
+	/* Move unlinked clases (and with unresolved constants) back to scripts */
 	orig_dtor = EG(class_table)->pDestructor;
 	EG(class_table)->pDestructor = NULL;
 	ZEND_HASH_REVERSE_FOREACH_STR_KEY_VAL(EG(class_table), key, zv) {
@@ -4444,13 +4441,14 @@ static int preload_autoload(zend_string *filename)
 	return ret;
 }
 
-static int accel_preload(const char *config)
+static int accel_preload(const char *config, zend_bool in_child)
 {
 	zend_file_handle file_handle;
 	int ret;
 	char *orig_open_basedir;
 	size_t orig_map_ptr_last;
 	zval *zv;
+	uint32_t orig_compiler_options;
 
 	ZCG(enabled) = 0;
 	ZCG(accelerator_enabled) = 0;
@@ -4466,6 +4464,17 @@ static int accel_preload(const char *config)
 
 	preload_scripts = emalloc(sizeof(HashTable));
 	zend_hash_init(preload_scripts, 0, NULL, NULL, 0);
+
+	orig_compiler_options = CG(compiler_options);
+	if (in_child) {
+		CG(compiler_options) |= ZEND_COMPILE_PRELOAD_IN_CHILD;
+	}
+	CG(compiler_options) |= ZEND_COMPILE_PRELOAD;
+	CG(compiler_options) |= ZEND_COMPILE_HANDLE_OP_ARRAY;
+	CG(compiler_options) |= ZEND_COMPILE_IGNORE_INTERNAL_CLASSES;
+	CG(compiler_options) |= ZEND_COMPILE_DELAYED_BINDING;
+	CG(compiler_options) |= ZEND_COMPILE_NO_CONSTANT_SUBSTITUTION;
+	CG(compiler_options) |= ZEND_COMPILE_IGNORE_OTHER_FILES;
 
 	zend_try {
 		zend_op_array *op_array;
@@ -4505,6 +4514,7 @@ static int accel_preload(const char *config)
 	} zend_end_try();
 
 	PG(open_basedir) = orig_open_basedir;
+	CG(compiler_options) = orig_compiler_options;
 	accelerator_orig_compile_file = preload_orig_compile_file;
 	ZCG(enabled) = 1;
 
@@ -4802,7 +4812,6 @@ static int accel_finish_startup(void)
 		char *(*orig_getenv)(const char *name, size_t name_len) = sapi_module.getenv;
 		size_t (*orig_ub_write)(const char *str, size_t str_length) = sapi_module.ub_write;
 		void (*orig_flush)(void *server_context) = sapi_module.flush;
-		uint32_t orig_compiler_options = CG(compiler_options);
 #ifdef ZEND_SIGNALS
 		zend_bool old_reset_signals = SIGG(reset);
 #endif
@@ -4896,16 +4905,6 @@ static int accel_finish_startup(void)
 		sapi_module.ub_write = preload_ub_write;
 		sapi_module.flush = preload_flush;
 
-		if (in_child) {
-			CG(compiler_options) |= ZEND_COMPILE_PRELOAD_IN_CHILD;
-		}
-		CG(compiler_options) |= ZEND_COMPILE_PRELOAD;
-		CG(compiler_options) |= ZEND_COMPILE_HANDLE_OP_ARRAY;
-		CG(compiler_options) |= ZEND_COMPILE_IGNORE_INTERNAL_CLASSES;
-		CG(compiler_options) |= ZEND_COMPILE_DELAYED_BINDING;
-		CG(compiler_options) |= ZEND_COMPILE_NO_CONSTANT_SUBSTITUTION;
-		CG(compiler_options) |= ZEND_COMPILE_IGNORE_OTHER_FILES;
-
 		zend_interned_strings_switch_storage(1);
 
 #ifdef ZEND_SIGNALS
@@ -4938,7 +4937,7 @@ static int accel_finish_startup(void)
 			ZCG(cwd_key_len) = 0;
 			ZCG(cwd_check) = 1;
 
-			if (accel_preload(ZCG(accel_directives).preload) != SUCCESS) {
+			if (accel_preload(ZCG(accel_directives).preload, in_child) != SUCCESS) {
 				ret = FAILURE;
 			}
 
@@ -4958,8 +4957,6 @@ static int accel_finish_startup(void)
 #ifdef ZEND_SIGNALS
 		SIGG(reset) = old_reset_signals;
 #endif
-
-		CG(compiler_options) = orig_compiler_options;
 
 		sapi_module.activate = orig_activate;
 		sapi_module.deactivate = orig_deactivate;

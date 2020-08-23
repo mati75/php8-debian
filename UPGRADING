@@ -194,6 +194,11 @@ PHP 8.0 UPGRADE NOTES
     RFC: https://wiki.php.net/rfc/locale_independent_float_to_string
   . Removed support for deprecated curly braces for offset access
     RFC: https://wiki.php.net/rfc/deprecate_curly_braces_array_access
+  . Applying the final modifier on a private method will now produce a warning
+    unless that method is the constructor.
+    RFC: https://wiki.php.net/rfc/inheritance_private_methods
+  . If an object constructor exit()s, the object destructor will no longer be
+    called. This matches the behavior when the constructor throws.
 
 - COM:
   . Removed the ability to import case-insensitive constants from type
@@ -320,6 +325,10 @@ PHP 8.0 UPGRADE NOTES
     ISO 8859 aliases with underscores (ISO_8859_* and ISO8859_*) have also been
     removed.
 
+- OCI8:
+  . Several alias functions have been marked as deprecated.
+  . oci_internal_debug() and its alias ociinternaldebug() have been removed.
+
 - PCRE:
   . When passing invalid escape sequences they are no longer interpreted as
     literals. This behaviour previously required the X modifier - which is
@@ -371,6 +380,8 @@ PHP 8.0 UPGRADE NOTES
   . ReflectionMethod::isConstructor() and ReflectionMethod::isDestructor() now
     also return true for `__construct` and `__destruct` methods of interfaces.
     Previously, this would only be true for methods of classes and traits.
+  . ReflectionType::isBuiltin() method has been moved to ReflectionNamedType.
+    ReflectionUnionType does not have it.
 
 - Socket:
   . The deprecated AI_IDN_ALLOW_UNASSIGNED and AI_IDN_USE_STD3_ASCII_RULES
@@ -451,6 +462,8 @@ PHP 8.0 UPGRADE NOTES
   . Removed deprecated DES fallback in crypt(). If an unknown salt format is
     passed to crypt(), the function will fail with *0 instead of falling back
     to a weak DES hash now.
+  . Specifying out of range rounds for sha256/sha526 crypt() will now fail with
+    *0 instead of clamping to the closest limit. This matches glibc behavior.
   . The result of sorting functions may have changed, if the array contains
     equal-comparing elements.
   . Sort comparison functions return true/false will now throw a deprecation
@@ -461,6 +474,11 @@ PHP 8.0 UPGRADE NOTES
         usort($array, fn($a, $b) => $a > $b);
         // With
         usort($array, fn($a, $b) => $a <=> $b);
+
+  . Any functions accepting callbacks that are not explicitly specified to
+    accept parameters by reference will now warn if a callback with reference
+    parameters is used. Examples include array_filter() and array_reduce().
+    This was already the case for most, but not all, functions previously.
 
 - Sysvmsg:
   . msg_get_queue() will now return an SysvMessageQueue object rather than a
@@ -569,6 +587,12 @@ PHP 8.0 UPGRADE NOTES
   . Added support for constructor property promotion (declaring properties in
     the constructor signature).
     RFC: https://wiki.php.net/rfc/constructor_promotion
+  . Added support for `match` expression.
+    RFC: https://wiki.php.net/rfc/match_expression_v2
+  . Private methods declared on a parent class no longer enforce any
+    inheritance rules on the methods of a child class. (with the exception of
+    final private constructors)
+    RFC: https://wiki.php.net/rfc/inheritance_private_methods
 
 - Date:
   . Added DateTime::createFromInterface() and
@@ -616,6 +640,14 @@ PHP 8.0 UPGRADE NOTES
 
         $proc = proc_open($command, [['pty'], ['pty'], ['pty']], $pipes);
 
+  . proc_open() now supports socket pair descriptors. The following attaches
+    a distinct socket pair to stdin, stdout and stderr:
+
+        $proc = proc_open(
+            $command, [['socket'], ['socket'], ['socket']], $pipes);
+
+    Unlike pipes, sockets do not suffer from blocking I/O issues on Windows.
+    However, not all programs may work correctly with stdio sockets.
   . Sorting functions are now stable, which means that equal-comparing elements
     will retain their original order.
     RFC: https://wiki.php.net/rfc/stable_sorting
@@ -883,6 +915,9 @@ PHP 8.0 UPGRADE NOTES
   . Program execution functions (proc_open(), exec(), popen() etc.) using the
     shell now consistently execute `%comspec% /s /c "$commandline"`, which has
     the same effect as executing `$commandline` (without additional quotes).
+
+- GD:
+  . php_gd2.dll has been renamed to php_gd.dll.
 
 - php-test-pack:
   . The test runner has been renamed from run-test.php to run-tests.php, to
