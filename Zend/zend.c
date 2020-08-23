@@ -160,6 +160,20 @@ static ZEND_INI_MH(OnUpdateAssertions) /* {{{ */
 }
 /* }}} */
 
+static ZEND_INI_MH(OnSetExceptionStringParamMaxLen) /* {{{ */
+{
+	zend_long i;
+
+	ZEND_ATOL(i, ZSTR_VAL(new_value));
+	if (i >= 0 && i <= 1000000) {
+		EG(exception_string_param_max_len) = i;
+		return SUCCESS;
+	} else {
+		return FAILURE;
+	}
+}
+/* }}} */
+
 #if ZEND_DEBUG
 # define SIGNAL_CHECK_DEFAULT "1"
 #else
@@ -177,6 +191,7 @@ ZEND_INI_BEGIN()
 	STD_ZEND_INI_BOOLEAN("zend.signal_check", SIGNAL_CHECK_DEFAULT, ZEND_INI_SYSTEM, OnUpdateBool, check, zend_signal_globals_t, zend_signal_globals)
 #endif
 	STD_ZEND_INI_BOOLEAN("zend.exception_ignore_args",	"0",	ZEND_INI_ALL,		OnUpdateBool, exception_ignore_args, zend_executor_globals, executor_globals)
+	STD_ZEND_INI_ENTRY("zend.exception_string_param_max_len",	"15",	ZEND_INI_ALL,	OnSetExceptionStringParamMaxLen,	exception_string_param_max_len,		zend_executor_globals,	executor_globals)
 ZEND_INI_END()
 
 ZEND_API size_t zend_vspprintf(char **pbuf, size_t max_len, const char *format, va_list ap) /* {{{ */
@@ -1105,6 +1120,11 @@ void zend_shutdown(void) /* {{{ */
 		ZEND_MAP_PTR_SET_REAL_BASE(CG(map_ptr_base), NULL);
 		CG(map_ptr_size) = 0;
 	}
+	if (CG(script_encoding_list)) {
+		free(ZEND_VOIDP(CG(script_encoding_list)));
+		CG(script_encoding_list) = NULL;
+		CG(script_encoding_list_size) = 0;
+	}
 #endif
 	zend_destroy_rsrc_list_dtors();
 }
@@ -1774,17 +1794,17 @@ ZEND_API void zend_map_ptr_extend(size_t last)
 	}
 }
 
-void zend_startup_error_notify_callbacks()
+void zend_startup_error_notify_callbacks(void)
 {
 	zend_llist_init(&zend_error_notify_callbacks, sizeof(zend_error_notify_cb), NULL, 1);
 }
 
-void zend_shutdown_error_notify_callbacks()
+void zend_shutdown_error_notify_callbacks(void)
 {
 	zend_llist_destroy(&zend_error_notify_callbacks);
 }
 
-void zend_register_error_notify_callback(zend_error_notify_cb cb)
+ZEND_API void zend_register_error_notify_callback(zend_error_notify_cb cb)
 {
 	zend_llist_add_element(&zend_error_notify_callbacks, &cb);
 }

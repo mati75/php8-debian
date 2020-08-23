@@ -1365,7 +1365,7 @@ static spl_dual_it_object* spl_dual_it_construct(INTERNAL_FUNCTION_PARAMETERS, z
 			}
 			intern->dit_type = DIT_AppendIterator;
 			zend_replace_error_handling(EH_THROW, spl_ce_InvalidArgumentException, &error_handling);
-			spl_instantiate(spl_ce_ArrayIterator, &intern->u.append.zarrayit);
+			object_init_ex(&intern->u.append.zarrayit, spl_ce_ArrayIterator);
 			zend_call_method_with_0_params(Z_OBJ(intern->u.append.zarrayit), spl_ce_ArrayIterator, &spl_ce_ArrayIterator->constructor, "__construct", NULL);
 			intern->u.append.iterator = spl_ce_ArrayIterator->get_iterator(spl_ce_ArrayIterator, &intern->u.append.zarrayit, 0);
 			zend_restore_error_handling(&error_handling);
@@ -1767,33 +1767,31 @@ PHP_METHOD(RegexIterator, __construct)
 /* {{{ Calls the callback with the current value, the current key and the inner iterator as arguments */
 PHP_METHOD(CallbackFilterIterator, accept)
 {
-	spl_dual_it_object     *intern = Z_SPLDUAL_IT_P(ZEND_THIS);
-	zend_fcall_info        *fci = &intern->u.cbfilter->fci;
-	zend_fcall_info_cache  *fcc = &intern->u.cbfilter->fcc;
-	zval                    params[3];
+	spl_dual_it_object *intern = Z_SPLDUAL_IT_P(ZEND_THIS);
 
 	if (zend_parse_parameters_none() == FAILURE) {
 		RETURN_THROWS();
 	}
 
+	SPL_FETCH_AND_CHECK_DUAL_IT(intern, ZEND_THIS);
+
 	if (Z_TYPE(intern->current.data) == IS_UNDEF || Z_TYPE(intern->current.key) == IS_UNDEF) {
 		RETURN_FALSE;
 	}
 
+	zval params[3];
 	ZVAL_COPY_VALUE(&params[0], &intern->current.data);
 	ZVAL_COPY_VALUE(&params[1], &intern->current.key);
 	ZVAL_COPY_VALUE(&params[2], &intern->inner.zobject);
 
+	zend_fcall_info *fci = &intern->u.cbfilter->fci;
+	zend_fcall_info_cache *fcc = &intern->u.cbfilter->fcc;
 	fci->retval = return_value;
 	fci->param_count = 3;
 	fci->params = params;
 
 	if (zend_call_function(fci, fcc) != SUCCESS || Z_ISUNDEF_P(return_value)) {
 		RETURN_FALSE;
-	}
-
-	if (EG(exception)) {
-		RETURN_THROWS();
 	}
 }
 /* }}} */

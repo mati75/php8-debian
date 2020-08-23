@@ -17,7 +17,7 @@ dnl Basic autoconf initialization, generation of config.nice.
 dnl ----------------------------------------------------------------------------
 
 AC_PREREQ([2.68])
-AC_INIT([PHP],[8.0.0alpha3],[https://bugs.php.net],[php],[https://www.php.net])
+AC_INIT([PHP],[8.0.0beta1],[https://bugs.php.net],[php],[https://www.php.net])
 AC_CONFIG_SRCDIR([main/php_version.h])
 AC_CONFIG_AUX_DIR([build])
 AC_PRESERVE_HELP_ORDER
@@ -224,10 +224,8 @@ case $host_alias in
     ;;
   *darwin*)
     if test -n "$GCC"; then
-      PHP_CHECK_GCC_ARG(-no-cpp-precomp, gcc_no_cpp_precomp=yes)
-      if test "$gcc_no_cpp_precomp" = "yes"; then
-        CPPFLAGS="$CPPFLAGS -no-cpp-precomp"
-      fi
+      AX_CHECK_COMPILE_FLAG([-no-cpp-precomp],
+                            [CPPFLAGS="$CPPFLAGS -no-cpp-precomp"])
     fi
     ;;
   *mips*)
