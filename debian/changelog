@@ -1,3 +1,10 @@
+php5.6 (5.6.40-31) unstable; urgency=medium
+
+  * Add the new binary patch to d/s/include-binaries
+  * Pull upstream patch to fix compilation with -fno-common (GH #1441)
+
+ -- Ondřej Surý <ondrej@debian.org>  Mon, 24 Aug 2020 08:18:10 +0200
+
 php5.6 (5.6.40-30) unstable; urgency=medium
 
   * Update branch names
