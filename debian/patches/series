@@ -38,3 +38,4 @@
 0038-Really-expand-libdir-datadir-into-EXPANDED_LIBDIR-DA.patch
 0039-Fix-ext-date-lib-parse_tz-PATH_MAX-HURD-FTBFS.patch
 0040-Amend-C-11-for-intl-compilation-on-older-distributio.patch
+0041-Use-libenchant-2-when-available.patch
