@@ -210,6 +210,7 @@ typedef enum _zend_jit_trace_stop {
 #define ZEND_JIT_EXIT_POLYMORPHISM  (1<<4) /* exit because of polymorphic call */
 #define ZEND_JIT_EXIT_FREE_OP1      (1<<5)
 #define ZEND_JIT_EXIT_FREE_OP2      (1<<6)
+#define ZEND_JIT_EXIT_PACKED_GUARD  (1<<7)
 
 typedef union _zend_op_trace_info {
 	zend_op dummy; /* the size of this structure must be the same as zend_op */
@@ -245,6 +246,7 @@ typedef enum _zend_jit_trace_op {
 } zend_jit_trace_op;
 
 #define IS_UNKNOWN 255 /* may be used for zend_jit_trace_rec.op?_type */
+#define IS_TRACE_PACKED    (1<<4)
 #define IS_TRACE_REFERENCE (1<<5)
 #define IS_TRACE_INDIRECT  (1<<6)
 
@@ -253,6 +255,15 @@ typedef enum _zend_jit_trace_op {
 
 #define ZEND_JIT_TRACE_MAX_SSA_VAR       0x7ffffe
 #define ZEND_JIT_TRACE_SSA_VAR_SHIFT     9
+
+#define ZEND_JIT_TRACE_FAKE_LEVEL_MASK   0xffff0000
+#define ZEND_JIT_TRACE_FAKE_LEVEL_SHIFT  16
+
+#define ZEND_JIT_TRACE_FAKE_LEVEL(info) \
+	(((info) & ZEND_JIT_TRACE_FAKE_LEVEL_MASK) >> ZEND_JIT_TRACE_FAKE_LEVEL_SHIFT)
+
+#define ZEND_JIT_TRACE_FAKE_INFO(level) \
+	(((level) << ZEND_JIT_TRACE_FAKE_LEVEL_SHIFT) | ZEND_JIT_TRACE_FAKE_INIT_CALL)
 
 #define ZEND_JIT_TRACE_SET_FIRST_SSA_VAR(_info, var) do { \
 		_info |= (var << ZEND_JIT_TRACE_SSA_VAR_SHIFT); \
@@ -368,17 +379,18 @@ struct _zend_jit_trace_stack_frame {
 	zend_jit_trace_stack        stack[1];
 };
 
-#define TRACE_FRAME_SHIFT_NUM_ARGS           16
-#define TRACE_FRAME_MAX_NUM_ARGS             32767
+#define TRACE_FRAME_SHIFT_NUM_ARGS            16
+#define TRACE_FRAME_MAX_NUM_ARGS              32767
 
-#define TRACE_FRAME_MASK_NUM_ARGS            0xffff0000
-#define TRACE_FRAME_MASK_NESTED              0x00000001
-#define TRACE_FRAME_MASK_LAST_SEND_BY_REF    0x00000002
-#define TRACE_FRAME_MASK_LAST_SEND_BY_VAL    0x00000004
-#define TRACE_FRAME_MASK_RETURN_VALUE_USED   0x00000008
-#define TRACE_FRAME_MASK_RETURN_VALUE_UNUSED 0x00000010
-#define TRACE_FRAME_MASK_THIS_CHECKED        0x00000020
-#define TRACE_FRAME_MASK_UNKNOWN_RETURN      0x00000040
+#define TRACE_FRAME_MASK_NUM_ARGS             0xffff0000
+#define TRACE_FRAME_MASK_NESTED               0x00000001
+#define TRACE_FRAME_MASK_LAST_SEND_BY_REF     0x00000002
+#define TRACE_FRAME_MASK_LAST_SEND_BY_VAL     0x00000004
+#define TRACE_FRAME_MASK_RETURN_VALUE_USED    0x00000008
+#define TRACE_FRAME_MASK_RETURN_VALUE_UNUSED  0x00000010
+#define TRACE_FRAME_MASK_THIS_CHECKED         0x00000020
+#define TRACE_FRAME_MASK_UNKNOWN_RETURN       0x00000040
+#define TRACE_FRAME_MASK_NO_NEED_RELEASE_THIS 0x00000080
 
 
 #define TRACE_FRAME_INIT(frame, _func, _flags, num_args) do { \
@@ -410,6 +422,8 @@ struct _zend_jit_trace_stack_frame {
 	((frame)->_info & TRACE_FRAME_MASK_THIS_CHECKED)
 #define TRACE_FRAME_IS_UNKNOWN_RETURN(frame) \
 	((frame)->_info & TRACE_FRAME_MASK_UNKNOWN_RETURN)
+#define TRACE_FRAME_NO_NEED_REKEASE_THIS(frame) \
+	((frame)->_info & TRACE_FRAME_MASK_NO_NEED_RELEASE_THIS)
 
 #define TRACE_FRAME_SET_RETURN_SSA_VAR(frame, var) do { \
 		(frame)->_info = var; \
@@ -432,6 +446,9 @@ struct _zend_jit_trace_stack_frame {
 	} while (0)
 #define TRACE_FRAME_SET_THIS_CHECKED(frame) do { \
 		(frame)->_info |= TRACE_FRAME_MASK_THIS_CHECKED; \
+	} while (0)
+#define TRACE_FRAME_SET_NO_NEED_RELEASE_THIS(frame) do { \
+		(frame)->_info |= TRACE_FRAME_MASK_NO_NEED_RELEASE_THIS; \
 	} while (0)
 
 ZEND_OPCODE_HANDLER_RET ZEND_FASTCALL zend_jit_func_trace_helper(ZEND_OPCODE_HANDLER_ARGS);

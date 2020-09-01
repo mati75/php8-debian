@@ -80,10 +80,6 @@ class SimpleType {
 
     public static function fromNode(Node $node) {
         if ($node instanceof Node\Name) {
-            if ($node->toString() === "mixed") {
-                return new SimpleType($node->toString(), true);
-            }
-
             assert($node->isFullyQualified());
             return new SimpleType($node->toString(), false);
         }
@@ -650,6 +646,7 @@ function parseFunctionLike(
         }
     }
 
+    $varNameSet = [];
     $args = [];
     $numRequiredArgs = 0;
     $foundVariadic = false;
@@ -657,6 +654,11 @@ function parseFunctionLike(
         $varName = $param->var->name;
         $preferRef = !empty($paramMeta[$varName]['preferRef']);
         unset($paramMeta[$varName]);
+
+        if (isset($varNameSet[$varName])) {
+            throw new Exception("Duplicate parameter name $varName for function $name");
+        }
+        $varNameSet[$varName] = true;
 
         if ($preferRef) {
             $sendBy = ArgInfo::SEND_PREFER_REF;
@@ -680,7 +682,7 @@ function parseFunctionLike(
             $type && !$type->isNullable()
         ) {
             $simpleType = $type->tryToSimpleType();
-            if ($simpleType === null || $simpleType->name !== "mixed") {
+            if ($simpleType === null) {
                 throw new Exception(
                     "Parameter $varName of function $name has null default, but is not nullable");
             }
@@ -1105,7 +1107,7 @@ function initPhpParser() {
     }
 
     $isInitialized = true;
-    $version = "4.3.0";
+    $version = "4.9.0";
     $phpParserDir = __DIR__ . "/PHP-Parser-$version";
     if (!is_dir($phpParserDir)) {
         installPhpParser($version, $phpParserDir);

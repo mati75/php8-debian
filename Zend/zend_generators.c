@@ -24,6 +24,7 @@
 #include "zend_generators.h"
 #include "zend_closures.h"
 #include "zend_generators_arginfo.h"
+#include "zend_observer.h"
 
 ZEND_API zend_class_entry *zend_ce_generator;
 ZEND_API zend_class_entry *zend_ce_ClosedGeneratorException;
@@ -629,7 +630,7 @@ ZEND_API zend_generator *zend_generator_update_current(zend_generator *generator
 	return root;
 }
 
-static int zend_generator_get_next_delegated_value(zend_generator *generator) /* {{{ */
+static zend_result zend_generator_get_next_delegated_value(zend_generator *generator) /* {{{ */
 {
 	zval *value;
 	if (Z_TYPE(generator->values) == IS_ARRAY) {
@@ -673,6 +674,9 @@ static int zend_generator_get_next_delegated_value(zend_generator *generator) /*
 		}
 
 		if (iter->funcs->valid(iter) == FAILURE) {
+			if (UNEXPECTED(EG(exception) != NULL)) {
+				goto exception;
+			}
 			/* reached end of iteration */
 			goto failure;
 		}
@@ -771,7 +775,25 @@ try_again:
 
 		/* Resume execution */
 		generator->flags |= ZEND_GENERATOR_CURRENTLY_RUNNING;
-		zend_execute_ex(generator->execute_data);
+		if (!ZEND_OBSERVER_ENABLED) {
+			zend_execute_ex(generator->execute_data);
+		} else {
+			zend_op_array *op_array = &generator->execute_data->func->op_array;
+			void *observer_handlers = ZEND_OBSERVER_HANDLERS(op_array);
+			if (!observer_handlers) {
+				zend_observer_fcall_install((zend_function *)op_array);
+				observer_handlers = ZEND_OBSERVER_HANDLERS(op_array);
+			}
+			ZEND_ASSERT(observer_handlers);
+			if (observer_handlers != ZEND_OBSERVER_NOT_OBSERVED) {
+				zend_observe_fcall_begin(observer_handlers, generator->execute_data);
+			}
+			zend_execute_ex(generator->execute_data);
+			if (generator->execute_data) {
+				/* On the final return, this will be called from ZEND_GENERATOR_RETURN */
+				zend_observer_maybe_fcall_call_end(generator->execute_data, &generator->value);
+			}
+		}
 		generator->flags &= ~ZEND_GENERATOR_CURRENTLY_RUNNING;
 
 		generator->frozen_call_stack = NULL;
@@ -1106,6 +1128,7 @@ static const zend_object_iterator_funcs zend_generator_iterator_functions = {
 	zend_generator_iterator_get_gc,
 };
 
+/* by_ref is int due to Iterator API */
 zend_object_iterator *zend_generator_get_iterator(zend_class_entry *ce, zval *object, int by_ref) /* {{{ */
 {
 	zend_object_iterator *iterator;

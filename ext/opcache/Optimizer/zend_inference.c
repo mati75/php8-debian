@@ -2454,7 +2454,7 @@ static zend_always_inline int _zend_update_type_info(
 				if (t1 & MAY_BE_OBJECT) {
 					tmp |= MAY_BE_ARRAY_KEY_ANY | MAY_BE_ARRAY_OF_ANY | MAY_BE_ARRAY_OF_REF;
 				} else {
-					tmp |= ((t1 & MAY_BE_ANY) << MAY_BE_ARRAY_SHIFT) | ((t1 & MAY_BE_ANY)? MAY_BE_ARRAY_KEY_LONG : 0);
+					tmp |= ((t1 & MAY_BE_ANY) << MAY_BE_ARRAY_SHIFT) | ((t1 & MAY_BE_ANY) ? MAY_BE_ARRAY_PACKED : 0);
 				}
 			}
 			UPDATE_SSA_TYPE(tmp, ssa_op->result_def);
@@ -3182,6 +3182,10 @@ static zend_always_inline int _zend_update_type_info(
 			} else {
 				tmp = MAY_BE_RC1 | MAY_BE_RCN | (t1 & (MAY_BE_ARRAY | MAY_BE_OBJECT | MAY_BE_ARRAY_KEY_ANY | MAY_BE_ARRAY_OF_ANY | MAY_BE_ARRAY_OF_REF));
 			}
+			/* The result is set to UNDEF for invalid foreach inputs. */
+			if ((t1 & (MAY_BE_ANY | MAY_BE_UNDEF)) & ~(MAY_BE_ARRAY | MAY_BE_OBJECT)) {
+				tmp |= MAY_BE_UNDEF;
+			}
 			UPDATE_SSA_TYPE(tmp, ssa_op->result_def);
 			COPY_SSA_OBJ_TYPE(ssa_op->op1_use, ssa_op->result_def);
 			break;
@@ -3474,7 +3478,7 @@ static zend_always_inline int _zend_update_type_info(
 			UPDATE_SSA_TYPE(MAY_BE_LONG, ssa_op->result_def);
 			break;
 		case ZEND_FUNC_GET_ARGS:
-			UPDATE_SSA_TYPE(MAY_BE_RC1|MAY_BE_RCN| MAY_BE_ARRAY | MAY_BE_ARRAY_KEY_LONG | MAY_BE_ARRAY_OF_ANY, ssa_op->result_def);
+			UPDATE_SSA_TYPE(MAY_BE_RC1|MAY_BE_RCN| MAY_BE_ARRAY | MAY_BE_ARRAY_PACKED | MAY_BE_ARRAY_OF_ANY, ssa_op->result_def);
 			break;
 		case ZEND_GET_CLASS:
 		case ZEND_GET_CALLED_CLASS:
@@ -4327,6 +4331,8 @@ int zend_may_throw_ex(const zend_op *opline, const zend_ssa_op *ssa_op, const ze
 		if (t2 & MAY_BE_UNDEF) {
 			switch (opline->opcode) {
 				case ZEND_ASSIGN_REF:
+				case ZEND_FE_FETCH_R:
+				case ZEND_FE_FETCH_RW:
 					break;
 				default:
 					/* undefined variable warning */
@@ -4338,6 +4344,8 @@ int zend_may_throw_ex(const zend_op *opline, const zend_ssa_op *ssa_op, const ze
 		 && (t2 & (MAY_BE_OBJECT|MAY_BE_RESOURCE|MAY_BE_ARRAY_OF_OBJECT|MAY_BE_ARRAY_OF_RESOURCE|MAY_BE_ARRAY_OF_ARRAY))) {
 			switch (opline->opcode) {
 				case ZEND_ASSIGN:
+				case ZEND_FE_FETCH_R:
+				case ZEND_FE_FETCH_RW:
 					break;
 				default:
 					/* destructor may be called */
@@ -4604,6 +4612,22 @@ int zend_may_throw_ex(const zend_op *opline, const zend_ssa_op *ssa_op, const ze
 				return 1;
 			}
 			if ((t1 & (MAY_BE_ARRAY|MAY_BE_OBJECT|MAY_BE_RESOURCE))) {
+				return 1;
+			}
+			return 0;
+		case ZEND_FE_RESET_R:
+		case ZEND_FE_RESET_RW:
+			if ((t1 & (MAY_BE_ANY|MAY_BE_REF)) != MAY_BE_ARRAY) {
+				return 1;
+			}
+			return 0;
+		case ZEND_FE_FETCH_R:
+			if ((t1 & (MAY_BE_ANY|MAY_BE_REF)) != MAY_BE_ARRAY) {
+				return 1;
+			}
+			if (opline->op2_type == IS_CV
+			 && (t2 & MAY_BE_RC1)
+			 && (t2 & (MAY_BE_OBJECT|MAY_BE_RESOURCE|MAY_BE_ARRAY_OF_OBJECT|MAY_BE_ARRAY_OF_RESOURCE|MAY_BE_ARRAY_OF_ARRAY))) {
 				return 1;
 			}
 			return 0;
