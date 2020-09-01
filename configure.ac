@@ -17,7 +17,7 @@ dnl Basic autoconf initialization, generation of config.nice.
 dnl ----------------------------------------------------------------------------
 
 AC_PREREQ([2.68])
-AC_INIT([PHP],[8.0.0beta2],[https://bugs.php.net],[php],[https://www.php.net])
+AC_INIT([PHP],[8.0.0beta3],[https://bugs.php.net],[php],[https://www.php.net])
 AC_CONFIG_SRCDIR([main/php_version.h])
 AC_CONFIG_AUX_DIR([build])
 AC_PRESERVE_HELP_ORDER
@@ -342,13 +342,13 @@ dnl Some systems (OpenServer 5) dislike -lsocket -lnsl, so we try to avoid -lnsl
 dnl checks, if we already have the functions which are usually in libnsl. Also,
 dnl uClibc will bark at linking with glibc's libnsl.
 
-PHP_CHECK_FUNC(socket, socket)
-PHP_CHECK_FUNC(socketpair, socket)
-PHP_CHECK_FUNC(htonl, socket)
-PHP_CHECK_FUNC(gethostname, nsl)
-PHP_CHECK_FUNC(gethostbyaddr, nsl)
-PHP_CHECK_FUNC(dlopen, dl)
-PHP_CHECK_FUNC(dlsym, dl)
+PHP_CHECK_FUNC(socket, socket, network)
+PHP_CHECK_FUNC(socketpair, socket, network)
+PHP_CHECK_FUNC(htonl, socket, network)
+PHP_CHECK_FUNC(gethostname, nsl, network)
+PHP_CHECK_FUNC(gethostbyaddr, nsl, network)
+PHP_CHECK_FUNC(dlopen, dl, root)
+PHP_CHECK_FUNC(dlsym, dl, root)
 if test "$ac_cv_func_dlopen" = "yes"; then
   AC_DEFINE(HAVE_LIBDL, 1, [ ])
 fi
@@ -1458,7 +1458,8 @@ PHP_ADD_SOURCES(Zend, \
     zend_iterators.c zend_interfaces.c zend_exceptions.c zend_strtod.c zend_gc.c \
     zend_closures.c zend_weakrefs.c zend_float.c zend_string.c zend_signal.c zend_generators.c \
     zend_virtual_cwd.c zend_ast.c zend_objects.c zend_object_handlers.c zend_objects_API.c \
-    zend_default_classes.c zend_inheritance.c zend_smart_str.c zend_cpuinfo.c zend_gdb.c, \
+    zend_default_classes.c zend_inheritance.c zend_smart_str.c zend_cpuinfo.c zend_gdb.c \
+    zend_observer.c, \
 	-DZEND_ENABLE_STATIC_TSRMLS_CACHE=1)
 
 PHP_ADD_BUILD_DIR(main main/streams)

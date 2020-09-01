@@ -125,13 +125,10 @@ class Phar extends RecursiveDirectoryIterator implements Countable, ArrayAccess
     public function setAlias(string $alias) {}
 
     /** @return bool */
-    public function setDefaultStub(?string $index = null, string $webindex = UNKNOWN) {}
+    public function setDefaultStub(?string $index = null, ?string $webindex = null) {}
 
-    /**
-     * @param mixed $metadata
-     * @return void
-     */
-    public function setMetadata($metadata) {}
+    /** @return void */
+    public function setMetadata(mixed $metadata) {}
 
     /** @return void */
     public function setSignatureAlgorithm(int $algorithm, string $privatekey = UNKNOWN) {}
@@ -398,14 +395,13 @@ class PharData extends RecursiveDirectoryIterator implements Countable, ArrayAcc
      * @return bool
      * @alias Phar::setDefaultStub
      */
-    public function setDefaultStub(?string $index = null, string $webindex = UNKNOWN) {}
+    public function setDefaultStub(?string $index = null, ?string $webindex = null) {}
 
     /**
-     * @param mixed $metadata
      * @return void
      * @alias Phar::setMetadata
      */
-    public function setMetadata($metadata) {}
+    public function setMetadata(mixed $metadata) {}
 
     /**
      * @return void

@@ -29,12 +29,12 @@
 PHP_METHOD(com, __construct)
 {
 	zval *object = getThis();
-	zval *server_params = NULL;
+	zend_string *server_name = NULL;
+	HashTable *server_params = NULL;
 	php_com_dotnet_object *obj;
-	char *module_name, *typelib_name = NULL, *server_name = NULL;
-	char *user_name = NULL, *domain_name = NULL, *password = NULL;
-	size_t module_name_len = 0, typelib_name_len = 0, server_name_len = 0,
-		user_name_len, domain_name_len, password_len;
+	char *module_name, *typelib_name = NULL;
+	size_t module_name_len = 0, typelib_name_len = 0;
+	zend_string *user_name = NULL, *password = NULL, *domain_name = NULL;
 	OLECHAR *moniker;
 	CLSID clsid;
 	CLSCTX ctx = CLSCTX_SERVER;
@@ -51,16 +51,13 @@ PHP_METHOD(com, __construct)
 	zend_long cp = GetACP();
 	const struct php_win32_cp *cp_it;
 
-	if (FAILURE == zend_parse_parameters_ex(ZEND_PARSE_PARAMS_QUIET,
-			ZEND_NUM_ARGS(), "s|s!ls",
-			&module_name, &module_name_len, &server_name, &server_name_len,
-			&cp, &typelib_name, &typelib_name_len) &&
-		FAILURE == zend_parse_parameters(
-			ZEND_NUM_ARGS(), "sa|ls",
-			&module_name, &module_name_len, &server_params, &cp,
-			&typelib_name, &typelib_name_len)) {
-		RETURN_THROWS();
-	}
+	ZEND_PARSE_PARAMETERS_START(1, 4)
+		Z_PARAM_STRING(module_name, module_name_len)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_STR_OR_ARRAY_HT_OR_NULL(server_name, server_params)
+		Z_PARAM_LONG(cp)
+		Z_PARAM_STRING(typelib_name, typelib_name_len)
+	ZEND_PARSE_PARAMETERS_END();
 
 	php_com_initialize();
 	obj = CDNO_FETCH(object);
@@ -79,36 +76,28 @@ PHP_METHOD(com, __construct)
 
 		/* decode the data from the array */
 
-		if (NULL != (tmp = zend_hash_str_find(Z_ARRVAL_P(server_params),
+		if (NULL != (tmp = zend_hash_str_find(server_params,
 				"Server", sizeof("Server")-1))) {
-			convert_to_string_ex(tmp);
-			server_name = Z_STRVAL_P(tmp);
-			server_name_len = Z_STRLEN_P(tmp);
+			server_name = zval_get_string(tmp);
 			ctx = CLSCTX_REMOTE_SERVER;
 		}
 
-		if (NULL != (tmp = zend_hash_str_find(Z_ARRVAL_P(server_params),
+		if (NULL != (tmp = zend_hash_str_find(server_params,
 				"Username", sizeof("Username")-1))) {
-			convert_to_string_ex(tmp);
-			user_name = Z_STRVAL_P(tmp);
-			user_name_len = Z_STRLEN_P(tmp);
+			user_name = zval_get_string(tmp);
 		}
 
-		if (NULL != (tmp = zend_hash_str_find(Z_ARRVAL_P(server_params),
+		if (NULL != (tmp = zend_hash_str_find(server_params,
 				"Password", sizeof("Password")-1))) {
-			convert_to_string_ex(tmp);
-			password = Z_STRVAL_P(tmp);
-			password_len = Z_STRLEN_P(tmp);
+			password = zval_get_string(tmp);
 		}
 
-		if (NULL != (tmp = zend_hash_str_find(Z_ARRVAL_P(server_params),
+		if (NULL != (tmp = zend_hash_str_find(server_params,
 				"Domain", sizeof("Domain")-1))) {
-			convert_to_string_ex(tmp);
-			domain_name = Z_STRVAL_P(tmp);
-			domain_name_len = Z_STRLEN_P(tmp);
+			domain_name = zval_get_string(tmp);
 		}
 
-		if (NULL != (tmp = zend_hash_str_find(Z_ARRVAL_P(server_params),
+		if (NULL != (tmp = zend_hash_str_find(server_params,
 				"Flags", sizeof("Flags")-1))) {
 			ctx = (CLSCTX)zval_get_long(tmp);
 		}
@@ -126,25 +115,25 @@ PHP_METHOD(com, __construct)
 	if (server_name) {
 		info.dwReserved1 = 0;
 		info.dwReserved2 = 0;
-		info.pwszName = php_com_string_to_olestring(server_name, server_name_len, obj->code_page);
+		info.pwszName = php_com_string_to_olestring(ZSTR_VAL(server_name), ZSTR_LEN(server_name), obj->code_page);
 
 		if (user_name) {
-			authid.User = (OLECHAR*)user_name;
-			authid.UserLength = (ULONG)user_name_len;
+			authid.User = (OLECHAR*) ZSTR_VAL(user_name);
+			authid.UserLength = (ULONG) ZSTR_LEN(user_name);
 
 			if (password) {
-				authid.Password = (OLECHAR*)password;
-				authid.PasswordLength = (ULONG)password_len;
+				authid.Password = (OLECHAR*) ZSTR_VAL(password);
+				authid.PasswordLength = (ULONG) ZSTR_LEN(password);
 			} else {
-				authid.Password = (OLECHAR*)"";
+				authid.Password = (OLECHAR*) "";
 				authid.PasswordLength = 0;
 			}
 
 			if (domain_name) {
-				authid.Domain = (OLECHAR*)domain_name;
-				authid.DomainLength = (ULONG)domain_name_len;
+				authid.Domain = (OLECHAR*) ZSTR_VAL(domain_name);
+				authid.DomainLength = (ULONG) ZSTR_LEN(domain_name);
 			} else {
-				authid.Domain = (OLECHAR*)"";
+				authid.Domain = (OLECHAR*) "";
 				authid.DomainLength = 0;
 			}
 			authid.Flags = SEC_WINNT_AUTH_IDENTITY_ANSI;
@@ -217,8 +206,11 @@ PHP_METHOD(com, __construct)
 
 	if (server_name) {
 		if (info.pwszName) efree(info.pwszName);
-		if (authid.User) efree(authid.User);
+		if (server_params) zend_string_release(server_name);
 	}
+	if (user_name) zend_string_release(user_name);
+	if (password) zend_string_release(password);
+	if (domain_name) zend_string_release(domain_name);
 
 	efree(moniker);
 
@@ -437,8 +429,9 @@ HRESULT php_com_get_id_of_name(php_com_dotnet_object *obj, char *name,
 	if (obj->typeinfo) {
 		hr = ITypeInfo_GetIDsOfNames(obj->typeinfo, &olename, 1, dispid);
 		if (FAILED(hr)) {
+			HRESULT hr1 = hr;
 			hr = IDispatch_GetIDsOfNames(V_DISPATCH(&obj->v), &IID_NULL, &olename, 1, LOCALE_SYSTEM_DEFAULT, dispid);
-			if (SUCCEEDED(hr)) {
+			if (SUCCEEDED(hr) && hr1 != E_NOTIMPL) {
 				/* fall back on IDispatch direct */
 				ITypeInfo_Release(obj->typeinfo);
 				obj->typeinfo = NULL;
@@ -585,6 +578,7 @@ int php_com_do_invoke_byref(php_com_dotnet_object *obj, zend_internal_function *
 			}
 		}
 		efree(vargs);
+		if (byref_vals) efree(byref_vals);
 	}
 
 	return SUCCEEDED(hr) ? SUCCESS : FAILURE;
@@ -690,32 +684,35 @@ PHP_FUNCTION(com_create_guid)
 /* {{{ Connect events from a COM object to a PHP object */
 PHP_FUNCTION(com_event_sink)
 {
-	zval *object, *sinkobject, *sink=NULL;
+	zval *object, *sinkobject;
+	zend_string *sink_str = NULL;
+	HashTable *sink_ht = NULL;
 	char *dispname = NULL, *typelibname = NULL;
 	php_com_dotnet_object *obj;
 	ITypeInfo *typeinfo = NULL;
 
-	RETVAL_FALSE;
+	ZEND_PARSE_PARAMETERS_START(2, 3)
+		Z_PARAM_OBJECT_OF_CLASS(object, php_com_variant_class_entry)
+		Z_PARAM_OBJECT(sinkobject)
+		Z_PARAM_OPTIONAL
+		Z_PARAM_STR_OR_ARRAY_HT_OR_NULL(sink_str, sink_ht)
+	ZEND_PARSE_PARAMETERS_END();
 
-	if (FAILURE == zend_parse_parameters(ZEND_NUM_ARGS(), "Oo|z/",
-			&object, php_com_variant_class_entry, &sinkobject, &sink)) {
-		RETURN_THROWS();
-	}
+	RETVAL_FALSE;
 
 	php_com_initialize();
 	obj = CDNO_FETCH(object);
 
-	if (sink && Z_TYPE_P(sink) == IS_ARRAY) {
+	if (sink_ht) {
 		/* 0 => typelibname, 1 => dispname */
 		zval *tmp;
 
-		if ((tmp = zend_hash_index_find(Z_ARRVAL_P(sink), 0)) != NULL && Z_TYPE_P(tmp) == IS_STRING)
+		if ((tmp = zend_hash_index_find(sink_ht, 0)) != NULL && Z_TYPE_P(tmp) == IS_STRING)
 			typelibname = Z_STRVAL_P(tmp);
-		if ((tmp = zend_hash_index_find(Z_ARRVAL_P(sink), 1)) != NULL && Z_TYPE_P(tmp) == IS_STRING)
+		if ((tmp = zend_hash_index_find(sink_ht, 1)) != NULL && Z_TYPE_P(tmp) == IS_STRING)
 			dispname = Z_STRVAL_P(tmp);
-	} else if (sink != NULL) {
-		convert_to_string(sink);
-		dispname = Z_STRVAL_P(sink);
+	} else if (sink_str) {
+		dispname = ZSTR_VAL(sink_str);
 	}
 
 	typeinfo = php_com_locate_typeinfo(typelibname, obj, dispname, 1);
