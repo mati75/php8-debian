@@ -3,8 +3,9 @@ php7.4 (7.4.10-1) unstable; urgency=medium
   * New upstream version 7.4.10
   * Lower the minimal debhelper dependency to >= 9.20150101~
   * Use libenchant-dev as Build-Depends alternative to libenchant-2-dev
+  * Remove deprecated calls from enchant-2 (Closes: #954855)
 
- -- Ondřej Surý <ondrej@debian.org>  Tue, 08 Sep 2020 12:02:08 +0200
+ -- Ondřej Surý <ondrej@debian.org>  Tue, 08 Sep 2020 12:22:27 +0200
 
 php7.4 (7.4.9-2) unstable; urgency=medium
 
