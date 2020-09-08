@@ -28,7 +28,7 @@ index d6c5db2..aca86d3 100644
  /*
     +----------------------------------------------------------------------+
 diff --git a/configure.ac b/configure.ac
-index 254e29d..bdccd44 100644
+index 2f92282..8b0ece5 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -130,6 +130,8 @@ AC_DEFUN([PHP_EXT_DIR],[$config_m4_dir])dnl
@@ -92,7 +92,7 @@ index dbd7673..dad168c 100644
  #include "zend.h"
  #include "zend_sort.h"
 diff --git a/main/streams/cast.c b/main/streams/cast.c
-index 262ec5e..c20c9e6 100644
+index 73421a7..d608802 100644
 --- a/main/streams/cast.c
 +++ b/main/streams/cast.c
 @@ -16,7 +16,6 @@
