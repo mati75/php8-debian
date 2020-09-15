@@ -272,15 +272,22 @@ static zend_always_inline int _zend_quick_get_constant(
 
 	if (!check_defined_only) {
 		ZVAL_COPY_OR_DUP(EX_VAR(opline->result.var), &c->value);
+		if (ZEND_CONSTANT_FLAGS(c) & CONST_DEPRECATED) {
+			zend_error(E_DEPRECATED, "Constant %s is deprecated", ZSTR_VAL(c->name));
+			if (EG(exception)) {
+				return FAILURE;
+			}
+			return SUCCESS;
+		}
 	}
 
 	CACHE_PTR(opline->extended_value, c);
 	return SUCCESS;
 }
 
-void ZEND_FASTCALL zend_jit_get_constant(const zval *key, uint32_t flags)
+int ZEND_FASTCALL zend_jit_get_constant(const zval *key, uint32_t flags)
 {
-	_zend_quick_get_constant(key, flags, 0);
+	return _zend_quick_get_constant(key, flags, 0);
 }
 
 int ZEND_FASTCALL zend_jit_check_constant(const zval *key)
@@ -467,7 +474,7 @@ static int zend_jit_trace_bad_loop_exit(const zend_op *opline)
 	return 0;
 }
 
-static int zend_jit_trace_record_fake_init_call_ex(zend_execute_data *call, zend_jit_trace_rec *trace_buffer, int idx, zend_bool is_megamorphic, uint32_t *megamorphic, uint32_t level, uint32_t init_level, uint32_t *call_level)
+static int zend_jit_trace_record_fake_init_call_ex(zend_execute_data *call, zend_jit_trace_rec *trace_buffer, int idx, uint32_t is_megamorphic, uint32_t *megamorphic, uint32_t level, uint32_t init_level, uint32_t *call_level)
 {
 	zend_jit_trace_stop stop ZEND_ATTRIBUTE_UNUSED = ZEND_JIT_TRACE_STOP_ERROR;
 
@@ -500,7 +507,7 @@ static int zend_jit_trace_record_fake_init_call_ex(zend_execute_data *call, zend
 			}
 			func = (zend_function*)jit_extension->op_array;
 		}
-		if (is_megamorphic
+		if (is_megamorphic == ZEND_JIT_EXIT_POLYMORPHISM
 		 /* TODO: use more accurate check ??? */
 		 && ((ZEND_CALL_INFO(call) & ZEND_CALL_DYNAMIC)
 		  || func->common.scope)) {
@@ -515,7 +522,7 @@ static int zend_jit_trace_record_fake_init_call_ex(zend_execute_data *call, zend
 	return idx;
 }
 
-static int zend_jit_trace_record_fake_init_call(zend_execute_data *call, zend_jit_trace_rec *trace_buffer, int idx, zend_bool is_megamorphic, uint32_t *megamorphic, uint32_t level)
+static int zend_jit_trace_record_fake_init_call(zend_execute_data *call, zend_jit_trace_rec *trace_buffer, int idx, uint32_t is_megamorphic, uint32_t *megamorphic, uint32_t level)
 {
 	uint32_t call_level = 0;
 
@@ -563,7 +570,7 @@ static int zend_jit_trace_call_level(const zend_execute_data *call)
  *
  */
 
-zend_jit_trace_stop ZEND_FASTCALL zend_jit_trace_execute(zend_execute_data *ex, const zend_op *op, zend_jit_trace_rec *trace_buffer, uint8_t start, zend_bool is_megamorphic)
+zend_jit_trace_stop ZEND_FASTCALL zend_jit_trace_execute(zend_execute_data *ex, const zend_op *op, zend_jit_trace_rec *trace_buffer, uint8_t start, uint32_t is_megamorphic)
 
 {
 #ifdef HAVE_GCC_GLOBAL_REGS
@@ -921,6 +928,9 @@ zend_jit_trace_stop ZEND_FASTCALL zend_jit_trace_execute(zend_execute_data *ex, 
 
 				if (JIT_G(max_polymorphic_calls) == 0
 				 && zend_jit_may_be_polymorphic_call(opline - 1)) {
+					func = NULL;
+				} else if (is_megamorphic == ZEND_JIT_EXIT_DYNAMIC_CALL
+						&& trace_buffer[1].opline == opline - 1) {
 					func = NULL;
 				}
 				call_level = zend_jit_trace_call_level(EX(call));

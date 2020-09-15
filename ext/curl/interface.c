@@ -24,8 +24,6 @@
 #include "Zend/zend_interfaces.h"
 #include "Zend/zend_exceptions.h"
 
-#ifdef HAVE_CURL
-
 #include <stdio.h>
 #include <string.h>
 
@@ -62,7 +60,7 @@
 #include "ext/standard/info.h"
 #include "ext/standard/file.h"
 #include "ext/standard/url.h"
-#include "php_curl.h"
+#include "curl_private.h"
 #include "curl_arginfo.h"
 
 #ifdef PHP_CURL_NEED_OPENSSL_TSL /* {{{ */
@@ -104,7 +102,7 @@ static int php_curl_option_str(php_curl *ch, zend_long option, const char *str, 
 	CURLcode error = CURLE_OK;
 
 	if (strlen(str) != len) {
-		zend_type_error("%s(): cURL option cannot contain any null-bytes", get_active_function_name());
+		zend_value_error("%s(): cURL option must not contain any null bytes", get_active_function_name());
 		return FAILURE;
 	}
 
@@ -3537,5 +3535,3 @@ PHP_FUNCTION(curl_pause)
 	RETURN_LONG(curl_easy_pause(ch->cp, bitmask));
 }
 /* }}} */
-
-#endif /* HAVE_CURL */

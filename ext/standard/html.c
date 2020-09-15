@@ -382,7 +382,7 @@ static enum entity_charset determine_charset(const char *charset_hint, zend_bool
 		}
 
 		if (!quiet) {
-			php_error_docref(NULL, E_WARNING, "Charset `%s' not supported, assuming utf-8",
+			php_error_docref(NULL, E_WARNING, "Charset \"%s\" is not supported, assuming UTF-8",
 					charset_hint);
 		}
 	}
@@ -1395,7 +1395,7 @@ PHP_FUNCTION(html_entity_decode)
 		Z_PARAM_STR(str)
 		Z_PARAM_OPTIONAL
 		Z_PARAM_LONG(quote_style)
-		Z_PARAM_STR(hint_charset)
+		Z_PARAM_STR_OR_NULL(hint_charset)
 	ZEND_PARSE_PARAMETERS_END();
 
 	replaced = php_unescape_html_entities(

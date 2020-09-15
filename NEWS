@@ -1,5 +1,23 @@
 PHP                                                                        NEWS
 |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+17 Sep 2020, PHP 8.0.0beta4
+
+- Core:
+  . Implement #[Attr] Attribute syntax as per final vote in RFC
+    https://wiki.php.net/rfc/shorter_attribute_syntax_change
+  . Fixed bug #80045 (memleak after two set_exception_handler calls with
+    __call). (Nikita)
+  . Fixed bug #80096 (Segmentation fault with named arguments in nested call).
+    (Nikita)
+  . Fixed faulty generator cleanup with yield from. (Bob)
+
+- Date:
+  . Fixed bug #80057 (DateTimeImmutable::createFromFormat() does not populate
+    time). (Derick)
+
+- FFI:
+  . Added FFI\CType::getName() method. (chopins)
+
 03 Sep 2020, PHP 8.0.0beta3
 
 - Calendar:

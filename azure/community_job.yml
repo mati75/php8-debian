@@ -93,3 +93,16 @@ jobs:
         php vendor/bin/phpunit
       displayName: 'Test Amphp'
       condition: or(succeeded(), failed())
+    - script: |
+        git clone https://github.com/sebastianbergmann/phpunit.git --branch=master --depth=1
+        cd phpunit
+        export USE_ZEND_ALLOC=0
+        export USE_TRACKED_ALLOC=1
+        export ASAN_OPTIONS=exitcode=139
+        php7.3 /usr/bin/composer install --no-progress
+        php ./phpunit
+        if [ $? -gt 128 ]; then
+          exit 1
+        fi
+      displayName: 'Test PHPUnit'
+      condition: or(succeeded(), failed())

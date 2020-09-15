@@ -2547,7 +2547,7 @@ void accel_deactivate(void)
 }
 #endif
 
-int accel_post_deactivate(void)
+zend_result accel_post_deactivate(void)
 {
 	if (ZCG(cwd)) {
 		zend_string_release_ex(ZCG(cwd), 0);
@@ -2716,6 +2716,9 @@ static void accel_gen_system_id(void)
 {
 	PHP_MD5_CTX context;
 	unsigned char digest[16];
+	zend_module_entry *module;
+	zend_extension *extension;
+	zend_llist_position pos;
 
 	PHP_MD5Init(&context);
 	PHP_MD5Update(&context, PHP_VERSION, sizeof(PHP_VERSION)-1);
@@ -2725,6 +2728,23 @@ static void accel_gen_system_id(void)
 		/* Development versions may be changed from build to build */
 		PHP_MD5Update(&context, __DATE__, sizeof(__DATE__)-1);
 		PHP_MD5Update(&context, __TIME__, sizeof(__TIME__)-1);
+	}
+	/* Modules may have changed after restart which can cause dangling pointers from
+     * custom opcode handlers in the second-level cache files
+     */
+	ZEND_HASH_FOREACH_PTR(&module_registry, module) {
+		PHP_MD5Update(&context, module->name, strlen(module->name));
+		if (module->version != NULL) {
+			PHP_MD5Update(&context, module->version, strlen(module->version));
+		}
+	} ZEND_HASH_FOREACH_END();
+	extension = (zend_extension *) zend_llist_get_first_ex(&zend_extensions, &pos);
+	while (extension) {
+		PHP_MD5Update(&context, extension->name, strlen(extension->name));
+		if (extension->version != NULL) {
+			PHP_MD5Update(&context, extension->version, strlen(extension->version));
+		}
+		extension = (zend_extension *) zend_llist_get_next_ex(&zend_extensions, &pos);
 	}
 	PHP_MD5Final(digest, &context);
 	php_hash_bin2hex(accel_system_id, digest, sizeof digest);
@@ -4528,7 +4548,6 @@ static int accel_preload(const char *config, zend_bool in_child)
 
 	if (ret == SUCCESS) {
 		zend_persistent_script *script;
-		zend_string *filename;
 		int ping_auto_globals_mask;
 		int i;
 		zend_class_entry *ce;
@@ -4668,7 +4687,7 @@ static int accel_preload(const char *config, zend_bool in_child)
 		script->ping_auto_globals_mask = ping_auto_globals_mask;
 
 		/* Store all functions and classes in a single pseudo-file */
-		filename = zend_string_init("$PRELOAD$", sizeof("$PRELOAD$") - 1, 0);
+		CG(compiled_filename) = zend_string_init("$PRELOAD$", sizeof("$PRELOAD$") - 1, 0);
 #if ZEND_USE_ABS_CONST_ADDR
 		init_op_array(&script->script.main_op_array, ZEND_USER_FUNCTION, 1);
 #else
@@ -4690,8 +4709,8 @@ static int accel_preload(const char *config, zend_bool in_child)
 		ZEND_PASS_TWO_UPDATE_CONSTANT(&script->script.main_op_array, script->script.main_op_array.opcodes, script->script.main_op_array.opcodes[0].op1);
 		zend_vm_set_opcode_handler(script->script.main_op_array.opcodes);
 
-		script->script.main_op_array.filename = filename;
-		script->script.filename = zend_string_copy(filename);
+		script->script.filename = CG(compiled_filename);
+		CG(compiled_filename) = NULL;
 
 		script->script.first_early_binding_opline = (uint32_t)-1;
 
@@ -4727,8 +4746,6 @@ static int accel_preload(const char *config, zend_bool in_child)
 
 		SHM_PROTECT();
 		HANDLE_UNBLOCK_INTERRUPTIONS();
-
-		zend_string_release(filename);
 
 		ZEND_ASSERT(ZCSG(preload_script)->arena_size == 0);
 

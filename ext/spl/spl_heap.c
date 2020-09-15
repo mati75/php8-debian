@@ -433,9 +433,7 @@ static zend_object *spl_heap_object_new_ex(zend_class_entry *class_type, zend_ob
 		inherited = 1;
 	}
 
-	if (!parent) { /* this must never happen */
-		php_error_docref(NULL, E_COMPILE_ERROR, "Internal compiler error, Class is not child of SplHeap");
-	}
+	ZEND_ASSERT(parent);
 
 	if (inherited) {
 		intern->fptr_cmp = zend_hash_str_find_ptr(&class_type->function_table, "compare", sizeof("compare") - 1);
@@ -1068,7 +1066,7 @@ zend_object_iterator *spl_heap_get_iterator(zend_class_entry *ce, zval *object, 
 	spl_heap_object *heap_object = Z_SPLHEAP_P(object);
 
 	if (by_ref) {
-		zend_throw_exception(spl_ce_RuntimeException, "An iterator cannot be used with foreach by reference", 0);
+		zend_throw_error(NULL, "An iterator cannot be used with foreach by reference");
 		return NULL;
 	}
 
@@ -1093,7 +1091,7 @@ zend_object_iterator *spl_pqueue_get_iterator(zend_class_entry *ce, zval *object
 	spl_heap_object *heap_object = Z_SPLHEAP_P(object);
 
 	if (by_ref) {
-		zend_throw_exception(spl_ce_RuntimeException, "An iterator cannot be used with foreach by reference", 0);
+		zend_throw_error(NULL, "An iterator cannot be used with foreach by reference");
 		return NULL;
 	}
 

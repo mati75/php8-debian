@@ -1,5 +1,5 @@
 /* This is a generated file, edit the .stub.php file instead.
- * Stub hash: beaf79270ab56d2e87a301a4a5d4444b2cc520d8 */
+ * Stub hash: c2bd96bf9b5ca866860f8f3c04937c9fff5c3afa */
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_class_Reflection_getModifierNames, 0, 0, 1)
 	ZEND_ARG_TYPE_INFO(0, modifiers, IS_LONG, 0)
@@ -101,8 +101,8 @@ ZEND_END_ARG_INFO()
 #define arginfo_class_ReflectionGenerator_getExecutingGenerator arginfo_class_ReflectionFunctionAbstract___clone
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_class_ReflectionMethod___construct, 0, 0, 1)
-	ZEND_ARG_INFO(0, objectOrMethod)
-	ZEND_ARG_TYPE_INFO(0, method, IS_STRING, 0)
+	ZEND_ARG_TYPE_MASK(0, objectOrMethod, MAY_BE_OBJECT|MAY_BE_STRING, NULL)
+	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, method, IS_STRING, 1, "null")
 ZEND_END_ARG_INFO()
 
 #define arginfo_class_ReflectionMethod___toString arginfo_class_ReflectionFunction___toString
@@ -150,7 +150,7 @@ ZEND_END_ARG_INFO()
 #define arginfo_class_ReflectionClass___clone arginfo_class_ReflectionFunctionAbstract___clone
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_class_ReflectionClass___construct, 0, 0, 1)
-	ZEND_ARG_INFO(0, objectOrClass)
+	ZEND_ARG_TYPE_MASK(0, objectOrClass, MAY_BE_OBJECT|MAY_BE_STRING, NULL)
 ZEND_END_ARG_INFO()
 
 #define arginfo_class_ReflectionClass___toString arginfo_class_ReflectionFunction___toString
@@ -467,7 +467,7 @@ ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_class_ReflectionReference_fromArrayElement, 0, 2, ReflectionReference, 1)
 	ZEND_ARG_TYPE_INFO(0, array, IS_ARRAY, 0)
-	ZEND_ARG_INFO(0, key)
+	ZEND_ARG_TYPE_MASK(0, key, MAY_BE_LONG|MAY_BE_STRING, NULL)
 ZEND_END_ARG_INFO()
 
 #define arginfo_class_ReflectionReference_getId arginfo_class_ReflectionFunction___toString

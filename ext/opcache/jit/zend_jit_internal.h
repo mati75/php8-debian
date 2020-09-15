@@ -130,8 +130,8 @@ ZEND_OPCODE_HANDLER_RET ZEND_FASTCALL zend_jit_loop_counter_helper(ZEND_OPCODE_H
 void ZEND_FASTCALL zend_jit_copy_extra_args_helper(EXECUTE_DATA_D);
 zend_bool ZEND_FASTCALL zend_jit_deprecated_helper(OPLINE_D);
 
-void ZEND_FASTCALL zend_jit_get_constant(const zval *key, uint32_t flags);
-int  ZEND_FASTCALL zend_jit_check_constant(const zval *key);
+int ZEND_FASTCALL zend_jit_get_constant(const zval *key, uint32_t flags);
+int ZEND_FASTCALL zend_jit_check_constant(const zval *key);
 
 /* Tracer */
 #define zend_jit_opline_hash(opline) \
@@ -211,6 +211,7 @@ typedef enum _zend_jit_trace_stop {
 #define ZEND_JIT_EXIT_FREE_OP1      (1<<5)
 #define ZEND_JIT_EXIT_FREE_OP2      (1<<6)
 #define ZEND_JIT_EXIT_PACKED_GUARD  (1<<7)
+#define ZEND_JIT_EXIT_DYNAMIC_CALL  (1<<8) /* exit because of polymorphic INTI_DYNAMIC_CALL call */
 
 typedef union _zend_op_trace_info {
 	zend_op dummy; /* the size of this structure must be the same as zend_op */
@@ -348,6 +349,7 @@ typedef union _zend_jit_trace_stack {
 /* trace info flags */
 #define ZEND_JIT_TRACE_CHECK_INTERRUPT (1<<0)
 #define ZEND_JIT_TRACE_LOOP            (1<<1)
+#define ZEND_JIT_TRACE_USES_INITIAL_IP (1<<2)
 
 typedef struct _zend_jit_trace_info {
 	uint32_t                  id;            /* trace id */
@@ -457,7 +459,7 @@ ZEND_OPCODE_HANDLER_RET ZEND_FASTCALL zend_jit_loop_trace_helper(ZEND_OPCODE_HAN
 
 int ZEND_FASTCALL zend_jit_trace_hot_root(zend_execute_data *execute_data, const zend_op *opline);
 int ZEND_FASTCALL zend_jit_trace_exit(uint32_t exit_num, zend_jit_registers_buf *regs);
-zend_jit_trace_stop ZEND_FASTCALL zend_jit_trace_execute(zend_execute_data *execute_data, const zend_op *opline, zend_jit_trace_rec *trace_buffer, uint8_t start, zend_bool is_megamorphc);
+zend_jit_trace_stop ZEND_FASTCALL zend_jit_trace_execute(zend_execute_data *execute_data, const zend_op *opline, zend_jit_trace_rec *trace_buffer, uint8_t start, uint32_t is_megamorphc);
 
 static zend_always_inline const zend_op* zend_jit_trace_get_exit_opline(zend_jit_trace_rec *trace, const zend_op *opline, zend_bool *exit_if_true)
 {
