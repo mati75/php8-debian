@@ -17,7 +17,7 @@ dnl Basic autoconf initialization, generation of config.nice.
 dnl ----------------------------------------------------------------------------
 
 AC_PREREQ([2.68])
-AC_INIT([PHP],[8.0.0beta3],[https://bugs.php.net],[php],[https://www.php.net])
+AC_INIT([PHP],[8.0.0beta4],[https://bugs.php.net],[php],[https://www.php.net])
 AC_CONFIG_SRCDIR([main/php_version.h])
 AC_CONFIG_AUX_DIR([build])
 AC_PRESERVE_HELP_ORDER
@@ -409,6 +409,7 @@ sys/ipc.h \
 dlfcn.h \
 tmmintrin.h \
 nmmintrin.h \
+wmmintrin.h \
 immintrin.h
 ],[],[],[
 #ifdef HAVE_SYS_PARAM_H
@@ -464,6 +465,10 @@ dnl Check __builtin_expect
 PHP_CHECK_BUILTIN_EXPECT
 dnl Check __builtin_clz
 PHP_CHECK_BUILTIN_CLZ
+dnl Check __builtin_clzl
+PHP_CHECK_BUILTIN_CLZL
+dnl Check __builtin_clzll
+PHP_CHECK_BUILTIN_CLZLL
 dnl Check __builtin_ctzl
 PHP_CHECK_BUILTIN_CTZL
 dnl Check __builtin_ctzll

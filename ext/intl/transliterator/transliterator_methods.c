@@ -36,8 +36,7 @@ static int create_transliterator( char *str_id, size_t str_id_len, zend_long dir
 
 	if( ( direction != TRANSLITERATOR_FORWARD ) && (direction != TRANSLITERATOR_REVERSE ) )
 	{
-		intl_error_set( NULL, U_ILLEGAL_ARGUMENT_ERROR,
-			"transliterator_create: invalid direction", 0 );
+		zend_argument_value_error(2, "must be either Transliterator::FORWARD or Transliterator::REVERSE");
 		return FAILURE;
 	}
 
@@ -143,9 +142,8 @@ PHP_FUNCTION( transliterator_create_from_rules )
 
 	if( ( direction != TRANSLITERATOR_FORWARD ) && (direction != TRANSLITERATOR_REVERSE ) )
 	{
-		intl_error_set( NULL, U_ILLEGAL_ARGUMENT_ERROR,
-			"transliterator_create_from_rules: invalid direction", 0 );
-		RETURN_NULL();
+		zend_argument_value_error(2, "must be either Transliterator::FORWARD or Transliterator::REVERSE");
+		RETURN_THROWS();
 	}
 
 	object = return_value;
@@ -289,7 +287,7 @@ PHP_FUNCTION( transliterator_transliterate )
 		zend_object *arg1_obj;
 
 		ZEND_PARSE_PARAMETERS_START(2, 4)
-			Z_PARAM_STR_OR_OBJ_OF_CLASS(arg1_str, arg1_obj, Transliterator_ce_ptr)
+			Z_PARAM_OBJ_OF_CLASS_OR_STR(arg1_obj, Transliterator_ce_ptr, arg1_str)
 			Z_PARAM_STRING(str, str_len)
 			Z_PARAM_OPTIONAL
 			Z_PARAM_LONG(start)
@@ -302,10 +300,11 @@ PHP_FUNCTION( transliterator_transliterate )
 			res = create_transliterator(ZSTR_VAL(arg1_str), ZSTR_LEN(arg1_str), TRANSLITERATOR_FORWARD, object);
 			if( res == FAILURE )
 			{
-				zend_string *message = intl_error_get_message( NULL );
-				php_error_docref(NULL, E_WARNING, "Could not create "
-					"transliterator with ID \"%s\" (%s)", ZSTR_VAL(arg1_str), ZSTR_VAL(message) );
-				zend_string_free( message );
+				if (!EG(exception)) {
+					zend_string *message = intl_error_get_message( NULL );
+					php_error_docref(NULL, E_WARNING, "Could not create transliterator with ID \"%s\" (%s)", ZSTR_VAL(arg1_str), ZSTR_VAL(message) );
+					zend_string_free( message );
+				}
 				ZVAL_UNDEF(&tmp_object);
 				/* don't set U_ILLEGAL_ARGUMENT_ERROR to allow fetching of inner error */
 				goto cleanup;
@@ -318,21 +317,18 @@ PHP_FUNCTION( transliterator_transliterate )
 		RETURN_THROWS();
 	}
 
-	if( limit < -1 )
-	{
-		intl_error_set( NULL, U_ILLEGAL_ARGUMENT_ERROR,
-			"transliterator_transliterate: \"end\" argument should be "
-			"either non-negative or -1", 0 );
-		RETVAL_FALSE;
+	if (limit < -1) {
+		zend_argument_value_error(object ? 3 : 4, "must be greater than or equal to -1");
 		goto cleanup_object;
 	}
 
-	if( start < 0 || ((limit != -1 ) && (start > limit )) )
-	{
-		intl_error_set( NULL, U_ILLEGAL_ARGUMENT_ERROR,
-			"transliterator_transliterate: \"start\" argument should be "
-			"non-negative and not bigger than \"end\" (if defined)", 0 );
-		RETVAL_FALSE;
+	if (start < 0) {
+		zend_argument_value_error(object ? 2 : 3, "must be greater than or equal to 0");
+		goto cleanup_object;
+	}
+
+	if (limit != -1 && start > limit) {
+		zend_argument_value_error(object ? 2 : 3, "must be less than or equal to argument #%d ($end)", object ? 3 : 4);
 		goto cleanup_object;
 	}
 
@@ -358,7 +354,6 @@ PHP_FUNCTION( transliterator_transliterate )
 				msg, 1 );
 			efree( msg );
 		}
-		RETVAL_FALSE;
 		goto cleanup;
 	}
 

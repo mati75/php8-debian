@@ -20,10 +20,11 @@
 
 #include "php.h"
 #include "php_ini.h"
-#include "ext/standard/info.h"
 #include "ext/standard/file.h"
+#include "ext/standard/php_filestat.h"
+#include "ext/standard/flock_compat.h"
+#include "ext/standard/scanf.h"
 #include "ext/standard/php_string.h"
-#include "zend_compile.h"
 #include "zend_exceptions.h"
 #include "zend_interfaces.h"
 
@@ -34,12 +35,6 @@
 #include "spl_directory.h"
 #include "spl_directory_arginfo.h"
 #include "spl_exceptions.h"
-
-#include "php.h"
-#include "fopen_wrappers.h"
-
-#include "ext/standard/basic_functions.h"
-#include "ext/standard/php_filestat.h"
 
 #define SPL_HAS_FLAG(flags, test_flag) ((flags & test_flag) ? 1 : 0)
 
@@ -56,6 +51,12 @@ PHPAPI zend_class_entry *spl_ce_RecursiveDirectoryIterator;
 PHPAPI zend_class_entry *spl_ce_GlobIterator;
 PHPAPI zend_class_entry *spl_ce_SplFileObject;
 PHPAPI zend_class_entry *spl_ce_SplTempFileObject;
+
+#define CHECK_SPL_FILE_OBJECT_IS_INITIALIZED(spl_filesystem_object_pointer) \
+	if (!(spl_filesystem_object_pointer)->u.file.stream) { \
+		zend_throw_error(NULL, "Object not initialized"); \
+		RETURN_THROWS(); \
+	}
 
 static void spl_filesystem_file_free_line(spl_filesystem_object *intern) /* {{{ */
 {
@@ -207,7 +208,7 @@ static inline int spl_filesystem_object_get_file_name(spl_filesystem_object *int
 		case SPL_FS_INFO:
 		case SPL_FS_FILE:
 			if (!intern->file_name) {
-				zend_throw_exception_ex(spl_ce_RuntimeException, 0, "Object not initialized");
+				zend_throw_error(NULL, "Object not initialized");
 				return FAILURE;
 			}
 			break;
@@ -530,7 +531,7 @@ static spl_filesystem_object *spl_filesystem_object_create_type(int num_args, sp
 			size_t open_mode_len = 1;
 			zval *resource = NULL;
 
-			if (zend_parse_parameters(num_args, "|sbr",
+			if (zend_parse_parameters(num_args, "|sbr!",
 				&open_mode, &open_mode_len, &use_include_path, &resource) == FAILURE
 			) {
 				return NULL;
@@ -719,19 +720,19 @@ void spl_filesystem_object_construct(INTERNAL_FUNCTION_PARAMETERS, zend_long cto
 		flags |= SPL_FILE_DIR_UNIXPATHS;
 	}
 	if (parsed == FAILURE) {
-		return;
+		RETURN_THROWS();
 	}
 
-	if (!len) {
-		zend_throw_exception_ex(spl_ce_RuntimeException, 0, "Directory name must not be empty.");
-		return;
+	if (len == 0) {
+		zend_argument_value_error(1, "cannot be empty");
+		RETURN_THROWS();
 	}
 
 	intern = Z_SPLFILESYSTEM_P(ZEND_THIS);
 	if (intern->_path) {
 		/* object is already initialized */
-		php_error_docref(NULL, E_WARNING, "Directory object is already initialized");
-		return;
+		zend_throw_error(NULL, "Directory object is already initialized");
+		RETURN_THROWS();
 	}
 	intern->flags = flags;
 
@@ -1230,10 +1231,10 @@ PHP_METHOD(SplFileInfo, getLinkTarget)
 	}
 #if defined(PHP_WIN32) || defined(HAVE_SYMLINK)
 	if (intern->file_name == NULL) {
-		zend_restore_error_handling(&error_handling);
-		php_error_docref(NULL, E_WARNING, "Empty filename");
-		RETURN_FALSE;
-	} else if (!IS_ABSOLUTE_PATH(intern->file_name, intern->file_name_len)) {
+		zend_value_error("Filename cannot be empty");
+		RETURN_THROWS();
+	}
+	if (!IS_ABSOLUTE_PATH(intern->file_name, intern->file_name_len)) {
 		char expanded_path[MAXPATHLEN];
 		if (!expand_filepath_with_mode(intern->file_name, expanded_path, NULL, 0, CWD_EXPAND )) {
 			zend_restore_error_handling(&error_handling);
@@ -1348,7 +1349,7 @@ PHP_METHOD(SplFileInfo, getFileInfo)
 	spl_filesystem_object *intern = Z_SPLFILESYSTEM_P(ZEND_THIS);
 	zend_class_entry *ce = intern->info_class;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "|C", &ce) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "|C!", &ce) == FAILURE) {
 		RETURN_THROWS();
 	}
 
@@ -1364,7 +1365,7 @@ PHP_METHOD(SplFileInfo, getPathInfo)
 	size_t path_len;
 	char *path;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "|C", &ce) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "|C!", &ce) == FAILURE) {
 		RETURN_THROWS();
 	}
 
@@ -1391,9 +1392,7 @@ PHP_METHOD(SplFileInfo, __debugInfo)
 /* {{{ */
 PHP_METHOD(SplFileInfo, _bad_state_ex)
 {
-	zend_throw_exception_ex(spl_ce_LogicException, 0,
-		"The parent constructor was not called: the object is in an "
-		"invalid state ");
+	zend_throw_error(NULL, "The parent constructor was not called: the object is in an invalid state");
 }
 /* }}} */
 
@@ -1575,6 +1574,7 @@ PHP_METHOD(GlobIterator, count)
 		RETURN_LONG(php_glob_stream_get_count(intern->u.dir.dirp, NULL));
 	} else {
 		/* should not happen */
+		// TODO ZEND_ASSERT ?
 		php_error_docref(NULL, E_ERROR, "GlobIterator lost glob state");
 	}
 }
@@ -1609,7 +1609,7 @@ zend_object_iterator *spl_filesystem_dir_get_iterator(zend_class_entry *ce, zval
 	spl_filesystem_object *dir_object;
 
 	if (by_ref) {
-		zend_throw_exception(spl_ce_RuntimeException, "An iterator cannot be used with foreach by reference", 0);
+		zend_throw_error(NULL, "An iterator cannot be used with foreach by reference");
 		return NULL;
 	}
 	dir_object = Z_SPLFILESYSTEM_P(object);
@@ -1816,7 +1816,7 @@ zend_object_iterator *spl_filesystem_tree_get_iterator(zend_class_entry *ce, zva
 	spl_filesystem_object *dir_object;
 
 	if (by_ref) {
-		zend_throw_exception(spl_ce_RuntimeException, "An iterator cannot be used with foreach by reference", 0);
+		zend_throw_error(NULL, "An iterator cannot be used with foreach by reference");
 		return NULL;
 	}
 	dir_object = Z_SPLFILESYSTEM_P(object);
@@ -1899,64 +1899,6 @@ static int spl_filesystem_file_read(spl_filesystem_object *intern, int silent) /
 	intern->u.file.current_line_num += line_add;
 
 	return SUCCESS;
-} /* }}} */
-
-static int spl_filesystem_file_call(spl_filesystem_object *intern, zend_function *func_ptr, int pass_num_args, zval *return_value, zval *arg2) /* {{{ */
-{
-	zend_fcall_info fci;
-	zend_fcall_info_cache fcic;
-	zval *zresource_ptr = &intern->u.file.zresource, *params;
-	int result;
-	int num_args = pass_num_args + (arg2 ? 2 : 1);
-
-	if (Z_ISUNDEF_P(zresource_ptr)) {
-		zend_throw_exception_ex(spl_ce_RuntimeException, 0, "Object not initialized");
-		return FAILURE;
-	}
-
-	params = (zval*)safe_emalloc(num_args, sizeof(zval), 0);
-	params[0] = *zresource_ptr;
-
-	if (arg2) {
-		params[1] = *arg2;
-	}
-
-	if (zend_get_parameters_array_ex(pass_num_args, params + (arg2 ? 2 : 1)) != SUCCESS) {
-		efree(params);
-		WRONG_PARAM_COUNT_WITH_RETVAL(FAILURE);
-	}
-
-	fci.size = sizeof(fci);
-	fci.object = NULL;
-	fci.retval = return_value;
-	fci.param_count = num_args;
-	fci.params = params;
-	fci.named_params = NULL;
-	ZVAL_STR(&fci.function_name, func_ptr->common.function_name);
-
-	fcic.function_handler = func_ptr;
-	fcic.called_scope = NULL;
-	fcic.object = NULL;
-
-	result = zend_call_function(&fci, &fcic);
-
-	if (result == FAILURE || Z_ISUNDEF_P(return_value)) {
-		RETVAL_FALSE;
-	}
-
-	efree(params);
-	return result;
-} /* }}} */
-
-#define FileFunctionCall(func_name, pass_num_args, arg2) /* {{{ */ \
-{ \
-	zend_function *func_ptr; \
-	func_ptr = (zend_function *)zend_hash_str_find_ptr(EG(function_table), #func_name, sizeof(#func_name) - 1); \
-	if (func_ptr == NULL) { \
-		zend_throw_exception_ex(spl_ce_RuntimeException, 0, "Internal error, function %s() not found. Please report", #func_name); \
-		return; \
-	} \
-	spl_filesystem_file_call(intern, func_ptr, pass_num_args, return_value, arg2); \
 } /* }}} */
 
 static int spl_filesystem_file_read_csv(spl_filesystem_object *intern, char delimiter, char enclosure, int escape, zval *return_value) /* {{{ */
@@ -2075,8 +2017,8 @@ static int spl_filesystem_file_read_line(zval * this_ptr, spl_filesystem_object 
 
 static void spl_filesystem_file_rewind(zval * this_ptr, spl_filesystem_object *intern) /* {{{ */
 {
-	if(!intern->u.file.stream) {
-		zend_throw_exception_ex(spl_ce_RuntimeException, 0, "Object not initialized");
+	if (!intern->u.file.stream) {
+		zend_throw_error(NULL, "Object not initialized");
 		return;
 	}
 	if (-1 == php_stream_rewind(intern->u.file.stream)) {
@@ -2203,10 +2145,7 @@ PHP_METHOD(SplFileObject, eof)
 		RETURN_THROWS();
 	}
 
-	if(!intern->u.file.stream) {
-		zend_throw_exception_ex(spl_ce_RuntimeException, 0, "Object not initialized");
-		RETURN_THROWS();
-	}
+	CHECK_SPL_FILE_OBJECT_IS_INITIALIZED(intern);
 
 	RETURN_BOOL(php_stream_eof(intern->u.file.stream));
 } /* }}} */
@@ -2239,10 +2178,7 @@ PHP_METHOD(SplFileObject, fgets)
 		RETURN_THROWS();
 	}
 
-	if(!intern->u.file.stream) {
-		zend_throw_exception_ex(spl_ce_RuntimeException, 0, "Object not initialized");
-		RETURN_THROWS();
-	}
+	CHECK_SPL_FILE_OBJECT_IS_INITIALIZED(intern);
 
 	if (spl_filesystem_file_read(intern, 0) == FAILURE) {
 		RETURN_FALSE;
@@ -2259,10 +2195,7 @@ PHP_METHOD(SplFileObject, current)
 		RETURN_THROWS();
 	}
 
-	if(!intern->u.file.stream) {
-		zend_throw_exception_ex(spl_ce_RuntimeException, 0, "Object not initialized");
-		RETURN_THROWS();
-	}
+	CHECK_SPL_FILE_OBJECT_IS_INITIALIZED(intern);
 
 	if (!intern->u.file.current_line && Z_ISUNDEF(intern->u.file.current_zval)) {
 		spl_filesystem_file_read_line(ZEND_THIS, intern, 1);
@@ -2344,7 +2277,7 @@ PHP_METHOD(SplFileObject, setMaxLineLen)
 	}
 
 	if (max_len < 0) {
-		zend_throw_exception_ex(spl_ce_DomainException, 0, "Maximum line length must be greater than or equal zero");
+		zend_argument_value_error(1, "must be greater than or equal to 0");
 		RETURN_THROWS();
 	}
 
@@ -2382,15 +2315,6 @@ PHP_METHOD(SplFileObject, getChildren)
 	/* return NULL */
 } /* }}} */
 
-/* {{{ FileFunction */
-#define FileFunction(func_name) \
-PHP_METHOD(SplFileObject, func_name) \
-{ \
-	spl_filesystem_object *intern = Z_SPLFILESYSTEM_P(ZEND_THIS); \
-	FileFunctionCall(func_name, ZEND_NUM_ARGS(), NULL); \
-}
-/* }}} */
-
 /* {{{ Return current line as csv */
 PHP_METHOD(SplFileObject, fgetcsv)
 {
@@ -2402,11 +2326,9 @@ PHP_METHOD(SplFileObject, fgetcsv)
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "|sss", &delim, &d_len, &enclo, &e_len, &esc, &esc_len) == SUCCESS) {
 
-		if(!intern->u.file.stream) {
-			zend_throw_exception_ex(spl_ce_RuntimeException, 0, "Object not initialized");
-			RETURN_THROWS();
-		}
+		CHECK_SPL_FILE_OBJECT_IS_INITIALIZED(intern);
 
+		// TODO Align behaviour on normal fgetcsv()
 		switch(ZEND_NUM_ARGS())
 		{
 		case 3:
@@ -2454,6 +2376,8 @@ PHP_METHOD(SplFileObject, fputcsv)
 	zval *fields = NULL;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "a|sss", &fields, &delim, &d_len, &enclo, &e_len, &esc, &esc_len) == SUCCESS) {
+
+		// TODO Align behaviour on normal fputcsv()
 		switch(ZEND_NUM_ARGS())
 		{
 		case 4:
@@ -2506,6 +2430,7 @@ PHP_METHOD(SplFileObject, setCsvControl)
 	size_t d_len = 0, e_len = 0, esc_len = 0;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "|sss", &delim, &d_len, &enclo, &e_len, &esc, &esc_len) == SUCCESS) {
+		// TODO Align behaviour on normal fgetcsv()
 		switch(ZEND_NUM_ARGS())
 		{
 		case 3:
@@ -2571,7 +2496,20 @@ PHP_METHOD(SplFileObject, getCsvControl)
 /* }}} */
 
 /* {{{ Portable file locking */
-FileFunction(flock)
+PHP_METHOD(SplFileObject, flock)
+{
+	spl_filesystem_object *intern = Z_SPLFILESYSTEM_P(ZEND_THIS);
+	zval *wouldblock = NULL;
+	zend_long operation = 0;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "l|z", &operation, &wouldblock) == FAILURE) {
+		RETURN_THROWS();
+	}
+
+	CHECK_SPL_FILE_OBJECT_IS_INITIALIZED(intern);
+
+	php_flock_common(intern->u.file.stream, operation, 1, wouldblock, return_value);
+}
 /* }}} */
 
 /* {{{ Flush the file */
@@ -2579,10 +2517,7 @@ PHP_METHOD(SplFileObject, fflush)
 {
 	spl_filesystem_object *intern = Z_SPLFILESYSTEM_P(ZEND_THIS);
 
-	if(!intern->u.file.stream) {
-		zend_throw_exception_ex(spl_ce_RuntimeException, 0, "Object not initialized");
-		RETURN_THROWS();
-	}
+	CHECK_SPL_FILE_OBJECT_IS_INITIALIZED(intern);
 
 	RETURN_BOOL(!php_stream_flush(intern->u.file.stream));
 } /* }}} */
@@ -2593,10 +2528,7 @@ PHP_METHOD(SplFileObject, ftell)
 	spl_filesystem_object *intern = Z_SPLFILESYSTEM_P(ZEND_THIS);
 	zend_long ret;
 
-	if(!intern->u.file.stream) {
-		zend_throw_exception_ex(spl_ce_RuntimeException, 0, "Object not initialized");
-		RETURN_THROWS();
-	}
+	CHECK_SPL_FILE_OBJECT_IS_INITIALIZED(intern);
 
 	ret = php_stream_tell(intern->u.file.stream);
 
@@ -2617,10 +2549,7 @@ PHP_METHOD(SplFileObject, fseek)
 		RETURN_THROWS();
 	}
 
-	if(!intern->u.file.stream) {
-		zend_throw_exception_ex(spl_ce_RuntimeException, 0, "Object not initialized");
-		RETURN_THROWS();
-	}
+	CHECK_SPL_FILE_OBJECT_IS_INITIALIZED(intern);
 
 	spl_filesystem_file_free_line(intern);
 	RETURN_LONG(php_stream_seek(intern->u.file.stream, pos, (int)whence));
@@ -2633,10 +2562,7 @@ PHP_METHOD(SplFileObject, fgetc)
 	char buf[2];
 	int result;
 
-	if(!intern->u.file.stream) {
-		zend_throw_exception_ex(spl_ce_RuntimeException, 0, "Object not initialized");
-		RETURN_THROWS();
-	}
+	CHECK_SPL_FILE_OBJECT_IS_INITIALIZED(intern);
 
 	spl_filesystem_file_free_line(intern);
 
@@ -2660,10 +2586,7 @@ PHP_METHOD(SplFileObject, fpassthru)
 {
 	spl_filesystem_object *intern = Z_SPLFILESYSTEM_P(ZEND_THIS);
 
-	if(!intern->u.file.stream) {
-		zend_throw_exception_ex(spl_ce_RuntimeException, 0, "Object not initialized");
-		RETURN_THROWS();
-	}
+	CHECK_SPL_FILE_OBJECT_IS_INITIALIZED(intern);
 
 	RETURN_LONG(php_stream_passthru(intern->u.file.stream));
 } /* }}} */
@@ -2671,17 +2594,27 @@ PHP_METHOD(SplFileObject, fpassthru)
 /* {{{ Implements a mostly ANSI compatible fscanf() */
 PHP_METHOD(SplFileObject, fscanf)
 {
+	int result, num_varargs = 0;
+	zend_string *format_str;
+	zval *varargs= NULL;
 	spl_filesystem_object *intern = Z_SPLFILESYSTEM_P(ZEND_THIS);
 
-	if(!intern->u.file.stream) {
-		zend_throw_exception_ex(spl_ce_RuntimeException, 0, "Object not initialized");
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "S*", &format_str, &varargs, &num_varargs) == FAILURE) {
 		RETURN_THROWS();
 	}
 
-	spl_filesystem_file_free_line(intern);
-	intern->u.file.current_line_num++;
+	CHECK_SPL_FILE_OBJECT_IS_INITIALIZED(intern);
 
-	FileFunctionCall(fscanf, ZEND_NUM_ARGS(), NULL);
+	/* Get next line */
+	if (spl_filesystem_file_read(intern, 0) == FAILURE) {
+		RETURN_THROWS();
+	}
+
+	result = php_sscanf_internal(intern->u.file.current_line, ZSTR_VAL(format_str), num_varargs, varargs, 0, return_value);
+
+	if (SCAN_ERROR_WRONG_PARAM_COUNT == result) {
+		WRONG_PARAM_COUNT;
+	}
 }
 /* }}} */
 
@@ -2698,10 +2631,7 @@ PHP_METHOD(SplFileObject, fwrite)
 		RETURN_THROWS();
 	}
 
-	if(!intern->u.file.stream) {
-		zend_throw_exception_ex(spl_ce_RuntimeException, 0, "Object not initialized");
-		RETURN_THROWS();
-	}
+	CHECK_SPL_FILE_OBJECT_IS_INITIALIZED(intern);
 
 	if (ZEND_NUM_ARGS() > 1) {
 		if (length >= 0) {
@@ -2732,14 +2662,11 @@ PHP_METHOD(SplFileObject, fread)
 		RETURN_THROWS();
 	}
 
-	if(!intern->u.file.stream) {
-		zend_throw_exception_ex(spl_ce_RuntimeException, 0, "Object not initialized");
-		RETURN_THROWS();
-	}
+	CHECK_SPL_FILE_OBJECT_IS_INITIALIZED(intern);
 
 	if (length <= 0) {
-		php_error_docref(NULL, E_WARNING, "Length parameter must be greater than 0");
-		RETURN_FALSE;
+		zend_argument_value_error(1, "must be greater than 0");
+		RETURN_THROWS();
 	}
 
 	str = php_stream_read_to_str(intern->u.file.stream, length);
@@ -2750,7 +2677,18 @@ PHP_METHOD(SplFileObject, fread)
 }
 
 /* {{{ Stat() on a filehandle */
-FileFunction(fstat)
+PHP_METHOD(SplFileObject, fstat)
+{
+	spl_filesystem_object *intern = Z_SPLFILESYSTEM_P(ZEND_THIS);
+
+	if (zend_parse_parameters_none() == FAILURE) {
+		RETURN_THROWS();
+	}
+
+	CHECK_SPL_FILE_OBJECT_IS_INITIALIZED(intern);
+
+	php_fstat(intern->u.file.stream, return_value);
+}
 /* }}} */
 
 /* {{{ Truncate file to 'size' length */
@@ -2763,10 +2701,7 @@ PHP_METHOD(SplFileObject, ftruncate)
 		RETURN_THROWS();
 	}
 
-	if(!intern->u.file.stream) {
-		zend_throw_exception_ex(spl_ce_RuntimeException, 0, "Object not initialized");
-		RETURN_THROWS();
-	}
+	CHECK_SPL_FILE_OBJECT_IS_INITIALIZED(intern);
 
 	if (!php_stream_truncate_supported(intern->u.file.stream)) {
 		zend_throw_exception_ex(spl_ce_LogicException, 0, "Can't truncate file %s", intern->file_name);
@@ -2785,13 +2720,11 @@ PHP_METHOD(SplFileObject, seek)
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "l", &line_pos) == FAILURE) {
 		RETURN_THROWS();
 	}
-	if(!intern->u.file.stream) {
-		zend_throw_exception_ex(spl_ce_RuntimeException, 0, "Object not initialized");
-		RETURN_THROWS();
-	}
+
+	CHECK_SPL_FILE_OBJECT_IS_INITIALIZED(intern);
 
 	if (line_pos < 0) {
-		zend_throw_exception_ex(spl_ce_LogicException, 0, "Can't seek file %s to negative line " ZEND_LONG_FMT, intern->file_name, line_pos);
+		zend_argument_value_error(1, "must be greater than or equal to 0");
 		RETURN_THROWS();
 	}
 

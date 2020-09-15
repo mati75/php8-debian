@@ -420,6 +420,9 @@ static int zend_jit_disasm_init(void)
 	REGISTER_HELPER(zend_jit_fetch_dim_obj_is_helper);
 	REGISTER_HELPER(zend_jit_fetch_dim_rw_helper);
 	REGISTER_HELPER(zend_jit_fetch_dim_w_helper);
+	REGISTER_HELPER(zend_jit_fetch_dim_obj_rw_helper);
+	REGISTER_HELPER(zend_jit_fetch_dim_obj_w_helper);
+//	REGISTER_HELPER(zend_jit_fetch_dim_obj_unset_helper);
 	REGISTER_HELPER(zend_jit_assign_dim_helper);
 	REGISTER_HELPER(zend_jit_assign_dim_op_helper);
 	REGISTER_HELPER(zend_jit_fast_assign_concat_helper);
@@ -428,6 +431,7 @@ static int zend_jit_disasm_init(void)
 	REGISTER_HELPER(zend_jit_free_call_frame);
 	REGISTER_HELPER(zend_jit_fetch_global_helper);
 	REGISTER_HELPER(zend_jit_verify_arg_slow);
+	REGISTER_HELPER(zend_jit_verify_return_slow);
 	REGISTER_HELPER(zend_jit_fetch_obj_r_slow);
 	REGISTER_HELPER(zend_jit_fetch_obj_r_dynamic);
 	REGISTER_HELPER(zend_jit_fetch_obj_is_slow);
@@ -452,15 +456,33 @@ static int zend_jit_disasm_init(void)
 	REGISTER_HELPER(zend_jit_invalid_array_access);
 	REGISTER_HELPER(zend_jit_invalid_property_read);
 	REGISTER_HELPER(zend_jit_invalid_property_write);
+	REGISTER_HELPER(zend_jit_invalid_property_incdec);
+	REGISTER_HELPER(zend_jit_invalid_property_assign);
+	REGISTER_HELPER(zend_jit_invalid_property_assign_op);
 	REGISTER_HELPER(zend_jit_prepare_assign_dim_ref);
 	REGISTER_HELPER(zend_jit_pre_inc);
 	REGISTER_HELPER(zend_jit_pre_dec);
 	REGISTER_HELPER(zend_runtime_jit);
 	REGISTER_HELPER(zend_jit_hot_func);
 	REGISTER_HELPER(zend_jit_check_constant);
+	REGISTER_HELPER(zend_jit_get_constant);
 	REGISTER_HELPER(zend_jit_array_free);
 	REGISTER_HELPER(zend_jit_zval_array_dup);
 	REGISTER_HELPER(zend_jit_add_arrays_helper);
+	REGISTER_HELPER(zend_jit_assign_obj_helper);
+	REGISTER_HELPER(zend_jit_assign_obj_op_helper);
+	REGISTER_HELPER(zend_jit_assign_to_typed_prop);
+	REGISTER_HELPER(zend_jit_assign_op_to_typed_prop);
+	REGISTER_HELPER(zend_jit_inc_typed_prop);
+	REGISTER_HELPER(zend_jit_dec_typed_prop);
+	REGISTER_HELPER(zend_jit_pre_inc_typed_prop);
+	REGISTER_HELPER(zend_jit_pre_dec_typed_prop);
+	REGISTER_HELPER(zend_jit_post_inc_typed_prop);
+	REGISTER_HELPER(zend_jit_post_dec_typed_prop);
+	REGISTER_HELPER(zend_jit_pre_inc_obj_helper);
+	REGISTER_HELPER(zend_jit_pre_dec_obj_helper);
+	REGISTER_HELPER(zend_jit_post_inc_obj_helper);
+	REGISTER_HELPER(zend_jit_post_dec_obj_helper);
 #undef  REGISTER_HELPER
 
 #ifndef _WIN32

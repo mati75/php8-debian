@@ -716,10 +716,7 @@ PHPAPI zend_long php_count_recursive(HashTable *ht) /* {{{ */
 		}
 	} ZEND_HASH_FOREACH_END();
 
-	if (!(GC_FLAGS(ht) & GC_IMMUTABLE)) {
-		GC_UNPROTECT_RECURSION(ht);
-	}
-
+	GC_TRY_UNPROTECT_RECURSION(ht);
 	return cnt;
 }
 /* }}} */
@@ -745,7 +742,7 @@ PHP_FUNCTION(count)
 	switch (Z_TYPE_P(array)) {
 		case IS_NULL:
 			/* Intentionally not converted to an exception */
-			php_error_docref(NULL, E_WARNING, "Parameter must be an array or an object that implements Countable");
+			php_error_docref(NULL, E_WARNING, "%s(): Argument #1 ($var) must be of type Countable|array, %s given", get_active_function_name(), zend_zval_type_name(array));
 			RETURN_LONG(0);
 			break;
 		case IS_ARRAY:
@@ -780,13 +777,13 @@ PHP_FUNCTION(count)
 
 			/* If There's no handler and it doesn't implement Countable then add a warning */
 			/* Intentionally not converted to an exception */
-			php_error_docref(NULL, E_WARNING, "Parameter must be an array or an object that implements Countable");
+			php_error_docref(NULL, E_WARNING, "%s(): Argument #1 ($var) must be of type Countable|array, %s given", get_active_function_name(), zend_zval_type_name(array));
 			RETURN_LONG(1);
 			break;
 		}
 		default:
 			/* Intentionally not converted to an exception */
-			php_error_docref(NULL, E_WARNING, "Parameter must be an array or an object that implements Countable");
+			php_error_docref(NULL, E_WARNING, "%s(): Argument #1 ($var) must be of type Countable|array, %s given", get_active_function_name(), zend_zval_type_name(array));
 			RETURN_LONG(1);
 			break;
 	}
@@ -965,22 +962,6 @@ static int php_array_user_compare(Bucket *a, Bucket *b) /* {{{ */
 }
 /* }}} */
 
-/* check if comparison function is valid */
-#define PHP_ARRAY_CMP_FUNC_CHECK(func_name)	\
-	if (!zend_is_callable(*func_name, 0, NULL)) {	\
-		php_error_docref(NULL, E_WARNING, "Invalid comparison function");	\
-		BG(user_compare_fci) = old_user_compare_fci; \
-		BG(user_compare_fci_cache) = old_user_compare_fci_cache; \
-		RETURN_FALSE;	\
-	}	\
-
-	/* Clear FCI cache otherwise : for example the same or other array with
-	 * (partly) the same key values has been sorted with uasort() or
-	 * other sorting function the comparison is cached, however the name
-	 * of the function for comparison is not respected. see bug #28739 AND #33295
-	 *
-	 * Following defines will assist in backup / restore values. */
-
 #define PHP_ARRAY_CMP_FUNC_VARS \
 	zend_fcall_info old_user_compare_fci; \
 	zend_fcall_info_cache old_user_compare_fci_cache \
@@ -992,7 +973,6 @@ static int php_array_user_compare(Bucket *a, Bucket *b) /* {{{ */
 	BG(user_compare_fci_cache) = empty_fcall_info_cache; \
 
 #define PHP_ARRAY_CMP_FUNC_RESTORE() \
-	zend_release_fcall_info_cache(&BG(user_compare_fci_cache)); \
 	BG(user_compare_fci) = old_user_compare_fci; \
 	BG(user_compare_fci_cache) = old_user_compare_fci_cache; \
 
@@ -1515,7 +1495,6 @@ PHP_FUNCTION(array_walk)
 	);
 
 	php_array_walk(array, userdata, 0);
-	zend_release_fcall_info_cache(&BG(array_walk_fci_cache));
 	BG(array_walk_fci) = orig_array_walk_fci;
 	BG(array_walk_fci_cache) = orig_array_walk_fci_cache;
 	RETURN_TRUE;
@@ -1545,7 +1524,6 @@ PHP_FUNCTION(array_walk_recursive)
 	);
 
 	php_array_walk(array, userdata, 1);
-	zend_release_fcall_info_cache(&BG(array_walk_fci_cache));
 	BG(array_walk_fci) = orig_array_walk_fci;
 	BG(array_walk_fci_cache) = orig_array_walk_fci_cache;
 	RETURN_TRUE;
@@ -2573,7 +2551,7 @@ static void php_compact_var(HashTable *eg_active_symbol_table, zval *return_valu
 				zend_hash_update(Z_ARRVAL_P(return_value), Z_STR_P(entry), &data);
 			}
 		} else {
-			php_error_docref(NULL, E_NOTICE, "Undefined variable $%s", ZSTR_VAL(Z_STR_P(entry)));
+			php_error_docref(NULL, E_WARNING, "Undefined variable $%s", ZSTR_VAL(Z_STR_P(entry)));
 		}
 	} else if (Z_TYPE_P(entry) == IS_ARRAY) {
 	    if (Z_REFCOUNTED_P(entry)) {
@@ -3647,12 +3625,12 @@ PHPAPI int php_array_merge_recursive(HashTable *dest, HashTable *src) /* {{{ */
 					src_zval = &tmp;
 				}
 				if (Z_TYPE_P(src_zval) == IS_ARRAY) {
-					if (thash && !(GC_FLAGS(thash) & GC_IMMUTABLE)) {
-						GC_PROTECT_RECURSION(thash);
+					if (thash) {
+						GC_TRY_PROTECT_RECURSION(thash);
 					}
 					ret = php_array_merge_recursive(Z_ARRVAL_P(dest_zval), Z_ARRVAL_P(src_zval));
-					if (thash && !(GC_FLAGS(thash) & GC_IMMUTABLE)) {
-						GC_UNPROTECT_RECURSION(thash);
+					if (thash) {
+						GC_TRY_UNPROTECT_RECURSION(thash);
 					}
 					if (!ret) {
 						return 0;
@@ -4616,7 +4594,6 @@ static void php_array_intersect_key(INTERNAL_FUNCTION_PARAMETERS, int data_compa
 	int (*intersect_data_compare_func)(zval *, zval *) = NULL;
 	zend_bool ok;
 	zval *val, *data;
-	int req_args;
 	char *param_spec;
 	zend_string *key;
 	zend_ulong h;
@@ -4625,23 +4602,16 @@ static void php_array_intersect_key(INTERNAL_FUNCTION_PARAMETERS, int data_compa
 	argc = ZEND_NUM_ARGS();
 	if (data_compare_type == INTERSECT_COMP_DATA_USER) {
 		/* INTERSECT_COMP_DATA_USER - array_uintersect_assoc() */
-		req_args = 3;
 		param_spec = "+f";
 		intersect_data_compare_func = zval_user_compare;
 	} else {
 		/* 	INTERSECT_COMP_DATA_NONE - array_intersect_key()
 			INTERSECT_COMP_DATA_INTERNAL - array_intersect_assoc() */
-		req_args = 2;
 		param_spec = "+";
 
 		if (data_compare_type == INTERSECT_COMP_DATA_INTERNAL) {
 			intersect_data_compare_func = zval_compare;
 		}
-	}
-
-	if (argc < req_args) {
-		zend_argument_count_error("At least %d parameters are required, %d given", req_args, argc);
-		RETURN_THROWS();
 	}
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), param_spec, &args, &argc, &BG(user_compare_fci), &BG(user_compare_fci_cache)) == FAILURE) {
@@ -4704,7 +4674,6 @@ static void php_array_intersect(INTERNAL_FUNCTION_PARAMETERS, int behavior, int 
 	int arr_argc, i, c = 0;
 	uint32_t idx;
 	Bucket **lists, *list, **ptrs, *p;
-	uint32_t req_args;
 	char *param_spec;
 	zend_fcall_info fci1, fci2;
 	zend_fcall_info_cache fci1_cache = empty_fcall_info_cache, fci2_cache = empty_fcall_info_cache;
@@ -4720,22 +4689,15 @@ static void php_array_intersect(INTERNAL_FUNCTION_PARAMETERS, int behavior, int 
 
 		if (data_compare_type == INTERSECT_COMP_DATA_INTERNAL) {
 			/* array_intersect() */
-			req_args = 2;
 			param_spec = "+";
 			intersect_data_compare_func = php_array_data_compare_string_unstable;
 		} else if (data_compare_type == INTERSECT_COMP_DATA_USER) {
 			/* array_uintersect() */
-			req_args = 3;
 			param_spec = "+f";
 			intersect_data_compare_func = php_array_user_compare_unstable;
 		} else {
 			ZEND_ASSERT(0 && "Invalid data_compare_type");
 			return;
-		}
-
-		if (ZEND_NUM_ARGS() < req_args) {
-			zend_argument_count_error("At least %d parameters are required, %d given", req_args, ZEND_NUM_ARGS());
-			RETURN_THROWS();
 		}
 
 		if (zend_parse_parameters(ZEND_NUM_ARGS(), param_spec, &args, &arr_argc, &fci1, &fci1_cache) == FAILURE) {
@@ -4750,13 +4712,11 @@ static void php_array_intersect(INTERNAL_FUNCTION_PARAMETERS, int behavior, int 
 
 		if (data_compare_type == INTERSECT_COMP_DATA_INTERNAL && key_compare_type == INTERSECT_COMP_KEY_INTERNAL) {
 			/* array_intersect_assoc() or array_intersect_key() */
-			req_args = 2;
 			param_spec = "+";
 			intersect_key_compare_func = php_array_key_compare_string_unstable;
 			intersect_data_compare_func = php_array_data_compare_string_unstable;
 		} else if (data_compare_type == INTERSECT_COMP_DATA_USER && key_compare_type == INTERSECT_COMP_KEY_INTERNAL) {
 			/* array_uintersect_assoc() */
-			req_args = 3;
 			param_spec = "+f";
 			intersect_key_compare_func = php_array_key_compare_string_unstable;
 			intersect_data_compare_func = php_array_user_compare_unstable;
@@ -4764,7 +4724,6 @@ static void php_array_intersect(INTERNAL_FUNCTION_PARAMETERS, int behavior, int 
 			fci_data_cache = &fci1_cache;
 		} else if (data_compare_type == INTERSECT_COMP_DATA_INTERNAL && key_compare_type == INTERSECT_COMP_KEY_USER) {
 			/* array_intersect_uassoc() or array_intersect_ukey() */
-			req_args = 3;
 			param_spec = "+f";
 			intersect_key_compare_func = php_array_user_key_compare_unstable;
 			intersect_data_compare_func = php_array_data_compare_string_unstable;
@@ -4772,7 +4731,6 @@ static void php_array_intersect(INTERNAL_FUNCTION_PARAMETERS, int behavior, int 
 			fci_key_cache = &fci1_cache;
 		} else if (data_compare_type == INTERSECT_COMP_DATA_USER && key_compare_type == INTERSECT_COMP_KEY_USER) {
 			/* array_uintersect_uassoc() */
-			req_args = 4;
 			param_spec = "+ff";
 			intersect_key_compare_func = php_array_user_key_compare_unstable;
 			intersect_data_compare_func = php_array_user_compare_unstable;
@@ -4783,11 +4741,6 @@ static void php_array_intersect(INTERNAL_FUNCTION_PARAMETERS, int behavior, int 
 		} else {
 			ZEND_ASSERT(0 && "Invalid data_compare_type / key_compare_type");
 			return;
-		}
-
-		if (ZEND_NUM_ARGS() < req_args) {
-			zend_argument_count_error("At least %d parameters are required, %d given", req_args, ZEND_NUM_ARGS());
-			RETURN_THROWS();
 		}
 
 		if (zend_parse_parameters(ZEND_NUM_ARGS(), param_spec, &args, &arr_argc, &fci1, &fci1_cache, &fci2, &fci2_cache) == FAILURE) {
@@ -5026,19 +4979,11 @@ static void php_array_diff_key(INTERNAL_FUNCTION_PARAMETERS, int data_compare_ty
 	/* Get the argument count */
 	argc = ZEND_NUM_ARGS();
 	if (data_compare_type == DIFF_COMP_DATA_USER) {
-		if (argc < 3) {
-			zend_argument_count_error("At least 3 parameters are required, %d given", ZEND_NUM_ARGS());
-			RETURN_THROWS();
-		}
 		if (zend_parse_parameters(ZEND_NUM_ARGS(), "+f", &args, &argc, &BG(user_compare_fci), &BG(user_compare_fci_cache)) == FAILURE) {
 			RETURN_THROWS();
 		}
 		diff_data_compare_func = zval_user_compare;
 	} else {
-		if (argc < 2) {
-			zend_argument_count_error("At least 2 parameters are required, %d given", ZEND_NUM_ARGS());
-			RETURN_THROWS();
-		}
 		if (zend_parse_parameters(ZEND_NUM_ARGS(), "+", &args, &argc) == FAILURE) {
 			RETURN_THROWS();
 		}
@@ -5103,7 +5048,6 @@ static void php_array_diff(INTERNAL_FUNCTION_PARAMETERS, int behavior, int data_
 	int arr_argc, i, c;
 	uint32_t idx;
 	Bucket **lists, *list, **ptrs, *p;
-	uint32_t req_args;
 	char *param_spec;
 	zend_fcall_info fci1, fci2;
 	zend_fcall_info_cache fci1_cache = empty_fcall_info_cache, fci2_cache = empty_fcall_info_cache;
@@ -5119,22 +5063,15 @@ static void php_array_diff(INTERNAL_FUNCTION_PARAMETERS, int behavior, int data_
 
 		if (data_compare_type == DIFF_COMP_DATA_INTERNAL) {
 			/* array_diff */
-			req_args = 2;
 			param_spec = "+";
 			diff_data_compare_func = php_array_data_compare_string_unstable;
 		} else if (data_compare_type == DIFF_COMP_DATA_USER) {
 			/* array_udiff */
-			req_args = 3;
 			param_spec = "+f";
 			diff_data_compare_func = php_array_user_compare_unstable;
 		} else {
 			ZEND_ASSERT(0 && "Invalid data_compare_type");
 			return;
-		}
-
-		if (ZEND_NUM_ARGS() < req_args) {
-			zend_argument_count_error("At least %d parameters are required, %d given", req_args, ZEND_NUM_ARGS());
-			RETURN_THROWS();
 		}
 
 		if (zend_parse_parameters(ZEND_NUM_ARGS(), param_spec, &args, &arr_argc, &fci1, &fci1_cache) == FAILURE) {
@@ -5149,13 +5086,11 @@ static void php_array_diff(INTERNAL_FUNCTION_PARAMETERS, int behavior, int data_
 
 		if (data_compare_type == DIFF_COMP_DATA_INTERNAL && key_compare_type == DIFF_COMP_KEY_INTERNAL) {
 			/* array_diff_assoc() or array_diff_key() */
-			req_args = 2;
 			param_spec = "+";
 			diff_key_compare_func = php_array_key_compare_string_unstable;
 			diff_data_compare_func = php_array_data_compare_string_unstable;
 		} else if (data_compare_type == DIFF_COMP_DATA_USER && key_compare_type == DIFF_COMP_KEY_INTERNAL) {
 			/* array_udiff_assoc() */
-			req_args = 3;
 			param_spec = "+f";
 			diff_key_compare_func = php_array_key_compare_string_unstable;
 			diff_data_compare_func = php_array_user_compare_unstable;
@@ -5163,7 +5098,6 @@ static void php_array_diff(INTERNAL_FUNCTION_PARAMETERS, int behavior, int data_
 			fci_data_cache = &fci1_cache;
 		} else if (data_compare_type == DIFF_COMP_DATA_INTERNAL && key_compare_type == DIFF_COMP_KEY_USER) {
 			/* array_diff_uassoc() or array_diff_ukey() */
-			req_args = 3;
 			param_spec = "+f";
 			diff_key_compare_func = php_array_user_key_compare_unstable;
 			diff_data_compare_func = php_array_data_compare_string_unstable;
@@ -5171,7 +5105,6 @@ static void php_array_diff(INTERNAL_FUNCTION_PARAMETERS, int behavior, int data_
 			fci_key_cache = &fci1_cache;
 		} else if (data_compare_type == DIFF_COMP_DATA_USER && key_compare_type == DIFF_COMP_KEY_USER) {
 			/* array_udiff_uassoc() */
-			req_args = 4;
 			param_spec = "+ff";
 			diff_key_compare_func = php_array_user_key_compare_unstable;
 			diff_data_compare_func = php_array_user_compare_unstable;
@@ -5182,11 +5115,6 @@ static void php_array_diff(INTERNAL_FUNCTION_PARAMETERS, int behavior, int data_
 		} else {
 			ZEND_ASSERT(0 && "Invalid data_compare_type / key_compare_type");
 			return;
-		}
-
-		if (ZEND_NUM_ARGS() < req_args) {
-			zend_argument_count_error("At least %d parameters are required, %d given", req_args, ZEND_NUM_ARGS());
-			RETURN_THROWS();
 		}
 
 		if (zend_parse_parameters(ZEND_NUM_ARGS(), param_spec, &args, &arr_argc, &fci1, &fci1_cache, &fci2, &fci2_cache) == FAILURE) {
@@ -5379,11 +5307,6 @@ PHP_FUNCTION(array_diff)
 	zend_string *str, *tmp_str, *key;
 	zend_long idx;
 	zval dummy;
-
-	if (ZEND_NUM_ARGS() < 2) {
-		zend_argument_count_error("At least 2 parameters are required, %d given", ZEND_NUM_ARGS());
-		RETURN_THROWS();
-	}
 
 	ZEND_PARSE_PARAMETERS_START(1, -1)
 		Z_PARAM_VARIADIC('+', args, argc)
@@ -5951,7 +5874,6 @@ PHP_FUNCTION(array_reduce)
 	htbl = Z_ARRVAL_P(input);
 
 	if (zend_hash_num_elements(htbl) == 0) {
-		zend_release_fcall_info_cache(&fci_cache);
 		return;
 	}
 
@@ -5973,8 +5895,6 @@ PHP_FUNCTION(array_reduce)
 			RETURN_NULL();
 		}
 	} ZEND_HASH_FOREACH_END();
-
-	zend_release_fcall_info_cache(&fci_cache);
 }
 /* }}} */
 
@@ -6002,7 +5922,6 @@ PHP_FUNCTION(array_filter)
 
 	if (zend_hash_num_elements(Z_ARRVAL_P(array)) == 0) {
 		RETVAL_EMPTY_ARRAY();
-		zend_release_fcall_info_cache(&fci_cache);
 		return;
 	}
 	array_init(return_value);
@@ -6064,8 +5983,6 @@ PHP_FUNCTION(array_filter)
 		}
 		zval_add_ref(operand);
 	} ZEND_HASH_FOREACH_END();
-
-	zend_release_fcall_info_cache(&fci_cache);
 }
 /* }}} */
 
@@ -6092,7 +6009,6 @@ PHP_FUNCTION(array_map)
 		int ret;
 
 		if (Z_TYPE(arrays[0]) != IS_ARRAY) {
-			zend_release_fcall_info_cache(&fci_cache);
 			zend_argument_type_error(2, "must be of type array, %s given", zend_zval_type_name(&arrays[0]));
 			RETURN_THROWS();
 		}
@@ -6101,7 +6017,6 @@ PHP_FUNCTION(array_map)
 		/* Short-circuit: if no callback and only one array, just return it. */
 		if (!ZEND_FCI_INITIALIZED(fci) || !maxlen) {
 			ZVAL_COPY(return_value, &arrays[0]);
-			zend_release_fcall_info_cache(&fci_cache);
 			return;
 		}
 
@@ -6126,8 +6041,6 @@ PHP_FUNCTION(array_map)
 				zend_hash_index_add_new(Z_ARRVAL_P(return_value), num_key, &result);
 			}
 		} ZEND_HASH_FOREACH_END();
-
-		zend_release_fcall_info_cache(&fci_cache);
 	} else {
 		uint32_t *array_pos = (HashPosition *)ecalloc(n_arrays, sizeof(HashPosition));
 
@@ -6219,7 +6132,6 @@ PHP_FUNCTION(array_map)
 			}
 
 			efree(params);
-			zend_release_fcall_info_cache(&fci_cache);
 		}
 		efree(array_pos);
 	}

@@ -164,7 +164,6 @@ ZEND_API zend_ast * ZEND_FASTCALL zend_ast_create_1(zend_ast_kind kind, zend_ast
 		lineno = CG(zend_lineno);
 	}
 	ast->lineno = lineno;
-	ast->lineno = lineno;
 
 	return ast;
 }
@@ -1349,19 +1348,20 @@ static ZEND_COLD void zend_ast_export_class_no_header(smart_str *str, zend_ast_d
 	smart_str_appends(str, "}");
 }
 
-static ZEND_COLD void zend_ast_export_attributes(smart_str *str, zend_ast *ast, int indent, zend_bool newlines) {
+static ZEND_COLD void zend_ast_export_attribute_group(smart_str *str, zend_ast *ast, int indent) {
 	zend_ast_list *list = zend_ast_get_list(ast);
-	uint32_t i;
+	uint32_t i, j;
 
 	for (i = 0; i < list->children; i++) {
 		zend_ast *attr = list->child[i];
 
-		smart_str_appends(str, "@@");
+		if (i) {
+			smart_str_appends(str, ", ");
+		}
 		zend_ast_export_ns_name(str, attr->child[0], 0, indent);
 
 		if (attr->child[1]) {
 			zend_ast_list *args = zend_ast_get_list(attr->child[1]);
-			uint32_t j;
 
 			smart_str_appendc(str, '(');
 			for (j = 0; j < args->children; j++) {
@@ -1372,6 +1372,17 @@ static ZEND_COLD void zend_ast_export_attributes(smart_str *str, zend_ast *ast, 
 			}
 			smart_str_appendc(str, ')');
 		}
+	}
+}
+
+static ZEND_COLD void zend_ast_export_attributes(smart_str *str, zend_ast *ast, int indent, zend_bool newlines) {
+	zend_ast_list *list = zend_ast_get_list(ast);
+	uint32_t i;
+
+	for (i = 0; i < list->children; i++) {
+		smart_str_appends(str, "#[");
+		zend_ast_export_attribute_group(str, list->child[i], indent);
+		smart_str_appends(str, "]");
 
 		if (newlines) {
 			smart_str_appendc(str, '\n');
@@ -1541,8 +1552,8 @@ tail_call:
 			break;
 		case ZEND_AST_CLASS:
 			decl = (zend_ast_decl *) ast;
-			if (decl->child[4]) {
-				zend_ast_export_attributes(str, decl->child[4], indent, 1);
+			if (decl->child[3]) {
+				zend_ast_export_attributes(str, decl->child[3], indent, 1);
 			}
 			if (decl->flags & ZEND_ACC_INTERFACE) {
 				smart_str_appends(str, "interface ");
@@ -1877,8 +1888,8 @@ simple_list:
 			smart_str_appends(str, "new ");
 			if (ast->child[0]->kind == ZEND_AST_CLASS) {
 				zend_ast_decl *decl = (zend_ast_decl *) ast->child[0];
-				if (decl->child[4]) {
-					zend_ast_export_attributes(str, decl->child[4], indent, 0);
+				if (decl->child[3]) {
+					zend_ast_export_attributes(str, decl->child[3], indent, 0);
 				}
 				smart_str_appends(str, "class");
 				if (zend_ast_get_list(ast->child[1])->children) {
@@ -2248,9 +2259,11 @@ zend_ast * ZEND_FASTCALL zend_ast_with_attributes(zend_ast *ast, zend_ast *attr)
 	case ZEND_AST_FUNC_DECL:
 	case ZEND_AST_CLOSURE:
 	case ZEND_AST_METHOD:
-	case ZEND_AST_CLASS:
 	case ZEND_AST_ARROW_FUNC:
 		((zend_ast_decl *) ast)->child[4] = attr;
+		break;
+	case ZEND_AST_CLASS:
+		((zend_ast_decl *) ast)->child[3] = attr;
 		break;
 	case ZEND_AST_PROP_GROUP:
 		ast->child[2] = attr;

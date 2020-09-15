@@ -33,6 +33,7 @@
 #include "ext/standard/php_dns.h"
 #include "ext/standard/php_uuencode.h"
 #include "ext/standard/php_mt_rand.h"
+#include "ext/standard/crc32_x86.h"
 
 #ifdef PHP_WIN32
 #include "win32/php_win32_globals.h"
@@ -361,6 +362,10 @@ PHP_MINIT_FUNCTION(basic) /* {{{ */
 
 #if ZEND_INTRIN_SSE4_2_FUNC_PTR
 	BASIC_MINIT_SUBMODULE(string_intrin)
+#endif
+
+#if ZEND_INTRIN_SSE4_2_PCLMUL_FUNC_PTR
+	BASIC_MINIT_SUBMODULE(crc32_x86_intrin)
 #endif
 
 #if ZEND_INTRIN_AVX2_FUNC_PTR || ZEND_INTRIN_SSSE3_FUNC_PTR
@@ -734,7 +739,7 @@ PHP_FUNCTION(getenv)
 
 	ZEND_PARSE_PARAMETERS_START(0, 2)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_STRING(str, str_len)
+		Z_PARAM_STRING_OR_NULL(str, str_len)
 		Z_PARAM_BOOL(local_only)
 	ZEND_PARSE_PARAMETERS_END();
 
@@ -1305,7 +1310,7 @@ PHP_FUNCTION(time_sleep_until)
 	target_ns = (uint64_t) (target_secs * ns_per_sec);
 	current_ns = ((uint64_t) tm.tv_sec) * ns_per_sec + ((uint64_t) tm.tv_usec) * 1000;
 	if (target_ns < current_ns) {
-		php_error_docref(NULL, E_WARNING, "Sleep until to time is less than current time");
+		php_error_docref(NULL, E_WARNING, "Argument #1 ($timestamp) must be greater than or equal to the current time");
 		RETURN_FALSE;
 	}
 
@@ -1424,22 +1429,17 @@ PHP_FUNCTION(error_log)
 {
 	char *message, *opt = NULL, *headers = NULL;
 	size_t message_len, opt_len = 0, headers_len = 0;
-	int opt_err = 0, argc = ZEND_NUM_ARGS();
 	zend_long erropt = 0;
 
 	ZEND_PARSE_PARAMETERS_START(1, 4)
 		Z_PARAM_STRING(message, message_len)
 		Z_PARAM_OPTIONAL
 		Z_PARAM_LONG(erropt)
-		Z_PARAM_PATH(opt, opt_len)
-		Z_PARAM_STRING(headers, headers_len)
+		Z_PARAM_PATH_OR_NULL(opt, opt_len)
+		Z_PARAM_STRING_OR_NULL(headers, headers_len)
 	ZEND_PARSE_PARAMETERS_END();
 
-	if (argc > 1) {
-		opt_err = (int)erropt;
-	}
-
-	if (_php_error_log_ex(opt_err, message, message_len, opt, headers) == FAILURE) {
+	if (_php_error_log_ex((int) erropt, message, message_len, opt, headers) == FAILURE) {
 		RETURN_FALSE;
 	}
 
@@ -1468,9 +1468,8 @@ PHPAPI int _php_error_log_ex(int opt_err, const char *message, size_t message_le
 			break;
 
 		case 2:		/*send to an address */
-			php_error_docref(NULL, E_WARNING, "TCP/IP option not available!");
+			zend_value_error("TCP/IP option is not available for error logging");
 			return FAILURE;
-			break;
 
 		case 3:		/*save to a file */
 			stream = php_stream_open_wrapper(opt, "a", IGNORE_URL_WIN | REPORT_ERRORS, NULL);
@@ -1684,10 +1683,9 @@ static int user_shutdown_function_call(zval *zv) /* {{{ */
 	zval retval;
 
 	if (!zend_is_callable(&shutdown_function_entry->arguments[0], 0, NULL)) {
-		zend_string *function_name
-			= zend_get_callable_name(&shutdown_function_entry->arguments[0]);
-		php_error(E_WARNING, "(Registered shutdown functions) Unable to call %s() - function does not exist", ZSTR_VAL(function_name));
-		zend_string_release_ex(function_name, 0);
+		zend_string *function_name = zend_get_callable_name(&shutdown_function_entry->arguments[0]);
+		zend_throw_error(NULL, "Registered shutdown function %s() cannot be called, function does not exist", ZSTR_VAL(function_name));
+		zend_string_release(function_name);
 		return 0;
 	}
 
@@ -1719,21 +1717,10 @@ static void user_tick_function_call(user_tick_function_entry *tick_fe) /* {{{ */
 								tick_fe->arguments + 1
 								) == SUCCESS) {
 			zval_ptr_dtor(&retval);
-
 		} else {
-			zval *obj, *method;
-
-			if (Z_TYPE_P(function) == IS_STRING) {
-				php_error_docref(NULL, E_WARNING, "Unable to call %s() - function does not exist", Z_STRVAL_P(function));
-			} else if (	Z_TYPE_P(function) == IS_ARRAY
-						&& (obj = zend_hash_index_find(Z_ARRVAL_P(function), 0)) != NULL
-						&& (method = zend_hash_index_find(Z_ARRVAL_P(function), 1)) != NULL
-						&& Z_TYPE_P(obj) == IS_OBJECT
-						&& Z_TYPE_P(method) == IS_STRING) {
-				php_error_docref(NULL, E_WARNING, "Unable to call %s::%s() - function does not exist", ZSTR_VAL(Z_OBJCE_P(obj)->name), Z_STRVAL_P(method));
-			} else {
-				php_error_docref(NULL, E_WARNING, "Unable to call tick function");
-			}
+			zend_string *function_name = zend_get_callable_name(function);
+			zend_throw_error(NULL, "Registered tick function %s() cannot be called, function does not exist", ZSTR_VAL(function_name));
+			zend_string_release(function_name);
 		}
 
 		tick_fe->calling = 0;
@@ -1764,7 +1751,7 @@ static int user_tick_function_compare(user_tick_function_entry * tick_fe1, user_
 	}
 
 	if (ret && tick_fe1->calling) {
-		php_error_docref(NULL, E_WARNING, "Unable to delete tick function executed at the moment");
+		zend_throw_error(NULL, "Registered tick function cannot be unregistered while it is being executed");
 		return 0;
 	}
 	return ret;
@@ -1818,23 +1805,22 @@ PHP_FUNCTION(register_shutdown_function)
 
 	/* Prevent entering of anything but valid callback (syntax check only!) */
 	if (!zend_is_callable(&shutdown_function_entry.arguments[0], 0, NULL)) {
-		zend_string *callback_name
-			= zend_get_callable_name(&shutdown_function_entry.arguments[0]);
-		php_error_docref(NULL, E_WARNING, "Invalid shutdown callback '%s' passed", ZSTR_VAL(callback_name));
+		zend_string *callback_name = zend_get_callable_name(&shutdown_function_entry.arguments[0]);
+		zend_argument_type_error(1, "must be a valid callback, function \"%s\" not found or invalid function name", ZSTR_VAL(callback_name));
 		efree(shutdown_function_entry.arguments);
-		zend_string_release_ex(callback_name, 0);
-		RETVAL_FALSE;
-	} else {
-		if (!BG(user_shutdown_function_names)) {
-			ALLOC_HASHTABLE(BG(user_shutdown_function_names));
-			zend_hash_init(BG(user_shutdown_function_names), 0, NULL, user_shutdown_function_dtor, 0);
-		}
-
-		for (i = 0; i < shutdown_function_entry.arg_count; i++) {
-			Z_TRY_ADDREF(shutdown_function_entry.arguments[i]);
-		}
-		zend_hash_next_index_insert_mem(BG(user_shutdown_function_names), &shutdown_function_entry, sizeof(php_shutdown_function_entry));
+		zend_string_release(callback_name);
+		RETURN_THROWS();
 	}
+
+	if (!BG(user_shutdown_function_names)) {
+		ALLOC_HASHTABLE(BG(user_shutdown_function_names));
+		zend_hash_init(BG(user_shutdown_function_names), 0, NULL, user_shutdown_function_dtor, 0);
+	}
+
+	for (i = 0; i < shutdown_function_entry.arg_count; i++) {
+		Z_TRY_ADDREF(shutdown_function_entry.arguments[i]);
+	}
+	zend_hash_next_index_insert_mem(BG(user_shutdown_function_names), &shutdown_function_entry, sizeof(php_shutdown_function_entry));
 }
 /* }}} */
 
@@ -2057,7 +2043,7 @@ PHP_FUNCTION(ini_get_all)
 
 	if (extname) {
 		if ((module = zend_hash_str_find_ptr(&module_registry, extname, extname_len)) == NULL) {
-			php_error_docref(NULL, E_WARNING, "Unable to find extension '%s'", extname);
+			php_error_docref(NULL, E_WARNING, "Extension \"%s\" cannot be found", extname);
 			RETURN_FALSE;
 		}
 		module_number = module->module_number;
@@ -2265,16 +2251,17 @@ PHP_FUNCTION(connection_status)
 PHP_FUNCTION(ignore_user_abort)
 {
 	zend_bool arg = 0;
+	zend_bool arg_is_null = 1;
 	int old_setting;
 
 	ZEND_PARSE_PARAMETERS_START(0, 1)
 		Z_PARAM_OPTIONAL
-		Z_PARAM_BOOL(arg)
+		Z_PARAM_BOOL_OR_NULL(arg, arg_is_null)
 	ZEND_PARSE_PARAMETERS_END();
 
 	old_setting = (unsigned short)PG(ignore_user_abort);
 
-	if (ZEND_NUM_ARGS()) {
+	if (!arg_is_null) {
 		zend_string *key = zend_string_init("ignore_user_abort", sizeof("ignore_user_abort") - 1, 0);
 		zend_alter_ini_entry_chars(key, arg ? "1" : "0", 1, PHP_INI_USER, PHP_INI_STAGE_RUNTIME);
 		zend_string_release_ex(key, 0);
@@ -2541,7 +2528,7 @@ PHP_FUNCTION(move_uploaded_file)
 	if (successful) {
 		zend_hash_str_del(SG(rfc1867_uploaded_files), path, path_len);
 	} else {
-		php_error_docref(NULL, E_WARNING, "Unable to move '%s' to '%s'", path, new_path);
+		php_error_docref(NULL, E_WARNING, "Unable to move \"%s\" to \"%s\"", path, new_path);
 	}
 
 	RETURN_BOOL(successful);
@@ -2642,8 +2629,8 @@ PHP_FUNCTION(parse_ini_file)
 	ZEND_PARSE_PARAMETERS_END();
 
 	if (filename_len == 0) {
-		php_error_docref(NULL, E_WARNING, "Filename cannot be empty!");
-		RETURN_FALSE;
+		zend_argument_value_error(1, "cannot be empty");
+		RETURN_THROWS();
 	}
 
 	/* Set callback function */
