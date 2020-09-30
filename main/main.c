@@ -72,6 +72,7 @@
 #include "zend_ini.h"
 #include "zend_dtrace.h"
 #include "zend_observer.h"
+#include "zend_system_id.h"
 
 #include "php_content_types.h"
 #include "php_ticks.h"
@@ -2054,21 +2055,12 @@ int php_module_startup(sapi_module_struct *sf, zend_module_entry *additional_mod
 #endif
 
 #ifdef PHP_WIN32
-# if PHP_LINKER_MAJOR == 14
-	/* Extend for other CRT if needed. */
-#  if PHP_DEBUG
-#   define PHP_VCRUNTIME "vcruntime140d.dll"
-#  else
-#   define PHP_VCRUNTIME "vcruntime140.dll"
-#  endif
 	char *img_err;
-	if (!php_win32_crt_compatible(PHP_VCRUNTIME, &img_err)) {
+	if (!php_win32_crt_compatible(&img_err)) {
 		php_error(E_CORE_WARNING, img_err);
 		efree(img_err);
 		return FAILURE;
 	}
-#  undef PHP_VCRUNTIME
-# endif
 
 	/* start up winsock services */
 	if (WSAStartup(wVersionRequested, &wsaData) != 0) {
@@ -2194,6 +2186,9 @@ int php_module_startup(sapi_module_struct *sf, zend_module_entry *additional_mod
 	zend_set_utility_values(&zuv);
 	php_startup_sapi_content_types();
 
+	/* Begin to fingerprint the process state */
+	zend_startup_system_id();
+
 	/* startup extensions statically compiled in */
 	if (php_register_internal_extensions_func() == FAILURE) {
 		php_printf("Unable to start builtin modules\n");
@@ -2236,6 +2231,9 @@ int php_module_startup(sapi_module_struct *sf, zend_module_entry *additional_mod
 		module->version = PHP_VERSION;
 		module->info_func = PHP_MINFO(php_core);
 	}
+
+	/* Extensions that add engine hooks after this point do so at their own peril */
+	zend_finalize_system_id();
 
 	module_initialized = 1;
 

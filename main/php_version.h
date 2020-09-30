@@ -3,6 +3,6 @@
 #define PHP_MAJOR_VERSION 8
 #define PHP_MINOR_VERSION 0
 #define PHP_RELEASE_VERSION 0
-#define PHP_EXTRA_VERSION "beta4"
-#define PHP_VERSION "8.0.0beta4"
+#define PHP_EXTRA_VERSION "rc1"
+#define PHP_VERSION "8.0.0rc1"
 #define PHP_VERSION_ID 80000

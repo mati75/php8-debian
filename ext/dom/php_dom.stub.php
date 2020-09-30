@@ -56,8 +56,7 @@ class DOMNode
     /** @return int */
     public function getLineNo() {}
 
-    /** @return string|null
-     */
+    /** @return string|null */
     public function getNodePath() {}
 
     /** @return bool */
@@ -202,7 +201,7 @@ class DOMElement implements DOMParentNode, DOMChildNode
     /** @return bool */
     public function removeAttribute(string $qualifiedName) {}
 
-    /** @return DOMAttr|false */
+    /** @return void */
     public function removeAttributeNS(?string $namespace, string $localName) {}
 
     /** @return DOMAttr|false */
@@ -211,7 +210,7 @@ class DOMElement implements DOMParentNode, DOMChildNode
     /** @return DOMAttr|bool */
     public function setAttribute(string $qualifiedName, string $value) {}
 
-    /** @return null|false */
+    /** @return void */
     public function setAttributeNS(?string $namespace, string $qualifiedName, string $value) {}
 
     /** @return DOMAttr|null|false */

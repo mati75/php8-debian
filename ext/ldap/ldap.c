@@ -1001,7 +1001,7 @@ PHP_FUNCTION(ldap_connect)
 		WRONG_PARAM_COUNT;
 	}
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "|slssl", &host, &hostlen, &port, &wallet, &walletlen, &walletpasswd, &walletpasswdlen, &authmode) != SUCCESS) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "|s!lssl", &host, &hostlen, &port, &wallet, &walletlen, &walletpasswd, &walletpasswdlen, &authmode) != SUCCESS) {
 		RETURN_THROWS();
 	}
 
@@ -1009,7 +1009,7 @@ PHP_FUNCTION(ldap_connect)
 		ssl = 1;
 	}
 #else
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "|sl", &host, &hostlen, &port) != SUCCESS) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "|s!l", &host, &hostlen, &port) != SUCCESS) {
 		RETURN_THROWS();
 	}
 #endif
@@ -1119,7 +1119,7 @@ PHP_FUNCTION(ldap_bind)
 	ldap_linkdata *ld;
 	int rc;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "r|ss", &link, &ldap_bind_dn, &ldap_bind_dnlen, &ldap_bind_pw, &ldap_bind_pwlen) != SUCCESS) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "r|s!s!", &link, &ldap_bind_dn, &ldap_bind_dnlen, &ldap_bind_pw, &ldap_bind_pwlen) != SUCCESS) {
 		RETURN_THROWS();
 	}
 
@@ -1175,7 +1175,7 @@ PHP_FUNCTION(ldap_bind_ext)
 	LDAPMessage *ldap_res;
 	int rc;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "r|ssa", &link, &ldap_bind_dn, &ldap_bind_dnlen, &ldap_bind_pw, &ldap_bind_pwlen, &serverctrls) != SUCCESS) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "r|s!s!a", &link, &ldap_bind_dn, &ldap_bind_dnlen, &ldap_bind_pw, &ldap_bind_pwlen, &serverctrls) != SUCCESS) {
 		RETURN_THROWS();
 	}
 
@@ -1337,7 +1337,7 @@ PHP_FUNCTION(ldap_sasl_bind)
 	size_t rc, dn_len, passwd_len, mech_len, realm_len, authc_id_len, authz_id_len, props_len;
 	php_ldap_bictx *ctx;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "r|sssssss", &link, &binddn, &dn_len, &passwd, &passwd_len, &sasl_mech, &mech_len, &sasl_realm, &realm_len, &sasl_authc_id, &authc_id_len, &sasl_authz_id, &authz_id_len, &props, &props_len) != SUCCESS) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "r|s!s!s!s!s!s!s!", &link, &binddn, &dn_len, &passwd, &passwd_len, &sasl_mech, &mech_len, &sasl_realm, &realm_len, &sasl_authc_id, &authc_id_len, &sasl_authz_id, &authz_id_len, &props, &props_len) != SUCCESS) {
 		RETURN_THROWS();
 	}
 
@@ -1601,12 +1601,12 @@ cleanup_parallel:
 		}
 
 		if (!base_dn_str) {
-			zend_argument_type_error(2, "must be of type string when argument #1 ($link_identifier) is a resource");
+			zend_argument_type_error(2, "must be of type string when argument #1 ($ldap) is a resource");
 		}
 		ldap_base_dn = zend_string_copy(base_dn_str);
 
 		if (!filter_str) {
-			zend_argument_type_error(3, "must be of type string when argument #1 ($link_identifier) is a resource");
+			zend_argument_type_error(3, "must be of type string when argument #1 ($ldap) is a resource");
 		}
 		ldap_filter = zend_string_copy(filter_str);
 
@@ -1909,9 +1909,8 @@ PHP_FUNCTION(ldap_first_attribute)
 	ldap_linkdata *ld;
 	ldap_resultentry *resultentry;
 	char *attribute;
-	zend_long dummy_ber;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "rr|l", &link, &result_entry, &dummy_ber) != SUCCESS) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "rr", &link, &result_entry) != SUCCESS) {
 		RETURN_THROWS();
 	}
 
@@ -1941,9 +1940,8 @@ PHP_FUNCTION(ldap_next_attribute)
 	ldap_linkdata *ld;
 	ldap_resultentry *resultentry;
 	char *attribute;
-	zend_long dummy_ber;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "rr|l", &link, &result_entry, &dummy_ber) != SUCCESS) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "rr", &link, &result_entry) != SUCCESS) {
 		RETURN_THROWS();
 	}
 
@@ -2655,7 +2653,7 @@ PHP_FUNCTION(ldap_modify_batch)
 						modtype != LDAP_MODIFY_BATCH_REPLACE &&
 						modtype != LDAP_MODIFY_BATCH_REMOVE_ALL
 					) {
-						zend_value_error("%s(): Option \"" LDAP_MODIFY_BATCH_MODTYPE "\" must be one of LDAP_MODIFY_BATCH_ADD, LDAP_MODIFY_BATCH_REMOVE, LDAP_MODIFY_BATCH_REPLACE, or LDAP_MODIFY_BATCH_REMOVE_ALL", get_active_function_name());
+						zend_value_error("%s(): Option \"" LDAP_MODIFY_BATCH_MODTYPE "\" must be one of the LDAP_MODIFY_BATCH_* constants", get_active_function_name());
 						RETURN_THROWS();
 					}
 

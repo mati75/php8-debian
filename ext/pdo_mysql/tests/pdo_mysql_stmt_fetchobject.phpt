@@ -8,14 +8,14 @@ MySQLPDOTest::skip();
 $db = MySQLPDOTest::factory();
 
 try {
-	$query = "SELECT '', NULL, \"\" FROM DUAL";
-	$stmt = $db->prepare($query);
-	$ok = @$stmt->execute();
+    $query = "SELECT '', NULL, \"\" FROM DUAL";
+    $stmt = $db->prepare($query);
+    $ok = @$stmt->execute();
 } catch (PDOException $e) {
-	die("skip: Test cannot be run with SQL mode ANSI");
+    die("skip: Test cannot be run with SQL mode ANSI");
 }
 if (!$ok)
-	die("skip: Test cannot be run with SQL mode ANSI");
+    die("skip: Test cannot be run with SQL mode ANSI");
 ?>
 --FILE--
 <?php
@@ -111,5 +111,5 @@ object(myclass)#%d (4) {
   ["null"]=>
   NULL
 }
-PDOStatement::fetchObject(): Argument #1 ($class_name) must be a valid class name, class_does_not_exist given
+PDOStatement::fetchObject(): Argument #1 ($class) must be a valid class name, class_does_not_exist given
 done!

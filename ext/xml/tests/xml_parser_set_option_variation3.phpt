@@ -3,7 +3,7 @@ Test xml_parser_set_option() function : usage variations
 --SKIPIF--
 <?php
 if (!extension_loaded("xml")) {
-	print "skip - XML extension not loaded";
+    print "skip - XML extension not loaded";
 }
 ?>
 --FILE--
@@ -162,7 +162,7 @@ bool(true)
 
 Arg value Some Ascii Data 
 
-Notice: Object of class aClass could not be converted to int in %s on line %d
+Warning: Object of class aClass could not be converted to int in %s on line %d
 bool(true)
 
 Arg value Resource id %s

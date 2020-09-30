@@ -1,5 +1,5 @@
 /* This is a generated file, edit the .stub.php file instead.
- * Stub hash: 49f168c537e48f8a3998d67812a5e2e6a2463533 */
+ * Stub hash: 4ca2b108e71924309abcdc1a0f86f5963a8516f3 */
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_zip_open, 0, 0, 1)
 	ZEND_ARG_TYPE_INFO(0, filename, IS_STRING, 0)
@@ -16,7 +16,7 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_zip_entry_open, 0, 2, _IS_BOOL, 0)
 	ZEND_ARG_INFO(0, zip_dp)
 	ZEND_ARG_INFO(0, zip_entry)
-	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, mode, IS_STRING, 0, "\'rb\'")
+	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, mode, IS_STRING, 0, "\"rb\"")
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_zip_entry_close, 0, 1, _IS_BOOL, 0)
@@ -157,11 +157,11 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_class_ZipArchive_deleteName, 0, 0, 1)
 	ZEND_ARG_TYPE_INFO(0, name, IS_STRING, 0)
 ZEND_END_ARG_INFO()
 
-#define arginfo_class_ZipArchive_statName arginfo_class_ZipArchive_open
+#define arginfo_class_ZipArchive_statName arginfo_class_ZipArchive_getCommentName
 
 #define arginfo_class_ZipArchive_statIndex arginfo_class_ZipArchive_getCommentIndex
 
-#define arginfo_class_ZipArchive_locateName arginfo_class_ZipArchive_open
+#define arginfo_class_ZipArchive_locateName arginfo_class_ZipArchive_getCommentName
 
 #define arginfo_class_ZipArchive_getNameIndex arginfo_class_ZipArchive_getCommentIndex
 
@@ -179,7 +179,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_class_ZipArchive_extractTo, 0, 0, 1)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_class_ZipArchive_getFromName, 0, 0, 1)
-	ZEND_ARG_TYPE_INFO(0, entryname, IS_STRING, 0)
+	ZEND_ARG_TYPE_INFO(0, name, IS_STRING, 0)
 	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, len, IS_LONG, 0, "0")
 	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, flags, IS_LONG, 0, "0")
 ZEND_END_ARG_INFO()
@@ -190,9 +190,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_class_ZipArchive_getFromIndex, 0, 0, 1)
 	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, flags, IS_LONG, 0, "0")
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_class_ZipArchive_getStream, 0, 0, 1)
-	ZEND_ARG_TYPE_INFO(0, entryname, IS_STRING, 0)
-ZEND_END_ARG_INFO()
+#define arginfo_class_ZipArchive_getStream arginfo_class_ZipArchive_deleteName
 
 #if defined(ZIP_OPSYS_DEFAULT)
 ZEND_BEGIN_ARG_INFO_EX(arginfo_class_ZipArchive_setExternalAttributesName, 0, 0, 3)

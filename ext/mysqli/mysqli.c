@@ -47,6 +47,8 @@ static PHP_GINIT_FUNCTION(mysqli);
 	} \
 }
 
+#define ERROR_ARG_POS(arg_num) (getThis() ? (arg_num-1) : (arg_num))
+
 static HashTable classes;
 static zend_object_handlers mysqli_object_handlers;
 static zend_object_handlers mysqli_object_driver_handlers;
@@ -521,7 +523,6 @@ static PHP_GINIT_FUNCTION(mysqli)
 	mysqli_globals->report_mode = 0;
 	mysqli_globals->report_ht = 0;
 	mysqli_globals->allow_local_infile = 0;
-	mysqli_globals->embedded = 0;
 	mysqli_globals->rollback_on_cached_plink = FALSE;
 }
 /* }}} */
@@ -659,7 +660,7 @@ PHP_MINIT_FUNCTION(mysqli)
 #ifdef MYSQLND_STRING_TO_INT_CONVERSION
 	REGISTER_LONG_CONSTANT("MYSQLI_OPT_INT_AND_FLOAT_NATIVE", MYSQLND_OPT_INT_AND_FLOAT_NATIVE, CONST_CS | CONST_PERSISTENT);
 #endif
-#if MYSQL_VERSION_ID > 50110 || defined(MYSQLI_USE_MYSQLND)
+#if MYSQL_VERSION_ID < 80000 || MYSQL_VERSION_ID >= 100000 || defined(MYSQLI_USE_MYSQLND)
 	REGISTER_LONG_CONSTANT("MYSQLI_OPT_SSL_VERIFY_SERVER_CERT", MYSQL_OPT_SSL_VERIFY_SERVER_CERT, CONST_CS | CONST_PERSISTENT);
 #endif
 
@@ -727,7 +728,7 @@ PHP_MINIT_FUNCTION(mysqli)
 	REGISTER_LONG_CONSTANT("MYSQLI_BINARY_FLAG", BINARY_FLAG, CONST_CS | CONST_PERSISTENT);
 	REGISTER_LONG_CONSTANT("MYSQLI_NO_DEFAULT_VALUE_FLAG", NO_DEFAULT_VALUE_FLAG, CONST_CS | CONST_PERSISTENT);
 
-#if (MYSQL_VERSION_ID > 51122 && MYSQL_VERSION_ID < 60000) || (MYSQL_VERSION_ID > 60003) || defined(MYSQLI_USE_MYSQLND)
+#if MYSQL_VERSION_ID < 60000 || MYSQL_VERSION_ID > 60003 || defined(MYSQLI_USE_MYSQLND)
 	REGISTER_LONG_CONSTANT("MYSQLI_ON_UPDATE_NOW_FLAG", ON_UPDATE_NOW_FLAG, CONST_CS | CONST_PERSISTENT);
 #endif
 
@@ -1095,6 +1096,7 @@ void php_mysqli_fetch_into_hash_aux(zval *return_value, MYSQL_RES * result, zend
 					case 3:llval = (my_ulonglong)  bit_uint3korr(row[i]);break;
 					case 2:llval = (my_ulonglong)  bit_uint2korr(row[i]);break;
 					case 1:llval = (my_ulonglong)  uint1korr(row[i]);break;
+					EMPTY_SWITCH_DEFAULT_CASE()
 				}
 				/* even though lval is declared as unsigned, the value
 				 * may be negative. Therefor we cannot use MYSQLI_LLU_SPEC and must
@@ -1168,8 +1170,8 @@ void php_mysqli_fetch_into_hash(INTERNAL_FUNCTION_PARAMETERS, int override_flags
 	MYSQLI_FETCH_RESOURCE(result, MYSQL_RES *, mysql_result, "mysqli_result", MYSQLI_STATUS_VALID);
 
 	if (fetchtype < MYSQLI_ASSOC || fetchtype > MYSQLI_BOTH) {
-		php_error_docref(NULL, E_WARNING, "The result type should be either MYSQLI_NUM, MYSQLI_ASSOC or MYSQLI_BOTH");
-		RETURN_FALSE;
+		zend_argument_value_error(ERROR_ARG_POS(2), "must be one of MYSQLI_NUM, MYSQLI_ASSOC, or MYSQLI_BOTH");
+		RETURN_THROWS();
 	}
 
 	php_mysqli_fetch_into_hash_aux(return_value, result, fetchtype);

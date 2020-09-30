@@ -3,7 +3,7 @@ Bug #70914 zend_throw_or_error() format string vulnerability
 --SKIPIF--
 <?php
 if (!extension_loaded("pdo_sqlite")) {
-	die("skip pdo_sqlite required");
+    die("skip pdo_sqlite required");
 }
 ?>
 --FILE--
@@ -18,4 +18,4 @@ try {
 }
 ?>
 --EXPECT--
-PDOStatement::fetchObject(): Argument #1 ($class_name) must be a valid class name, %Z given
+PDOStatement::fetchObject(): Argument #1 ($class) must be a valid class name, %Z given
