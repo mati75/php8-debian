@@ -40,10 +40,10 @@ r1: initial revision
  ext/date/lib/parse_tz.c | 535 +++++++++++++++++++++++++++++++++++++++++++++++-
  2 files changed, 545 insertions(+), 3 deletions(-)
 
-diff --git a/ext/date/config0.m4 b/ext/date/config0.m4
-index 20e4164..a612436 100644
---- a/ext/date/config0.m4
-+++ b/ext/date/config0.m4
+Index: php-8.0.0beta4/ext/date/config0.m4
+===================================================================
+--- php-8.0.0beta4.orig/ext/date/config0.m4
++++ php-8.0.0beta4/ext/date/config0.m4
 @@ -4,6 +4,19 @@ AC_CHECK_HEADERS([io.h])
  dnl Check for strtoll, atoll
  AC_CHECK_FUNCS(strtoll atoll)
@@ -64,10 +64,10 @@ index 20e4164..a612436 100644
  PHP_DATE_CFLAGS="-I@ext_builddir@/lib -DZEND_ENABLE_STATIC_TSRMLS_CACHE=1 -DHAVE_TIMELIB_CONFIG_H=1"
  timelib_sources="lib/astro.c lib/dow.c lib/parse_date.c lib/parse_tz.c
                   lib/timelib.c lib/tm2unixtime.c lib/unixtime2tm.c lib/parse_iso_intervals.c lib/interval.c"
-diff --git a/ext/date/lib/parse_tz.c b/ext/date/lib/parse_tz.c
-index 020da31..9b39c6e 100644
---- a/ext/date/lib/parse_tz.c
-+++ b/ext/date/lib/parse_tz.c
+Index: php-8.0.0beta4/ext/date/lib/parse_tz.c
+===================================================================
+--- php-8.0.0beta4.orig/ext/date/lib/parse_tz.c
++++ php-8.0.0beta4/ext/date/lib/parse_tz.c
 @@ -26,8 +26,21 @@
  #include "timelib.h"
  #include "timelib_private.h"
@@ -90,18 +90,19 @@ index 020da31..9b39c6e 100644
  
  #if (defined(__APPLE__) || defined(__APPLE_CC__)) && (defined(__BIG_ENDIAN__) || defined(__LITTLE_ENDIAN__))
  # if defined(__LITTLE_ENDIAN__)
-@@ -93,6 +106,10 @@ static inline uint64_t timelib_conv_int6
- static int read_php_preamble(const unsigned char **tzf, timelib_tzinfo *tz)
+@@ -94,6 +107,11 @@ static int read_php_preamble(const unsig
  {
  	uint32_t version;
+ 
 +	if (memcmp(*tzf, "TZif", 4) == 0) {
 +		*tzf += 20;
 +		return 0;
 +	}
- 
++
  	/* read ID */
  	version = (*tzf)[3] - '0';
-@@ -418,7 +435,429 @@ void timelib_dump_tzinfo(timelib_tzinfo
+ 	*tzf += 4;
+@@ -418,7 +436,429 @@ void timelib_dump_tzinfo(timelib_tzinfo
  	}
  }
  
@@ -140,7 +141,7 @@ index 020da31..9b39c6e 100644
 +    uint32_t hash = 5381;
 +    int c;
 +
-+    while ((c = tolower(*p)) != '\0') {
++    while ((c = tolower(*p++)) != '\0') {
 +        hash = (hash << 5) ^ hash ^ c;
 +    }
 +
@@ -156,15 +157,15 @@ index 020da31..9b39c6e 100644
 +    char *pend;
 +    size_t len;
 +
-+    if (*p == '')
++    if (*p == '+')
 +        sign = 1.0;
 +    else if (*p == '-')
 +        sign = -1.0;
 +    else
 +        return NULL;
 +
-+    p;
-+    for (pend = p; *pend >= '0' && *pend <= '9'; pend)
++    p++;
++    for (pend = p; *pend >= '0' && *pend <= '9'; pend++)
 +        ;;
 +
 +    /* Annoying encoding used by zone.tab has no decimal point, so use
@@ -181,19 +182,19 @@ index 020da31..9b39c6e 100644
 +    }
 +
 +    /* p => [D]DD */
-+    v = (p[0] - '0') * 10.0  (p[1] - '0');
-+    p = 2;
++    v = (p[0] - '0') * 10.0 + (p[1] - '0');
++    p += 2;
 +    if (len == 5 || len == 7)
-+        v = v * 10.0  (*p - '0');
++        v = v * 10.0 + (*p++ - '0');
 +    /* p => MM[SS] */
-+    v = (10.0 * (p[0] - '0')
-+           p[1] - '0') / 60.0;
-+    p = 2;
++    v += (10.0 * (p[0] - '0')
++          + p[1] - '0') / 60.0;
++    p += 2;
 +    /* p => [SS] */
 +    if (len > 5) {
-+        v = (10.0 * (p[0] - '0')
-+               p[1] - '0') / 3600.0;
-+        p = 2;
++        v += (10.0 * (p[0] - '0')
++              + p[1] - '0') / 3600.0;
++        p += 2;
 +    }
 +
 +    /* Round to five decimal place, not because it's a good idea,
@@ -232,7 +233,7 @@ index 020da31..9b39c6e 100644
 +        double latitude, longitude;
 +
 +        while (isspace(*p))
-+            p;
++            p++;
 +
 +        if (*p == '#' || *p == '\0' || *p == '\n')
 +            continue;
@@ -243,9 +244,9 @@ index 020da31..9b39c6e 100644
 +        /* code => AA */
 +        code = p;
 +        p[2] = 0;
-+        p = 3;
++        p += 3;
 +
-+        /* coords => [-][D]DDMM[SS][-][D]DDMM[SS] */
++        /* coords => [+-][D]DDMM[SS][+-][D]DDMM[SS] */
 +        p = parse_iso6709(p, &latitude);
 +        if (!p) {
 +            continue;
@@ -260,16 +261,16 @@ index 020da31..9b39c6e 100644
 +        }
 +
 +        /* name = string */
-+        name = p;
++        name = ++p;
 +        while (*p != '\t' && *p && *p != '\n')
-+            p;
++            p++;
 +
-+        *p = '\0';
++        *p++ = '\0';
 +
 +        /* comment = string */
 +        comment = p;
 +        while (*p != '\t' && *p && *p != '\n')
-+            p;
++            p++;
 +
 +        if (*p == '\n' || *p == '\t')
 +            *p = '\0';
@@ -374,7 +375,7 @@ index 020da31..9b39c6e 100644
 +				/* Name, relative to the zoneinfo prefix. */
 +				const char *root = top;
 +
-+				if (root[0] == '/') root;
++				if (root[0] == '/') root++;
 +
 +				snprintf(name, sizeof name, "%s%s%s", root, 
 +					 *root ? "/": "", leaf);
@@ -385,7 +386,7 @@ index 020da31..9b39c6e 100644
 +						dirstack = realloc(dirstack, 
 +								   dirstack_size * sizeof *dirstack);
 +					}
-+					dirstack[dirstack_top] = strdup(name);
++					dirstack[dirstack_top++] = strdup(name);
 +				}
 +				else {
 +					if (index_next == index_size) {
@@ -394,7 +395,7 @@ index 020da31..9b39c6e 100644
 +								   index_size * sizeof *db_index);
 +					}
 +
-+					db_index[index_next].id = strdup(name);
++					db_index[index_next++].id = strdup(name);
 +				}
 +			}
 +
@@ -423,11 +424,11 @@ index 020da31..9b39c6e 100644
 +        size_t n;
 +        char *data, *p;
 +        
-+        data = malloc(3 * sysdb->index_size  7);
++        data = malloc(3 * sysdb->index_size + 7);
 +
 +        p = mempcpy(data, FAKE_HEADER, sizeof(FAKE_HEADER) - 1);
 +
-+        for (n = 0; n < sysdb->index_size; n) {
++        for (n = 0; n < sysdb->index_size; n++) {
 +                const struct location_info *li;
 +                timelib_tzdb_index_entry *ent;
 +
@@ -445,9 +446,9 @@ index 020da31..9b39c6e 100644
 +                         * country code; set the position for this
 +                         * section of timezone data.  */
 +                        ent->pos = (p - data) - 4;
-+                        *p = '\1';
-+                        *p = li->code[0];
-+                        *p = li->code[1];
++                        *p++ = '\1';
++                        *p++ = li->code[0];
++                        *p++ = li->code[1];
 +                }
 +                else {
 +                        /* If not found, the timezone data can
@@ -528,15 +529,15 @@ index 020da31..9b39c6e 100644
 +
 +#endif
 +
-+static int inmem_seek_to_tz_position(const unsigned char **tzf, const char *timezone, const timelib_tzdb *tzdb)
++static int inmem_seek_to_tz_position(const unsigned char **tzf, char *timezone, const timelib_tzdb *tzdb)
  {
  	int left = 0, right = tzdb->index_size - 1;
  
-@@ -444,9 +883,49 @@ static int seek_to_tz_position(const uns
+@@ -444,9 +884,48 @@ static int seek_to_tz_position(const uns
  	return 0;
  }
  
-+static int seek_to_tz_position(const unsigned char **tzf, const char *timezone,
++static int seek_to_tz_position(const unsigned char **tzf, char *timezone,
 +			       char **map, size_t *maplen,
 +			       const timelib_tzdb *tzdb)
 +{
@@ -559,7 +560,6 @@ index 020da31..9b39c6e 100644
 +		return inmem_seek_to_tz_position(tzf, timezone, tzdb);
 +	}
 +}
-+
 +
  const timelib_tzdb *timelib_builtin_db(void)
  {
@@ -630,7 +630,7 @@ index 020da31..9b39c6e 100644
  		tmp = timelib_tzinfo_ctor(timezone);
  
  		version = read_preamble(&tzf, tmp, &type);
-@@ -540,11 +1044,37 @@ timelib_tzinfo *timelib_parse_tzfile(con
+@@ -540,11 +1044,36 @@ timelib_tzinfo *timelib_parse_tzfile(con
  		}
  		skip_posix_string(&tzf, tmp);
  
@@ -656,7 +656,6 @@ index 020da31..9b39c6e 100644
 +			munmap(memmap, maplen);
 +		} else {
 +#endif
-+
  		if (type == TIMELIB_TZINFO_PHP) {
  			read_location(&tzf, tmp);
  		} else {

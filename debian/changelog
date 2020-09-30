@@ -1,9 +1,16 @@
-php8.0 (8.0.0~rc1-0.1) UNRELEASED; urgency=medium
+php8.0 (8.0.0~rc1-0.2) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * Refresh patches.
+
+ -- Mateusz Łukasik <mati75@linuxmint.pl>  Wed, 30 Sep 2020 20:51:35 +0200
+
+php8.0 (8.0.0~rc1-0.1) unstable; urgency=medium
 
   * Non-maintainer upload.
   * New upstream release.
 
- -- Mateusz Łukasik <mati75@linuxmint.pl>  Wed, 30 Sep 2020 09:53:01 +0200
+ -- Mateusz Łukasik <mati75@linuxmint.pl>  Wed, 30 Sep 2020 10:21:56 +0200
 
 php8.0 (8.0.0~beta4-0.1) experimental; urgency=medium
 

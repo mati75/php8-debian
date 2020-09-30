@@ -5,8 +5,7 @@
 #0005-proc_open.patch
 0006-php.ini_securitynotes.patch
 0007-php-5.4.7-libdb.patch
-#0008-Add-support-for-use-of-the-system-timezone-database.patch
-0009-force_libmysqlclient_r.patch
+0008-Add-support-for-use-of-the-system-timezone-database.patch
 0010-strcmp_null-OnUpdateErrorLog.patch
 0011-qdbm-is-usr_include_qdbm.patch
 0012-session_save_path.patch
@@ -34,5 +33,5 @@
 0035-Remove-W3C-validation-icon-to-not-expose-the-reader-.patch
 0036-Don-t-put-INSTALL_ROOT-into-phar.phar-exec-stanza.patch
 0038-Really-expand-libdir-datadir-into-EXPANDED_LIBDIR-DA.patch
-#0039-Fix-ext-date-lib-parse_tz-PATH_MAX-HURD-FTBFS.patch
+0039-Fix-ext-date-lib-parse_tz-PATH_MAX-HURD-FTBFS.patch
 0040-Amend-C-11-for-intl-compilation-on-older-distributio.patch
