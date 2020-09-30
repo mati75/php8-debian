@@ -1,5 +1,5 @@
 /* This is a generated file, edit the .stub.php file instead.
- * Stub hash: 9127cb70a84f3e75ed16a17b15940b8a6b5f3937 */
+ * Stub hash: 071a92d8e5998c518e377b5620dfdda6fb189a1d */
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_class_SplFileInfo___construct, 0, 0, 1)
 	ZEND_ARG_TYPE_INFO(0, file_name, IS_STRING, 0)
@@ -59,7 +59,7 @@ ZEND_END_ARG_INFO()
 #define arginfo_class_SplFileInfo_getPathInfo arginfo_class_SplFileInfo_getFileInfo
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_class_SplFileInfo_openFile, 0, 0, 0)
-	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, open_mode, IS_STRING, 0, "\'r\'")
+	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, open_mode, IS_STRING, 0, "\"r\"")
 	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, use_include_path, _IS_BOOL, 0, "false")
 	ZEND_ARG_INFO_WITH_DEFAULT_VALUE(0, context, "null")
 ZEND_END_ARG_INFO()
@@ -153,7 +153,7 @@ ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_class_SplFileObject___construct, 0, 0, 1)
 	ZEND_ARG_TYPE_INFO(0, file_name, IS_STRING, 0)
-	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, open_mode, IS_STRING, 0, "\'r\'")
+	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, open_mode, IS_STRING, 0, "\"r\"")
 	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, use_include_path, _IS_BOOL, 0, "false")
 	ZEND_ARG_INFO_WITH_DEFAULT_VALUE(0, context, "null")
 ZEND_END_ARG_INFO()
@@ -172,22 +172,18 @@ ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_class_SplFileObject_fgetcsv, 0, 0, 0)
 	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, delimiter, IS_STRING, 0, "\",\"")
-	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, enclosure, IS_STRING, 0, "\'\"\'")
+	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, enclosure, IS_STRING, 0, "\"\\\"\"")
 	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, escape, IS_STRING, 0, "\"\\\\\"")
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_class_SplFileObject_fputcsv, 0, 0, 1)
 	ZEND_ARG_TYPE_INFO(0, fields, IS_ARRAY, 0)
-	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, delimiter, IS_STRING, 0, "\',\'")
-	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, enclosure, IS_STRING, 0, "\'\"\'")
-	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, escape, IS_STRING, 0, "\"\\\\\"")
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_class_SplFileObject_setCsvControl, 0, 0, 0)
 	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, delimiter, IS_STRING, 0, "\",\"")
 	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, enclosure, IS_STRING, 0, "\"\\\"\"")
 	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, escape, IS_STRING, 0, "\"\\\\\"")
 ZEND_END_ARG_INFO()
+
+#define arginfo_class_SplFileObject_setCsvControl arginfo_class_SplFileObject_fgetcsv
 
 #define arginfo_class_SplFileObject_getCsvControl arginfo_class_SplFileInfo_getPath
 

@@ -19,15 +19,14 @@ require_once(__DIR__.'/imap_include.inc');
 $stream_id = setup_test_mailbox('', 3); // set up temp mailbox with  simple msgs
 $section = 1;
 
-$sequences = array (0,     4, // out of range
-                    '1,3', '1:3', // message sequences instead of numbers
-                   );
+$sequences = [0, /* out of range */ 4, 1];
 
 foreach($sequences as $msg_no) {
     echo "\n-- \$msg_no is $msg_no --\n";
-    var_dump($overview = imap_fetchbody($stream_id, $msg_no, $section));
-    if (!$overview) {
-        echo imap_last_error() . "\n";
+    try {
+        var_dump(imap_fetchbody($stream_id, $msg_no, $section));
+    } catch (\ValueError $e) {
+        echo $e->getMessage() . \PHP_EOL;
     }
 }
 ?>
@@ -41,23 +40,13 @@ Create a temporary mailbox and add 3 msgs
 .. mailbox '{%s}%s' created
 
 -- $msg_no is 0 --
-
-Warning: imap_fetchbody(): Bad message number in %s on line %d
-bool(false)
-
+imap_fetchbody(): Argument #2 ($msg_no) must be greater than 0
 
 -- $msg_no is 4 --
 
 Warning: imap_fetchbody(): Bad message number in %s on line %d
 bool(false)
 
-
--- $msg_no is 1,3 --
-
-Notice: A non well formed numeric value encountered in %s on line %d
-string(%d) "1: this is a test message, please ignore%a"
-
--- $msg_no is 1:3 --
-
-Notice: A non well formed numeric value encountered in %s on line %d
-string(%d) "1: this is a test message, please ignore%a"
+-- $msg_no is 1 --
+string(42) "1: this is a test message, please ignore
+"

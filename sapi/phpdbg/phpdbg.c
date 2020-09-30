@@ -438,7 +438,7 @@ PHP_FUNCTION(phpdbg_color)
 		break;
 
 		default:
-			zend_argument_value_error(1, "must be either PHPDBG_COLOR_PROMPT, PHPDBG_COLOR_NOTICE, or PHPDBG_COLOR_ERROR");
+			zend_argument_value_error(1, "must be one of PHPDBG_COLOR_PROMPT, PHPDBG_COLOR_NOTICE, or PHPDBG_COLOR_ERROR");
 	}
 } /* }}} */
 
@@ -482,7 +482,8 @@ static zend_always_inline zend_bool phpdbg_is_ignored_opcode(zend_uchar opcode) 
 	 || opcode == ZEND_DECLARE_CONST || opcode == ZEND_DECLARE_CLASS || opcode == ZEND_DECLARE_FUNCTION
 	 || opcode == ZEND_DECLARE_CLASS_DELAYED
 	 || opcode == ZEND_DECLARE_ANON_CLASS || opcode == ZEND_FAST_RET || opcode == ZEND_TICKS
-	 || opcode == ZEND_EXT_STMT || opcode == ZEND_EXT_FCALL_BEGIN || opcode == ZEND_EXT_FCALL_END || opcode == ZEND_EXT_NOP || opcode == ZEND_BIND_GLOBAL
+	 || opcode == ZEND_EXT_STMT || opcode == ZEND_EXT_FCALL_BEGIN || opcode == ZEND_EXT_FCALL_END
+	 || opcode == ZEND_BIND_GLOBAL
 	;
 }
 

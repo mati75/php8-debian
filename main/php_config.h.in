@@ -1467,9 +1467,6 @@
 /* Define to 1 if you have the `std_syslog' function. */
 #undef HAVE_STD_SYSLOG
 
-/* */
-#undef HAVE_STMT_NEXT_RESULT
-
 /* Define to 1 if you have the `strcasecmp' function. */
 #undef HAVE_STRCASECMP
 

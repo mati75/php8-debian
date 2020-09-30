@@ -3,7 +3,7 @@ Bug #62083: grapheme_extract() leaks memory
 --SKIPIF--
 <?php
 if (!extension_loaded('intl'))
-	die('skip intl extension not enabled');
+    die('skip intl extension not enabled');
 --FILE--
 <?php
 $arr1 = array();
@@ -14,4 +14,4 @@ try {
 }
 ?>
 --EXPECT--
-grapheme_extract(): Argument #3 ($extract_type) must be either GRAPHEME_EXTR_COUNT, GRAPHEME_EXTR_MAXBYTES, or GRAPHEME_EXTR_MAXCHARS
+grapheme_extract(): Argument #3 ($extract_type) must be one of GRAPHEME_EXTR_COUNT, GRAPHEME_EXTR_MAXBYTES, or GRAPHEME_EXTR_MAXCHARS

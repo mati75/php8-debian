@@ -17,7 +17,7 @@ dnl Basic autoconf initialization, generation of config.nice.
 dnl ----------------------------------------------------------------------------
 
 AC_PREREQ([2.68])
-AC_INIT([PHP],[8.0.0beta4],[https://bugs.php.net],[php],[https://www.php.net])
+AC_INIT([PHP],[8.0.0rc1],[https://bugs.php.net],[php],[https://www.php.net])
 AC_CONFIG_SRCDIR([main/php_version.h])
 AC_CONFIG_AUX_DIR([build])
 AC_PRESERVE_HELP_ORDER
@@ -1464,7 +1464,7 @@ PHP_ADD_SOURCES(Zend, \
     zend_closures.c zend_weakrefs.c zend_float.c zend_string.c zend_signal.c zend_generators.c \
     zend_virtual_cwd.c zend_ast.c zend_objects.c zend_object_handlers.c zend_objects_API.c \
     zend_default_classes.c zend_inheritance.c zend_smart_str.c zend_cpuinfo.c zend_gdb.c \
-    zend_observer.c, \
+    zend_observer.c zend_system_id.c, \
 	-DZEND_ENABLE_STATIC_TSRMLS_CACHE=1)
 
 PHP_ADD_BUILD_DIR(main main/streams)

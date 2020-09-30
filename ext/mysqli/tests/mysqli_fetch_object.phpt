@@ -3,7 +3,6 @@ mysqli_fetch_object()
 --SKIPIF--
 <?php
 require_once('skipif.inc');
-require_once('skipifemb.inc');
 require_once('skipifconnectfailure.inc');
 ?>
 --FILE--
@@ -140,7 +139,7 @@ require_once('skipifconnectfailure.inc');
 ?>
 --CLEAN--
 <?php
-	require_once("clean_table.inc");
+    require_once("clean_table.inc");
 ?>
 --EXPECTF--
 Exception: Too few arguments to function mysqli_fetch_object_construct::__construct(), 0 passed and exactly 2 expected
@@ -149,5 +148,5 @@ NULL
 NULL
 mysqli_result object is already closed
 [0] mysqli_fetch_object(): Argument #3 ($params) must be of type array, string given in %s on line %d
-mysqli_fetch_object(): Argument #2 ($class_name) must be a valid class name, this_class_does_not_exist given
+mysqli_fetch_object(): Argument #2 ($class) must be a valid class name, this_class_does_not_exist given
 done!

@@ -3956,7 +3956,7 @@ ZEND_VM_HOT_HANDLER(130, ZEND_DO_UCALL, ANY, ANY, SPEC(RETVAL,OBSERVER))
 	call->prev_execute_data = execute_data;
 	execute_data = call;
 	i_init_func_execute_data(&fbc->op_array, ret, 0 EXECUTE_DATA_CC);
-	OBSERVER_FCALL_BEGIN_HANDLERS(execute_data);
+	ZEND_OBSERVER_FCALL_BEGIN(execute_data);
 	LOAD_OPLINE_EX();
 
 	ZEND_VM_ENTER_EX();
@@ -3981,13 +3981,16 @@ ZEND_VM_HOT_HANDLER(131, ZEND_DO_FCALL_BY_NAME, ANY, ANY, SPEC(RETVAL,OBSERVER))
 		call->prev_execute_data = execute_data;
 		execute_data = call;
 		i_init_func_execute_data(&fbc->op_array, ret, 0 EXECUTE_DATA_CC);
-		OBSERVER_FCALL_BEGIN_HANDLERS(execute_data);
+		ZEND_OBSERVER_FCALL_BEGIN(execute_data);
 		LOAD_OPLINE_EX();
 
 		ZEND_VM_ENTER_EX();
 	} else {
 		zval retval;
 		ZEND_ASSERT(fbc->type == ZEND_INTERNAL_FUNCTION);
+		if (ZEND_OBSERVER_ENABLED) {
+			ret = NULL;
+		}
 
 		if (UNEXPECTED((fbc->common.fn_flags & ZEND_ACC_DEPRECATED) != 0)) {
 			zend_deprecated_function(fbc);
@@ -4072,7 +4075,7 @@ ZEND_VM_HOT_HANDLER(60, ZEND_DO_FCALL, ANY, ANY, SPEC(RETVAL,OBSERVER))
 		call->prev_execute_data = execute_data;
 		execute_data = call;
 		i_init_func_execute_data(&fbc->op_array, ret, 1 EXECUTE_DATA_CC);
-		OBSERVER_FCALL_BEGIN_HANDLERS(execute_data);
+		ZEND_OBSERVER_FCALL_BEGIN(execute_data);
 
 		if (EXPECTED(zend_execute_ex == execute_ex)) {
 			LOAD_OPLINE_EX();
@@ -4087,6 +4090,9 @@ ZEND_VM_HOT_HANDLER(60, ZEND_DO_FCALL, ANY, ANY, SPEC(RETVAL,OBSERVER))
 	} else {
 		zval retval;
 		ZEND_ASSERT(fbc->type == ZEND_INTERNAL_FUNCTION);
+		if (ZEND_OBSERVER_ENABLED) {
+			ret = NULL;
+		}
 
 		if (UNEXPECTED((fbc->common.fn_flags & ZEND_ACC_DEPRECATED) != 0)) {
 			zend_deprecated_function(fbc);
@@ -4290,7 +4296,7 @@ ZEND_VM_INLINE_HANDLER(62, ZEND_RETURN, CONST|TMP|VAR|CV, ANY, SPEC(OBSERVER))
 			}
 		}
 	}
-	OBSERVER_FCALL_END_HANDLERS(execute_data, return_value);
+	ZEND_OBSERVER_FCALL_END(execute_data, return_value);
 	ZEND_VM_DISPATCH_TO_HELPER(zend_leave_helper);
 }
 
@@ -4351,7 +4357,7 @@ ZEND_VM_COLD_CONST_HANDLER(111, ZEND_RETURN_BY_REF, CONST|TMP|VAR|CV, ANY, SRC, 
 		FREE_OP1_VAR_PTR();
 	} while (0);
 
-	OBSERVER_FCALL_END_HANDLERS(execute_data, EX(return_value));
+	ZEND_OBSERVER_FCALL_END(execute_data, EX(return_value));
 	ZEND_VM_DISPATCH_TO_HELPER(zend_leave_helper);
 }
 
@@ -4467,7 +4473,7 @@ ZEND_VM_HANDLER(161, ZEND_GENERATOR_RETURN, CONST|TMP|VAR|CV, ANY, SPEC(OBSERVER
 		}
 	}
 
-	OBSERVER_FCALL_END_HANDLERS(generator->execute_data, &generator->retval);
+	ZEND_OBSERVER_FCALL_END(generator->execute_data, &generator->retval);
 
 	/* Close the generator to free up resources */
 	zend_generator_close(generator, 1);
@@ -6185,7 +6191,7 @@ ZEND_VM_HANDLER(73, ZEND_INCLUDE_OR_EVAL, CONST|TMPVAR|CV, ANY, EVAL, SPEC(OBSER
 
 		call->prev_execute_data = execute_data;
 		i_init_code_execute_data(call, new_op_array, return_value);
-		OBSERVER_FCALL_BEGIN_HANDLERS(call);
+		ZEND_OBSERVER_FCALL_BEGIN(call);
 		if (EXPECTED(zend_execute_ex == execute_ex)) {
 			FREE_OP1();
 			ZEND_VM_ENTER();
@@ -7725,7 +7731,7 @@ ZEND_VM_HANDLER(149, ZEND_HANDLE_EXCEPTION, ANY, ANY, SPEC(OBSERVER))
 		}
 	}
 
-	OBSERVER_FCALL_END_HANDLERS(execute_data, EX(return_value));
+	ZEND_OBSERVER_FCALL_END(execute_data, EX(return_value));
 	cleanup_unfinished_calls(execute_data, throw_op_num);
 
 	if (throw_op->result_type & (IS_VAR | IS_TMP_VAR)) {
@@ -8487,7 +8493,7 @@ ZEND_VM_HANDLER(158, ZEND_CALL_TRAMPOLINE, ANY, ANY, SPEC(OBSERVER))
 		}
 		execute_data = call;
 		i_init_func_execute_data(&fbc->op_array, ret, 0 EXECUTE_DATA_CC);
-		OBSERVER_FCALL_BEGIN_HANDLERS(execute_data);
+		ZEND_OBSERVER_FCALL_BEGIN(execute_data);
 		if (EXPECTED(zend_execute_ex == execute_ex)) {
 			LOAD_OPLINE_EX();
 			ZEND_VM_ENTER_EX();
@@ -8877,6 +8883,7 @@ ZEND_VM_COLD_CONST_HANDLER(190, ZEND_COUNT, CONST|TMPVAR|CV, UNUSED)
 
 	SAVE_OPLINE();
 	op1 = GET_OP1_ZVAL_PTR_UNDEF(BP_VAR_R);
+
 	while (1) {
 		if (Z_TYPE_P(op1) == IS_ARRAY) {
 			count = zend_array_count(Z_ARRVAL_P(op1));
@@ -8905,20 +8912,15 @@ ZEND_VM_COLD_CONST_HANDLER(190, ZEND_COUNT, CONST|TMPVAR|CV, UNUSED)
 				break;
 			}
 
-			/* If There's no handler and it doesn't implement Countable then add a warning */
-			count = 1;
+			/* If There's no handler and it doesn't implement Countable then emit a TypeError */
 		} else if ((OP1_TYPE & (IS_VAR|IS_CV)) != 0 && Z_TYPE_P(op1) == IS_REFERENCE) {
 			op1 = Z_REFVAL_P(op1);
 			continue;
-		} else if (Z_TYPE_P(op1) <= IS_NULL) {
-			if (OP1_TYPE == IS_CV && UNEXPECTED(Z_TYPE_P(op1) == IS_UNDEF)) {
-				ZVAL_UNDEFINED_OP1();
-			}
-			count = 0;
-		} else {
-			count = 1;
+		} else if (OP1_TYPE == IS_CV && UNEXPECTED(Z_TYPE_P(op1) == IS_UNDEF)) {
+			ZVAL_UNDEFINED_OP1();
 		}
-		zend_error(E_WARNING, "%s(): Argument #1 ($var) must be of type Countable|array, %s given", opline->extended_value ? "sizeof" : "count", zend_zval_type_name(op1));
+		count = 0;
+		zend_type_error("%s(): Argument #1 ($var) must be of type Countable|array, %s given", opline->extended_value ? "sizeof" : "count", zend_zval_type_name(op1));
 		break;
 	}
 
@@ -8934,9 +8936,9 @@ ZEND_VM_COLD_CONST_HANDLER(191, ZEND_GET_CLASS, UNUSED|CONST|TMPVAR|CV, UNUSED)
 	if (OP1_TYPE == IS_UNUSED) {
 		if (UNEXPECTED(!EX(func)->common.scope)) {
 			SAVE_OPLINE();
-			zend_error(E_WARNING, "get_class() called without object from outside a class");
-			ZVAL_FALSE(EX_VAR(opline->result.var));
-			ZEND_VM_NEXT_OPCODE_CHECK_EXCEPTION();
+			zend_throw_error(NULL, "get_class() without arguments must be called from within a class");
+			ZVAL_UNDEF(EX_VAR(opline->result.var));
+			HANDLE_EXCEPTION();
 		} else {
 			ZVAL_STR_COPY(EX_VAR(opline->result.var), EX(func)->common.scope->name);
 			ZEND_VM_NEXT_OPCODE();
@@ -8975,12 +8977,11 @@ ZEND_VM_HANDLER(192, ZEND_GET_CALLED_CLASS, UNUSED, UNUSED)
 	} else if (Z_CE(EX(This))) {
 		ZVAL_STR_COPY(EX_VAR(opline->result.var), Z_CE(EX(This))->name);
 	} else {
-		ZVAL_FALSE(EX_VAR(opline->result.var));
-		if (UNEXPECTED(!EX(func)->common.scope)) {
-			SAVE_OPLINE();
-			zend_error(E_WARNING, "get_called_class() called from outside a class");
-			ZEND_VM_NEXT_OPCODE_CHECK_EXCEPTION();
-		}
+		ZEND_ASSERT(!EX(func)->common.scope);
+		SAVE_OPLINE();
+		zend_throw_error(NULL, "get_called_class() must be called from within a class");
+		ZVAL_UNDEF(EX_VAR(opline->result.var));
+		HANDLE_EXCEPTION();
 	}
 	ZEND_VM_NEXT_OPCODE();
 }

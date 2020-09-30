@@ -82,7 +82,7 @@ class SplFileInfo
      * @param resource|null $context
      * @return SplFileObject
      */
-    public function openFile(string $open_mode = 'r', bool $use_include_path = false, $context = null) {}
+    public function openFile(string $open_mode = "r", bool $use_include_path = false, $context = null) {}
 
     /** @return void */
     public function setFileClass(string $class_name = SplFileObject::class) {}
@@ -90,7 +90,7 @@ class SplFileInfo
     /** @return void */
     public function setInfoClass(string $class_name = SplFileInfo::class) {}
 
-    /** @alias SplFileInfo::getPathname */
+    /** @implementation-alias SplFileInfo::getPathname */
     public function __toString(): string {}
 
     /** @return array */
@@ -134,7 +134,7 @@ class DirectoryIterator extends SplFileInfo implements SeekableIterator
     /** @return void */
     public function seek(int $position) {}
 
-    /** @alias DirectoryIterator::getFilename */
+    /** @implementation-alias DirectoryIterator::getFilename */
     public function __toString(): string {}
 }
 
@@ -188,7 +188,7 @@ class GlobIterator extends FilesystemIterator implements Countable
 class SplFileObject extends SplFileInfo implements RecursiveIterator, SeekableIterator
 {
     /** @param resource|null $context */
-    public function __construct(string $file_name, string $open_mode = 'r', bool $use_include_path = false, $context = null) {}
+    public function __construct(string $file_name, string $open_mode = "r", bool $use_include_path = false, $context = null) {}
 
     /** @return void */
     public function rewind() {}
@@ -206,12 +206,12 @@ class SplFileObject extends SplFileInfo implements RecursiveIterator, SeekableIt
     public function fread(int $length) {}
 
     /** @return array|false */
-    public function fgetcsv(string $delimiter = ",", string $enclosure = '"', string $escape = "\\") {}
+    public function fgetcsv(string $delimiter = ",", string $enclosure = "\"", string $escape = "\\") {}
 
     /** @return int|false */
-    public function fputcsv(array $fields, string $delimiter = ',', string $enclosure = '"', string $escape = "\\") {}
+    public function fputcsv(array $fields, string $delimiter = ",", string $enclosure = "\"", string $escape = "\\") {}
 
-    /** @return null|false */
+    /** @return bool|null */
     public function setCsvControl(string $delimiter = ",", string $enclosure = "\"", string $escape = "\\") {}
 
     /** @return array */
@@ -286,7 +286,7 @@ class SplFileObject extends SplFileInfo implements RecursiveIterator, SeekableIt
      */
     public function getCurrentLine() {}
 
-    /** @alias SplFileObject::fgets */
+    /** @implementation-alias SplFileObject::fgets */
     public function __toString(): string {}
 }
 

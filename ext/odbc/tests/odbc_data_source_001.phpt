@@ -2,10 +2,10 @@
 odbc_data_source(): Basic test
 --SKIPIF--
 <?php
-	include 'skipif.inc';
-	if (odbc_data_source($conn, SQL_FETCH_FIRST) === NULL) {
-		die("skip no data sources defined on this system");
-	}
+    include 'skipif.inc';
+    if (odbc_data_source($conn, SQL_FETCH_FIRST) === NULL) {
+        die("skip no data sources defined on this system");
+    }
 ?>
 --FILE--
 <?php
@@ -24,7 +24,6 @@ var_dump(odbc_data_source($conn, SQL_FETCH_FIRST));
 ?>
 --EXPECTF--
 odbc_data_source(): Argument #2 ($fetch_type) must be either SQL_FETCH_FIRST or SQL_FETCH_NEXT
-bool(false)
 array(%d) {
 %a
 }

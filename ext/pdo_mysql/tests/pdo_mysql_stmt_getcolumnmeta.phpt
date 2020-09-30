@@ -11,7 +11,7 @@ $stmt = $db->query('SELECT VERSION() as _version');
 $row = $stmt->fetch(PDO::FETCH_ASSOC);
 $version = ((int)substr($row['_version'], 0, 1) * 10) + (int)substr($row['_version'], 2, 1);
 if ($version < 51)
-	die("skip Test needs MySQL 5.1+");
+    die("skip Test needs MySQL 5.1+");
 ?>
 --FILE--
 <?php
@@ -32,8 +32,11 @@ try {
     $stmt->execute();
 
     // invalid offset
-    if (false !== ($tmp = @$stmt->getColumnMeta(-1)))
-        printf("[004] Expecting false got %s\n", var_export($tmp, true));
+    try {
+        $stmt->getColumnMeta(-1);
+    } catch (\ValueError $e) {
+        echo $e->getMessage(), \PHP_EOL;
+    }
 
     $emulated =  $stmt->getColumnMeta(0);
 
@@ -299,5 +302,6 @@ $db->exec('DROP TABLE IF EXISTS test');
 print "done!";
 ?>
 --EXPECT--
+PDOStatement::getColumnMeta(): Argument #1 ($index) must be greater than or equal to 0
 Testing native PS...
 done!
