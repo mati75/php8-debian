@@ -2072,6 +2072,7 @@ send_array:
 				arg_num = 1;
 				param = ZEND_CALL_ARG(EX(call), 1);
 				ZEND_HASH_FOREACH_VAL(ht, arg) {
+					zend_bool must_wrap = 0;
 					if (skip > 0) {
 						skip--;
 						continue;
@@ -2083,6 +2084,7 @@ send_array:
 								/* By-value send is not allowed -- emit a warning,
 								 * but still perform the call. */
 								zend_param_must_be_ref(EX(call)->func, arg_num);
+								must_wrap = 1;
 							}
 						}
 					} else {
@@ -2092,7 +2094,12 @@ send_array:
 							arg = Z_REFVAL_P(arg);
 						}
 					}
-					ZVAL_COPY(param, arg);
+					if (EXPECTED(!must_wrap)) {
+						ZVAL_COPY(param, arg);
+					} else {
+						Z_TRY_ADDREF_P(arg);
+						ZVAL_NEW_REF(param, arg);
+					}
 					ZEND_CALL_NUM_ARGS(EX(call))++;
 					arg_num++;
 					param++;
@@ -2104,12 +2111,14 @@ send_array:
 			arg_num = 1;
 			param = ZEND_CALL_ARG(EX(call), 1);
 			ZEND_HASH_FOREACH_VAL(ht, arg) {
+				zend_bool must_wrap = 0;
 				if (ARG_SHOULD_BE_SENT_BY_REF(EX(call)->func, arg_num)) {
 					if (UNEXPECTED(!Z_ISREF_P(arg))) {
 						if (!ARG_MAY_BE_SENT_BY_REF(EX(call)->func, arg_num)) {
 							/* By-value send is not allowed -- emit a warning,
 							 * but still perform the call. */
 							zend_param_must_be_ref(EX(call)->func, arg_num);
+							must_wrap = 1;
 						}
 					}
 				} else {
@@ -2119,7 +2128,12 @@ send_array:
 						arg = Z_REFVAL_P(arg);
 					}
 				}
-				ZVAL_COPY(param, arg);
+				if (EXPECTED(!must_wrap)) {
+					ZVAL_COPY(param, arg);
+				} else {
+					Z_TRY_ADDREF_P(arg);
+					ZVAL_NEW_REF(param, arg);
+				}
 				ZEND_CALL_NUM_ARGS(EX(call))++;
 				arg_num++;
 				param++;
@@ -3178,6 +3192,7 @@ static ZEND_OPCODE_HANDLER_RET ZEND_FASTCALL ZEND_RECV_VARIADIC_SPEC_UNUSED_HAND
 		ZEND_HASH_FILL_PACKED(Z_ARRVAL_P(params)) {
 			param = EX_VAR_NUM(EX(func)->op_array.last_var + EX(func)->op_array.T);
 			if (UNEXPECTED((EX(func)->op_array.fn_flags & ZEND_ACC_HAS_TYPE_HINTS) != 0)) {
+				ZEND_ADD_CALL_FLAG(execute_data, ZEND_CALL_FREE_EXTRA_ARGS);
 				do {
 					zend_verify_variadic_arg_type(EX(func), arg_num, param, NULL, CACHE_ADDR(opline->op2.num));
 					if (Z_OPT_REFCOUNTED_P(param)) Z_ADDREF_P(param);
@@ -4469,6 +4484,7 @@ static ZEND_OPCODE_HANDLER_RET ZEND_FASTCALL ZEND_YIELD_FROM_SPEC_CONST_HANDLER(
 		}
 	} else {
 		zend_throw_error(NULL, "Can use \"yield from\" only with arrays and Traversables");
+
 		UNDEF_RESULT();
 		HANDLE_EXCEPTION();
 	}
@@ -18525,6 +18541,7 @@ static ZEND_OPCODE_HANDLER_RET ZEND_FASTCALL ZEND_YIELD_FROM_SPEC_TMP_HANDLER(ZE
 		}
 	} else {
 		zend_throw_error(NULL, "Can use \"yield from\" only with arrays and Traversables");
+		zval_ptr_dtor_nogc(free_op1);
 		UNDEF_RESULT();
 		HANDLE_EXCEPTION();
 	}
@@ -21940,6 +21957,7 @@ static ZEND_OPCODE_HANDLER_RET ZEND_FASTCALL ZEND_YIELD_FROM_SPEC_VAR_HANDLER(ZE
 		}
 	} else {
 		zend_throw_error(NULL, "Can use \"yield from\" only with arrays and Traversables");
+		zval_ptr_dtor_nogc(free_op1);
 		UNDEF_RESULT();
 		HANDLE_EXCEPTION();
 	}
@@ -38109,6 +38127,7 @@ static ZEND_OPCODE_HANDLER_RET ZEND_FASTCALL ZEND_YIELD_FROM_SPEC_CV_HANDLER(ZEN
 		}
 	} else {
 		zend_throw_error(NULL, "Can use \"yield from\" only with arrays and Traversables");
+
 		UNDEF_RESULT();
 		HANDLE_EXCEPTION();
 	}
