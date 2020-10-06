@@ -1,3 +1,12 @@
+php7.0 (7.0.33-31) unstable; urgency=medium
+
+  * Backported from 7.2.34
+   - Core:
+    . Fixed bug #79699 (PHP parses encoded cookie names so malicious `__Host-`
+      cookies can be sent). (CVE-2020-7070)
+
+ -- Ondřej Surý <ondrej@debian.org>  Tue, 06 Oct 2020 15:44:28 +0200
+
 php7.0 (7.0.33-30) unstable; urgency=medium
 
   * Update branch names
