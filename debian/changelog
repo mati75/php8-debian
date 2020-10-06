@@ -1,3 +1,12 @@
+php5.6 (5.6.40-32) unstable; urgency=medium
+
+  * Backported from 7.2.34
+   - Core:
+    . Fixed bug #79699 (PHP parses encoded cookie names so malicious `__Host-`
+      cookies can be sent). (CVE-2020-7070)
+
+ -- Ondřej Surý <ondrej@debian.org>  Tue, 06 Oct 2020 16:01:34 +0200
+
 php5.6 (5.6.40-31) unstable; urgency=medium
 
   * Add the new binary patch to d/s/include-binaries
