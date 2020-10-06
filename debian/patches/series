@@ -88,3 +88,7 @@
 0088-Skip-fpm-tests-not-designed-to-be-run-as-root.patch
 0089-Fix-79797-Use-of-freed-hash-key-in-the-phar_parse_zi.patch
 0090-Fix-79877-getimagesize-function-silently-truncates-a.patch
+0091-Fix-bug-79601-Wrong-ciphertext-tag-in-AES-CCM-encryp.patch
+0092-Fix-bug-78079-openssl_encrypt_ccm.phpt-fails-with-Op.patch
+0093-Do-not-decode-cookie-names-anymore.patch
+0094-NEWS.patch
