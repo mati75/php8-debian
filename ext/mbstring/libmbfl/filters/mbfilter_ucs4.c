@@ -27,10 +27,6 @@
  *
  */
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-
 #include "mbfilter.h"
 #include "mbfilter_ucs4.h"
 
@@ -73,54 +69,60 @@ const struct mbfl_convert_vtbl vtbl_ucs4_wchar = {
 	mbfl_no_encoding_ucs4,
 	mbfl_no_encoding_wchar,
 	mbfl_filt_conv_common_ctor,
-	mbfl_filt_conv_common_dtor,
+	NULL,
 	mbfl_filt_conv_ucs4_wchar,
-	mbfl_filt_conv_common_flush
+	mbfl_filt_conv_common_flush,
+	NULL,
 };
 
 const struct mbfl_convert_vtbl vtbl_wchar_ucs4 = {
 	mbfl_no_encoding_wchar,
 	mbfl_no_encoding_ucs4,
 	mbfl_filt_conv_common_ctor,
-	mbfl_filt_conv_common_dtor,
+	NULL,
 	mbfl_filt_conv_wchar_ucs4be,
-	mbfl_filt_conv_common_flush
+	mbfl_filt_conv_common_flush,
+	NULL,
 };
 
 const struct mbfl_convert_vtbl vtbl_ucs4be_wchar = {
 	mbfl_no_encoding_ucs4be,
 	mbfl_no_encoding_wchar,
 	mbfl_filt_conv_common_ctor,
-	mbfl_filt_conv_common_dtor,
+	NULL,
 	mbfl_filt_conv_ucs4be_wchar,
-	mbfl_filt_conv_common_flush
+	mbfl_filt_conv_common_flush,
+	NULL,
 };
 
 const struct mbfl_convert_vtbl vtbl_wchar_ucs4be = {
 	mbfl_no_encoding_wchar,
 	mbfl_no_encoding_ucs4be,
 	mbfl_filt_conv_common_ctor,
-	mbfl_filt_conv_common_dtor,
+	NULL,
 	mbfl_filt_conv_wchar_ucs4be,
-	mbfl_filt_conv_common_flush
+	mbfl_filt_conv_common_flush,
+	NULL,
 };
 
 const struct mbfl_convert_vtbl vtbl_ucs4le_wchar = {
 	mbfl_no_encoding_ucs4le,
 	mbfl_no_encoding_wchar,
 	mbfl_filt_conv_common_ctor,
-	mbfl_filt_conv_common_dtor,
+	NULL,
 	mbfl_filt_conv_ucs4le_wchar,
-	mbfl_filt_conv_common_flush
+	mbfl_filt_conv_common_flush,
+	NULL,
 };
 
 const struct mbfl_convert_vtbl vtbl_wchar_ucs4le = {
 	mbfl_no_encoding_wchar,
 	mbfl_no_encoding_ucs4le,
 	mbfl_filt_conv_common_ctor,
-	mbfl_filt_conv_common_dtor,
+	NULL,
 	mbfl_filt_conv_wchar_ucs4le,
-	mbfl_filt_conv_common_flush
+	mbfl_filt_conv_common_flush,
+	NULL,
 };
 
 

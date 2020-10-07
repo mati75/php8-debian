@@ -27,10 +27,6 @@
  *
  */
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-
 #include "mbfilter.h"
 #include "mbfilter_utf16.h"
 
@@ -73,54 +69,60 @@ const struct mbfl_convert_vtbl vtbl_utf16_wchar = {
 	mbfl_no_encoding_utf16,
 	mbfl_no_encoding_wchar,
 	mbfl_filt_conv_common_ctor,
-	mbfl_filt_conv_common_dtor,
+	NULL,
 	mbfl_filt_conv_utf16_wchar,
-	mbfl_filt_conv_common_flush
+	mbfl_filt_conv_common_flush,
+	NULL,
 };
 
 const struct mbfl_convert_vtbl vtbl_wchar_utf16 = {
 	mbfl_no_encoding_wchar,
 	mbfl_no_encoding_utf16,
 	mbfl_filt_conv_common_ctor,
-	mbfl_filt_conv_common_dtor,
+	NULL,
 	mbfl_filt_conv_wchar_utf16be,
-	mbfl_filt_conv_common_flush
+	mbfl_filt_conv_common_flush,
+	NULL,
 };
 
 const struct mbfl_convert_vtbl vtbl_utf16be_wchar = {
 	mbfl_no_encoding_utf16be,
 	mbfl_no_encoding_wchar,
 	mbfl_filt_conv_common_ctor,
-	mbfl_filt_conv_common_dtor,
+	NULL,
 	mbfl_filt_conv_utf16be_wchar,
-	mbfl_filt_conv_common_flush
+	mbfl_filt_conv_common_flush,
+	NULL,
 };
 
 const struct mbfl_convert_vtbl vtbl_wchar_utf16be = {
 	mbfl_no_encoding_wchar,
 	mbfl_no_encoding_utf16be,
 	mbfl_filt_conv_common_ctor,
-	mbfl_filt_conv_common_dtor,
+	NULL,
 	mbfl_filt_conv_wchar_utf16be,
-	mbfl_filt_conv_common_flush
+	mbfl_filt_conv_common_flush,
+	NULL,
 };
 
 const struct mbfl_convert_vtbl vtbl_utf16le_wchar = {
 	mbfl_no_encoding_utf16le,
 	mbfl_no_encoding_wchar,
 	mbfl_filt_conv_common_ctor,
-	mbfl_filt_conv_common_dtor,
+	NULL,
 	mbfl_filt_conv_utf16le_wchar,
-	mbfl_filt_conv_common_flush
+	mbfl_filt_conv_common_flush,
+	NULL,
 };
 
 const struct mbfl_convert_vtbl vtbl_wchar_utf16le = {
 	mbfl_no_encoding_wchar,
 	mbfl_no_encoding_utf16le,
 	mbfl_filt_conv_common_ctor,
-	mbfl_filt_conv_common_dtor,
+	NULL,
 	mbfl_filt_conv_wchar_utf16le,
-	mbfl_filt_conv_common_flush
+	mbfl_filt_conv_common_flush,
+	NULL,
 };
 
 #define CK(statement)	do { if ((statement) < 0) return (-1); } while (0)

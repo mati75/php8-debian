@@ -1,8 +1,8 @@
-/* A Bison parser, made by GNU Bison 3.0.2.  */
+/* A Bison parser, made by GNU Bison 3.0.4.  */
 
 /* Bison implementation for Yacc-like parsers in C
 
-   Copyright (C) 1984, 1989-1990, 2000-2013 Free Software Foundation, Inc.
+   Copyright (C) 1984, 1989-1990, 2000-2015 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -44,7 +44,7 @@
 #define YYBISON 1
 
 /* Bison version.  */
-#define YYBISON_VERSION "3.0.2"
+#define YYBISON_VERSION "3.0.4"
 
 /* Skeleton name.  */
 #define YYSKELETON_NAME "yacc.c"
@@ -62,8 +62,6 @@
 
 
 /*
-  +----------------------------------------------------------------------+
-  | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
   | Copyright (c) The PHP Group                                          |
   +----------------------------------------------------------------------+
@@ -173,7 +171,7 @@ extern int php_json_yydebug;
 
 /* Value type.  */
 #if ! defined PHP_JSON_YYSTYPE && ! defined PHP_JSON_YYSTYPE_IS_DECLARED
-typedef union PHP_JSON_YYSTYPE PHP_JSON_YYSTYPE;
+
 union PHP_JSON_YYSTYPE
 {
 
@@ -186,6 +184,8 @@ union PHP_JSON_YYSTYPE
 
 
 };
+
+typedef union PHP_JSON_YYSTYPE PHP_JSON_YYSTYPE;
 # define PHP_JSON_YYSTYPE_IS_TRIVIAL 1
 # define PHP_JSON_YYSTYPE_IS_DECLARED 1
 #endif
@@ -506,10 +506,10 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    87,    87,    97,    96,   114,   115,   124,   131,   135,
-     142,   152,   161,   160,   178,   179,   188,   195,   199,   204,
-     212,   213,   217,   218,   219,   220,   221,   222,   223,   224,
-     225
+       0,    85,    85,    95,    94,   112,   113,   121,   129,   133,
+     140,   150,   159,   158,   176,   177,   185,   193,   197,   202,
+     210,   211,   215,   216,   217,   218,   219,   220,   221,   222,
+     223
 };
 #endif
 
@@ -1808,10 +1808,10 @@ static int php_json_parser_object_create(php_json_parser *parser, zval *object)
 {
 	if (parser->scanner.options & PHP_JSON_OBJECT_AS_ARRAY) {
 		array_init(object);
-		return SUCCESS;
 	} else {
-		return object_init(object);
+		object_init(object);
 	}
+	return SUCCESS;
 }
 
 static int php_json_parser_object_update(php_json_parser *parser, zval *object, zend_string *key, zval *zvalue)
@@ -1820,7 +1820,6 @@ static int php_json_parser_object_update(php_json_parser *parser, zval *object, 
 	if (Z_TYPE_P(object) == IS_ARRAY) {
 		zend_symtable_update(Z_ARRVAL_P(object), key, zvalue);
 	} else {
-		zval zkey;
 		if (ZSTR_LEN(key) > 0 && ZSTR_VAL(key)[0] == '\0') {
 			parser->scanner.errcode = PHP_JSON_ERROR_INVALID_PROPERTY_NAME;
 			zend_string_release_ex(key, 0);
@@ -1828,8 +1827,7 @@ static int php_json_parser_object_update(php_json_parser *parser, zval *object, 
 			zval_ptr_dtor_nogc(object);
 			return FAILURE;
 		}
-		ZVAL_NEW_STR(&zkey, key);
-		zend_std_write_property(object, &zkey, zvalue, NULL);
+		zend_std_write_property(Z_OBJ_P(object), key, zvalue, NULL);
 		Z_TRY_DELREF_P(zvalue);
 	}
 	zend_string_release_ex(key, 0);
@@ -1870,7 +1868,7 @@ static const php_json_parser_methods default_parser_methods =
 
 PHP_JSON_API void php_json_parser_init_ex(php_json_parser *parser,
 		zval *return_value,
-		char *str,
+		const char *str,
 		size_t str_len,
 		int options,
 		int max_depth,
@@ -1886,7 +1884,7 @@ PHP_JSON_API void php_json_parser_init_ex(php_json_parser *parser,
 
 PHP_JSON_API void php_json_parser_init(php_json_parser *parser,
 		zval *return_value,
-		char *str,
+		const char *str,
 		size_t str_len,
 		int options,
 		int max_depth)

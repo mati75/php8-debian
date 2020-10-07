@@ -28,14 +28,9 @@
  *
  */
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-
 #include <stddef.h>
 
 #include "mbfl_ident.h"
-#include "mbfl_allocators.h"
 #include "mbfilter_pass.h"
 #include "mbfilter_8bit.h"
 #include "mbfilter_wchar.h"
@@ -103,9 +98,8 @@
 static const struct mbfl_identify_vtbl vtbl_identify_false = {
 	mbfl_no_encoding_pass,
 	mbfl_filt_ident_false_ctor,
-	mbfl_filt_ident_common_dtor,
-	mbfl_filt_ident_false };
-
+	mbfl_filt_ident_false
+};
 
 static const struct mbfl_identify_vtbl *mbfl_identify_filter_list[] = {
 	&vtbl_identify_utf8,
@@ -169,8 +163,6 @@ static const struct mbfl_identify_vtbl *mbfl_identify_filter_list[] = {
 	NULL
 };
 
-
-
 /*
  * identify filter
  */
@@ -191,16 +183,9 @@ const struct mbfl_identify_vtbl * mbfl_identify_filter_get_vtbl(enum mbfl_no_enc
 
 mbfl_identify_filter *mbfl_identify_filter_new(enum mbfl_no_encoding encoding)
 {
-	mbfl_identify_filter *filter;
-
-	/* allocate */
-	filter = (mbfl_identify_filter *)mbfl_malloc(sizeof(mbfl_identify_filter));
-	if (filter == NULL) {
-		return NULL;
-	}
-
+	mbfl_identify_filter *filter = emalloc(sizeof(mbfl_identify_filter));
 	if (mbfl_identify_filter_init(filter, encoding)) {
-		mbfl_free(filter);
+		efree(filter);
 		return NULL;
 	}
 
@@ -209,16 +194,9 @@ mbfl_identify_filter *mbfl_identify_filter_new(enum mbfl_no_encoding encoding)
 
 mbfl_identify_filter *mbfl_identify_filter_new2(const mbfl_encoding *encoding)
 {
-	mbfl_identify_filter *filter;
-
-	/* allocate */
-	filter = (mbfl_identify_filter *)mbfl_malloc(sizeof(mbfl_identify_filter));
-	if (filter == NULL) {
-		return NULL;
-	}
-
+	mbfl_identify_filter *filter = emalloc(sizeof(mbfl_identify_filter));
 	if (mbfl_identify_filter_init2(filter, encoding)) {
-		mbfl_free(filter);
+		efree(filter);
 		return NULL;
 	}
 
@@ -249,7 +227,6 @@ int mbfl_identify_filter_init2(mbfl_identify_filter *filter, const mbfl_encoding
 		vtbl = &vtbl_identify_false;
 	}
 	filter->filter_ctor = vtbl->filter_ctor;
-	filter->filter_dtor = vtbl->filter_dtor;
 	filter->filter_function = vtbl->filter_function;
 
 	/* constructor */
@@ -264,24 +241,13 @@ void mbfl_identify_filter_delete(mbfl_identify_filter *filter)
 		return;
 	}
 
-	mbfl_identify_filter_cleanup(filter);
-	mbfl_free((void*)filter);
-}
-
-void mbfl_identify_filter_cleanup(mbfl_identify_filter *filter)
-{
-	(*filter->filter_dtor)(filter);
+	efree((void*)filter);
 }
 
 void mbfl_filt_ident_common_ctor(mbfl_identify_filter *filter)
 {
 	filter->status = 0;
 	filter->flag = 0;
-}
-
-void mbfl_filt_ident_common_dtor(mbfl_identify_filter *filter)
-{
-	filter->status = 0;
 }
 
 int mbfl_filt_ident_false(int c, mbfl_identify_filter *filter)

@@ -25,6 +25,7 @@
 #include "zend_extensions.h"
 #include "zend_shared_alloc.h"
 #include "zend_operators.h"
+#include "zend_attributes.h"
 
 #define ADD_DUP_SIZE(m,s)  ZCG(current_persistent_script)->size += zend_shared_memdup_size((void*)m, s)
 #define ADD_SIZE(m)        ZCG(current_persistent_script)->size += ZEND_ALIGNED_SIZE(m)
@@ -148,16 +149,65 @@ static void zend_persist_zval_calc(zval *z)
 	}
 }
 
+static void zend_persist_attributes_calc(HashTable *attributes)
+{
+	if (!zend_shared_alloc_get_xlat_entry(attributes)) {
+		zend_attribute *attr;
+		uint32_t i;
+
+		zend_shared_alloc_register_xlat_entry(attributes, attributes);
+		ADD_SIZE(sizeof(HashTable));
+		zend_hash_persist_calc(attributes);
+
+		ZEND_HASH_FOREACH_PTR(attributes, attr) {
+			ADD_SIZE(ZEND_ATTRIBUTE_SIZE(attr->argc));
+			ADD_INTERNED_STRING(attr->name);
+			ADD_INTERNED_STRING(attr->lcname);
+
+			for (i = 0; i < attr->argc; i++) {
+				if (attr->args[i].name) {
+					ADD_INTERNED_STRING(attr->args[i].name);
+				}
+				zend_persist_zval_calc(&attr->args[i].value);
+			}
+		} ZEND_HASH_FOREACH_END();
+	}
+}
+
+static void zend_persist_type_calc(zend_type *type)
+{
+	if (ZEND_TYPE_HAS_LIST(*type)) {
+		if (ZEND_TYPE_USES_ARENA(*type) && !ZCG(is_immutable_class)) {
+			ADD_ARENA_SIZE(ZEND_TYPE_LIST_SIZE(ZEND_TYPE_LIST(*type)->num_types));
+		} else {
+			ADD_SIZE(ZEND_TYPE_LIST_SIZE(ZEND_TYPE_LIST(*type)->num_types));
+		}
+	}
+
+	zend_type *single_type;
+	ZEND_TYPE_FOREACH(*type, single_type) {
+		if (ZEND_TYPE_HAS_NAME(*single_type)) {
+			zend_string *type_name = ZEND_TYPE_NAME(*single_type);
+			ADD_INTERNED_STRING(type_name);
+			ZEND_TYPE_SET_PTR(*single_type, type_name);
+		}
+	} ZEND_TYPE_FOREACH_END();
+}
+
 static void zend_persist_op_array_calc_ex(zend_op_array *op_array)
 {
+	if (op_array->function_name) {
+		zend_string *old_name = op_array->function_name;
+		ADD_INTERNED_STRING(op_array->function_name);
+		/* Remember old function name, so it can be released multiple times if shared. */
+		if (op_array->function_name != old_name
+				&& !zend_shared_alloc_get_xlat_entry(&op_array->function_name)) {
+			zend_shared_alloc_register_xlat_entry(&op_array->function_name, old_name);
+		}
+    }
+
 	if (op_array->scope && zend_shared_alloc_get_xlat_entry(op_array->opcodes)) {
 		/* already stored */
-		if (op_array->function_name) {
-			zend_string *new_name = zend_shared_alloc_get_xlat_entry(op_array->function_name);
-			if (new_name) {
-				op_array->function_name = new_name;
-			}
-		}
 		ADD_SIZE(ZEND_ALIGNED_SIZE(zend_extensions_op_array_persist_calc(op_array)));
 		return;
 	}
@@ -190,16 +240,6 @@ static void zend_persist_op_array_calc_ex(zend_op_array *op_array)
 	zend_shared_alloc_register_xlat_entry(op_array->opcodes, op_array->opcodes);
 	ADD_SIZE(sizeof(zend_op) * op_array->last);
 
-	if (op_array->function_name) {
-		zend_string *old_name = op_array->function_name;
-		if (!zend_shared_alloc_get_xlat_entry(old_name)) {
-			ADD_INTERNED_STRING(op_array->function_name);
-			if (!zend_shared_alloc_get_xlat_entry(op_array->function_name)) {
-				zend_shared_alloc_register_xlat_entry(old_name, op_array->function_name);
-			}
-		}
-    }
-
 	if (op_array->filename) {
 		ADD_STRING(op_array->filename);
 	}
@@ -222,13 +262,7 @@ static void zend_persist_op_array_calc_ex(zend_op_array *op_array)
 			if (arg_info[i].name) {
 				ADD_INTERNED_STRING(arg_info[i].name);
 			}
-			if (ZEND_TYPE_IS_CLASS(arg_info[i].type)) {
-				zend_string *type_name = ZEND_TYPE_NAME(arg_info[i].type);
-				zend_bool allow_null = ZEND_TYPE_ALLOW_NULL(arg_info[i].type);
-
-				ADD_INTERNED_STRING(type_name);
-				arg_info[i].type = ZEND_TYPE_ENCODE_CLASS(type_name, allow_null);
-			}
+			zend_persist_type_calc(&arg_info[i].type);
 		}
 	}
 
@@ -238,6 +272,10 @@ static void zend_persist_op_array_calc_ex(zend_op_array *op_array)
 
 	if (ZCG(accel_directives).save_comments && op_array->doc_comment) {
 		ADD_STRING(op_array->doc_comment);
+	}
+
+	if (op_array->attributes) {
+		zend_persist_attributes_calc(op_array->attributes);
 	}
 
 	if (op_array->try_catch_array) {
@@ -293,25 +331,27 @@ static void zend_persist_class_method_calc(zval *zv)
 		if (!ZCG(is_immutable_class)) {
 			ADD_ARENA_SIZE(sizeof(void*));
 		}
+	} else {
+		/* If op_array is shared, the function name refcount is still incremented for each use,
+		 * so we need to release it here. We remembered the original function name in xlat. */
+		zend_string *old_function_name =
+			zend_shared_alloc_get_xlat_entry(&old_op_array->function_name);
+		if (old_function_name) {
+			zend_string_release_ex(old_function_name, 0);
+		}
 	}
 }
 
-static void zend_persist_property_info_calc(zval *zv)
+static void zend_persist_property_info_calc(zend_property_info *prop)
 {
-	zend_property_info *prop = Z_PTR_P(zv);
-
-	if (!zend_shared_alloc_get_xlat_entry(prop)) {
-		zend_shared_alloc_register_xlat_entry(prop, prop);
-		ADD_SIZE_EX(sizeof(zend_property_info));
-		ADD_INTERNED_STRING(prop->name);
-		if (ZEND_TYPE_IS_NAME(prop->type)) {
-			zend_string *class_name = ZEND_TYPE_NAME(prop->type);
-			ADD_INTERNED_STRING(class_name);
-			prop->type = ZEND_TYPE_ENCODE_CLASS(class_name, ZEND_TYPE_ALLOW_NULL(prop->type));
-		}
-		if (ZCG(accel_directives).save_comments && prop->doc_comment) {
-			ADD_STRING(prop->doc_comment);
-		}
+	ADD_SIZE_EX(sizeof(zend_property_info));
+	ADD_INTERNED_STRING(prop->name);
+	zend_persist_type_calc(&prop->type);
+	if (ZCG(accel_directives).save_comments && prop->doc_comment) {
+		ADD_STRING(prop->doc_comment);
+	}
+	if (prop->attributes) {
+		zend_persist_attributes_calc(prop->attributes);
 	}
 }
 
@@ -326,6 +366,9 @@ static void zend_persist_class_constant_calc(zval *zv)
 		if (ZCG(accel_directives).save_comments && c->doc_comment) {
 			ADD_STRING(c->doc_comment);
 		}
+		if (c->attributes) {
+			zend_persist_attributes_calc(c->attributes);
+		}
 	}
 }
 
@@ -338,9 +381,12 @@ static void check_property_type_resolution(zend_class_entry *ce) {
 
 	if (ce->ce_flags & ZEND_ACC_HAS_TYPE_HINTS) {
 		ZEND_HASH_FOREACH_PTR(&ce->properties_info, prop) {
-			if (ZEND_TYPE_IS_NAME(prop->type)) {
-				return;
-			}
+			zend_type *single_type;
+			ZEND_TYPE_FOREACH(prop->type, single_type) {
+				if (ZEND_TYPE_HAS_NAME(*single_type)) {
+					return;
+				}
+			} ZEND_TYPE_FOREACH_END();
 		} ZEND_HASH_FOREACH_END();
 	}
 	ce->ce_flags |= ZEND_ACC_PROPERTY_TYPES_RESOLVED;
@@ -408,12 +454,18 @@ static void zend_persist_class_entry_calc(zval *zv)
 		if (ZCG(accel_directives).save_comments && ce->info.user.doc_comment) {
 			ADD_STRING(ce->info.user.doc_comment);
 		}
+		if (ce->attributes) {
+			zend_persist_attributes_calc(ce->attributes);
+		}
 
 		zend_hash_persist_calc(&ce->properties_info);
 		ZEND_HASH_FOREACH_BUCKET(&ce->properties_info, p) {
+			zend_property_info *prop = Z_PTR(p->val);
 			ZEND_ASSERT(p->key != NULL);
 			ADD_INTERNED_STRING(p->key);
-			zend_persist_property_info_calc(&p->val);
+			if (prop->ce == ce) {
+				zend_persist_property_info_calc(prop);
+			}
 		} ZEND_HASH_FOREACH_END();
 
 		if (ce->properties_info_table) {
@@ -498,6 +550,15 @@ static void zend_accel_persist_class_table_calc(HashTable *class_table)
 	} ZEND_HASH_FOREACH_END();
 }
 
+static void zend_persist_warnings_calc(zend_persistent_script *script) {
+	ADD_SIZE(script->num_warnings * sizeof(zend_recorded_warning *));
+	for (uint32_t i = 0; i < script->num_warnings; i++) {
+		ADD_SIZE(sizeof(zend_recorded_warning));
+		ADD_STRING(script->warnings[i]->error_filename);
+		ADD_STRING(script->warnings[i]->error_message);
+	}
+}
+
 uint32_t zend_accel_script_persist_calc(zend_persistent_script *new_persistent_script, const char *key, unsigned int key_length, int for_shm)
 {
 	Bucket *p;
@@ -540,6 +601,7 @@ uint32_t zend_accel_script_persist_calc(zend_persistent_script *new_persistent_s
 		zend_persist_op_array_calc(&p->val);
 	} ZEND_HASH_FOREACH_END();
 	zend_persist_op_array_calc_ex(&new_persistent_script->script.main_op_array);
+	zend_persist_warnings_calc(new_persistent_script);
 
 #if defined(__AVX__) || defined(__SSE2__)
 	/* Align size to 64-byte boundary */

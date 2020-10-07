@@ -46,6 +46,7 @@ jobs:
         echo zend_extension=opcache.so > /etc/php.d/opcache.ini
         echo opcache.enable_cli=1 >> /etc/php.d/opcache.ini
         echo opcache.protect_memory=1 >> /etc/php.d/opcache.ini
+        echo opcache.jit_buffer_size=1G >> /etc/php.d/opcache.ini
       displayName: 'Install Build'
     - script: |
         git clone https://github.com/laravel/framework.git --branch=master --depth=1
@@ -56,6 +57,10 @@ jobs:
         # Avoid test using exit(), which thus leaks.
         # We can use USE_TRACKED_ALLOC=1 if more of these show up.
         sed -i "s/function_exists('pcntl_fork')/false/" tests/Filesystem/FilesystemTest.php
+        # Work around PHP 8 incompatibility in Doctrine
+        sed -i 's/function query()/function query(...$args)/' vendor/doctrine/dbal/lib/Doctrine/DBAL/Driver/PDOConnection.php
+        sed -i 's/function setFetchMode($fetchMode, $arg2 = null, $arg3 = null)/function setFetchMode($fetchMode, $arg2 = null, $arg3 = null, ...$args)/' vendor/doctrine/dbal/lib/Doctrine/DBAL/Driver/PDOStatement.php
+        sed -i 's/public function getMessage();//' vendor/doctrine/dbal/lib/Doctrine/DBAL/Driver/DriverException.php
         php vendor/bin/phpunit
       displayName: 'Test Laravel'
     - script: |
@@ -63,13 +68,20 @@ jobs:
         cd symfony
         php7.3 /usr/bin/composer install --no-progress
         php7.3 ./phpunit install
+        # Work around PHP 8 incompatibility in Doctrine
+        sed -i 's/function query()/function query(...$args)/' vendor/doctrine/dbal/lib/Doctrine/DBAL/Driver/PDOConnection.php
         export USE_ZEND_ALLOC=0
         export USE_TRACKED_ALLOC=1
         export ASAN_OPTIONS=exitcode=139
-        php ./phpunit --exclude-group tty,benchmark,intl-data,transient
-        if [ $? -gt 128 ]; then
-          exit 1
-        fi
+        export SYMFONY_DEPRECATIONS_HELPER=max[total]=999
+        X=0
+        for component in $(find src/Symfony -mindepth 2 -type f -name phpunit.xml.dist -printf '%h\n'); do
+          php ./phpunit $component --exclude-group tty,benchmark,intl-data,transient;
+          if [ $? -gt 128 ]; then
+            X=1;
+          fi
+        done
+        exit $X
       displayName: 'Test Symfony'
       condition: or(succeeded(), failed())
     - script: |
@@ -80,4 +92,17 @@ jobs:
         sed -i 's/$exit = true/$exit = false/g' vendor/phpunit/phpunit/src/TextUI/Command.php
         php vendor/bin/phpunit
       displayName: 'Test Amphp'
+      condition: or(succeeded(), failed())
+    - script: |
+        git clone https://github.com/sebastianbergmann/phpunit.git --branch=master --depth=1
+        cd phpunit
+        export USE_ZEND_ALLOC=0
+        export USE_TRACKED_ALLOC=1
+        export ASAN_OPTIONS=exitcode=139
+        php7.3 /usr/bin/composer install --no-progress
+        php ./phpunit
+        if [ $? -gt 128 ]; then
+          exit 1
+        fi
+      displayName: 'Test PHPUnit'
       condition: or(succeeded(), failed())

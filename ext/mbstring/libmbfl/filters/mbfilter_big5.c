@@ -27,10 +27,6 @@
  *
  */
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-
 #include "mbfilter.h"
 #include "mbfilter_big5.h"
 
@@ -84,14 +80,12 @@ const mbfl_encoding mbfl_encoding_cp950 = {
 const struct mbfl_identify_vtbl vtbl_identify_big5 = {
 	mbfl_no_encoding_big5,
 	mbfl_filt_ident_common_ctor,
-	mbfl_filt_ident_common_dtor,
 	mbfl_filt_ident_big5
 };
 
 const struct mbfl_identify_vtbl vtbl_identify_cp950 = {
 	mbfl_no_encoding_cp950,
 	mbfl_filt_ident_common_ctor,
-	mbfl_filt_ident_common_dtor,
 	mbfl_filt_ident_big5
 };
 
@@ -99,36 +93,40 @@ const struct mbfl_convert_vtbl vtbl_big5_wchar = {
 	mbfl_no_encoding_big5,
 	mbfl_no_encoding_wchar,
 	mbfl_filt_conv_common_ctor,
-	mbfl_filt_conv_common_dtor,
+	NULL,
 	mbfl_filt_conv_big5_wchar,
-	mbfl_filt_conv_common_flush
+	mbfl_filt_conv_common_flush,
+	NULL,
 };
 
 const struct mbfl_convert_vtbl vtbl_wchar_big5 = {
 	mbfl_no_encoding_wchar,
 	mbfl_no_encoding_big5,
 	mbfl_filt_conv_common_ctor,
-	mbfl_filt_conv_common_dtor,
+	NULL,
 	mbfl_filt_conv_wchar_big5,
-	mbfl_filt_conv_common_flush
+	mbfl_filt_conv_common_flush,
+	NULL
 };
 
 const struct mbfl_convert_vtbl vtbl_cp950_wchar = {
 	mbfl_no_encoding_cp950,
 	mbfl_no_encoding_wchar,
 	mbfl_filt_conv_common_ctor,
-	mbfl_filt_conv_common_dtor,
+	NULL,
 	mbfl_filt_conv_big5_wchar,
-	mbfl_filt_conv_common_flush
+	mbfl_filt_conv_common_flush,
+	NULL,
 };
 
 const struct mbfl_convert_vtbl vtbl_wchar_cp950 = {
 	mbfl_no_encoding_wchar,
 	mbfl_no_encoding_cp950,
 	mbfl_filt_conv_common_ctor,
-	mbfl_filt_conv_common_dtor,
+	NULL,
 	mbfl_filt_conv_wchar_big5,
-	mbfl_filt_conv_common_flush
+	mbfl_filt_conv_common_flush,
+	NULL,
 };
 
 #define CK(statement)	do { if ((statement) < 0) return (-1); } while (0)

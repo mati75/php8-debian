@@ -6,11 +6,6 @@ require_once(__DIR__.'/skipif.inc');
 ?>
 --FILE--
 <?php
-/* Prototype  : bool imap_close(resource $stream_id [, int $options])
- * Description: Close an IMAP stream
- * Source code: ext/imap/php_imap.c
- */
-
 echo "*** Testing imap_close() : basic functionality ***\n";
 
 // include file for required variables in imap_open()
@@ -22,7 +17,7 @@ $options = CL_EXPUNGE;
 
 // mark messages in inbox for deletion
 for ($i = 1; $i < 4; $i++) {
-	imap_delete($stream_id, $i);
+    imap_delete($stream_id, $i);
 }
 
 // Calling imap_close() with all possible arguments
@@ -37,7 +32,6 @@ echo "There are now " . imap_num_msg($stream_id) . " msgs in mailbox '$mailbox'\
 echo "\n-- Call to imap_close() with mandatory arguments --\n";
 var_dump( imap_close($stream_id) );
 ?>
-===DONE===
 --CLEAN--
 <?php
 require_once(__DIR__.'/clean.inc');
@@ -53,4 +47,3 @@ There are now 0 msgs in mailbox '%sINBOX.phpttest'
 
 -- Call to imap_close() with mandatory arguments --
 bool(true)
-===DONE===

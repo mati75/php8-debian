@@ -1,7 +1,5 @@
 /*
    +----------------------------------------------------------------------+
-   | PHP Version 7                                                        |
-   +----------------------------------------------------------------------+
    | Copyright (c) The PHP Group                                          |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
@@ -421,7 +419,7 @@ finish:
 		smart_str_appends(&req_buf, "\r\n");
 		efree(protocol_version);
 	} else {
-		smart_str_appends(&req_buf, " HTTP/1.0\r\n");
+		smart_str_appends(&req_buf, " HTTP/1.1\r\n");
 	}
 
 	if (context && (tmpzval = php_stream_context_get_option(context, "http", "header")) != NULL) {
