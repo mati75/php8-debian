@@ -85,13 +85,13 @@ Depends: libmagic1,
          mime-support,
          php@PHP_VERSION@-cli,
          php@PHP_VERSION@-common (= ${binary:Version}),
-         php@PHP_VERSION@-json,
          php@PHP_VERSION@-opcache,
          tzdata,
          ucf,
          ${misc:Depends},
          ${shlibs:Depends}
 Provides: libapache2-mod-php,
+          php@PHP_VERSION@-json,
           ${php:Provides}
 Recommends: apache2
 Suggests: php-pear
@@ -112,13 +112,13 @@ Depends: libmagic1,
          mime-support,
          php@PHP_VERSION@-cli,
          php@PHP_VERSION@-common (= ${binary:Version}),
-         php@PHP_VERSION@-json,
          php@PHP_VERSION@-opcache,
          tzdata,
          ucf,
          ${misc:Depends},
          ${shlibs:Depends}
 Provides: libphp-embed,
+          php@PHP_VERSION@-json,
           ${php:Provides}
 Suggests: php-pear
 Description: HTML-embedded scripting language (Embedded SAPI library)
@@ -157,13 +157,13 @@ Depends: libmagic1,
          mime-support,
          php@PHP_VERSION@-cli,
          php@PHP_VERSION@-common (= ${binary:Version}),
-         php@PHP_VERSION@-json,
          php@PHP_VERSION@-opcache,
          tzdata,
          ucf,
          ${misc:Depends},
          ${shlibs:Depends}
 Provides: php-cgi,
+          php@PHP_VERSION@-json,
           ${php:Provides}
 Suggests: php-pear
 Description: server-side, HTML-embedded scripting language (CGI binary)
@@ -184,7 +184,6 @@ Depends: libedit2 (>= 2.11-20080614-4),
          libmagic1,
          mime-support,
          php@PHP_VERSION@-common (= ${binary:Version}),
-         php@PHP_VERSION@-json,
          php@PHP_VERSION@-opcache,
          php@PHP_VERSION@-readline,
          tzdata,
@@ -192,6 +191,7 @@ Depends: libedit2 (>= 2.11-20080614-4),
          ${misc:Depends},
          ${shlibs:Depends}
 Provides: php-cli,
+          php@PHP_VERSION@-json,
           ${php:Provides}
 Suggests: php-pear
 Description: command-line interpreter for the PHP scripting language
@@ -233,7 +233,6 @@ Depends: libmagic1,
          mime-support,
          php@PHP_VERSION@-cli,
          php@PHP_VERSION@-common (= ${binary:Version}),
-         php@PHP_VERSION@-json,
          php@PHP_VERSION@-opcache,
          procps,
          systemd | systemd-tmpfiles,
@@ -242,6 +241,7 @@ Depends: libmagic1,
          ${misc:Depends},
          ${shlibs:Depends}
 Provides: php-fpm,
+          php@PHP_VERSION@-json,
           ${php:Provides}
 Suggests: php-pear
 Pre-Depends: ${misc:Pre-Depends}
@@ -262,13 +262,13 @@ Depends: libmagic1,
          mime-support,
          php@PHP_VERSION@-cli,
          php@PHP_VERSION@-common (= ${binary:Version}),
-         php@PHP_VERSION@-json,
          php@PHP_VERSION@-opcache,
          tzdata,
          ucf,
          ${misc:Depends},
          ${shlibs:Depends}
 Provides: php-phpdbg,
+          php@PHP_VERSION@-json,
           ${php:Provides}
 Recommends: php-readline
 Description: server-side, HTML-embedded scripting language (PHPDBG binary)
