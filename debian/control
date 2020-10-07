@@ -60,7 +60,6 @@ Build-Depends: apache2-dev (>= 2.4),
                libwebp-dev,
                libwrap0-dev,
                libxml2-dev,
-               libxmlrpc-epi-dev,
                libxmltok1-dev,
                libxslt1-dev (>= 1.0.18),
                libzip-dev (>= 1.0.0),
@@ -86,13 +85,13 @@ Depends: libmagic1,
          mime-support,
          php8.0-cli,
          php8.0-common (= ${binary:Version}),
-         php8.0-json,
          php8.0-opcache,
          tzdata,
          ucf,
          ${misc:Depends},
          ${shlibs:Depends}
 Provides: libapache2-mod-php,
+          php8.0-json,
           ${php:Provides}
 Recommends: apache2
 Suggests: php-pear
@@ -113,13 +112,13 @@ Depends: libmagic1,
          mime-support,
          php8.0-cli,
          php8.0-common (= ${binary:Version}),
-         php8.0-json,
          php8.0-opcache,
          tzdata,
          ucf,
          ${misc:Depends},
          ${shlibs:Depends}
 Provides: libphp-embed,
+          php8.0-json,
           ${php:Provides}
 Suggests: php-pear
 Description: HTML-embedded scripting language (Embedded SAPI library)
@@ -158,13 +157,13 @@ Depends: libmagic1,
          mime-support,
          php8.0-cli,
          php8.0-common (= ${binary:Version}),
-         php8.0-json,
          php8.0-opcache,
          tzdata,
          ucf,
          ${misc:Depends},
          ${shlibs:Depends}
 Provides: php-cgi,
+          php8.0-json,
           ${php:Provides}
 Suggests: php-pear
 Description: server-side, HTML-embedded scripting language (CGI binary)
@@ -185,7 +184,6 @@ Depends: libedit2 (>= 2.11-20080614-4),
          libmagic1,
          mime-support,
          php8.0-common (= ${binary:Version}),
-         php8.0-json,
          php8.0-opcache,
          php8.0-readline,
          tzdata,
@@ -193,6 +191,7 @@ Depends: libedit2 (>= 2.11-20080614-4),
          ${misc:Depends},
          ${shlibs:Depends}
 Provides: php-cli,
+          php8.0-json,
           ${php:Provides}
 Suggests: php-pear
 Description: command-line interpreter for the PHP scripting language
@@ -234,7 +233,6 @@ Depends: libmagic1,
          mime-support,
          php8.0-cli,
          php8.0-common (= ${binary:Version}),
-         php8.0-json,
          php8.0-opcache,
          procps,
          systemd | systemd-tmpfiles,
@@ -243,6 +241,7 @@ Depends: libmagic1,
          ${misc:Depends},
          ${shlibs:Depends}
 Provides: php-fpm,
+          php8.0-json,
           ${php:Provides}
 Suggests: php-pear
 Pre-Depends: ${misc:Pre-Depends}
@@ -263,13 +262,13 @@ Depends: libmagic1,
          mime-support,
          php8.0-cli,
          php8.0-common (= ${binary:Version}),
-         php8.0-json,
          php8.0-opcache,
          tzdata,
          ucf,
          ${misc:Depends},
          ${shlibs:Depends}
 Provides: php-phpdbg,
+          php8.0-json,
           ${php:Provides}
 Recommends: php-readline
 Description: server-side, HTML-embedded scripting language (PHPDBG binary)
@@ -539,29 +538,6 @@ Provides: ${php-intl:Provides}
 Recommends: ${php-intl:Recommends}
 Description: Internationalisation module for PHP
  This package provides the Internationalisation module(s) for PHP.
- .
- PHP (recursive acronym for PHP: Hypertext Preprocessor) is a widely-used
- open source general-purpose scripting language that is especially suited
- for web development and can be embedded into HTML.
-
-Package: php8.0-json
-Architecture: any
-Depends: php-common (>= 1:73),
-         ucf,
-         ${misc:Depends},
-         ${php:Depends},
-	 ${php-json:Depends},
-         ${shlibs:Depends}
-Pre-Depends: ${misc:Pre-Depends},
-	     ${php-json:Pre-Depends}
-Built-Using: ${php:Built-Using}
-Replaces: ${php-json:Replaces}
-Breaks: ${php-json:Breaks}
-Conflicts: ${php-json:Conflicts}
-Provides: ${php-json:Provides}
-Recommends: ${php-json:Recommends}
-Description: JSON module for PHP
- This package provides the JSON module(s) for PHP.
  .
  PHP (recursive acronym for PHP: Hypertext Preprocessor) is a widely-used
  open source general-purpose scripting language that is especially suited
@@ -884,29 +860,6 @@ Provides: ${php-xml:Provides}
 Recommends: ${php-xml:Recommends}
 Description: DOM, SimpleXML, XML, and XSL module for PHP
  This package provides the DOM, SimpleXML, XML, and XSL module(s) for PHP.
- .
- PHP (recursive acronym for PHP: Hypertext Preprocessor) is a widely-used
- open source general-purpose scripting language that is especially suited
- for web development and can be embedded into HTML.
-
-Package: php8.0-xmlrpc
-Architecture: any
-Depends: php-common (>= 1:73),
-         ucf,
-         ${misc:Depends},
-         ${php:Depends},
-	 ${php-xmlrpc:Depends},
-         ${shlibs:Depends}
-Pre-Depends: ${misc:Pre-Depends},
-	     ${php-xmlrpc:Pre-Depends}
-Built-Using: ${php:Built-Using}
-Replaces: ${php-xmlrpc:Replaces}
-Breaks: ${php-xmlrpc:Breaks}
-Conflicts: ${php-xmlrpc:Conflicts}
-Provides: ${php-xmlrpc:Provides}
-Recommends: ${php-xmlrpc:Recommends}
-Description: XMLRPC-EPI module for PHP
- This package provides the XMLRPC-EPI module(s) for PHP.
  .
  PHP (recursive acronym for PHP: Hypertext Preprocessor) is a widely-used
  open source general-purpose scripting language that is especially suited
