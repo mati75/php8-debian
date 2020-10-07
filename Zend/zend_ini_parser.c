@@ -1,8 +1,8 @@
-/* A Bison parser, made by GNU Bison 3.0.2.  */
+/* A Bison parser, made by GNU Bison 3.0.4.  */
 
 /* Bison implementation for Yacc-like parsers in C
 
-   Copyright (C) 1984, 1989-1990, 2000-2013 Free Software Foundation, Inc.
+   Copyright (C) 1984, 1989-1990, 2000-2015 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -44,7 +44,7 @@
 #define YYBISON 1
 
 /* Bison version.  */
-#define YYBISON_VERSION "3.0.2"
+#define YYBISON_VERSION "3.0.4"
 
 /* Skeleton name.  */
 #define YYSKELETON_NAME "yacc.c"
@@ -58,7 +58,8 @@
 /* Pull parsers.  */
 #define YYPULL 1
 
-
+/* Substitute the type names.  */
+#define YYSTYPE         INI_STYPE
 /* Substitute the variable and function names.  */
 #define yyparse         ini_parse
 #define yylex           ini_lex
@@ -102,8 +103,6 @@
 #include "win32/syslog.h"
 #endif
 
-#define YYSTYPE zval
-
 int ini_parse(void);
 
 #define ZEND_INI_PARSER_CB	(CG(ini_parser_param))->ini_parser_cb
@@ -132,8 +131,7 @@ static int get_int_val(zval *op) {
 	}
 }
 
-/* {{{ zend_ini_do_op()
-*/
+/* {{{ zend_ini_do_op() */
 static void zend_ini_do_op(char type, zval *result, zval *op1, zval *op2)
 {
 	int i_result;
@@ -170,8 +168,7 @@ static void zend_ini_do_op(char type, zval *result, zval *op1, zval *op2)
 }
 /* }}} */
 
-/* {{{ zend_ini_init_string()
-*/
+/* {{{ zend_ini_init_string() */
 static void zend_ini_init_string(zval *result)
 {
 	if (ZEND_SYSTEM_INI) {
@@ -182,8 +179,7 @@ static void zend_ini_init_string(zval *result)
 }
 /* }}} */
 
-/* {{{ zend_ini_add_string()
-*/
+/* {{{ zend_ini_add_string() */
 static void zend_ini_add_string(zval *result, zval *op1, zval *op2)
 {
 	int length, op1_len;
@@ -211,8 +207,7 @@ static void zend_ini_add_string(zval *result, zval *op1, zval *op2)
 }
 /* }}} */
 
-/* {{{ zend_ini_get_constant()
-*/
+/* {{{ zend_ini_get_constant() */
 static void zend_ini_get_constant(zval *result, zval *name)
 {
 	zval *c, tmp;
@@ -239,8 +234,7 @@ static void zend_ini_get_constant(zval *result, zval *name)
 }
 /* }}} */
 
-/* {{{ zend_ini_get_var()
-*/
+/* {{{ zend_ini_get_var() */
 static void zend_ini_get_var(zval *result, zval *name)
 {
 	zval *curval;
@@ -259,8 +253,7 @@ static void zend_ini_get_var(zval *result, zval *name)
 }
 /* }}} */
 
-/* {{{ ini_error()
-*/
+/* {{{ ini_error() */
 static ZEND_COLD void ini_error(const char *msg)
 {
 	char *error_buf;
@@ -289,9 +282,8 @@ static ZEND_COLD void ini_error(const char *msg)
 }
 /* }}} */
 
-/* {{{ zend_parse_ini_file()
-*/
-ZEND_API int zend_parse_ini_file(zend_file_handle *fh, zend_bool unbuffered_errors, int scanner_mode, zend_ini_parser_cb_t ini_parser_cb, void *arg)
+/* {{{ zend_parse_ini_file() */
+ZEND_API zend_result zend_parse_ini_file(zend_file_handle *fh, zend_bool unbuffered_errors, int scanner_mode, zend_ini_parser_cb_t ini_parser_cb, void *arg)
 {
 	int retval;
 	zend_ini_parser_param ini_parser_param;
@@ -318,9 +310,8 @@ ZEND_API int zend_parse_ini_file(zend_file_handle *fh, zend_bool unbuffered_erro
 }
 /* }}} */
 
-/* {{{ zend_parse_ini_string()
-*/
-ZEND_API int zend_parse_ini_string(char *str, zend_bool unbuffered_errors, int scanner_mode, zend_ini_parser_cb_t ini_parser_cb, void *arg)
+/* {{{ zend_parse_ini_string() */
+ZEND_API zend_result zend_parse_ini_string(char *str, zend_bool unbuffered_errors, int scanner_mode, zend_ini_parser_cb_t ini_parser_cb, void *arg)
 {
 	int retval;
 	zend_ini_parser_param ini_parser_param;
@@ -346,8 +337,7 @@ ZEND_API int zend_parse_ini_string(char *str, zend_bool unbuffered_errors, int s
 }
 /* }}} */
 
-/* {{{ zval_ini_dtor()
-*/
+/* {{{ zval_ini_dtor() */
 static void zval_ini_dtor(zval *zv)
 {
 	if (Z_TYPE_P(zv) == IS_STRING) {
@@ -380,17 +370,25 @@ static void zval_ini_dtor(zval *zv)
 #ifndef YY_INI_ZEND_ZEND_INI_PARSER_H_INCLUDED
 # define YY_INI_ZEND_ZEND_INI_PARSER_H_INCLUDED
 /* Debug traces.  */
-#ifndef YYDEBUG
-# define YYDEBUG 0
-#endif
+#ifndef INI_DEBUG
+# if defined YYDEBUG
 #if YYDEBUG
+#   define INI_DEBUG 1
+#  else
+#   define INI_DEBUG 0
+#  endif
+# else /* ! defined YYDEBUG */
+#  define INI_DEBUG 0
+# endif /* ! defined YYDEBUG */
+#endif  /* ! defined INI_DEBUG */
+#if INI_DEBUG
 extern int ini_debug;
 #endif
 
 /* Token type.  */
-#ifndef YYTOKENTYPE
-# define YYTOKENTYPE
-  enum yytokentype
+#ifndef INI_TOKENTYPE
+# define INI_TOKENTYPE
+  enum ini_tokentype
   {
     END = 0,
     TC_SECTION = 258,
@@ -412,10 +410,10 @@ extern int ini_debug;
 #endif
 
 /* Value type.  */
-#if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-typedef int YYSTYPE;
-# define YYSTYPE_IS_TRIVIAL 1
-# define YYSTYPE_IS_DECLARED 1
+#if ! defined INI_STYPE && ! defined INI_STYPE_IS_DECLARED
+typedef zval INI_STYPE;
+# define INI_STYPE_IS_TRIVIAL 1
+# define INI_STYPE_IS_DECLARED 1
 #endif
 
 
@@ -607,7 +605,7 @@ void free (void *); /* INFRINGES ON USER NAME SPACE */
 
 #if (! defined yyoverflow \
      && (! defined __cplusplus \
-         || (defined YYSTYPE_IS_TRIVIAL && YYSTYPE_IS_TRIVIAL)))
+         || (defined INI_STYPE_IS_TRIVIAL && INI_STYPE_IS_TRIVIAL)))
 
 /* A type that is properly aligned for any stack member.  */
 union yyalloc
@@ -721,20 +719,20 @@ static const yytype_uint8 yytranslate[] =
       15,    16,    17
 };
 
-#if YYDEBUG
+#if INI_DEBUG
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   320,   320,   321,   325,   332,   340,   349,   350,   354,
-     355,   359,   360,   361,   362,   363,   367,   368,   372,   373,
-     374,   378,   379,   380,   381,   382,   383,   387,   388,   389,
-     390,   391,   392,   396,   397,   398,   399,   400,   401,   402,
-     406,   410,   411,   412,   413,   414,   418,   419,   420,   421,
-     422
+       0,   311,   311,   312,   316,   323,   331,   340,   341,   345,
+     346,   350,   351,   352,   353,   354,   358,   359,   363,   364,
+     365,   369,   370,   371,   372,   373,   374,   378,   379,   380,
+     381,   382,   383,   387,   388,   389,   390,   391,   392,   393,
+     397,   401,   402,   403,   404,   405,   409,   410,   411,   412,
+     413
 };
 #endif
 
-#if YYDEBUG || YYERROR_VERBOSE || 1
+#if INI_DEBUG || YYERROR_VERBOSE || 1
 /* YYTNAME[SYMBOL-NUM] -- String name of the symbol SYMBOL-NUM.
    First, the terminals, then, starting at YYNTOKENS, nonterminals.  */
 static const char *const yytname[] =
@@ -928,7 +926,7 @@ while (0)
 
 
 /* Enable debugging if requested.  */
-#if YYDEBUG
+#if INI_DEBUG
 
 # ifndef YYFPRINTF
 #  include <stdio.h> /* INFRINGES ON USER NAME SPACE */
@@ -1049,12 +1047,12 @@ do {                                    \
 /* Nonzero means print parse trace.  It is left uninitialized so that
    multiple parsers can coexist.  */
 int yydebug;
-#else /* !YYDEBUG */
+#else /* !INI_DEBUG */
 # define YYDPRINTF(Args)
 # define YY_SYMBOL_PRINT(Title, Type, Value, Location)
 # define YY_STACK_PRINT(Bottom, Top)
 # define YY_REDUCE_PRINT(Rule)
-#endif /* !YYDEBUG */
+#endif /* !INI_DEBUG */
 
 
 /* YYINITDEPTH -- initial size of the parser's stacks.  */

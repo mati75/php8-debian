@@ -1,8 +1,8 @@
-/* A Bison parser, made by GNU Bison 3.0.2.  */
+/* A Bison parser, made by GNU Bison 3.0.4.  */
 
 /* Bison implementation for Yacc-like parsers in C
 
-   Copyright (C) 1984, 1989-1990, 2000-2013 Free Software Foundation, Inc.
+   Copyright (C) 1984, 1989-1990, 2000-2015 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -44,7 +44,7 @@
 #define YYBISON 1
 
 /* Bison version.  */
-#define YYBISON_VERSION "3.0.2"
+#define YYBISON_VERSION "3.0.4"
 
 /* Skeleton name.  */
 #define YYSKELETON_NAME "yacc.c"
@@ -58,7 +58,8 @@
 /* Pull parsers.  */
 #define YYPULL 1
 
-
+/* Substitute the type names.  */
+#define YYSTYPE         PHPDBG_STYPE
 /* Substitute the variable and function names.  */
 #define yyparse         phpdbg_parse
 #define yylex           phpdbg_lex
@@ -68,35 +69,6 @@
 
 
 /* Copy the first part of user declarations.  */
-
-
-
-/*
- * phpdbg_parser.y
- * (from php-src root)
- */
-
-#include "phpdbg.h"
-#include "phpdbg_cmd.h"
-#include "phpdbg_utils.h"
-#include "phpdbg_cmd.h"
-#include "phpdbg_prompt.h"
-
-#define YYSTYPE phpdbg_param_t
-
-#include "phpdbg_parser.h"
-#include "phpdbg_lexer.h"
-
-#undef yyerror
-static int yyerror(const char *msg);
-
-ZEND_EXTERN_MODULE_GLOBALS(phpdbg)
-
-#ifdef _MSC_VER
-#define YYMALLOC malloc
-#define YYFREE free
-#endif
-
 
 
 
@@ -121,10 +93,18 @@ ZEND_EXTERN_MODULE_GLOBALS(phpdbg)
 #ifndef YY_PHPDBG_SAPI_PHPDBG_PHPDBG_PARSER_H_INCLUDED
 # define YY_PHPDBG_SAPI_PHPDBG_PHPDBG_PARSER_H_INCLUDED
 /* Debug traces.  */
-#ifndef YYDEBUG
-# define YYDEBUG 0
-#endif
+#ifndef PHPDBG_DEBUG
+# if defined YYDEBUG
 #if YYDEBUG
+#   define PHPDBG_DEBUG 1
+#  else
+#   define PHPDBG_DEBUG 0
+#  endif
+# else /* ! defined YYDEBUG */
+#  define PHPDBG_DEBUG 0
+# endif /* ! defined YYDEBUG */
+#endif  /* ! defined PHPDBG_DEBUG */
+#if PHPDBG_DEBUG
 extern int phpdbg_debug;
 #endif
 /* "%code requires" blocks.  */
@@ -139,9 +119,9 @@ typedef void* yyscan_t;
 
 
 /* Token type.  */
-#ifndef YYTOKENTYPE
-# define YYTOKENTYPE
-  enum yytokentype
+#ifndef PHPDBG_TOKENTYPE
+# define PHPDBG_TOKENTYPE
+  enum phpdbg_tokentype
   {
     T_EVAL = 258,
     T_RUN = 259,
@@ -167,10 +147,10 @@ typedef void* yyscan_t;
 #endif
 
 /* Value type.  */
-#if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-typedef int YYSTYPE;
-# define YYSTYPE_IS_TRIVIAL 1
-# define YYSTYPE_IS_DECLARED 1
+#if ! defined PHPDBG_STYPE && ! defined PHPDBG_STYPE_IS_DECLARED
+typedef phpdbg_param_t PHPDBG_STYPE;
+# define PHPDBG_STYPE_IS_TRIVIAL 1
+# define PHPDBG_STYPE_IS_DECLARED 1
 #endif
 
 
@@ -180,6 +160,30 @@ int phpdbg_parse (void);
 #endif /* !YY_PHPDBG_SAPI_PHPDBG_PHPDBG_PARSER_H_INCLUDED  */
 
 /* Copy the second part of user declarations.  */
+
+
+/* Unqualified %code blocks.  */
+
+
+
+#include "phpdbg_cmd.h"
+#include "phpdbg_utils.h"
+#include "phpdbg_cmd.h"
+#include "phpdbg_prompt.h"
+
+#include "phpdbg_parser.h"
+#include "phpdbg_lexer.h"
+
+#undef yyerror
+static int yyerror(const char *msg);
+
+ZEND_EXTERN_MODULE_GLOBALS(phpdbg)
+
+#ifdef _MSC_VER
+#define YYMALLOC malloc
+#define YYFREE free
+#endif
+
 
 
 
@@ -362,7 +366,7 @@ void free (void *); /* INFRINGES ON USER NAME SPACE */
 
 #if (! defined yyoverflow \
      && (! defined __cplusplus \
-         || (defined YYSTYPE_IS_TRIVIAL && YYSTYPE_IS_TRIVIAL)))
+         || (defined PHPDBG_STYPE_IS_TRIVIAL && PHPDBG_STYPE_IS_TRIVIAL)))
 
 /* A type that is properly aligned for any stack member.  */
 union yyalloc
@@ -476,7 +480,7 @@ static const yytype_uint8 yytranslate[] =
       15,    16,    17,    18,    19,    20,    21,    22
 };
 
-#if YYDEBUG
+#if PHPDBG_DEBUG
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
@@ -487,7 +491,7 @@ static const yytype_uint8 yyrline[] =
 };
 #endif
 
-#if YYDEBUG || YYERROR_VERBOSE || 1
+#if PHPDBG_DEBUG || YYERROR_VERBOSE || 1
 /* YYTNAME[SYMBOL-NUM] -- String name of the symbol SYMBOL-NUM.
    First, the terminals, then, starting at YYNTOKENS, nonterminals.  */
 static const char *const yytname[] =
@@ -651,7 +655,7 @@ while (0)
 
 
 /* Enable debugging if requested.  */
-#if YYDEBUG
+#if PHPDBG_DEBUG
 
 # ifndef YYFPRINTF
 #  include <stdio.h> /* INFRINGES ON USER NAME SPACE */
@@ -772,12 +776,12 @@ do {                                    \
 /* Nonzero means print parse trace.  It is left uninitialized so that
    multiple parsers can coexist.  */
 int yydebug;
-#else /* !YYDEBUG */
+#else /* !PHPDBG_DEBUG */
 # define YYDPRINTF(Args)
 # define YY_SYMBOL_PRINT(Title, Type, Value, Location)
 # define YY_STACK_PRINT(Bottom, Top)
 # define YY_REDUCE_PRINT(Rule)
-#endif /* !YYDEBUG */
+#endif /* !PHPDBG_DEBUG */
 
 
 /* YYINITDEPTH -- initial size of the parser's stacks.  */

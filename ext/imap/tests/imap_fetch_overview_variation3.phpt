@@ -6,11 +6,6 @@ require_once(__DIR__.'/skipif.inc');
 ?>
 --FILE--
 <?php
-/* Prototype  : array imap_fetch_overview(resource $stream_id, int $msg_no [, int $options])
- * Description: Read an overview of the information in the headers of the given message sequence
- * Source code: ext/imap/php_imap.c
- */
-
 /*
  * Test passing a range of values into the $options argument to imap_fetch_overview():
  * 1. values that equate to 1
@@ -30,25 +25,24 @@ $options = array ('1',
                   true,
                   1.000000000000001,
                   0.00001e5,
-                  PHP_INT_MAX,
-                  -PHP_INT_MAX
+                  245
                  );
 
-// iterate over each element of $options array
-$iterator = 1;
 imap_check($stream_id);
 foreach($options as $option) {
-	echo "\nTesting with option value:";
-	var_dump($option);
-	$overview = imap_fetch_overview($stream_id, $msg_uid, $option);
-	if ($overview) {
-                echo "imap_fetch_overview() returns an object\n";
+    echo "\nTesting with option value:";
+    var_dump($option);
+    try {
+        $overview = imap_fetch_overview($stream_id, $msg_uid, $option);
+        if ($overview) {
+            echo "imap_fetch_overview() returns an object\n";
         }
-	$iterator++;
+    } catch (\ValueError $e) {
+        echo $e->getMessage() . \PHP_EOL;
+    }
 }
 
 ?>
-===DONE===
 --CLEAN--
 <?php
 require_once(__DIR__.'/clean.inc');
@@ -64,17 +58,11 @@ imap_fetch_overview() returns an object
 Testing with option value:bool(true)
 imap_fetch_overview() returns an object
 
-Testing with option value:float(1)
+Testing with option value:float(1.000000000000001)
 imap_fetch_overview() returns an object
 
 Testing with option value:float(1)
 imap_fetch_overview() returns an object
 
-Testing with option value:int(%d)
-
-Warning: imap_fetch_overview(): invalid value for the options parameter in %s on line %d
-
-Testing with option value:int(-%d)
-
-Warning: imap_fetch_overview(): invalid value for the options parameter in %s on line %d
-===DONE===
+Testing with option value:int(245)
+imap_fetch_overview(): Argument #3 ($options) must be FT_UID or 0

@@ -1,8 +1,8 @@
-/* A Bison parser, made by GNU Bison 3.0.2.  */
+/* A Bison parser, made by GNU Bison 3.0.4.  */
 
 /* Bison interface for Yacc-like parsers in C
 
-   Copyright (C) 1984, 1989-1990, 2000-2013 Free Software Foundation, Inc.
+   Copyright (C) 1984, 1989-1990, 2000-2015 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -33,10 +33,18 @@
 #ifndef YY_PHPDBG_SAPI_PHPDBG_PHPDBG_PARSER_H_INCLUDED
 # define YY_PHPDBG_SAPI_PHPDBG_PHPDBG_PARSER_H_INCLUDED
 /* Debug traces.  */
-#ifndef YYDEBUG
-# define YYDEBUG 0
-#endif
+#ifndef PHPDBG_DEBUG
+# if defined YYDEBUG
 #if YYDEBUG
+#   define PHPDBG_DEBUG 1
+#  else
+#   define PHPDBG_DEBUG 0
+#  endif
+# else /* ! defined YYDEBUG */
+#  define PHPDBG_DEBUG 0
+# endif /* ! defined YYDEBUG */
+#endif  /* ! defined PHPDBG_DEBUG */
+#if PHPDBG_DEBUG
 extern int phpdbg_debug;
 #endif
 /* "%code requires" blocks.  */
@@ -51,9 +59,9 @@ typedef void* yyscan_t;
 
 
 /* Token type.  */
-#ifndef YYTOKENTYPE
-# define YYTOKENTYPE
-  enum yytokentype
+#ifndef PHPDBG_TOKENTYPE
+# define PHPDBG_TOKENTYPE
+  enum phpdbg_tokentype
   {
     T_EVAL = 258,
     T_RUN = 259,
@@ -79,10 +87,10 @@ typedef void* yyscan_t;
 #endif
 
 /* Value type.  */
-#if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-typedef int YYSTYPE;
-# define YYSTYPE_IS_TRIVIAL 1
-# define YYSTYPE_IS_DECLARED 1
+#if ! defined PHPDBG_STYPE && ! defined PHPDBG_STYPE_IS_DECLARED
+typedef phpdbg_param_t PHPDBG_STYPE;
+# define PHPDBG_STYPE_IS_TRIVIAL 1
+# define PHPDBG_STYPE_IS_DECLARED 1
 #endif
 
 
