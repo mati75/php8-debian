@@ -134,20 +134,6 @@ Files: ext/mbstring/ucgendat/
 Copyright: 1999-2003 The OpenLDAP Foundation
 License: OpenLDAP
 
-Files: ext/xmlrpc/libxmlrpc/base64.h ext/xmlrpc/libxmlrpc/base64.c
-Copyright: John Walker
-Licence: public-domain
- This program is in the public domain.
-
-Files: ext/xmlrpc/libxmlrpc/queue.c ext/xmlrpc/libxmlrpc/queue.h
-Copyright: 1993 Peter Yard
-Licence: PD
- This code is released to the public domain.
-
-Files: ext/xmlrpc/libxmlrpc/*
-Copyright: (C) 2000-2001 Epinions, Inc.
-License: Expat
-
 Files: ext/zip/lib/*
 Copyright: 1999-2008 Dieter Baron and Thomas Klausner
 License: BSD-3-clause
