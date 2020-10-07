@@ -1,3 +1,9 @@
+php8.0 (8.0.0~rc1~-0) unstable; urgency=low
+
+  * Placeholder changelog entry
+
+ -- Ondřej Surý <ondrej@debian.org>  Wed, 07 Oct 2020 10:30:22 +0200
+
 php7.4 (7.4.11-1) unstable; urgency=medium
 
   * New upstream version 7.4.11

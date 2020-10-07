@@ -1,3 +1,4 @@
 version=4
-opts=pgpsigurlmangle=s/$/.asc/ \
-https://www.php.net/downloads.php /distributions/php-(7\.4\..*)\.tar\.xz debian
+opts=pgpsigurlmangle=s/$/.asc/,\
+uversionmangle=s/(\d)[_\.\-\+]?((RC|rc|pre|dev|beta|alpha)\d*)$/$1~$2/ \
+https://downloads.php.net/~carusogabriel/ php-(8\.0\..*)\.tar\.xz debian
