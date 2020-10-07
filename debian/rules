@@ -478,9 +478,9 @@ override_dh_installdirs: prepare-files-stamp
 
 override_dh_install-arch: remove-files-stamp prepare-fpm-pools
 # Rename Apache2 SAPI
-	mv -u debian/tmp/usr/lib/apache2/modules/libphp$(PHP_MAJOR_VERSION).so debian/tmp/usr/lib/apache2/modules/libphp$(PHP_NAME_VERSION).so
+	mv -u debian/tmp/usr/lib/apache2/modules/libphp.so debian/tmp/usr/lib/apache2/modules/libphp$(PHP_NAME_VERSION).so
 # Rename embed SAPI
-	mv -u debian/tmp/usr/lib/php/libphp$(PHP_MAJOR_VERSION).so debian/tmp/usr/lib/libphp$(PHP_NAME_VERSION).so
+	mv -u debian/tmp/usr/lib/php/libphp.so debian/tmp/usr/lib/libphp$(PHP_NAME_VERSION).so
 # Install extra CGI-BIN
 	install -d -m 755 debian/tmp/usr/lib/cgi-bin/
 	ln debian/tmp/usr/bin/php-cgi$(PHP_NAME_VERSION) debian/tmp/usr/lib/cgi-bin/php$(PHP_NAME_VERSION)
