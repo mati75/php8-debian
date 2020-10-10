@@ -1,3 +1,9 @@
+php7.4 (7.4.11-2) unstable; urgency=medium
+
+  * Disable the MySQL extension testing as it's too complicated
+
+ -- Ondřej Surý <ondrej@debian.org>  Sat, 10 Oct 2020 21:44:18 +0200
+
 php7.4 (7.4.11-1) unstable; urgency=medium
 
   * New upstream version 7.4.11
