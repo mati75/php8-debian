@@ -1,3 +1,9 @@
+php7.3 (7.3.23-2) unstable; urgency=medium
+
+  * Disable the MySQL extension testing as it's too complicated
+
+ -- Ondřej Surý <ondrej@debian.org>  Sat, 10 Oct 2020 21:44:01 +0200
+
 php7.3 (7.3.23-1) unstable; urgency=medium
 
   * New upstream version 7.3.23
