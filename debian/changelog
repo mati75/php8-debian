@@ -1,3 +1,17 @@
+php8.0 (8.0.0~rc1-3) unstable; urgency=medium
+
+  [ Chris Hofstaedtler ]
+  * Use netcat-openbsd to build instead of netcat-traditional (Closes: #963261)
+
+  [ Pino Toscano ]
+  * Disable AppArmor support on non-Linux archs (Closes: #951857)
+  * Enable systemd integration only on Linux archs (Closes: #951834)
+
+  [ Ondřej Surý ]
+  * Use just php_module in the apache2 .load file
+
+ -- Ondřej Surý <ondrej@debian.org>  Sun, 11 Oct 2020 16:01:02 +0200
+
 php8.0 (8.0.0~rc1-2) unstable; urgency=medium
 
   * Disable the MySQL extension testing as it's too complicated
