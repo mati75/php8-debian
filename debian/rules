@@ -112,6 +112,10 @@ else
   CONFIGURE_DTRACE_ARGS := --disable-dtrace
 endif
 
+ifeq ($(DEB_HOST_ARCH_OS),linux)
+  CONFIGURE_SYSTEMD := --with-fpm-systemd
+endif
+
 # specify some options to our patch system
 QUILT_DIFF_OPTS := -p
 QUILT_NO_DIFF_TIMESTAMPS := 1
@@ -220,7 +224,7 @@ export fpm_config = \
 		--with-config-file-scan-dir=/etc/php/$(PHP_NAME_VERSION)/fpm/conf.d \
 		$(COMMON_CONFIG) \
 		--with-libevent-dir=/usr \
-		--with-fpm-systemd
+		$(CONFIGURE_SYSTEMD)
 
 export phpdbg_config = \
 		--prefix=/usr --enable-phpdbg --enable-cli --disable-cgi \
