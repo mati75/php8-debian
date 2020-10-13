@@ -1,3 +1,22 @@
+php8.0 (8.0.0~rc1-2) unstable; urgency=medium
+
+  * Disable the MySQL extension testing as it's too complicated
+
+ -- Ondřej Surý <ondrej@debian.org>  Sat, 10 Oct 2020 21:45:35 +0200
+
+php8.0 (8.0.0~rc1-1) unstable; urgency=medium
+
+  * Regenerate d/control for PHP 8.0
+  * New upstream version 8.0.0~rc1
+  * Specify the socket via ./configure option rather than patch
+  * XMLRPC extension is no longer bundled
+  * The JSON extension is always available
+  * Fix syntax-error-in-dep5-copyright
+  * Update lintian overrides
+  * Remove obsolete d/NEWS
+
+ -- Ondřej Surý <ondrej@debian.org>  Wed, 07 Oct 2020 20:11:17 +0200
+
 php8.0 (8.0.0~rc1-0.2) unstable; urgency=medium
 
   * Non-maintainer upload.
@@ -69,6 +88,47 @@ php8.0 (8.0.0~alpha1~git20200515-0.1) experimental; urgency=medium
   * Change PHPAPI to 20190128
 
  -- Mateusz Łukasik <mati75@linuxmint.pl>  Fri, 15 May 2020 22:58:03 +0200
+
+php7.4 (7.4.11-1) unstable; urgency=medium
+
+  * New upstream version 7.4.11
+
+ -- Ondřej Surý <ondrej@debian.org>  Tue, 06 Oct 2020 12:34:39 +0200
+
+php7.4 (7.4.10-1) unstable; urgency=medium
+
+  * New upstream version 7.4.10
+  * Lower the minimal debhelper dependency to >= 9.20150101~
+  * Use libenchant-dev as Build-Depends alternative to libenchant-2-dev
+  * Remove deprecated calls from enchant-2 (Closes: #954855)
+
+ -- Ondřej Surý <ondrej@debian.org>  Tue, 08 Sep 2020 12:22:27 +0200
+
+php7.4 (7.4.9-2) unstable; urgency=medium
+
+  * Pull upstream patch for enchant-2 and change build-dep (Closes: #954855)
+
+ -- Ondřej Surý <ondrej@debian.org>  Thu, 27 Aug 2020 15:37:23 +0200
+
+php7.4 (7.4.9-1) unstable; urgency=medium
+
+  * New upstream version 7.4.9
+
+ -- Ondřej Surý <ondrej@debian.org>  Fri, 07 Aug 2020 16:27:40 +0200
+
+php7.4 (7.4.8-1) unstable; urgency=medium
+
+  * Finish updating the packaging to dh compat level 10
+  * New upstream version 7.4.8
+  * Adjust for upstream phar.phar -> phar7.4.phar binary rename
+
+ -- Ondřej Surý <ondrej@debian.org>  Mon, 13 Jul 2020 18:35:53 +0200
+
+php7.4 (7.4.7-1) unstable; urgency=medium
+
+  * New upstream version 7.4.7
+
+ -- Ondřej Surý <ondrej@debian.org>  Fri, 12 Jun 2020 09:42:27 +0200
 
 php7.4 (7.4.6-1) unstable; urgency=medium
 

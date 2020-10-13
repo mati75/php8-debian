@@ -134,20 +134,6 @@ Files: ext/mbstring/ucgendat/
 Copyright: 1999-2003 The OpenLDAP Foundation
 License: OpenLDAP
 
-Files: ext/xmlrpc/libxmlrpc/base64.h ext/xmlrpc/libxmlrpc/base64.c
-Copyright: John Walker
-Licence: public-domain
- This program is in the public domain.
-
-Files: ext/xmlrpc/libxmlrpc/queue.c ext/xmlrpc/libxmlrpc/queue.h
-Copyright: 1993 Peter Yard
-Licence: PD
- This code is released to the public domain.
-
-Files: ext/xmlrpc/libxmlrpc/*
-Copyright: (C) 2000-2001 Epinions, Inc.
-License: Expat
-
 Files: ext/zip/lib/*
 Copyright: 1999-2008 Dieter Baron and Thomas Klausner
 License: BSD-3-clause
@@ -578,22 +564,22 @@ License: CC0
 
   ii. moral rights retained by the original author(s) and/or
       performer(s);
-
+ .
   iii. publicity and privacy rights pertaining to a person's image or
        likeness depicted in a Work;
-
+ .
   iv. rights protecting against unfair competition in regards to a
       Work, subject to the limitations in paragraph 4(a), below;
-
+ .
   v. rights protecting the extraction, dissemination, use and reuse of
      data in a Work;
-
+ .
   vi. database rights (such as those arising under Directive 96/9/EC
       of the European Parliament and of the Council of 11 March 1996
       on the legal protection of databases, and under any national
       implementation thereof, including any amended or successor
       version of such directive); and
-
+ .
   vii. other similar, equivalent or corresponding rights throughout
        the world based on applicable law or treaty, and any national
        implementations thereof.
@@ -646,7 +632,7 @@ License: CC0
   a. No trademark or patent rights held by Affirmer are waived,
      abandoned, surrendered, licensed or otherwise affected by this
      document.
-
+ .
   b. Affirmer offers the Work as-is and makes no representations or
      warranties of any kind concerning the Work, express, implied,
      statutory or otherwise, including without limitation warranties
@@ -655,14 +641,14 @@ License: CC0
      accuracy, or the present or absence of errors, whether or not
      discoverable, all to the greatest extent permissible under
      applicable law.
-
+ .
   c. Affirmer disclaims responsibility for clearing rights of other
      persons that may apply to the Work or any use thereof, including
      without limitation any person's Copyright and Related Rights in
      the Work. Further, Affirmer disclaims responsibility for
      obtaining any necessary consents, permissions or other rights
      required for any use of the Work.
-
+ .
   d. Affirmer understands and acknowledges that Creative Commons is
      not a party to this document and has no duty or obligation with
      respect to this CC0 or use of the Work.

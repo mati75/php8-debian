@@ -7,7 +7,7 @@ Subject: Amend C++11 for intl compilation on older distributions
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/ext/intl/config.m4 b/ext/intl/config.m4
-index 7285f75..048424b 100644
+index b511f00..acfad5d 100644
 --- a/ext/intl/config.m4
 +++ b/ext/intl/config.m4
 @@ -84,7 +84,7 @@ if test "$PHP_INTL" != "no"; then

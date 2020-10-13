@@ -6,11 +6,11 @@ Subject: Fix ext/date/lib/parse_tz PATH_MAX HURD FTBFS
  ext/date/lib/parse_tz.c | 55 ++++++++++++++++++++++++++++++++++++-------------
  1 file changed, 41 insertions(+), 14 deletions(-)
 
-Index: php-8.0.0beta4/ext/date/lib/parse_tz.c
-===================================================================
---- php-8.0.0beta4.orig/ext/date/lib/parse_tz.c
-+++ php-8.0.0beta4/ext/date/lib/parse_tz.c
-@@ -543,13 +543,19 @@ static char *parse_iso6709(char *p, doub
+diff --git a/ext/date/lib/parse_tz.c b/ext/date/lib/parse_tz.c
+index 4b70178..edcb822 100644
+--- a/ext/date/lib/parse_tz.c
++++ b/ext/date/lib/parse_tz.c
+@@ -543,13 +543,19 @@ static char *parse_iso6709(char *p, double *result)
  static struct location_info **create_location_table(void)
  {
      struct location_info **li, *i;
@@ -32,7 +32,7 @@ Index: php-8.0.0beta4/ext/date/lib/parse_tz.c
      if (!fp) {
          return NULL;
      }
-@@ -684,12 +690,14 @@ static void create_zone_index(timelib_tz
+@@ -684,12 +690,14 @@ static void create_zone_index(timelib_tzdb *db)
  
  	do {
  		struct dirent **ents;
@@ -50,7 +50,7 @@ Index: php-8.0.0beta4/ext/date/lib/parse_tz.c
  
  		count = php_scandir(name, &ents, index_filter, php_alphasort);
  
-@@ -697,7 +705,9 @@ static void create_zone_index(timelib_tz
+@@ -697,7 +705,9 @@ static void create_zone_index(timelib_tzdb *db)
  			struct stat st;
  			const char *leaf = ents[count - 1]->d_name;
  
@@ -61,7 +61,7 @@ Index: php-8.0.0beta4/ext/date/lib/parse_tz.c
  				 top, leaf);
  			
  			if (strlen(name) && stat(name, &st) == 0) {
-@@ -706,7 +716,9 @@ static void create_zone_index(timelib_tz
+@@ -706,7 +716,9 @@ static void create_zone_index(timelib_tzdb *db)
  
  				if (root[0] == '/') root++;
  
@@ -72,7 +72,7 @@ Index: php-8.0.0beta4/ext/date/lib/parse_tz.c
  					 *root ? "/": "", leaf);
  
  				if (S_ISDIR(st.st_mode)) {
-@@ -732,6 +744,7 @@ static void create_zone_index(timelib_tz
+@@ -732,6 +744,7 @@ static void create_zone_index(timelib_tzdb *db)
  		}
  		
  		if (count != -1) free(ents);
@@ -80,7 +80,7 @@ Index: php-8.0.0beta4/ext/date/lib/parse_tz.c
  		free(top);
  	} while (dirstack_top);
  
-@@ -830,18 +843,24 @@ static const char *canonical_tzname(cons
+@@ -830,18 +843,24 @@ static const char *canonical_tzname(const char *timezone)
   * length of the mapped data is placed in *length. */
  static char *map_tzfile(const char *timezone, size_t *length)
  {
@@ -109,7 +109,7 @@ Index: php-8.0.0beta4/ext/date/lib/parse_tz.c
  	if (fd == -1) {
  		return NULL;
  	} else if (fstat(fd, &st) != 0 || !is_valid_tzfile(&st, fd)) {
-@@ -940,7 +959,9 @@ int timelib_timezone_id_is_valid(const c
+@@ -940,7 +959,9 @@ int timelib_timezone_id_is_valid(const char *timezone, const timelib_tzdb *tzdb)
  
  #ifdef HAVE_SYSTEM_TZDATA
  	if (tzdb == timezonedb_system) {
@@ -120,7 +120,7 @@ Index: php-8.0.0beta4/ext/date/lib/parse_tz.c
  		struct stat st;
  
  		if (timezone[0] == '\0' || strstr(timezone, "..") != NULL) {
-@@ -954,9 +975,15 @@ int timelib_timezone_id_is_valid(const c
+@@ -954,9 +975,15 @@ int timelib_timezone_id_is_valid(const char *timezone, const timelib_tzdb *tzdb)
  			}
  		}
  

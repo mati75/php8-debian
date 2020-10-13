@@ -18,7 +18,7 @@ Build-Depends: apache2-dev (>= 2.4),
                firebird-dev [!hurd-any !m68k !hppa !ppc64] | firebird2.5-dev [!hurd-any !m68k !hppa !ppc64] | firebird2.1-dev [!hurd-any !m68k !hppa !ppc64],
                flex,
                freetds-dev,
-               libapparmor-dev,
+               libapparmor-dev [linux-any],
                libapr1-dev (>= 1.2.7-8),
                libargon2-dev | libargon2-0-dev,
                libbz2-dev,
@@ -26,7 +26,7 @@ Build-Depends: apache2-dev (>= 2.4),
                libcurl4-openssl-dev | libcurl-dev,
                libdb-dev,
                libedit-dev (>= 2.11-20080614-4),
-               libenchant-dev,
+               libenchant-2-dev | libenchant-dev,
                libevent-dev (>= 1.4.11),
                libexpat1-dev (>= 1.95.2-2.1),
                libffi-dev,
@@ -61,13 +61,12 @@ Build-Depends: apache2-dev (>= 2.4),
                libwebp-dev,
                libwrap0-dev,
                libxml2-dev,
-               libxmlrpc-epi-dev,
                libxmltok1-dev,
                libxslt1-dev (>= 1.0.18),
                libzip-dev (>= 1.0.0),
                locales-all | language-pack-de,
                netbase,
-               netcat-traditional,
+               netcat-openbsd,
                re2c,
                systemtap-sdt-dev [amd64 i386 powerpc armel armhf ia64],
                tzdata,
@@ -93,6 +92,7 @@ Depends: libmagic1,
          ${misc:Depends},
          ${shlibs:Depends}
 Provides: libapache2-mod-php,
+          php8.0-json,
           ${php:Provides}
 Recommends: apache2
 Suggests: php-pear
@@ -119,6 +119,7 @@ Depends: libmagic1,
          ${misc:Depends},
          ${shlibs:Depends}
 Provides: libphp-embed,
+          php8.0-json,
           ${php:Provides}
 Suggests: php-pear
 Description: HTML-embedded scripting language (Embedded SAPI library)
@@ -163,6 +164,7 @@ Depends: libmagic1,
          ${misc:Depends},
          ${shlibs:Depends}
 Provides: php-cgi,
+          php8.0-json,
           ${php:Provides}
 Suggests: php-pear
 Description: server-side, HTML-embedded scripting language (CGI binary)
@@ -190,6 +192,7 @@ Depends: libedit2 (>= 2.11-20080614-4),
          ${misc:Depends},
          ${shlibs:Depends}
 Provides: php-cli,
+          php8.0-json,
           ${php:Provides}
 Suggests: php-pear
 Description: command-line interpreter for the PHP scripting language
@@ -239,6 +242,7 @@ Depends: libmagic1,
          ${misc:Depends},
          ${shlibs:Depends}
 Provides: php-fpm,
+          php8.0-json,
           ${php:Provides}
 Suggests: php-pear
 Pre-Depends: ${misc:Pre-Depends}
@@ -265,6 +269,7 @@ Depends: libmagic1,
          ${misc:Depends},
          ${shlibs:Depends}
 Provides: php-phpdbg,
+          php8.0-json,
           ${php:Provides}
 Recommends: php-readline
 Description: server-side, HTML-embedded scripting language (PHPDBG binary)

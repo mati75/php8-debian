@@ -44,7 +44,7 @@ index fa55751..1efacd8 100644
  
    PHP_INSTALL_HEADERS([ext/gmp/php_gmp_int.h])
 diff --git a/ext/ldap/config.m4 b/ext/ldap/config.m4
-index f10cccc..766b551 100644
+index 89c4b19..2c3b524 100644
 --- a/ext/ldap/config.m4
 +++ b/ext/ldap/config.m4
 @@ -65,14 +65,11 @@ if test "$PHP_LDAP" != "no"; then
