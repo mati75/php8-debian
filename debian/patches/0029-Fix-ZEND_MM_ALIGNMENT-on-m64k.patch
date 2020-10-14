@@ -27,4 +27,4 @@ index 3fdba96..03c9c22 100644
 +  fprintf(fp, "%d %d\n", ZEND_MM_ALIGNMENT < 4 ? 4 : ZEND_MM_ALIGNMENT, zeros);  
    fclose(fp);
  
-   exit(0);
+   return 0;
