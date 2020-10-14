@@ -1,3 +1,10 @@
+php8.0 (8.0.0~rc2-0.1) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * New upstream version 8.0.0~rc2
+
+ -- Mateusz Łukasik <mati75@linuxmint.pl>  Wed, 14 Oct 2020 08:35:31 +0200
+
 php8.0 (8.0.0~rc1-2) unstable; urgency=medium
 
   * Disable the MySQL extension testing as it's too complicated
