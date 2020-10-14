@@ -199,9 +199,9 @@ zend_object *php_gd_image_object_create(zend_class_entry *class_type)
 static void php_gd_image_object_free(zend_object *intern)
 {
 	php_gd_image_object *img_obj_ptr = php_gd_exgdimage_from_zobj_p(intern);
-	gdImageDestroy(img_obj_ptr->image);
-	img_obj_ptr->image = NULL;
-
+	if (img_obj_ptr->image) {
+		gdImageDestroy(img_obj_ptr->image);
+	}
 	zend_object_std_dtor(intern);
 }
 
@@ -1140,7 +1140,7 @@ PHP_FUNCTION(imagecopyresampled)
 PHP_FUNCTION(imagegrabwindow)
 {
 	HWND window;
-	zend_long client_area = 0;
+	zend_bool client_area = 0;
 	RECT rc = {0};
 	int Width, Height;
 	HDC		hdc;
@@ -1150,7 +1150,7 @@ PHP_FUNCTION(imagegrabwindow)
 	zend_long lwindow_handle;
 	gdImagePtr im = NULL;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "l|l", &lwindow_handle, &client_area) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "l|b", &lwindow_handle, &client_area) == FAILURE) {
 		RETURN_THROWS();
 	}
 
@@ -1269,9 +1269,9 @@ PHP_FUNCTION(imagerotate)
 	gdImagePtr im_dst, im_src;
 	double degrees;
 	zend_long color;
-	zend_long ignoretransparent = 0;
+	zend_bool ignoretransparent = 0;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "Odl|l", &SIM, gd_image_ce,  &degrees, &color, &ignoretransparent) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "Odl|b", &SIM, gd_image_ce,  &degrees, &color, &ignoretransparent) == FAILURE) {
 		RETURN_THROWS();
 	}
 
@@ -2579,11 +2579,11 @@ PHP_FUNCTION(imagecolortransparent)
 PHP_FUNCTION(imageinterlace)
 {
 	zval *IM;
-	zend_long INT = 0;
+	zend_bool INT = 0;
 	zend_bool INT_IS_NULL = 1;
 	gdImagePtr im;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "O|l!", &IM, gd_image_ce, &INT, &INT_IS_NULL) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "O|b!", &IM, gd_image_ce, &INT, &INT_IS_NULL) == FAILURE) {
 		RETURN_THROWS();
 	}
 
