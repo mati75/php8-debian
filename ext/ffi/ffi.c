@@ -4428,7 +4428,7 @@ ZEND_METHOD(FFI, isNull) /* {{{ */
 /* }}} */
 
 
-ZEND_METHOD(CType, getName) /* {{{ */
+ZEND_METHOD(FFI_CType, getName) /* {{{ */
 {
 	zend_ffi_ctype *ctype = (zend_ffi_ctype*)(Z_OBJ_P(ZEND_THIS));
 	if (zend_parse_parameters_none() == FAILURE) {
@@ -5004,7 +5004,7 @@ ZEND_MINIT_FUNCTION(ffi)
 	zend_ffi_cdata_free_handlers.get_properties       = zend_fake_get_properties;
 	zend_ffi_cdata_free_handlers.get_gc               = zend_fake_get_gc;
 
-	INIT_NS_CLASS_ENTRY(ce, "FFI", "CType", class_CType_methods);
+	INIT_NS_CLASS_ENTRY(ce, "FFI", "CType", class_FFI_CType_methods);
 	zend_ffi_ctype_ce = zend_register_internal_class(&ce);
 	zend_ffi_ctype_ce->ce_flags |= ZEND_ACC_FINAL;
 	zend_ffi_ctype_ce->create_object = zend_ffi_ctype_new;
@@ -7302,11 +7302,11 @@ void zend_ffi_val_character(zend_ffi_val *val, const char *str, size_t str_len) 
 				val->ch = '\t';
 			} else if (str[2] == 'v' && str_len == 4) {
 				val->ch = '\v';
-			} else if (str[2] >= '0' || str[2] <= '7') {
+			} else if (str[2] >= '0' && str[2] <= '7') {
 				n = str[2] - '0';
-				if (str[3] >= '0' || str[3] <= '7') {
+				if (str[3] >= '0' && str[3] <= '7') {
 					n = n * 8 + (str[3] - '0');
-					if ((str[4] >= '0' || str[4] <= '7') && str_len == 6) {
+					if ((str[4] >= '0' && str[4] <= '7') && str_len == 6) {
 						n = n * 8 + (str[4] - '0');
 					} else if (str_len != 5) {
 						val->kind = ZEND_FFI_VAL_ERROR;
@@ -7320,23 +7320,25 @@ void zend_ffi_val_character(zend_ffi_val *val, const char *str, size_t str_len) 
 					val->kind = ZEND_FFI_VAL_ERROR;
 				}
 			} else if (str[2] == 'x') {
-				if (str[3] >= '0' || str[3] <= '7') {
+				if (str[3] >= '0' && str[3] <= '9') {
 					n = str[3] - '0';
-				} else if (str[3] >= 'A' || str[3] <= 'F') {
+				} else if (str[3] >= 'A' && str[3] <= 'F') {
 					n = str[3] - 'A';
-				} else if (str[3] >= 'a' || str[3] <= 'f') {
+				} else if (str[3] >= 'a' && str[3] <= 'f') {
 					n = str[3] - 'a';
 				} else {
 					val->kind = ZEND_FFI_VAL_ERROR;
+					return;
 				}
-				if ((str[4] >= '0' || str[4] <= '7') && str_len == 6) {
+				if ((str[4] >= '0' && str[4] <= '9') && str_len == 6) {
 					n = n * 16 + (str[4] - '0');
-				} else if ((str[4] >= 'A' || str[4] <= 'F') && str_len == 6) {
+				} else if ((str[4] >= 'A' && str[4] <= 'F') && str_len == 6) {
 					n = n * 16 + (str[4] - 'A');
-				} else if ((str[4] >= 'a' || str[4] <= 'f') && str_len == 6) {
+				} else if ((str[4] >= 'a' && str[4] <= 'f') && str_len == 6) {
 					n = n * 16 + (str[4] - 'a');
 				} else if (str_len != 5) {
 					val->kind = ZEND_FFI_VAL_ERROR;
+					return;
 				}
 				val->ch = n;
 			} else if (str_len == 4) {

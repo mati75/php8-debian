@@ -157,6 +157,7 @@ int ZEND_FASTCALL zend_jit_check_constant(const zval *key);
 	_(DEEP_RECURSION,    "deep recursion") \
 	_(LOOP_UNROLL,       "loop unroll limit reached") \
 	_(LOOP_EXIT,         "exit from loop") \
+	_(RECURSION_EXIT,    "return from recursive function") \
 	_(BLACK_LIST,        "trace blacklisted") \
 	_(INNER_LOOP,        "inner loop")                     /* trace it */ \
 	_(COMPILED_LOOP,     "compiled loop") \
@@ -316,9 +317,10 @@ typedef union _zend_jit_trace_stack {
 	int32_t      ssa_var;
 	uint32_t     info;
 	struct {
-		uint8_t  type;
-		int8_t   reg;
-		uint16_t flags;
+		uint8_t type;     /* variable type (for type inference) */
+		uint8_t mem_type; /* stack slot type  (for eliminate dead type store) */
+		int8_t  reg;
+		uint8_t flags;
 	};
 } zend_jit_trace_stack;
 
@@ -328,21 +330,34 @@ typedef union _zend_jit_trace_stack {
 	(_stack)[_slot].info
 #define STACK_TYPE(_stack, _slot) \
 	(_stack)[_slot].type
+#define STACK_MEM_TYPE(_stack, _slot) \
+	(_stack)[_slot].mem_type
 #define STACK_REG(_stack, _slot) \
 	(_stack)[_slot].reg
+#define STACK_FLAGS(_stack, _slot) \
+	(_stack)[_slot].flags
 #define SET_STACK_VAR(_stack, _slot, _ssa_var) do { \
 		(_stack)[_slot].ssa_var = _ssa_var; \
 	} while (0)
 #define SET_STACK_INFO(_stack, _slot, _info) do { \
 		(_stack)[_slot].info = _info; \
 	} while (0)
-#define SET_STACK_TYPE(_stack, _slot, _type) do { \
-		(_stack)[_slot].type = _type; \
+#define SET_STACK_TYPE(_stack, _slot, _type, _set_mem_type) do { \
+		uint8_t __type = (_type); \
+		(_stack)[_slot].type = __type; \
+		if (_set_mem_type) { \
+			(_stack)[_slot].mem_type = __type; \
+		} \
 		(_stack)[_slot].reg = ZREG_NONE; \
 		(_stack)[_slot].flags = 0; \
 	} while (0)
 #define SET_STACK_REG(_stack, _slot, _reg) do { \
 		(_stack)[_slot].reg = _reg; \
+		(_stack)[_slot].flags = 0; \
+	} while (0)
+#define SET_STACK_REG_EX(_stack, _slot, _reg, _flags) do { \
+		(_stack)[_slot].reg = _reg; \
+		(_stack)[_slot].flags = _flags; \
 	} while (0)
 
 /* trace info flags */
