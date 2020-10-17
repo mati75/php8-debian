@@ -152,3 +152,4 @@
 0152-Fixed-phpdbg-build-broken-when-dtrace-enabled.patch
 0153-Do-not-decode-cookie-names-anymore.patch
 0154-NEWS.patch
+0155-Add-pkg-config-m4-files-to-phpize-script.patch
