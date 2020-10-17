@@ -50,3 +50,4 @@
 0050-Allow-numeric-UG-ID-in-FPM-listen.-owner-group.patch
 0051-Allow-fpm-tests-to-be-run-with-long-socket-path.patch
 0052-Skip-fpm-tests-not-designed-to-be-run-as-root.patch
+0053-Add-pkg-config-m4-files-to-phpize-script.patch
