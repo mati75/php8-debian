@@ -527,6 +527,7 @@ override_dh_link:
 	echo "/usr/share/misc/config.guess $(PHPIZE_BUILDDIR)/config.guess" >> $(PHP_DEV).links
 	echo "/usr/share/misc/config.sub $(PHPIZE_BUILDDIR)/config.sub" >> $(PHP_DEV).links
 	echo "/usr/share/aclocal/libtool.m4 $(PHPIZE_BUILDDIR)/libtool.m4" >> $(PHP_DEV).links
+	echo "/usr/share/aclocal/pkg.m4 $(PHPIZE_BUILDDIR)/pkg.m4" >> $(PHP_DEV).links
 	if dpkg --compare-versions $(LIBTOOL_VERSION) ge 2.4.6-0.1~; then \
 	    echo "/usr/share/libtool/build-aux/ltmain.sh $(PHPIZE_BUILDDIR)/ltmain.sh" >> $(PHP_DEV).links; \
 	else \
