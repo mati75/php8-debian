@@ -40,3 +40,4 @@
 0040-Amend-C-11-for-intl-compilation-on-older-distributio.patch
 0041-remove-deprecated-call-and-deprecate-function-to-be-.patch
 0042-Use-libenchant-2-when-available.patch
+0043-libtool2.2.patch
