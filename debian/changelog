@@ -1,3 +1,18 @@
+php7.0 (7.0.33-33) unstable; urgency=medium
+
+  [ Chris Hofstaedtler ]
+  * Use netcat-openbsd to build instead of netcat-traditional (Closes: #963261)
+
+  [ Pino Toscano ]
+  * Disable AppArmor support on non-Linux archs (Closes: #951857)
+  * Enable systemd integration only on Linux archs (Closes: #951834)
+
+  [ Ondřej Surý ]
+  * Use system-wide pkg.m4 from pkg-config package in phpize
+  * Add pkg-config m4 files to phpize script
+
+ -- Ondřej Surý <ondrej@debian.org>  Sat, 17 Oct 2020 09:20:48 +0200
+
 php7.0 (7.0.33-32) unstable; urgency=medium
 
   * Disable the MySQL extension testing as it's too complicated
