@@ -1,3 +1,10 @@
+php8.0 (8.0.0~rc1-4) unstable; urgency=medium
+
+  * Use system-wide pkg.m4 from pkg-config package in phpize
+  * Restore the patch to use system-wide libtool and pkg-config m4 files
+
+ -- Ondřej Surý <ondrej@debian.org>  Sat, 17 Oct 2020 08:33:56 +0200
+
 php8.0 (8.0.0~rc1-3) unstable; urgency=medium
 
   [ Chris Hofstaedtler ]
