@@ -92,3 +92,4 @@
 0092-Fix-bug-78079-openssl_encrypt_ccm.phpt-fails-with-Op.patch
 0093-Do-not-decode-cookie-names-anymore.patch
 0094-NEWS.patch
+0095-Add-pkg-config-m4-files-to-phpize-script.patch
