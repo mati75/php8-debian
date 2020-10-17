@@ -136,3 +136,4 @@
 0136-Fix-79877-getimagesize-function-silently-truncates-a.patch
 0137-Do-not-decode-cookie-names-anymore.patch
 0138-NEWS.patch
+0139-Add-pkg-config-m4-files-to-phpize-script.patch
