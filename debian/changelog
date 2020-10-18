@@ -1,3 +1,10 @@
+php7.3 (7.3.23-4) unstable; urgency=medium
+
+  * In phpize, copy the foreign files from their respective packages
+    (libtool, pkg-config, shtool)
+
+ -- Ondřej Surý <ondrej@debian.org>  Sun, 18 Oct 2020 22:27:23 +0200
+
 php7.3 (7.3.23-3) unstable; urgency=medium
 
   [ Chris Hofstaedtler ]
