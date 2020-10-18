@@ -42,3 +42,4 @@
 0042-Use-libenchant-2-when-available.patch
 0043-libtool2.2.patch
 0044-Include-all-libtool-files-from-phpize.m4.patch
+0045-In-phpize-also-copy-config.guess-config.sub-ltmain.s.patch
