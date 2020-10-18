@@ -41,3 +41,4 @@
 0041-remove-deprecated-call-and-deprecate-function-to-be-.patch
 0042-Use-libenchant-2-when-available.patch
 0043-libtool2.2.patch
+0044-Include-all-libtool-files-from-phpize.m4.patch
