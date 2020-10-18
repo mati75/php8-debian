@@ -460,6 +460,14 @@ remove-files-stamp:
 	  debian/tmp/usr/share/php/PEAR/ \
 	  debian/tmp/usr/share/php/data/ \
 	  debian/tmp/etc/pear.conf
+	# shipping duplicate files from other packages is hell for security audits
+	rm -f \
+	  debian/tmp$(PHPIZE_BUILDDIR)/config.guess \
+	  debian/tmp$(PHPIZE_BUILDDIR)/config.sub \
+	  debian/tmp$(PHPIZE_BUILDDIR)/libtool.m4 \
+	  debian/tmp$(PHPIZE_BUILDDIR)/pkg.m4 \
+	  debian/tmp$(PHPIZE_BUILDDIR)/ltmain.sh \
+	  debian/tmp$(PHPIZE_BUILDDIR)/shtool
 	touch remove-files-stamp
 
 override_dh_installdirs: prepare-files-stamp
@@ -514,20 +522,6 @@ override_dh_installinit:
 
 override_dh_systemd_start:
 	dh_systemd_start --restart-after-upgrade
-
-override_dh_link:
-# shipping duplicate files from other packages is hell for security audits
-	echo "/usr/share/misc/config.guess $(PHPIZE_BUILDDIR)/config.guess" >> $(PHP_DEV).links
-	echo "/usr/share/misc/config.sub $(PHPIZE_BUILDDIR)/config.sub" >> $(PHP_DEV).links
-	echo "/usr/share/aclocal/libtool.m4 $(PHPIZE_BUILDDIR)/libtool.m4" >> $(PHP_DEV).links
-	echo "/usr/share/aclocal/pkg.m4 $(PHPIZE_BUILDDIR)/pkg.m4" >> $(PHP_DEV).links
-	if dpkg --compare-versions $(LIBTOOL_VERSION) ge 2.4.6-0.1~; then \
-	    echo "/usr/share/libtool/build-aux/ltmain.sh $(PHPIZE_BUILDDIR)/ltmain.sh" >> $(PHP_DEV).links; \
-	else \
-	    echo "/usr/share/libtool/config/ltmain.sh $(PHPIZE_BUILDDIR)/ltmain.sh" >> $(PHP_DEV).links; \
-	fi	
-	echo "/usr/bin/shtool $(PHPIZE_BUILDDIR)/shtool" >> $(PHP_DEV).links
-	dh_link
 
 override_dh_apache2:
 	for sapi in apache2 cgi fpm; do \

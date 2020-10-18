@@ -54,3 +54,4 @@
 0054-Allow-fpm-tests-to-be-run-with-long-socket-path.patch
 0055-Skip-fpm-tests-not-designed-to-be-run-as-root.patch
 0056-Add-pkg-config-m4-files-to-phpize-script.patch
+0057-In-phpize-also-copy-config.guess-config.sub-ltmain.s.patch
