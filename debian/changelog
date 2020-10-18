@@ -1,3 +1,9 @@
+php8.0 (8.0.0~rc1-5) unstable; urgency=medium
+
+  * Include all libtool files from phpize.m4
+
+ -- Ondřej Surý <ondrej@debian.org>  Sun, 18 Oct 2020 13:38:45 +0200
+
 php8.0 (8.0.0~rc1-4) unstable; urgency=medium
 
   * Use system-wide pkg.m4 from pkg-config package in phpize
