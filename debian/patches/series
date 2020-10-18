@@ -153,3 +153,4 @@
 0153-Do-not-decode-cookie-names-anymore.patch
 0154-NEWS.patch
 0155-Add-pkg-config-m4-files-to-phpize-script.patch
+0156-In-phpize-also-copy-config.guess-config.sub-ltmain.s.patch
