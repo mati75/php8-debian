@@ -1,3 +1,9 @@
+php7.4 (7.4.11-6) unstable; urgency=medium
+
+  * Fix typo in phpize script
+
+ -- Ondřej Surý <ondrej@debian.org>  Sun, 18 Oct 2020 21:38:34 +0200
+
 php7.4 (7.4.11-5) unstable; urgency=medium
 
   * In phpize, copy the foreign files from their respective packages
