@@ -1,3 +1,10 @@
+php8.0 (8.0.0~rc1-6) unstable; urgency=medium
+
+  * In phpize, copy the foreign files from their respective packages
+    (libtool, pkg-config, shtool)
+
+ -- Ondřej Surý <ondrej@debian.org>  Sun, 18 Oct 2020 21:42:45 +0200
+
 php8.0 (8.0.0~rc1-5) unstable; urgency=medium
 
   * Include all libtool files from phpize.m4
