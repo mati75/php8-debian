@@ -93,3 +93,4 @@
 0093-Do-not-decode-cookie-names-anymore.patch
 0094-NEWS.patch
 0095-Add-pkg-config-m4-files-to-phpize-script.patch
+0096-In-phpize-also-copy-config.guess-config.sub-ltmain.s.patch
