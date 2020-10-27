@@ -728,6 +728,11 @@ static int zend_jit_op_array_analyze1(const zend_op_array *op_array, zend_script
 	}
 #endif
 
+    /* TODO: move this to zend_cfg.c ? */
+	if (!op_array->function_name) {
+		ssa->cfg.flags |= ZEND_FUNC_INDIRECT_VAR_ACCESS;
+	}
+
 	if ((JIT_G(opt_level) >= ZEND_JIT_LEVEL_OPT_FUNC)
 	 && ssa->cfg.blocks
 	 && op_array->last_try_catch == 0
@@ -964,7 +969,7 @@ static zend_lifetime_interval *zend_jit_sort_intervals(zend_lifetime_interval **
 		if (ival) {
 			if ((ival->range.start > last->range.start) ||
 			    (ival->range.start == last->range.start &&
-			     ((!ival->hint && last->hint) ||
+			     ((!ival->hint && last->hint && last->hint != ival) ||
 			      ival->range.end > last->range.end))) {
 				last->list_next = ival;
 				last = ival;
@@ -979,7 +984,7 @@ static zend_lifetime_interval *zend_jit_sort_intervals(zend_lifetime_interval **
 						break;
 					} else if ((ival->range.start < (*p)->range.start) ||
 					           (ival->range.start == (*p)->range.start &&
-					            ((ival->hint && !(*p)->hint) ||
+					            ((ival->hint && !(*p)->hint && ival->hint != *p) ||
 					             ival->range.end < (*p)->range.end))) {
 						ival->list_next = *p;
 						*p = ival;
@@ -1560,6 +1565,15 @@ static int zend_jit_try_allocate_free_reg(const zend_op_array *op_array, const z
 		if (ssa->ops[line].op1_def == current->ssa_var ||
 		    ssa->ops[line].op2_def == current->ssa_var ||
 		    ssa->ops[line].result_def == current->ssa_var) {
+			regset = zend_jit_get_def_scratch_regset(
+				ssa_opcodes ? ssa_opcodes[line] : op_array->opcodes + line,
+				ssa->ops + line,
+				op_array, ssa, current->ssa_var, line == last_use_line);
+			ZEND_REGSET_FOREACH(regset, reg) {
+				if (line < freeUntilPos[reg]) {
+					freeUntilPos[reg] = line;
+				}
+			} ZEND_REGSET_FOREACH_END();
 			line++;
 		}
 		while (line <= range->end) {

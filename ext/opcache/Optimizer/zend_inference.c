@@ -1343,16 +1343,20 @@ int zend_inference_propagate_range(const zend_op_array *op_array, zend_ssa *ssa,
 			break;
 		case ZEND_ASSIGN_DIM:
 		case ZEND_ASSIGN_OBJ:
-			if (ssa_op->op1_def == var) {
-				if ((opline+1)->opcode == ZEND_OP_DATA) {
-					opline++;
-					ssa_op++;
+		case ZEND_ASSIGN_STATIC_PROP:
+		case ZEND_ASSIGN_DIM_OP:
+		case ZEND_ASSIGN_OBJ_OP:
+		case ZEND_ASSIGN_STATIC_PROP_OP:
+			if ((ssa_op+1)->op1_def == var) {
+				opline++;
+				ssa_op++;
+				if (OP1_HAS_RANGE()) {
 					tmp->min = OP1_MIN_RANGE();
 					tmp->max = OP1_MAX_RANGE();
 					tmp->underflow = OP1_RANGE_UNDERFLOW();
 					tmp->overflow  = OP1_RANGE_OVERFLOW();
-					return 1;
 				}
+				return 1;
 			}
 			break;
 		case ZEND_ASSIGN_OP:
@@ -1365,31 +1369,14 @@ int zend_inference_propagate_range(const zend_op_array *op_array, zend_ssa *ssa,
 				}
 			}
 			break;
-		case ZEND_ASSIGN_DIM_OP:
-		case ZEND_ASSIGN_OBJ_OP:
-		case ZEND_ASSIGN_STATIC_PROP_OP:
-			if ((opline+1)->opcode == ZEND_OP_DATA) {
-				if ((ssa_op+1)->op1_def == var) {
-					opline++;
-					ssa_op++;
-					if (OP1_HAS_RANGE()) {
-						tmp->min = OP1_MIN_RANGE();
-						tmp->max = OP1_MAX_RANGE();
-						tmp->underflow = OP1_RANGE_UNDERFLOW();
-						tmp->overflow  = OP1_RANGE_OVERFLOW();
-						return 1;
-					}
-				}
-			}
-			break;
 		case ZEND_OP_DATA:
-			if ((opline-1)->opcode == ZEND_ASSIGN_DIM ||
-			    (opline-1)->opcode == ZEND_ASSIGN_OBJ ||
-			    ((opline-1)->opcode == ZEND_ASSIGN_OP &&
-			     ((opline-1)->extended_value == ZEND_ADD ||
-			      (opline-1)->extended_value == ZEND_SUB ||
-			      (opline-1)->extended_value == ZEND_MUL))) {
-				if (ssa_op->op1_def == var) {
+			if (ssa_op->op1_def == var) {
+				if ((opline-1)->opcode == ZEND_ASSIGN_DIM ||
+				    (opline-1)->opcode == ZEND_ASSIGN_OBJ ||
+				    (opline-1)->opcode == ZEND_ASSIGN_STATIC_PROP ||
+				    (opline-1)->opcode == ZEND_ASSIGN_DIM_OP ||
+				    (opline-1)->opcode == ZEND_ASSIGN_OBJ_OP ||
+				    (opline-1)->opcode == ZEND_ASSIGN_STATIC_PROP_OP) {
 					if (OP1_HAS_RANGE()) {
 						tmp->min = OP1_MIN_RANGE();
 						tmp->max = OP1_MAX_RANGE();
@@ -1997,6 +1984,9 @@ uint32_t zend_array_element_type(uint32_t t1, zend_uchar op_type, int write, int
 	}
 	if (t1 & (MAY_BE_UNDEF|MAY_BE_NULL|MAY_BE_FALSE)) {
 		tmp |= MAY_BE_NULL;
+		if (write) {
+			tmp |= MAY_BE_INDIRECT;
+		}
 	}
 	if (t1 & (MAY_BE_TRUE|MAY_BE_LONG|MAY_BE_DOUBLE|MAY_BE_RESOURCE)) {
 		if (!write) {
@@ -3405,18 +3395,20 @@ static zend_always_inline int _zend_update_type_info(
 				if (opline->result_type != IS_TMP_VAR) {
 					tmp |= MAY_BE_REF | MAY_BE_INDIRECT;
 				} else if (!(opline->op1_type & (IS_VAR|IS_TMP_VAR)) || !(t1 & MAY_BE_RC1)) {
+					zend_class_entry *ce = NULL;
+
+					if (opline->op1_type == IS_UNUSED) {
+						ce = op_array->scope;
+					} else if (ssa_op->op1_use >= 0 && !ssa->var_info[ssa_op->op1_use].is_instanceof) {
+						ce = ssa->var_info[ssa_op->op1_use].ce;
+					}
 					if (prop_info) {
 						/* FETCH_OBJ_R/IS for plain property increments reference counter,
 						   so it can't be 1 */
-						tmp &= ~MAY_BE_RC1;
-					} else {
-						zend_class_entry *ce = NULL;
-
-						if (opline->op1_type == IS_UNUSED) {
-							ce = op_array->scope;
-						} else if (ssa_op->op1_use >= 0 && !ssa->var_info[ssa_op->op1_use].is_instanceof) {
-							ce = ssa->var_info[ssa_op->op1_use].ce;
+						if (ce && !ce->create_object) {
+							tmp &= ~MAY_BE_RC1;
 						}
+					} else {
 						if (ce && !ce->create_object && !ce->__get) {
 							tmp &= ~MAY_BE_RC1;
 						}

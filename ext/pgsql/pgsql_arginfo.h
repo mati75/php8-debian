@@ -1,5 +1,5 @@
 /* This is a generated file, edit the .stub.php file instead.
- * Stub hash: cf7903b6548240de5be9f167a63478f846111e0f */
+ * Stub hash: de1718d3e6e66dfade25462b8461983b914120ed */
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_pg_connect, 0, 0, 1)
 	ZEND_ARG_TYPE_INFO(0, connection_string, IS_STRING, 0)
@@ -152,7 +152,7 @@ ZEND_BEGIN_ARG_WITH_RETURN_TYPE_MASK_EX(arginfo_pg_fetch_object, 0, 1, MAY_BE_OB
 	ZEND_ARG_INFO(0, result)
 	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, row, IS_LONG, 1, "null")
 	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, class, IS_STRING, 0, "\"stdClass\"")
-	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, ctor_args, IS_ARRAY, 1, "null")
+	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, constructor_args, IS_ARRAY, 0, "[]")
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_pg_fetch_all, 0, 1, IS_ARRAY, 0)
@@ -225,12 +225,10 @@ ZEND_END_ARG_INFO()
 #define arginfo_pg_loopen arginfo_pg_lo_open
 
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_pg_lo_close, 0, 1, _IS_BOOL, 0)
-	ZEND_ARG_INFO(0, large_object)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_pg_loclose, 0, 1, _IS_BOOL, 0)
 	ZEND_ARG_INFO(0, lob)
 ZEND_END_ARG_INFO()
+
+#define arginfo_pg_loclose arginfo_pg_lo_close
 
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_MASK_EX(arginfo_pg_lo_read, 0, 1, MAY_BE_STRING|MAY_BE_FALSE)
 	ZEND_ARG_INFO(0, lob)

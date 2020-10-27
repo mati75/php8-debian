@@ -867,7 +867,7 @@ PHP_FUNCTION(imap_reopen)
 
 	imap_le_struct->imap_stream = mail_open(imap_le_struct->imap_stream, ZSTR_VAL(mailbox), flags);
 	if (imap_le_struct->imap_stream == NIL) {
-		zend_list_delete(Z_RES_P(streamind));
+		zend_list_close(Z_RES_P(streamind));
 		php_error_docref(NULL, E_WARNING, "Couldn't re-open stream");
 		RETURN_FALSE;
 	}
@@ -2250,8 +2250,9 @@ PHP_FUNCTION(imap_rfc822_write_address)
 	if (string) {
 		RETVAL_STR(string);
 	} else {
-		RETURN_FALSE;
+		RETVAL_FALSE;
 	}
+	mail_free_address(&addr);
 }
 /* }}} */
 
@@ -3092,7 +3093,7 @@ PHP_FUNCTION(imap_fetch_overview)
 /* {{{ Create a MIME message based on given envelope and body sections */
 PHP_FUNCTION(imap_mail_compose)
 {
-	zval *envelope, *body;
+	HashTable *envelope, *body;
 	zend_string *key;
 	zval *data, *pvalue, *disp_data, *env_data;
 	char *cookie = NIL;
@@ -3104,8 +3105,12 @@ PHP_FUNCTION(imap_mail_compose)
 	int toppart = 0;
 	int first;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "a/a/", &envelope, &body) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "h/h/", &envelope, &body) == FAILURE) {
 		RETURN_THROWS();
+	}
+
+	if (zend_hash_num_elements(body) == 0) {
+		zend_argument_value_error(2, "cannot be empty");
 	}
 
 #define PHP_RFC822_PARSE_ADRLIST(target, value) \
@@ -3114,52 +3119,52 @@ PHP_FUNCTION(imap_mail_compose)
 	efree(str_copy);
 
 	env = mail_newenvelope();
-	if ((pvalue = zend_hash_str_find(Z_ARRVAL_P(envelope), "remail", sizeof("remail") - 1)) != NULL) {
+	if ((pvalue = zend_hash_str_find(envelope, "remail", sizeof("remail") - 1)) != NULL) {
 		convert_to_string_ex(pvalue);
 		env->remail = cpystr(Z_STRVAL_P(pvalue));
 	}
-	if ((pvalue = zend_hash_str_find(Z_ARRVAL_P(envelope), "return_path", sizeof("return_path") - 1)) != NULL) {
+	if ((pvalue = zend_hash_str_find(envelope, "return_path", sizeof("return_path") - 1)) != NULL) {
 		convert_to_string_ex(pvalue);
 		PHP_RFC822_PARSE_ADRLIST(&env->return_path, pvalue);
 	}
-	if ((pvalue = zend_hash_str_find(Z_ARRVAL_P(envelope), "date", sizeof("date") - 1)) != NULL) {
+	if ((pvalue = zend_hash_str_find(envelope, "date", sizeof("date") - 1)) != NULL) {
 		convert_to_string_ex(pvalue);
 		env->date = (unsigned char*)cpystr(Z_STRVAL_P(pvalue));
 	}
-	if ((pvalue = zend_hash_str_find(Z_ARRVAL_P(envelope), "from", sizeof("from") - 1)) != NULL) {
+	if ((pvalue = zend_hash_str_find(envelope, "from", sizeof("from") - 1)) != NULL) {
 		convert_to_string_ex(pvalue);
 		PHP_RFC822_PARSE_ADRLIST(&env->from, pvalue);
 	}
-	if ((pvalue = zend_hash_str_find(Z_ARRVAL_P(envelope), "reply_to", sizeof("reply_to") - 1)) != NULL) {
+	if ((pvalue = zend_hash_str_find(envelope, "reply_to", sizeof("reply_to") - 1)) != NULL) {
 		convert_to_string_ex(pvalue);
 		PHP_RFC822_PARSE_ADRLIST(&env->reply_to, pvalue);
 	}
-	if ((pvalue = zend_hash_str_find(Z_ARRVAL_P(envelope), "in_reply_to", sizeof("in_reply_to") - 1)) != NULL) {
+	if ((pvalue = zend_hash_str_find(envelope, "in_reply_to", sizeof("in_reply_to") - 1)) != NULL) {
 		convert_to_string_ex(pvalue);
 		env->in_reply_to = cpystr(Z_STRVAL_P(pvalue));
 	}
-	if ((pvalue = zend_hash_str_find(Z_ARRVAL_P(envelope), "subject", sizeof("subject") - 1)) != NULL) {
+	if ((pvalue = zend_hash_str_find(envelope, "subject", sizeof("subject") - 1)) != NULL) {
 		convert_to_string_ex(pvalue);
 		env->subject = cpystr(Z_STRVAL_P(pvalue));
 	}
-	if ((pvalue = zend_hash_str_find(Z_ARRVAL_P(envelope), "to", sizeof("to") - 1)) != NULL) {
+	if ((pvalue = zend_hash_str_find(envelope, "to", sizeof("to") - 1)) != NULL) {
 		convert_to_string_ex(pvalue);
 		PHP_RFC822_PARSE_ADRLIST(&env->to, pvalue);
 	}
-	if ((pvalue = zend_hash_str_find(Z_ARRVAL_P(envelope), "cc", sizeof("cc") - 1)) != NULL) {
+	if ((pvalue = zend_hash_str_find(envelope, "cc", sizeof("cc") - 1)) != NULL) {
 		convert_to_string_ex(pvalue);
 		PHP_RFC822_PARSE_ADRLIST(&env->cc, pvalue);
 	}
-	if ((pvalue = zend_hash_str_find(Z_ARRVAL_P(envelope), "bcc", sizeof("bcc") - 1)) != NULL) {
+	if ((pvalue = zend_hash_str_find(envelope, "bcc", sizeof("bcc") - 1)) != NULL) {
 		convert_to_string_ex(pvalue);
 		PHP_RFC822_PARSE_ADRLIST(&env->bcc, pvalue);
 	}
-	if ((pvalue = zend_hash_str_find(Z_ARRVAL_P(envelope), "message_id", sizeof("message_id") - 1)) != NULL) {
+	if ((pvalue = zend_hash_str_find(envelope, "message_id", sizeof("message_id") - 1)) != NULL) {
 		convert_to_string_ex(pvalue);
 		env->message_id=cpystr(Z_STRVAL_P(pvalue));
 	}
 
-	if ((pvalue = zend_hash_str_find(Z_ARRVAL_P(envelope), "custom_headers", sizeof("custom_headers") - 1)) != NULL) {
+	if ((pvalue = zend_hash_str_find(envelope, "custom_headers", sizeof("custom_headers") - 1)) != NULL) {
 		if (Z_TYPE_P(pvalue) == IS_ARRAY) {
 			custom_headers_param = tmp_param = NULL;
 			SEPARATE_ARRAY(pvalue);
@@ -3176,14 +3181,17 @@ PHP_FUNCTION(imap_mail_compose)
 	}
 
 	first = 1;
-	ZEND_HASH_FOREACH_VAL(Z_ARRVAL_P(body), data) {
+	ZEND_HASH_FOREACH_VAL(body, data) {
 		if (first) {
 			first = 0;
 
 			if (Z_TYPE_P(data) != IS_ARRAY) {
-				// TODO ValueError
-				php_error_docref(NULL, E_WARNING, "body parameter must be a non-empty array");
-				RETVAL_FALSE;
+				zend_argument_type_error(2, "individual body must be of type array, %s given",
+					zend_zval_type_name(data));
+				goto done;
+			}
+			if (zend_hash_num_elements(Z_ARRVAL_P(data)) == 0) {
+				zend_argument_value_error(2, "individual body cannot be empty");
 				goto done;
 			}
 			SEPARATE_ARRAY(data);
@@ -3262,15 +3270,19 @@ PHP_FUNCTION(imap_mail_compose)
 					bod->disposition.parameter = disp_param;
 				}
 			}
-			if ((pvalue = zend_hash_str_find(Z_ARRVAL_P(data), "contents.data", sizeof("contents.data") - 1)) != NULL) {
-				convert_to_string_ex(pvalue);
-				bod->contents.text.data = fs_get(Z_STRLEN_P(pvalue) + 1);
-				memcpy(bod->contents.text.data, Z_STRVAL_P(pvalue), Z_STRLEN_P(pvalue)+1);
-				bod->contents.text.size = Z_STRLEN_P(pvalue);
+			if (bod->type == TYPEMESSAGE && bod->subtype && !strcmp(bod->subtype, "RFC822")) {
+				bod->nested.msg = mail_newmsg();
 			} else {
-				bod->contents.text.data = fs_get(1);
-				memcpy(bod->contents.text.data, "", 1);
-				bod->contents.text.size = 0;
+				if ((pvalue = zend_hash_str_find(Z_ARRVAL_P(data), "contents.data", sizeof("contents.data") - 1)) != NULL) {
+					convert_to_string_ex(pvalue);
+					bod->contents.text.data = fs_get(Z_STRLEN_P(pvalue) + 1);
+					memcpy(bod->contents.text.data, Z_STRVAL_P(pvalue), Z_STRLEN_P(pvalue)+1);
+					bod->contents.text.size = Z_STRLEN_P(pvalue);
+				} else {
+					bod->contents.text.data = fs_get(1);
+					memcpy(bod->contents.text.data, "", 1);
+					bod->contents.text.size = 0;
+				}
 			}
 			if ((pvalue = zend_hash_str_find(Z_ARRVAL_P(data), "lines", sizeof("lines") - 1)) != NULL) {
 				bod->size.lines = zval_get_long(pvalue);
@@ -3370,15 +3382,19 @@ PHP_FUNCTION(imap_mail_compose)
 					bod->disposition.parameter = disp_param;
 				}
 			}
-			if ((pvalue = zend_hash_str_find(Z_ARRVAL_P(data), "contents.data", sizeof("contents.data") - 1)) != NULL) {
-				convert_to_string_ex(pvalue);
-				bod->contents.text.data = fs_get(Z_STRLEN_P(pvalue) + 1);
-				memcpy(bod->contents.text.data, Z_STRVAL_P(pvalue), Z_STRLEN_P(pvalue) + 1);
-				bod->contents.text.size = Z_STRLEN_P(pvalue);
+			if (bod->type == TYPEMESSAGE && bod->subtype && !strcmp(bod->subtype, "RFC822")) {
+				bod->nested.msg = mail_newmsg();
 			} else {
-				bod->contents.text.data = fs_get(1);
-				memcpy(bod->contents.text.data, "", 1);
-				bod->contents.text.size = 0;
+				if ((pvalue = zend_hash_str_find(Z_ARRVAL_P(data), "contents.data", sizeof("contents.data") - 1)) != NULL) {
+					convert_to_string_ex(pvalue);
+					bod->contents.text.data = fs_get(Z_STRLEN_P(pvalue) + 1);
+					memcpy(bod->contents.text.data, Z_STRVAL_P(pvalue), Z_STRLEN_P(pvalue) + 1);
+					bod->contents.text.size = Z_STRLEN_P(pvalue);
+				} else {
+					bod->contents.text.data = fs_get(1);
+					memcpy(bod->contents.text.data, "", 1);
+					bod->contents.text.size = 0;
+				}
 			}
 			if ((pvalue = zend_hash_str_find(Z_ARRVAL_P(data), "lines", sizeof("lines") - 1)) != NULL) {
 				bod->size.lines = zval_get_long(pvalue);
@@ -3392,13 +3408,6 @@ PHP_FUNCTION(imap_mail_compose)
 			}
 		}
 	} ZEND_HASH_FOREACH_END();
-
-	if (first) {
-		// TODO ValueError
-		php_error_docref(NULL, E_WARNING, "body parameter must be a non-empty array");
-		RETVAL_FALSE;
-		goto done;
-	}
 
 	if (bod && bod->type == TYPEMULTIPART && (!bod->nested.part || !bod->nested.part->next)) {
 		php_error_docref(NULL, E_WARNING, "Cannot generate multipart e-mail without components.");
@@ -3480,7 +3489,7 @@ PHP_FUNCTION(imap_mail_compose)
 
 				bod=&part->body;
 
-				spprintf(&tempstring, 0, "%s%s%s", mystring, bod->contents.text.data, CRLF);
+				spprintf(&tempstring, 0, "%s%s%s", mystring, bod->contents.text.data ? (char *) bod->contents.text.data : "", CRLF);
 				efree(mystring);
 				mystring=tempstring;
 			} while ((part = part->next)); /* until done */
@@ -3490,7 +3499,7 @@ PHP_FUNCTION(imap_mail_compose)
 			efree(mystring);
 			mystring=tempstring;
 	} else if (bod) {
-		spprintf(&tempstring, 0, "%s%s%s", mystring, bod->contents.text.data, CRLF);
+		spprintf(&tempstring, 0, "%s%s%s", mystring, bod->contents.text.data ? (char *) bod->contents.text.data : "", CRLF);
 		efree(mystring);
 		mystring=tempstring;
 	} else {
@@ -3523,6 +3532,7 @@ bool _php_imap_mail(zend_string *to, zend_string *subject, zend_string *message,
 
 	ZEND_ASSERT(to && ZSTR_LEN(to) != 0);
 	ZEND_ASSERT(subject && ZSTR_LEN(subject) != 0);
+	ZEND_ASSERT(message);
 
 #ifdef PHP_WIN32
 	char *tempMailTo;
@@ -3652,14 +3662,23 @@ bool _php_imap_mail(zend_string *to, zend_string *subject, zend_string *message,
 	}
 	sendmail = popen(INI_STR("sendmail_path"), "w");
 	if (sendmail) {
-		if (ZSTR_LEN(rpath) != 0) fprintf(sendmail, "From: %s\n", ZSTR_VAL(rpath));
+		if (rpath && ZSTR_LEN(rpath) != 0) {
+			fprintf(sendmail, "From: %s\n", ZSTR_VAL(rpath));
+		}
+		/* to cannot be a null pointer, asserted earlier on */
 		fprintf(sendmail, "To: %s\n", ZSTR_VAL(to));
-		if (ZSTR_LEN(cc) != 0) fprintf(sendmail, "Cc: %s\n", ZSTR_VAL(cc));
-		if (ZSTR_LEN(bcc) != 0) fprintf(sendmail, "Bcc: %s\n", ZSTR_VAL(bcc));
+		if (cc && ZSTR_LEN(cc) != 0) {
+			fprintf(sendmail, "Cc: %s\n", ZSTR_VAL(cc));
+		}
+		if (bcc && ZSTR_LEN(bcc) != 0) {
+			fprintf(sendmail, "Bcc: %s\n", ZSTR_VAL(bcc));
+		}
+		/* subject cannot be a null pointer, asserted earlier on */
 		fprintf(sendmail, "Subject: %s\n", ZSTR_VAL(subject));
-		if (headers != NULL) {
+		if (headers && ZSTR_LEN(headers) != 0) {
 			fprintf(sendmail, "%s\n", ZSTR_VAL(headers));
 		}
+		/* message cannot be a null pointer, asserted earlier on */
 		fprintf(sendmail, "\n%s\n", ZSTR_VAL(message));
 		ret = pclose(sendmail);
 
