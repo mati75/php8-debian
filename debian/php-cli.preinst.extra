@@ -1,0 +1,13 @@
+#!/bin/sh
+
+set -e
+
+#EXTRA#
+
+if [ "$1" = "upgrade" ]; then
+    rm_conffile /usr/bin/phar.phar@PHP_VERSION@ 8.0.0~rc2-0.2~ php@PHP_VERSION@-cli 
+
+#DEBHELPER#
+
+exit 0
+
