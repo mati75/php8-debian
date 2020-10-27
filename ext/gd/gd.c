@@ -222,7 +222,7 @@ static void php_gd_object_minit_helper()
 	zend_class_entry ce;
 	INIT_CLASS_ENTRY(ce, "GdImage", class_GdImage_methods);
 	gd_image_ce = zend_register_internal_class(&ce);
-	gd_image_ce->ce_flags |= ZEND_ACC_FINAL;
+	gd_image_ce->ce_flags |= ZEND_ACC_FINAL | ZEND_ACC_NO_DYNAMIC_PROPERTIES;
 	gd_image_ce->create_object = php_gd_image_object_create;
 	gd_image_ce->serialize = zend_class_serialize_deny;
 	gd_image_ce->unserialize = zend_class_unserialize_deny;
@@ -1956,7 +1956,7 @@ PHP_FUNCTION(imagewbmp)
 	gdIOCtx *ctx = NULL;
 	zval *to_zval = NULL;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS(), "O|z!l!", &imgind, gd_image_ce, &to_zval, &foreground_color) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "O|z!l!", &imgind, gd_image_ce, &to_zval, &foreground_color, &foreground_color_is_null) == FAILURE) {
 		RETURN_THROWS();
 	}
 

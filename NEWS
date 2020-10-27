@@ -1,5 +1,35 @@
 PHP                                                                        NEWS
 |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+29 Oct 2020, PHP 8.0.0RC3
+
+- Core:
+  . Fixed bug #8055 (Abstract trait methods returning "self" cannot be
+    fulfilled by traits). (Nikita)
+  . Fixed bug #80280 (ADD_EXTENSION_DEP() fails for ext/standard and ext/date).
+    (cmb)
+  . Fixed bug #80258 (Windows Deduplication Enabled, randon permission errors).
+    (cmb)
+
+- COM:
+  . Fixed bug #62474 (com_event_sink crashes on certain arguments). (cmb)
+
+- DOM:
+  . Fixed bug #80268 (loadHTML() truncates at NUL bytes). (cmb)
+
+- IMAP:
+  . Fixed bug #76618 (segfault on imap_reopen). (girgias)
+  . Fixed bug #80239 (imap_rfc822_write_address() leaks memory). (cmb)
+  . Fixed minor regression caused by fixing bug #80220. (cmb)
+  . Fixed bug #80242 (imap_mail_compose() segfaults for multipart with rfc822).
+    (cmb)
+
+- Opcache:
+  . Fixed bug #80255 (Opcache bug (bad condition result) in 8.0.0rc1). (Nikita)
+
+- Standard:
+  . Fixed bug #80256 (file_get_contents strip first line with chunked encoding
+    redirect). (Nikita)
+
 15 Oct 2020, PHP 8.0.0RC2
 
 - Core:
@@ -230,8 +260,6 @@ PHP                                                                        NEWS
   . Use libenchant-2 when available.
 
 - FPM:
-  . Fixed bug #64865 (Search for .user.ini files from script dir up to
-    CONTEXT_DOCUMENT_ROOT). (Will Bender)
   . Add pm.status_listen option. (Jakub Zelenka)
 
 - GD:

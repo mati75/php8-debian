@@ -190,7 +190,7 @@ function pg_fetch_assoc($result, ?int $row = null): array|false {}
 function pg_fetch_array($result, ?int $row = null, int $mode = PGSQL_BOTH): array|false {}
 
 /** @param resource $result */
-function pg_fetch_object($result, ?int $row = null, string $class = "stdClass", ?array $ctor_args = null): object|false {}
+function pg_fetch_object($result, ?int $row = null, string $class = "stdClass", array $constructor_args = []): object|false {}
 
 /** @param resource $result */
 function pg_fetch_all($result, int $mode = PGSQL_ASSOC): array {}
@@ -299,8 +299,8 @@ function pg_lo_open($connection, $oid = UNKNOWN, string $mode = UNKNOWN) {}
  */
 function pg_loopen($connection, $oid = UNKNOWN, string $mode = UNKNOWN) {}
 
-/** @param resource $large_object */
-function pg_lo_close($large_object): bool {}
+/** @param resource $lob */
+function pg_lo_close($lob): bool {}
 
 /**
  * @param resource $lob
