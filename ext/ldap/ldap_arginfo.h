@@ -1,5 +1,5 @@
 /* This is a generated file, edit the .stub.php file instead.
- * Stub hash: 0c721a3272fef9d1a06a8cb4163eeb219661fb00 */
+ * Stub hash: 980ee25422e1b026259d63e7a61adea699751b86 */
 
 #if defined(HAVE_ORALDAP)
 ZEND_BEGIN_ARG_INFO_EX(arginfo_ldap_connect, 0, 0, 0)
@@ -34,7 +34,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_ldap_bind_ext, 0, 0, 1)
 	ZEND_ARG_INFO(0, ldap)
 	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, dn, IS_STRING, 1, "null")
 	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, password, IS_STRING, 1, "null")
-	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, controls, IS_ARRAY, 0, "[]")
+	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, controls, IS_ARRAY, 1, "null")
 ZEND_END_ARG_INFO()
 
 #if defined(HAVE_LDAP_SASL)
@@ -59,7 +59,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_ldap_read, 0, 0, 3)
 	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, sizelimit, IS_LONG, 0, "-1")
 	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, timelimit, IS_LONG, 0, "-1")
 	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, deref, IS_LONG, 0, "LDAP_DEREF_NEVER")
-	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, controls, IS_ARRAY, 0, "[]")
+	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, controls, IS_ARRAY, 1, "null")
 ZEND_END_ARG_INFO()
 
 #define arginfo_ldap_list arginfo_ldap_read
@@ -120,33 +120,33 @@ ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_ldap_add, 0, 3, _IS_BOOL, 0)
 	ZEND_ARG_INFO(0, ldap)
 	ZEND_ARG_TYPE_INFO(0, dn, IS_STRING, 0)
 	ZEND_ARG_TYPE_INFO(0, entry, IS_ARRAY, 0)
-	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, controls, IS_ARRAY, 0, "[]")
+	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, controls, IS_ARRAY, 1, "null")
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_ldap_add_ext, 0, 0, 3)
 	ZEND_ARG_INFO(0, ldap)
 	ZEND_ARG_TYPE_INFO(0, dn, IS_STRING, 0)
 	ZEND_ARG_TYPE_INFO(0, entry, IS_ARRAY, 0)
-	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, controls, IS_ARRAY, 0, "[]")
+	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, controls, IS_ARRAY, 1, "null")
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_ldap_delete, 0, 2, _IS_BOOL, 0)
 	ZEND_ARG_INFO(0, ldap)
 	ZEND_ARG_TYPE_INFO(0, dn, IS_STRING, 0)
-	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, controls, IS_ARRAY, 0, "[]")
+	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, controls, IS_ARRAY, 1, "null")
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_ldap_delete_ext, 0, 0, 2)
 	ZEND_ARG_INFO(0, ldap)
 	ZEND_ARG_TYPE_INFO(0, dn, IS_STRING, 0)
-	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, controls, IS_ARRAY, 0, "[]")
+	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, controls, IS_ARRAY, 1, "null")
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_ldap_modify_batch, 0, 3, _IS_BOOL, 0)
 	ZEND_ARG_INFO(0, ldap)
 	ZEND_ARG_TYPE_INFO(0, dn, IS_STRING, 0)
 	ZEND_ARG_TYPE_INFO(0, modifications_info, IS_ARRAY, 0)
-	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, controls, IS_ARRAY, 0, "[]")
+	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, controls, IS_ARRAY, 1, "null")
 ZEND_END_ARG_INFO()
 
 #define arginfo_ldap_mod_add arginfo_ldap_add
@@ -180,26 +180,8 @@ ZEND_BEGIN_ARG_WITH_RETURN_TYPE_MASK_EX(arginfo_ldap_compare, 0, 4, MAY_BE_BOOL|
 	ZEND_ARG_TYPE_INFO(0, dn, IS_STRING, 0)
 	ZEND_ARG_TYPE_INFO(0, attribute, IS_STRING, 0)
 	ZEND_ARG_TYPE_INFO(0, value, IS_STRING, 0)
-	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, controls, IS_ARRAY, 0, "[]")
+	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, controls, IS_ARRAY, 1, "null")
 ZEND_END_ARG_INFO()
-
-#if defined(LDAP_CONTROL_PAGEDRESULTS)
-ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_ldap_control_paged_result, 0, 2, _IS_BOOL, 0)
-	ZEND_ARG_INFO(0, ldap)
-	ZEND_ARG_TYPE_INFO(0, pagesize, IS_LONG, 0)
-	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, iscritical, _IS_BOOL, 0, "false")
-	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, cookie, IS_STRING, 0, "\"\"")
-ZEND_END_ARG_INFO()
-#endif
-
-#if defined(LDAP_CONTROL_PAGEDRESULTS)
-ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_ldap_control_paged_result_response, 0, 2, _IS_BOOL, 0)
-	ZEND_ARG_INFO(0, ldap)
-	ZEND_ARG_INFO(0, result)
-	ZEND_ARG_INFO_WITH_DEFAULT_VALUE(1, cookie, "null")
-	ZEND_ARG_INFO_WITH_DEFAULT_VALUE(1, estimated, "null")
-ZEND_END_ARG_INFO()
-#endif
 
 #if (LDAP_API_VERSION > 2000) || defined(HAVE_ORALDAP)
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_ldap_rename, 0, 5, _IS_BOOL, 0)
@@ -208,7 +190,7 @@ ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_ldap_rename, 0, 5, _IS_BOOL, 0)
 	ZEND_ARG_TYPE_INFO(0, new_rdn, IS_STRING, 0)
 	ZEND_ARG_TYPE_INFO(0, new_parent, IS_STRING, 0)
 	ZEND_ARG_TYPE_INFO(0, delete_old_rdn, _IS_BOOL, 0)
-	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, controls, IS_ARRAY, 0, "[]")
+	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, controls, IS_ARRAY, 1, "null")
 ZEND_END_ARG_INFO()
 #endif
 
@@ -219,7 +201,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_ldap_rename_ext, 0, 0, 5)
 	ZEND_ARG_TYPE_INFO(0, new_rdn, IS_STRING, 0)
 	ZEND_ARG_TYPE_INFO(0, new_parent, IS_STRING, 0)
 	ZEND_ARG_TYPE_INFO(0, delete_old_rdn, _IS_BOOL, 0)
-	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, controls, IS_ARRAY, 0, "[]")
+	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, controls, IS_ARRAY, 1, "null")
 ZEND_END_ARG_INFO()
 #endif
 
@@ -314,8 +296,8 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_ldap_exop, 0, 0, 2)
 	ZEND_ARG_INFO(0, ldap)
 	ZEND_ARG_TYPE_INFO(0, request_oid, IS_STRING, 0)
 	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, request_data, IS_STRING, 1, "null")
-	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, controls, IS_ARRAY, 1, "[]")
-	ZEND_ARG_INFO_WITH_DEFAULT_VALUE(1, response_data, "null")
+	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, controls, IS_ARRAY, 1, "NULL")
+	ZEND_ARG_INFO(1, response_data)
 	ZEND_ARG_INFO_WITH_DEFAULT_VALUE(1, response_oid, "null")
 ZEND_END_ARG_INFO()
 #endif
@@ -396,12 +378,6 @@ ZEND_FUNCTION(ldap_errno);
 ZEND_FUNCTION(ldap_error);
 ZEND_FUNCTION(ldap_err2str);
 ZEND_FUNCTION(ldap_compare);
-#if defined(LDAP_CONTROL_PAGEDRESULTS)
-ZEND_FUNCTION(ldap_control_paged_result);
-#endif
-#if defined(LDAP_CONTROL_PAGEDRESULTS)
-ZEND_FUNCTION(ldap_control_paged_result_response);
-#endif
 #if (LDAP_API_VERSION > 2000) || defined(HAVE_ORALDAP)
 ZEND_FUNCTION(ldap_rename);
 #endif
@@ -505,12 +481,6 @@ static const zend_function_entry ext_functions[] = {
 	ZEND_FE(ldap_error, arginfo_ldap_error)
 	ZEND_FE(ldap_err2str, arginfo_ldap_err2str)
 	ZEND_FE(ldap_compare, arginfo_ldap_compare)
-#if defined(LDAP_CONTROL_PAGEDRESULTS)
-	ZEND_DEP_FE(ldap_control_paged_result, arginfo_ldap_control_paged_result)
-#endif
-#if defined(LDAP_CONTROL_PAGEDRESULTS)
-	ZEND_DEP_FE(ldap_control_paged_result_response, arginfo_ldap_control_paged_result_response)
-#endif
 #if (LDAP_API_VERSION > 2000) || defined(HAVE_ORALDAP)
 	ZEND_FE(ldap_rename, arginfo_ldap_rename)
 #endif

@@ -27,6 +27,8 @@ PHP 8.0 UPGRADE NOTES
   . Methods with the same name as the class are no longer interpreted as
     constructors. The __construct() method should be used instead.
   . Removed ability to call non-static methods statically.
+    Thus `is_callable` will fail when checking for a non-static method with a
+    classname (must check with an object instance).
   . Removed (unset) cast.
   . Removed track_errors ini directive. This means that $php_errormsg is no
     longer available. The error_get_last() function may be used instead.
@@ -309,9 +311,10 @@ PHP 8.0 UPGRADE NOTES
     warning.
 
 - GD:
-  . The GD extension now uses objects as the underlying data structure for
-    images, rather than resources. These objects are completely opaque, i.e.
-    they don't have any methods.
+  . The GD extension now uses a GdImage objects as the underlying data structure
+    for images, rather than resources. These objects are completely opaque, i.e.
+    they don't have any methods. Return value checks using is_resource() should
+    be replaced with checks for `false`.
   . The deprecated function image2wbmp() has been removed.
     RFC: https://wiki.php.net/rfc/image2wbmp
   . The deprecated functions png2wbmp() and jpeg2wbmp() have been removed.
@@ -341,6 +344,8 @@ PHP 8.0 UPGRADE NOTES
 
 - LDAP:
   . The deprecated function ldap_sort has been removed.
+  . The deprecated function ldap_control_paged_result has been removed.
+  . The deprecated function ldap_control_paged_result_response has been removed.
   . The interface of ldap_set_rebind_proc has changed; the $callback parameter
     does not accept empty string anymore; null value shall be used instead.
 
@@ -385,6 +390,9 @@ PHP 8.0 UPGRADE NOTES
     aliases for better interoperability with the iconv extension. The mbregex
     ISO 8859 aliases with underscores (ISO_8859_* and ISO8859_*) have also been
     removed.
+  . mb_ereg() and mb_eregi() will now return boolean true on a successfuly
+    match. Previously they returned integer 1 if $matches was not passed, or
+    max(1, strlen($reg[0])) is $matches was passed.
 
 - OCI8:
   . The OCI-Lob class is now called OCILob, and the OCI-Collection class is now
@@ -550,7 +558,7 @@ PHP 8.0 UPGRADE NOTES
   . money_format() has been removed.
   . ezmlm_hash() has been removed.
   . restore_include_path() has been removed.
-  . get_magic_quotes_gpc() and get_magic_quotes_gpc_runtime() has been removed.
+  . get_magic_quotes_gpc() and get_magic_quotes_runtime() has been removed.
   . FILTER_SANITIZE_MAGIC_QUOTES has been removed.
   . Calling implode() with parameters in a reverse order ($pieces, $glue) is no
     longer supported.
@@ -578,7 +586,7 @@ PHP 8.0 UPGRADE NOTES
   . Removed deprecated DES fallback in crypt(). If an unknown salt format is
     passed to crypt(), the function will fail with *0 instead of falling back
     to a weak DES hash now.
-  . Specifying out of range rounds for sha256/sha526 crypt() will now fail with
+  . Specifying out of range rounds for sha256/sha512 crypt() will now fail with
     *0 instead of clamping to the closest limit. This matches glibc behavior.
   . The result of sorting functions may have changed, if the array contains
     elements that compare as equal.
@@ -606,6 +614,9 @@ PHP 8.0 UPGRADE NOTES
   . Calling crypt() without an explicit salt is no longer supported. If you
     would like to produce a strong hash with an auto-generated salt, use
     password_hash() instead.
+  . substr(), mb_substr(), iconv_substr() and grapheme_substr() now consistently
+    clamp out-of-bounds offsets to the string boundary. Previously, false was
+    returned instead of the empty string in some cases.
 
 - Sysvmsg:
   . msg_get_queue() will now return an SysvMessageQueue object rather than a
@@ -627,6 +638,7 @@ PHP 8.0 UPGRADE NOTES
 - tidy:
   . The $use_include_path parameter, which was not used internally, has been
     removed from tidy_repair_string().
+  . tidy::repairString() and tidy::repairFile() became static methods
 
 - Tokenizer:
   . T_COMMENT tokens will no longer include a trailing newline. The newline will
@@ -645,6 +657,11 @@ PHP 8.0 UPGRADE NOTES
     checks for `false`. The xml_parser_free() function no longer has an effect,
     instead the XmlParser instance is automatically destroyed if it is no longer
     referenced.
+
+- XMLReader:
+  . XMLReader::open() and XMLReader::xml() are now static methods. They still
+    can be called dynamically, though, but inheriting classes need to declare
+    them as static if they override these methods.
 
 - XMLWriter:
   . The XMLWriter functions now accept and return, respectively, XMLWriter
@@ -827,10 +844,6 @@ PHP 8.0 UPGRADE NOTES
 
 - Apache:
   . The PHP module has been renamed from php7_module to php_module.
-
-- CGI and FPM will now use CONTEXT_DOCUMENT_ROOT to scan for .user.ini files,
-  if it is defined. Otherwise, DOCUMENT_ROOT will be used as before. This
-  improves support for Apache mod_userdir and mod_alias.
 
 ========================================
 4. Deprecated Functionality
