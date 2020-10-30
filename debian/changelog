@@ -1,8 +1,9 @@
 php7.3 (7.3.24-1) unstable; urgency=medium
 
   * New upstream version 7.3.24
+  * Move the system wide phpize files to LIBTOOL_FILES
 
- -- Ondřej Surý <ondrej@debian.org>  Fri, 30 Oct 2020 20:41:17 +0100
+ -- Ondřej Surý <ondrej@debian.org>  Fri, 30 Oct 2020 20:48:30 +0100
 
 php7.3 (7.3.23-4) unstable; urgency=medium
 
