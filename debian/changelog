@@ -1,3 +1,9 @@
+php7.4 (7.4.12-1) unstable; urgency=medium
+
+  * New upstream version 7.4.12
+
+ -- Ondřej Surý <ondrej@debian.org>  Fri, 30 Oct 2020 20:38:13 +0100
+
 php7.4 (7.4.11-6) unstable; urgency=medium
 
   * Fix typo in phpize script
