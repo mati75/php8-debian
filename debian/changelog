@@ -1,3 +1,9 @@
+php7.2 (7.2.34-5) unstable; urgency=medium
+
+  * Move the system wide phpize files to LIBTOOL_FILES
+
+ -- Ondřej Surý <ondrej@debian.org>  Fri, 30 Oct 2020 20:50:58 +0100
+
 php7.2 (7.2.34-4) unstable; urgency=medium
 
   * In phpize, copy the foreign files from their respective packages
