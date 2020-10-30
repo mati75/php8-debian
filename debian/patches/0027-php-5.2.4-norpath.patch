@@ -7,7 +7,7 @@ Subject: php-5.2.4-norpath
  1 file changed, 2 insertions(+)
 
 diff --git a/acinclude.m4 b/acinclude.m4
-index c287ac9..86d5728 100644
+index ca92c91..41d5e9d 100644
 --- a/acinclude.m4
 +++ b/acinclude.m4
 @@ -431,6 +431,7 @@ AC_DEFUN([PHP_EVAL_INCLINE],[

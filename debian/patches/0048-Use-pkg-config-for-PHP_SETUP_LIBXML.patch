@@ -8,10 +8,10 @@ Subject: Use pkg-config for PHP_SETUP_LIBXML
  2 files changed, 12 insertions(+), 136 deletions(-)
 
 diff --git a/acinclude.m4 b/acinclude.m4
-index 86d5728..307ea7e 100644
+index 41d5e9d..1474112 100644
 --- a/acinclude.m4
 +++ b/acinclude.m4
-@@ -2534,79 +2534,17 @@ ifelse([$3],[],,[else $3])
+@@ -2536,79 +2536,17 @@ ifelse([$3],[],,[else $3])
  dnl
  dnl PHP_SETUP_LIBXML(shared-add [, action-found [, action-not-found]])
  dnl
@@ -98,10 +98,10 @@ index 86d5728..307ea7e 100644
  
  dnl -------------------------------------------------------------------------
 diff --git a/aclocal.m4 b/aclocal.m4
-index 7815570..2941f19 100644
+index 93d4ed6..654280a 100644
 --- a/aclocal.m4
 +++ b/aclocal.m4
-@@ -2534,79 +2534,17 @@ ifelse([$3],[],,[else $3])
+@@ -2536,79 +2536,17 @@ ifelse([$3],[],,[else $3])
  dnl
  dnl PHP_SETUP_LIBXML(shared-add [, action-found [, action-not-found]])
  dnl

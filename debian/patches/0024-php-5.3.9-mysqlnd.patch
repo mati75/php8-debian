@@ -8,7 +8,7 @@ Subject: php-5.3.9-mysqlnd
  2 files changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/ext/mysqlnd/mysqlnd_connection.c b/ext/mysqlnd/mysqlnd_connection.c
-index dba65c0..ebd18b5 100644
+index 2cd86dc..762147b 100644
 --- a/ext/mysqlnd/mysqlnd_connection.c
 +++ b/ext/mysqlnd/mysqlnd_connection.c
 @@ -552,7 +552,7 @@ MYSQLND_METHOD(mysqlnd_conn_data, get_scheme)(MYSQLND_CONN_DATA * conn, MYSQLND_
