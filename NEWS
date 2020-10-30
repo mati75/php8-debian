@@ -1,5 +1,75 @@
 PHP                                                                        NEWS
 |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+29 Oct 2020, PHP 8.0.0RC3
+
+- Core:
+  . Fixed bug #8055 (Abstract trait methods returning "self" cannot be
+    fulfilled by traits). (Nikita)
+  . Fixed bug #80280 (ADD_EXTENSION_DEP() fails for ext/standard and ext/date).
+    (cmb)
+  . Fixed bug #80258 (Windows Deduplication Enabled, randon permission errors).
+    (cmb)
+
+- COM:
+  . Fixed bug #62474 (com_event_sink crashes on certain arguments). (cmb)
+
+- DOM:
+  . Fixed bug #80268 (loadHTML() truncates at NUL bytes). (cmb)
+
+- IMAP:
+  . Fixed bug #76618 (segfault on imap_reopen). (girgias)
+  . Fixed bug #80239 (imap_rfc822_write_address() leaks memory). (cmb)
+  . Fixed minor regression caused by fixing bug #80220. (cmb)
+  . Fixed bug #80242 (imap_mail_compose() segfaults for multipart with rfc822).
+    (cmb)
+
+- Opcache:
+  . Fixed bug #80255 (Opcache bug (bad condition result) in 8.0.0rc1). (Nikita)
+
+- Standard:
+  . Fixed bug #80256 (file_get_contents strip first line with chunked encoding
+    redirect). (Nikita)
+
+15 Oct 2020, PHP 8.0.0RC2
+
+- Core:
+  . Fixed bug #80225 (broken namespace usage in eval code). (Nikita)
+
+- Curl:
+  . Fixed bug #80121 (Null pointer deref if CurlHandle directly instantiated).
+    (Nikita)
+
+- IMAP:
+  . Fixed bug #80213 (imap_mail_compose() segfaults on certain $bodies). (cmb)
+  . Fixed bug #80215 (imap_mail_compose() may modify by-val parameters). (cmb)
+  . Fixed bug #80220 (imap_mail_compose() may leak memory). (cmb)
+  . Fixed bug #80223 (imap_mail_compose() leaks envelope on malformed bodies).
+    (cmb)
+  . Fixed bug #80216 (imap_mail_compose() does not validate types/encodings).
+    (cmb)
+  . Fixed bug #80226 (imap_sort() leaks sortpgm memory). (cmb)
+  . Fixed bug #64076 (imap_sort() does not return FALSE on failure). (cmb)
+
+- Opcache:
+  . Fixed bug #80184 (Complex expression in while / if statements resolves to
+    false incorrectly). (Nikita)
+  . Fixed bug #80175 (PHP8 RC1 - JIT Buffer not working). (cmb)
+
+- Reflection:
+  . Fixed bug #80190 (ReflectionMethod::getReturnType() does not handle static
+    as part of union type). (Nikita)
+
+- SPL:
+  . Fixed bug #65387 (Circular references in SPL iterators are not garbage
+    collected). (Nikita)
+
+- Standard:
+  . Fixed bug #64060 (lstat_stat_variation7.phpt fails on certain file systems).
+    (M. Voelker, cmb)
+
+- XMLWriter:
+  . Removed return types from XMLWriter stubs. (cmb)
+
 01 Oct 2020, PHP 8.0.0rc1
 
 - CLI:
@@ -190,8 +260,6 @@ PHP                                                                        NEWS
   . Use libenchant-2 when available.
 
 - FPM:
-  . Fixed bug #64865 (Search for .user.ini files from script dir up to
-    CONTEXT_DOCUMENT_ROOT). (Will Bender)
   . Add pm.status_listen option. (Jakub Zelenka)
 
 - GD:
