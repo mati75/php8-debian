@@ -13,10 +13,10 @@ Subject: debian_quirks
  7 files changed, 21 insertions(+), 16 deletions(-)
 
 diff --git a/configure.ac b/configure.ac
-index 39bc488..7c58c7e 100644
+index ced41f9..7d4370c 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -1094,7 +1094,7 @@ fi
+@@ -1095,7 +1095,7 @@ fi
  PHP_ARG_WITH([pear],
    [whether to install PEAR],
    [AS_HELP_STRING([[--with-pear[=DIR]]],
@@ -25,7 +25,7 @@ index 39bc488..7c58c7e 100644
    [no],
    [yes])
  
-@@ -1125,6 +1125,8 @@ if test "$PHP_PEAR" != "no"; then
+@@ -1126,6 +1126,8 @@ if test "$PHP_PEAR" != "no"; then
    PHP_ADD_MAKEFILE_FRAGMENT($abs_srcdir/pear/Makefile.frag,$abs_srcdir/pear,pear)
  fi
  
@@ -34,7 +34,7 @@ index 39bc488..7c58c7e 100644
  dnl Configuring Zend and TSRM.
  dnl ----------------------------------------------------------------------------
  
-@@ -1196,6 +1198,8 @@ datadir=`eval eval echo $datadir`
+@@ -1197,6 +1199,8 @@ datadir=`eval eval echo $datadir`
  dnl Build extension directory path.
  ZEND_MODULE_API_NO=`$EGREP '#define ZEND_MODULE_API_NO ' $srcdir/Zend/zend_modules.h|"${SED}" 's/#define ZEND_MODULE_API_NO //'`
  

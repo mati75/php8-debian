@@ -8,10 +8,10 @@ Make generated php_config.h constant across rebuilds.
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/configure.ac b/configure.ac
-index fc46977..bf6ab8a 100644
+index 294c780..bfa7282 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -1279,7 +1279,7 @@ PHP_REMOVE_USR_LIB(LDFLAGS)
+@@ -1280,7 +1280,7 @@ PHP_REMOVE_USR_LIB(LDFLAGS)
  EXTRA_LDFLAGS="$EXTRA_LDFLAGS $PHP_LDFLAGS"
  EXTRA_LDFLAGS_PROGRAM="$EXTRA_LDFLAGS_PROGRAM $PHP_LDFLAGS"
  
