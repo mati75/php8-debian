@@ -1,3 +1,9 @@
+php7.0 (7.0.33-35) unstable; urgency=medium
+
+  * Move the system wide phpize files to LIBTOOL_FILES
+
+ -- Ondřej Surý <ondrej@debian.org>  Fri, 30 Oct 2020 20:55:55 +0100
+
 php7.0 (7.0.33-34) unstable; urgency=medium
 
   * Force add the patch from 'Add pkg-config m4 files to phpize script'
