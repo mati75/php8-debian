@@ -1,3 +1,9 @@
+php5.6 (5.6.40-36) unstable; urgency=medium
+
+  * Move the system wide phpize files to LIBTOOL_FILES
+
+ -- Ondřej Surý <ondrej@debian.org>  Fri, 30 Oct 2020 20:55:51 +0100
+
 php5.6 (5.6.40-35) unstable; urgency=medium
 
   * In phpize, copy the foreign files from their respective packages
