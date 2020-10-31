@@ -1,3 +1,10 @@
+php7.3 (7.3.24-3) unstable; urgency=medium
+
+  * Files from auxdir needs to go into the basedir, not in the build/
+    directory
+
+ -- Ondřej Surý <ondrej@debian.org>  Sat, 31 Oct 2020 17:58:50 +0100
+
 php7.3 (7.3.24-2) unstable; urgency=medium
 
   * Move the non-m4 files from LIBTOOL_FILES to FILES_BUILD
