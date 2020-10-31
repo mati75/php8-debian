@@ -1,3 +1,10 @@
+php7.4 (7.4.12-3) unstable; urgency=medium
+
+  * Copy the files from auxdir in a separate variable to sync with PHP 7.3
+    and lower
+
+ -- Ondřej Surý <ondrej@debian.org>  Sat, 31 Oct 2020 18:03:15 +0100
+
 php7.4 (7.4.12-2) unstable; urgency=medium
 
   * Move the non-m4 files from LIBTOOL_FILES to FILES_BUILD
