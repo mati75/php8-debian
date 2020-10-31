@@ -1,3 +1,9 @@
+php7.4 (7.4.12-2) unstable; urgency=medium
+
+  * Move the non-m4 files from LIBTOOL_FILES to FILES_BUILD
+
+ -- Ondřej Surý <ondrej@debian.org>  Sat, 31 Oct 2020 11:03:35 +0100
+
 php7.4 (7.4.12-1) unstable; urgency=medium
 
   * New upstream version 7.4.12
