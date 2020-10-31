@@ -1,3 +1,10 @@
+php8.0 (8.0.0~rc3-4) unstable; urgency=medium
+
+  * Copy the files from auxdir in a separate variable to sync with PHP 7.3
+    and lower
+
+ -- Ondřej Surý <ondrej@debian.org>  Sat, 31 Oct 2020 18:05:42 +0100
+
 php8.0 (8.0.0~rc3-3) unstable; urgency=medium
 
   * Move the non-m4 files from LIBTOOL_FILES to FILES_BUILD
