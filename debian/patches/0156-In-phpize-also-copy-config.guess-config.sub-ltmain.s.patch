@@ -8,7 +8,7 @@ Subject: In phpize, also copy config.guess, config.sub,
  1 file changed, 9 insertions(+), 7 deletions(-)
 
 diff --git a/scripts/phpize.in b/scripts/phpize.in
-index d8d8bd3..1b99ba6 100644
+index d8d8bd3..9fd698d 100644
 --- a/scripts/phpize.in
 +++ b/scripts/phpize.in
 @@ -6,17 +6,19 @@ datarootdir='@datarootdir@'
@@ -32,8 +32,8 @@ index d8d8bd3..1b99ba6 100644
 +  auxdir="/usr/share/libtool/config"
  fi
 -FILES="acinclude.m4 Makefile.global config.sub config.guess ltmain.sh run-tests*.php"
-+FILES_BUILD="mkdep.awk scan_makefile_in.awk"
-+LIBTOOL_FILES="pkg.m4 libtool.m4 ltoptions.m4 ltsugar.m4 ltversion.m4 lt~obsolete.m4 /usr/bin/shtool $auxdir/config.sub $auxdir/config.guess $auxdir/ltmain.sh"
++FILES_BUILD="mkdep.awk scan_makefile_in.awk /usr/bin/shtool $auxdir/config.sub $auxdir/config.guess $auxdir/ltmain.sh"
++LIBTOOL_FILES="pkg.m4 libtool.m4 ltoptions.m4 ltsugar.m4 ltversion.m4 lt~obsolete.m4"
 +FILES="acinclude.m4 Makefile.global run-tests*.php"
  CLEAN_FILES="$FILES *.o *.lo *.la .deps .libs/ build/ modules/ install-sh \
  	mkinstalldirs missing config.nice config.sub config.guess configure configure.in \
