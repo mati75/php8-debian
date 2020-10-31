@@ -1,3 +1,10 @@
+php7.2 (7.2.34-7) unstable; urgency=medium
+
+  * Revert "Move the non-m4 files from LIBTOOL_FILES to FILES_BUILD"
+  * Move the non-m4 files from LIBTOOL_FILES to FILES_BUILD (for real)
+
+ -- Ondřej Surý <ondrej@debian.org>  Sat, 31 Oct 2020 11:19:30 +0100
+
 php7.2 (7.2.34-6) unstable; urgency=medium
 
   * Move the non-m4 files from LIBTOOL_FILES to FILES_BUILD
