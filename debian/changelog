@@ -1,3 +1,9 @@
+php8.0 (8.0.0~rc3-2) unstable; urgency=medium
+
+  * Move the system wide phpize files to LIBTOOL_FILES
+
+ -- Ondřej Surý <ondrej@debian.org>  Sat, 31 Oct 2020 11:05:46 +0100
+
 php8.0 (8.0.0~rc3-1) unstable; urgency=medium
 
   * New upstream version 8.0.0~rc3
