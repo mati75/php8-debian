@@ -1,5 +1,38 @@
 PHP                                                                        NEWS
 |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+12 Nov 2020, PHP 8.0.0RC4
+
+- Core:
+  . Fixed bug #80334 (assert() vs named parameters - confusing error). (Nikita)
+
+- FFI:
+  . Fixed bug #79177 (FFI doesn't handle well PHP exceptions within callback).
+    (cmb, Dmitry, Nikita)
+
+- ODBC:
+  . Fixed bug #44618 (Fetching may rely on uninitialized data). (cmb)
+
+- Opcache:
+  . Fixed run-time binding of preloaded dynamically declared function. (Dmitry)
+
+- Reflection:
+  . Fixed bug #80299 (ReflectionFunction->invokeArgs confused in arguments).
+    (Nikita)
+
+- SNMP:
+  . Fixed bug #70461 (disable md5 code when it is not supported in net-snmp).
+    (Alexander Bergmann, cmb)
+
+- Standard:
+  . Don't force rebuild of symbol table, when populating $http_response_header
+    variable by the HTTP stream wrapper. (Dmitry)
+  . Fixed bug #80290 (Double free when ASSERT_CALLBACK is used with a dynamic
+    message). (Nikita)
+  . Fixed bug #80266 (parse_url silently drops port number 0). (cmb, Nikita)
+
+- Tokenizer:
+  . Fixed bug #80328 (PhpToken::getAll() confusing name). (Nikita)
+
 29 Oct 2020, PHP 8.0.0RC3
 
 - Core:

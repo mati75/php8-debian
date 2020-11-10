@@ -392,6 +392,7 @@ struct _zend_jit_trace_stack_frame {
 	const zend_op              *call_opline;
 	uint32_t                    call_level;
 	uint32_t                    _info;
+	int                         used_stack;
 	zend_jit_trace_stack        stack[1];
 };
 
@@ -453,6 +454,10 @@ struct _zend_jit_trace_stack_frame {
 	} while (0)
 #define TRACE_FRAME_SET_LAST_SEND_BY_VAL(frame) do { \
 		(frame)->_info |= TRACE_FRAME_MASK_LAST_SEND_BY_VAL; \
+		(frame)->_info &= ~TRACE_FRAME_MASK_LAST_SEND_BY_REF; \
+	} while (0)
+#define TRACE_FRAME_SET_LAST_SEND_UNKNOWN(frame) do { \
+		(frame)->_info &= ~TRACE_FRAME_MASK_LAST_SEND_BY_VAL; \
 		(frame)->_info &= ~TRACE_FRAME_MASK_LAST_SEND_BY_REF; \
 	} while (0)
 #define TRACE_FRAME_SET_RETURN_VALUE_USED(frame) do { \

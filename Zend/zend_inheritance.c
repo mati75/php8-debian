@@ -90,19 +90,21 @@ static zend_function *zend_duplicate_user_function(zend_function *func) /* {{{ *
 
 	new_function = zend_arena_alloc(&CG(arena), sizeof(zend_op_array));
 	memcpy(new_function, func, sizeof(zend_op_array));
-	if (ZEND_MAP_PTR_GET(func->op_array.static_variables_ptr)) {
-		/* See: Zend/tests/method_static_var.phpt */
-		new_function->op_array.static_variables = ZEND_MAP_PTR_GET(func->op_array.static_variables_ptr);
-	}
-	if (!(GC_FLAGS(new_function->op_array.static_variables) & IS_ARRAY_IMMUTABLE)) {
-		GC_ADDREF(new_function->op_array.static_variables);
-	}
 
 	if (CG(compiler_options) & ZEND_COMPILE_PRELOAD) {
 		ZEND_ASSERT(new_function->op_array.fn_flags & ZEND_ACC_PRELOADED);
 		ZEND_MAP_PTR_NEW(new_function->op_array.static_variables_ptr);
 	} else {
 		ZEND_MAP_PTR_INIT(new_function->op_array.static_variables_ptr, &new_function->op_array.static_variables);
+	}
+
+	HashTable *static_properties_ptr = ZEND_MAP_PTR_GET(func->op_array.static_variables_ptr);
+	if (static_properties_ptr) {
+		/* See: Zend/tests/method_static_var.phpt */
+		ZEND_MAP_PTR_SET(new_function->op_array.static_variables_ptr, static_properties_ptr);
+		GC_TRY_ADDREF(static_properties_ptr);
+	} else {
+		GC_TRY_ADDREF(new_function->op_array.static_variables);
 	}
 
 	return new_function;
@@ -239,10 +241,9 @@ static zend_bool class_visible(zend_class_entry *ce) {
 
 static zend_class_entry *lookup_class(
 		zend_class_entry *scope, zend_string *name, zend_bool register_unresolved) {
-	zend_class_entry *ce;
+	uint32_t flags = ZEND_FETCH_CLASS_ALLOW_UNLINKED | ZEND_FETCH_CLASS_NO_AUTOLOAD;
+	zend_class_entry *ce = zend_lookup_class_ex(name, NULL, flags);
 	if (!CG(in_compilation)) {
-		uint32_t flags = ZEND_FETCH_CLASS_ALLOW_UNLINKED | ZEND_FETCH_CLASS_NO_AUTOLOAD;
-		ce = zend_lookup_class_ex(name, NULL, flags);
 		if (ce) {
 			return ce;
 		}
@@ -256,7 +257,6 @@ static zend_class_entry *lookup_class(
 			zend_hash_add_empty_element(CG(delayed_autoloads), name);
 		}
 	} else {
-		ce = zend_lookup_class_ex(name, NULL, ZEND_FETCH_CLASS_NO_AUTOLOAD);
 		if (ce && class_visible(ce)) {
 			return ce;
 		}
@@ -364,11 +364,10 @@ typedef enum {
 } inheritance_status;
 
 static inheritance_status zend_perform_covariant_class_type_check(
-		zend_class_entry *fe_scope, zend_string *fe_class_name,
+		zend_class_entry *fe_scope, zend_string *fe_class_name, zend_class_entry *fe_ce,
 		zend_class_entry *proto_scope, zend_type proto_type,
 		zend_bool register_unresolved) {
 	zend_bool have_unresolved = 0;
-	zend_class_entry *fe_ce = NULL;
 	if (ZEND_TYPE_FULL_MASK(proto_type) & MAY_BE_OBJECT) {
 		/* Currently, any class name would be allowed here. We still perform a class lookup
 		 * for forward-compatibility reasons, as we may have named types in the future that
@@ -391,6 +390,7 @@ static inheritance_status zend_perform_covariant_class_type_check(
 
 	zend_type *single_type;
 	ZEND_TYPE_FOREACH(proto_type, single_type) {
+		zend_class_entry *proto_ce;
 		if (ZEND_TYPE_HAS_NAME(*single_type)) {
 			zend_string *proto_class_name =
 				resolve_class_name(proto_scope, ZEND_TYPE_NAME(*single_type));
@@ -398,16 +398,20 @@ static inheritance_status zend_perform_covariant_class_type_check(
 				return INHERITANCE_SUCCESS;
 			}
 
-			/* Make sure to always load both classes, to avoid only registering one of them as
-			 * a delayed autoload. */
 			if (!fe_ce) fe_ce = lookup_class(fe_scope, fe_class_name, register_unresolved);
-			zend_class_entry *proto_ce =
+			proto_ce =
 				lookup_class(proto_scope, proto_class_name, register_unresolved);
-			if (!fe_ce || !proto_ce) {
-				have_unresolved = 1;
-			} else if (unlinked_instanceof(fe_ce, proto_ce)) {
-				return INHERITANCE_SUCCESS;
-			}
+		} else if (ZEND_TYPE_HAS_CE(*single_type)) {
+			if (!fe_ce) fe_ce = lookup_class(fe_scope, fe_class_name, register_unresolved);
+			proto_ce = ZEND_TYPE_CE(*single_type);
+		} else {
+			continue;
+		}
+
+		if (!fe_ce || !proto_ce) {
+			have_unresolved = 1;
+		} else if (unlinked_instanceof(fe_ce, proto_ce)) {
+			return INHERITANCE_SUCCESS;
 		}
 	} ZEND_TYPE_FOREACH_END();
 
@@ -448,56 +452,56 @@ static inheritance_status zend_perform_covariant_type_check(
 		}
 	}
 
-	if (ZEND_TYPE_HAS_NAME(fe_type)) {
-		zend_string *fe_class_name = resolve_class_name(fe_scope, ZEND_TYPE_NAME(fe_type));
-		inheritance_status status = zend_perform_covariant_class_type_check(
-			fe_scope, fe_class_name, proto_scope, proto_type, /* register_unresolved */ 0);
-		if (status != INHERITANCE_UNRESOLVED) {
-			return status;
+	zend_type *single_type;
+	zend_bool all_success = 1;
+
+	/* First try to check whether we can succeed without resolving anything */
+	ZEND_TYPE_FOREACH(fe_type, single_type) {
+		inheritance_status status;
+		if (ZEND_TYPE_HAS_NAME(*single_type)) {
+			zend_string *fe_class_name =
+				resolve_class_name(fe_scope, ZEND_TYPE_NAME(*single_type));
+			status = zend_perform_covariant_class_type_check(
+				fe_scope, fe_class_name, NULL,
+				proto_scope, proto_type, /* register_unresolved */ 0);
+		} else if (ZEND_TYPE_HAS_CE(*single_type)) {
+			zend_class_entry *fe_ce = ZEND_TYPE_CE(*single_type);
+			status = zend_perform_covariant_class_type_check(
+				fe_scope, fe_ce->name, fe_ce,
+				proto_scope, proto_type, /* register_unresolved */ 0);
+		} else {
+			continue;
 		}
 
-		zend_perform_covariant_class_type_check(
-			fe_scope, fe_class_name, proto_scope, proto_type, /* register_unresolved */ 1);
-		return INHERITANCE_UNRESOLVED;
+		if (status == INHERITANCE_ERROR) {
+			return INHERITANCE_ERROR;
+		}
+		if (status != INHERITANCE_SUCCESS) {
+			all_success = 0;
+		}
+	} ZEND_TYPE_FOREACH_END();
+
+	/* All individual checks succeeded, overall success */
+	if (all_success) {
+		return INHERITANCE_SUCCESS;
 	}
 
-	if (ZEND_TYPE_HAS_LIST(fe_type)) {
-		zend_type *list_type;
-		zend_bool all_success = 1;
-
-		/* First try to check whether we can succeed without resolving anything */
-		ZEND_TYPE_LIST_FOREACH(ZEND_TYPE_LIST(fe_type), list_type) {
-			ZEND_ASSERT(ZEND_TYPE_HAS_NAME(*list_type));
+	/* Register all classes that may have to be resolved */
+	ZEND_TYPE_FOREACH(fe_type, single_type) {
+		if (ZEND_TYPE_HAS_NAME(*single_type)) {
 			zend_string *fe_class_name =
-				resolve_class_name(fe_scope, ZEND_TYPE_NAME(*list_type));
-			inheritance_status status = zend_perform_covariant_class_type_check(
-				fe_scope, fe_class_name, proto_scope, proto_type, /* register_unresolved */ 0);
-			if (status == INHERITANCE_ERROR) {
-				return INHERITANCE_ERROR;
-			}
-
-			if (status != INHERITANCE_SUCCESS) {
-				all_success = 0;
-			}
-		} ZEND_TYPE_LIST_FOREACH_END();
-
-		/* All individual checks succeeded, overall success */
-		if (all_success) {
-			return INHERITANCE_SUCCESS;
-		}
-
-		/* Register all classes that may have to be resolved */
-		ZEND_TYPE_LIST_FOREACH(ZEND_TYPE_LIST(fe_type), list_type) {
-			ZEND_ASSERT(ZEND_TYPE_HAS_NAME(*list_type));
-			zend_string *fe_class_name =
-				resolve_class_name(fe_scope, ZEND_TYPE_NAME(*list_type));
+				resolve_class_name(fe_scope, ZEND_TYPE_NAME(*single_type));
 			zend_perform_covariant_class_type_check(
-				fe_scope, fe_class_name, proto_scope, proto_type, /* register_unresolved */ 1);
-		} ZEND_TYPE_LIST_FOREACH_END();
-		return INHERITANCE_UNRESOLVED;
-	}
-
-	return INHERITANCE_SUCCESS;
+				fe_scope, fe_class_name, NULL,
+				proto_scope, proto_type, /* register_unresolved */ 1);
+		} else if (ZEND_TYPE_HAS_CE(*single_type)) {
+			zend_class_entry *fe_ce = ZEND_TYPE_CE(*single_type);
+			zend_perform_covariant_class_type_check(
+				fe_scope, fe_ce->name, fe_ce,
+				proto_scope, proto_type, /* register_unresolved */ 1);
+		}
+	} ZEND_TYPE_FOREACH_END();
+	return INHERITANCE_UNRESOLVED;
 }
 /* }}} */
 
@@ -2047,8 +2051,9 @@ static void zend_do_traits_property_binding(zend_class_entry *ce, zend_class_ent
 			Z_TRY_ADDREF_P(prop_value);
 			doc_comment = property_info->doc_comment ? zend_string_copy(property_info->doc_comment) : NULL;
 
-			zend_type_copy_ctor(&property_info->type, /* persistent */ 0);
-			new_prop = zend_declare_typed_property(ce, prop_name, prop_value, flags, doc_comment, property_info->type);
+			zend_type type = property_info->type;
+			zend_type_copy_ctor(&type, /* persistent */ 0);
+			new_prop = zend_declare_typed_property(ce, prop_name, prop_value, flags, doc_comment, type);
 
 			if (property_info->attributes) {
 				new_prop->attributes = property_info->attributes;

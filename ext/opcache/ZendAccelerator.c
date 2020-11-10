@@ -4134,7 +4134,8 @@ static void preload_register_trait_methods(zend_class_entry *ce) {
 	zend_op_array *op_array;
 	ZEND_HASH_FOREACH_PTR(&ce->function_table, op_array) {
 		if (!(op_array->fn_flags & ZEND_ACC_TRAIT_CLONE)) {
-			zend_shared_alloc_register_xlat_entry(op_array->opcodes, op_array);
+			ZEND_ASSERT(op_array->refcount && "Must have refcount pointer");
+			zend_shared_alloc_register_xlat_entry(op_array->refcount, op_array);
 		}
 	} ZEND_HASH_FOREACH_END();
 }
@@ -4145,18 +4146,20 @@ static void preload_fix_trait_methods(zend_class_entry *ce)
 
 	ZEND_HASH_FOREACH_PTR(&ce->function_table, op_array) {
 		if (op_array->fn_flags & ZEND_ACC_TRAIT_CLONE) {
-			zend_op_array *orig_op_array = zend_shared_alloc_get_xlat_entry(op_array->opcodes);
-			if (orig_op_array) {
-				zend_class_entry *scope = op_array->scope;
-				uint32_t fn_flags = op_array->fn_flags;
-				zend_function *prototype = op_array->prototype;
-				HashTable *ht = op_array->static_variables;
-				*op_array = *orig_op_array;
-				op_array->scope = scope;
-				op_array->fn_flags = fn_flags;
-				op_array->prototype = prototype;
-				op_array->static_variables = ht;
-			}
+			zend_op_array *orig_op_array = zend_shared_alloc_get_xlat_entry(op_array->refcount);
+			ZEND_ASSERT(orig_op_array && "Must be in xlat table");
+
+			zend_string *function_name = op_array->function_name;
+			zend_class_entry *scope = op_array->scope;
+			uint32_t fn_flags = op_array->fn_flags;
+			zend_function *prototype = op_array->prototype;
+			HashTable *ht = op_array->static_variables;
+			*op_array = *orig_op_array;
+			op_array->function_name = function_name;
+			op_array->scope = scope;
+			op_array->fn_flags = fn_flags;
+			op_array->prototype = prototype;
+			op_array->static_variables = ht;
 		}
 	} ZEND_HASH_FOREACH_END();
 }
@@ -4187,16 +4190,12 @@ static int preload_optimize(zend_persistent_script *script)
 	}
 
 	ZEND_HASH_FOREACH_PTR(&script->script.class_table, ce) {
-		if (ce->num_traits) {
-			preload_fix_trait_methods(ce);
-		}
+		preload_fix_trait_methods(ce);
 	} ZEND_HASH_FOREACH_END();
 
 	ZEND_HASH_FOREACH_PTR(preload_scripts, script) {
 		ZEND_HASH_FOREACH_PTR(&script->script.class_table, ce) {
-			if (ce->num_traits) {
-				preload_fix_trait_methods(ce);
-			}
+			preload_fix_trait_methods(ce);
 		} ZEND_HASH_FOREACH_END();
 	} ZEND_HASH_FOREACH_END();
 
@@ -4448,7 +4447,6 @@ static int accel_preload(const char *config, zend_bool in_child)
 	}
 	CG(compiler_options) |= ZEND_COMPILE_PRELOAD;
 	CG(compiler_options) |= ZEND_COMPILE_HANDLE_OP_ARRAY;
-	CG(compiler_options) |= ZEND_COMPILE_IGNORE_INTERNAL_CLASSES;
 	CG(compiler_options) |= ZEND_COMPILE_DELAYED_BINDING;
 	CG(compiler_options) |= ZEND_COMPILE_NO_CONSTANT_SUBSTITUTION;
 	CG(compiler_options) |= ZEND_COMPILE_IGNORE_OTHER_FILES;
@@ -4479,6 +4477,10 @@ static int accel_preload(const char *config, zend_bool in_child)
 			destroy_op_array(op_array);
 			efree_size(op_array, sizeof(zend_op_array));
 		} else {
+			if (EG(exception)) {
+				zend_exception_error(EG(exception), E_ERROR);
+			}
+
 			CG(unclean_shutdown) = 1;
 			ret = FAILURE;
 		}
@@ -4514,6 +4516,7 @@ static int accel_preload(const char *config, zend_bool in_child)
 
 		php_call_shutdown_functions();
 		zend_call_destructors();
+		php_output_end_all();
 		php_free_shutdown_functions();
 
 		/* Release stored values to avoid dangling pointers */

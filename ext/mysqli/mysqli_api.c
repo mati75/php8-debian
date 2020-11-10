@@ -169,6 +169,7 @@ PHP_FUNCTION(mysqli_autocommit)
 	MYSQLI_FETCH_RESOURCE_CONN(mysql, mysql_link, MYSQLI_STATUS_VALID);
 
 	if (mysql_autocommit(mysql->mysql, (my_bool)automode)) {
+		MYSQLI_REPORT_MYSQL_ERROR(mysql->mysql);
 		RETURN_FALSE;
 	}
 	RETURN_TRUE;
@@ -708,6 +709,7 @@ PHP_FUNCTION(mysqli_commit)
 #else
 	if (FAIL == mysqlnd_commit(mysql->mysql, flags, name)) {
 #endif
+		MYSQLI_REPORT_MYSQL_ERROR(mysql->mysql);
 		RETURN_FALSE;
 	}
 	RETURN_TRUE;
@@ -1070,7 +1072,8 @@ void mysqli_stmt_fetch_mysqlnd(INTERNAL_FUNCTION_PARAMETERS)
 	}
 	MYSQLI_FETCH_RESOURCE_STMT(stmt, mysql_stmt, MYSQLI_STATUS_VALID);
 
-	if (FAIL  == mysqlnd_stmt_fetch(stmt->stmt, &fetched_anything)) {
+	if (FAIL == mysqlnd_stmt_fetch(stmt->stmt, &fetched_anything)) {
+		MYSQLI_REPORT_STMT_ERROR(stmt->stmt);
 		RETURN_BOOL(FALSE);
 	} else if (fetched_anything == TRUE) {
 		RETURN_BOOL(TRUE);
@@ -1920,6 +1923,7 @@ PHP_FUNCTION(mysqli_rollback)
 #else
 	if (FAIL == mysqlnd_rollback(mysql->mysql, flags, name)) {
 #endif
+		MYSQLI_REPORT_MYSQL_ERROR(mysql->mysql);
 		RETURN_FALSE;
 	}
 	RETURN_TRUE;
@@ -2290,6 +2294,7 @@ PHP_FUNCTION(mysqli_stmt_attr_set)
 #else
 	if (FAIL == mysql_stmt_attr_set(stmt->stmt, attr, mode_p)) {
 #endif
+		MYSQLI_REPORT_STMT_ERROR(stmt->stmt);
 		RETURN_FALSE;
 	}
 	RETURN_TRUE;
