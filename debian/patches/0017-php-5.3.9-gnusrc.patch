@@ -28,7 +28,7 @@ index 050663f..ba027c5 100644
  /* Substitute the type names.  */
  #define YYSTYPE         ZENDSTYPE
 diff --git a/configure.ac b/configure.ac
-index fe275a3..fc46977 100644
+index f139b7a..294c780 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -80,6 +80,8 @@ AC_DEFUN([PHP_EXT_DIR],[$config_m4_dir])dnl
@@ -80,7 +80,7 @@ index ef26aaf..3bfdba5 100644
  #include "php_zlib.h"
  #include "fopen_wrappers.h"
 diff --git a/main/php.h b/main/php.h
-index a747a99..6be3698 100644
+index f796577..bcefb2e 100644
 --- a/main/php.h
 +++ b/main/php.h
 @@ -27,6 +27,7 @@

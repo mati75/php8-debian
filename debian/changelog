@@ -1,30 +1,61 @@
-php8.0 (8.0.0~rc3-0.1) unstable; urgency=medium
+php8.0 (8.0.0~rc3-4) unstable; urgency=medium
 
-  * Non-maintainer upload.
+  * Copy the files from auxdir in a separate variable to sync with PHP 7.3
+    and lower
+
+ -- Ondřej Surý <ondrej@debian.org>  Sat, 31 Oct 2020 18:05:42 +0100
+
+php8.0 (8.0.0~rc3-3) unstable; urgency=medium
+
+  * Move the non-m4 files from LIBTOOL_FILES to FILES_BUILD
+
+ -- Ondřej Surý <ondrej@debian.org>  Sat, 31 Oct 2020 11:06:16 +0100
+
+php8.0 (8.0.0~rc3-2) unstable; urgency=medium
+
+  * Move the system wide phpize files to LIBTOOL_FILES
+
+ -- Ondřej Surý <ondrej@debian.org>  Sat, 31 Oct 2020 11:05:46 +0100
+
+php8.0 (8.0.0~rc3-1) unstable; urgency=medium
+
   * New upstream version 8.0.0~rc3
 
- -- Mateusz Łukasik <mati75@linuxmint.pl>  Tue, 27 Oct 2020 20:39:35 +0100
+ -- Ondřej Surý <ondrej@debian.org>  Fri, 30 Oct 2020 20:32:59 +0100
 
-php8.0 (8.0.0~rc2-0.3) unstable; urgency=medium
+php8.0 (8.0.0~rc1-6) unstable; urgency=medium
 
-  * Non-maintainer upload.
-  * Fix install links again.
+  * In phpize, copy the foreign files from their respective packages
+    (libtool, pkg-config, shtool)
 
- -- Mateusz Łukasik <mati75@linuxmint.pl>  Fri, 16 Oct 2020 14:38:27 +0200
+ -- Ondřej Surý <ondrej@debian.org>  Sun, 18 Oct 2020 21:42:45 +0200
 
-php8.0 (8.0.0~rc2-0.2) unstable; urgency=medium
+php8.0 (8.0.0~rc1-5) unstable; urgency=medium
 
-  * Non-maintainer upload.
-  * Fix php8.0-cli install.
+  * Include all libtool files from phpize.m4
 
- -- Mateusz Łukasik <mati75@linuxmint.pl>  Thu, 15 Oct 2020 18:36:27 +0200
+ -- Ondřej Surý <ondrej@debian.org>  Sun, 18 Oct 2020 13:38:45 +0200
 
-php8.0 (8.0.0~rc2-0.1) unstable; urgency=medium
+php8.0 (8.0.0~rc1-4) unstable; urgency=medium
 
-  * Non-maintainer upload.
-  * New upstream version 8.0.0~rc2
+  * Use system-wide pkg.m4 from pkg-config package in phpize
+  * Restore the patch to use system-wide libtool and pkg-config m4 files
 
- -- Mateusz Łukasik <mati75@linuxmint.pl>  Wed, 14 Oct 2020 08:35:31 +0200
+ -- Ondřej Surý <ondrej@debian.org>  Sat, 17 Oct 2020 08:33:56 +0200
+
+php8.0 (8.0.0~rc1-3) unstable; urgency=medium
+
+  [ Chris Hofstaedtler ]
+  * Use netcat-openbsd to build instead of netcat-traditional (Closes: #963261)
+
+  [ Pino Toscano ]
+  * Disable AppArmor support on non-Linux archs (Closes: #951857)
+  * Enable systemd integration only on Linux archs (Closes: #951834)
+
+  [ Ondřej Surý ]
+  * Use just php_module in the apache2 .load file
+
+ -- Ondřej Surý <ondrej@debian.org>  Sun, 11 Oct 2020 16:01:02 +0200
 
 php8.0 (8.0.0~rc1-2) unstable; urgency=medium
 

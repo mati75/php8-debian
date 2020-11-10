@@ -33,3 +33,6 @@
 0033-Fix-ext-date-lib-parse_tz-PATH_MAX-HURD-FTBFS.patch
 0034-Amend-C-11-for-intl-compilation-on-older-distributio.patch
 0035-Add-patch-to-install-php7-module-directly-to-APXS_LI.patch
+0036-libtool2.2.patch
+0037-Include-all-libtool-files-from-phpize.m4.patch
+0038-In-phpize-also-copy-config.guess-config.sub-ltmain.s.patch
