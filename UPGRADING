@@ -164,7 +164,7 @@ PHP 8.0 UPGRADE NOTES
         }
 
     If both T1::func() and T2::func() exist, this code was previously silently
-    accepted, and func as assumed to refer to T1::func. Now it will generate a
+    accepted, and func was assumed to refer to T1::func. Now it will generate a
     fatal error instead, and either T1::func or T2::func needs to be written
     explicitly.
   . The signature of abstract methods defined in traits is now checked against
@@ -390,7 +390,7 @@ PHP 8.0 UPGRADE NOTES
     aliases for better interoperability with the iconv extension. The mbregex
     ISO 8859 aliases with underscores (ISO_8859_* and ISO8859_*) have also been
     removed.
-  . mb_ereg() and mb_eregi() will now return boolean true on a successfuly
+  . mb_ereg() and mb_eregi() will now return boolean true on a successful
     match. Previously they returned integer 1 if $matches was not passed, or
     max(1, strlen($reg[0])) is $matches was passed.
 
@@ -617,6 +617,8 @@ PHP 8.0 UPGRADE NOTES
   . substr(), mb_substr(), iconv_substr() and grapheme_substr() now consistently
     clamp out-of-bounds offsets to the string boundary. Previously, false was
     returned instead of the empty string in some cases.
+  . Populating $http_response_header variable by the HTTP stream wrapper
+    doesn't force rebuilding of symbol table anymore.
 
 - Sysvmsg:
   . msg_get_queue() will now return an SysvMessageQueue object rather than a
